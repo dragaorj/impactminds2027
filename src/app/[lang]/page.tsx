@@ -6,6 +6,7 @@ import Hero from "@/components/Hero";
 import Preloader from "@/components/Preloader";
 import ScrollFx from "@/components/ScrollFx";
 import BackToTop from "@/components/BackToTop";
+import CountdownRing from "@/components/CountdownRing";
 import Numbers from "@/components/sections/Numbers";
 import About from "@/components/sections/About";
 import Survey from "@/components/sections/Survey";
@@ -51,6 +52,7 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
         <Editions t={t.editions} />
       </main>
       <Footer t={t.footer} hero={t.hero} />
+      <CountdownRing labels={{ ...t.hero, agendaLink: t.agenda.title }} />
       <BackToTop label={t.footer.backToTop} />
       <ScrollFx />
     </>

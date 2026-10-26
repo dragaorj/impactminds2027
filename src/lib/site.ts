@@ -3,6 +3,8 @@
 
 export const EVENT_START = "2027-08-24T08:00:00-05:00"; // Cartagena (UTC-5)
 export const EVENT_END = "2027-08-27T23:59:59-05:00";
+// The floating countdown ring fills from this moment (one year out) to EVENT_START.
+export const COUNTDOWN_FROM = "2026-08-24T08:00:00-05:00";
 
 export const HERO_VIDEO_ID = "ZX4sEmQpA3s";
 export const ABOUT_VIDEO_ID = "6bCwTxkDT6k";
