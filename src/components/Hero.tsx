@@ -6,17 +6,20 @@ import { ArrowDown } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { EVENT_END, EVENT_START, HERO_VIDEO_ID } from "@/lib/site";
 import Countdown from "./Countdown";
-import Art from "./Art";
 import { prefersReducedMotion } from "./prefs";
 import { keepLooping, loadYouTube, loopVars, type YTPlayer } from "./youtube";
+import NativeLoop from "./NativeLoop";
 
-// The background loop stays muted and chrome-less.
-export default function Hero({ t }: { t: Dict["hero"] }) {
+// The background loop stays muted and chrome-less. With a self-hosted file
+// (videoSrc) it plays in a native <video>, which has no player chrome at all;
+// otherwise it falls back to the YouTube embed with the poster cover.
+export default function Hero({ t, videoSrc }: { t: Dict["hero"]; videoSrc?: string }) {
   const holder = useRef<HTMLDivElement>(null);
   const player = useRef<YTPlayer | null>(null);
   const [started, setStarted] = useState(false);
 
   useEffect(() => {
+    if (videoSrc) return;
     let cancelled = false;
     let revealTimer = 0;
     let firstReveal = true;
@@ -42,7 +45,7 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
             // moments and only lifts once playback has been steady for a while.
             window.clearTimeout(revealTimer);
             if (e.data === 1) {
-              revealTimer = window.setTimeout(() => setStarted(true), firstReveal ? 4000 : 2200);
+              revealTimer = window.setTimeout(() => setStarted(true), firstReveal ? 4000 : 3500);
               firstReveal = false;
             } else if (e.data === -1 || e.data === 0 || e.data === 2 || e.data === 3) {
               setStarted(false);
@@ -57,7 +60,7 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
       () => {
         window.clearTimeout(revealTimer);
         setStarted(false);
-        revealTimer = window.setTimeout(() => setStarted(true), 2200);
+        revealTimer = window.setTimeout(() => setStarted(true), 3500);
       },
     );
 
@@ -69,7 +72,7 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
       player.current = null;
       if (host) host.innerHTML = "";
     };
-  }, []);
+  }, [videoSrc]);
 
 
   return (
@@ -81,15 +84,18 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
           fill
           priority
           sizes="100vw"
-          className={`object-cover transition-opacity ${started ? "opacity-0 duration-1000" : "opacity-100 duration-150"}`}
+          className={`object-cover transition-opacity ${started || videoSrc ? "opacity-0 duration-1000" : "opacity-100 duration-150"}`}
         />
-        <div ref={holder} className="yt-cover absolute inset-0 overflow-hidden" aria-hidden />
+        {videoSrc ? (
+          <NativeLoop src={videoSrc} poster={`https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`} />
+        ) : (
+          <div ref={holder} className="yt-cover absolute inset-0 overflow-hidden" aria-hidden />
+        )}
         {/* Mobile keeps the upper half nearly clear so the video reads; the wash only builds behind the text. */}
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(34_14_52/0.45)_0%,rgb(34_14_52/0)_22%,rgb(34_14_52/0)_45%,rgb(34_14_52/0.94)_100%)] md:bg-[linear-gradient(180deg,rgb(34_14_52/0.5)_0%,rgb(34_14_52/0.1)_35%,rgb(34_14_52/0.35)_60%,rgb(34_14_52/0.92)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_15%_95%,rgb(91_42_134/0.55),transparent_55%)] md:bg-[radial-gradient(ellipse_at_15%_85%,rgb(91_42_134/0.6),transparent_60%)]" />
       </div>
 
-      <Art name="birds" className="pointer-events-none absolute right-[8%] top-[22%] hidden w-40 !opacity-40 [color:#fff] md:block" />
 
       <div className="flex min-h-[100dvh] w-full flex-col justify-end gap-5 px-5 pb-6 pt-28 sm:gap-10 sm:px-8 md:pb-12 lg:px-[5vw] lg:grid lg:grid-cols-12 lg:items-end lg:gap-8">
         <div className="lg:col-span-7">

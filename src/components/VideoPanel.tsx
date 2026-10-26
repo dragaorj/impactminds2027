@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ArrowsOut, SpeakerHigh, SpeakerSlash } from "@phosphor-icons/react";
 import FullVideo from "./FullVideo";
+import NativeLoop, { type NativeLoopHandle } from "./NativeLoop";
 import { prefersReducedMotion } from "./prefs";
 import { keepLooping, loadYouTube, loopVars, type YTPlayer } from "./youtube";
 
@@ -25,8 +26,9 @@ const pillIcon =
 // Inline video that plays muted on a loop (unless motion is reduced). One
 // button lets the visitor turn the sound on in place; the other opens the full
 // video with sound in a lightbox (our own controls, no YouTube chrome).
-export default function VideoPanel({ videoId, labels }: { videoId: string; labels: Labels }) {
+export default function VideoPanel({ videoId, src, labels }: { videoId: string; src?: string; labels: Labels }) {
   const holder = useRef<HTMLDivElement>(null);
+  const native = useRef<NativeLoopHandle>(null);
   const player = useRef<YTPlayer | null>(null);
   const [ready, setReady] = useState(false);
   const [muted, setMuted] = useState(true);
@@ -34,6 +36,7 @@ export default function VideoPanel({ videoId, labels }: { videoId: string; label
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    if (src) return;
     let cancelled = false;
     let timer = 0;
     let firstReveal = true;
@@ -59,7 +62,7 @@ export default function VideoPanel({ videoId, labels }: { videoId: string; label
             // so YouTube's start-up chrome never shows.
             window.clearTimeout(timer);
             if (e.data === 1) {
-              timer = window.setTimeout(() => setStarted(true), firstReveal ? 4000 : 2200);
+              timer = window.setTimeout(() => setStarted(true), firstReveal ? 4000 : 3500);
               firstReveal = false;
             }
             else if (e.data === -1 || e.data === 0 || e.data === 2 || e.data === 3) setStarted(false);
@@ -73,7 +76,7 @@ export default function VideoPanel({ videoId, labels }: { videoId: string; label
       () => {
         window.clearTimeout(timer);
         setStarted(false);
-        timer = window.setTimeout(() => setStarted(true), 2200);
+        timer = window.setTimeout(() => setStarted(true), 3500);
       },
     );
 
@@ -85,9 +88,14 @@ export default function VideoPanel({ videoId, labels }: { videoId: string; label
       player.current = null;
       if (host) host.innerHTML = "";
     };
-  }, [videoId]);
+  }, [videoId, src]);
 
   const toggleSound = () => {
+    if (src) {
+      native.current?.setMuted(!muted);
+      setMuted(!muted);
+      return;
+    }
     const p = player.current;
     if (!p) return;
     if (muted) {
@@ -99,13 +107,16 @@ export default function VideoPanel({ videoId, labels }: { videoId: string; label
   };
 
   const openFull = () => {
+    native.current?.pause();
     player.current?.pauseVideo();
     setOpen(true);
   };
 
   const onClosed = () => {
     setOpen(false);
-    if (!prefersReducedMotion()) player.current?.playVideo();
+    if (prefersReducedMotion()) return;
+    native.current?.play();
+    player.current?.playVideo();
   };
 
   return (
@@ -117,15 +128,19 @@ export default function VideoPanel({ videoId, labels }: { videoId: string; label
             alt=""
             fill
             sizes="(min-width:1024px) 58vw, 100vw"
-            className={`z-10 object-cover transition-opacity ${started ? "opacity-0 duration-1000" : "opacity-100 duration-150"}`}
+            className={`z-10 object-cover transition-opacity ${started || src ? "opacity-0 duration-1000" : "opacity-100 duration-150"}`}
           />
-          <div ref={holder} className="yt-cover absolute inset-0 overflow-hidden" aria-hidden />
+          {src ? (
+            <NativeLoop ref={native} src={src} poster={`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`} className="!object-contain" />
+          ) : (
+            <div ref={holder} className="yt-cover yt-full absolute inset-0 overflow-hidden" aria-hidden />
+          )}
         </div>
       </div>
 
       {/* Controls sit under the video, never over the picture. */}
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button type="button" onClick={toggleSound} disabled={!ready} aria-pressed={!muted} className={pill}>
+        <button type="button" onClick={toggleSound} disabled={!ready && !src} aria-pressed={!muted} className={pill}>
           <span className={pillIcon}>{muted ? <SpeakerSlash size="0.95rem" /> : <SpeakerHigh size="0.95rem" />}</span>
           {muted ? labels.soundOn : labels.soundOff}
         </button>
@@ -139,6 +154,7 @@ export default function VideoPanel({ videoId, labels }: { videoId: string; label
 
       <FullVideo
         videoId={videoId}
+        src={src}
         open={open}
         onClose={onClosed}
         labels={{

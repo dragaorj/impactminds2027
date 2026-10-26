@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getDictionary, hasLocale, htmlLang } from "@/lib/i18n";
+import { localVideo } from "@/lib/media";
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import Preloader from "@/components/Preloader";
@@ -33,9 +34,9 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
       <div className="grain" aria-hidden />
       <Nav lang={lang} nav={t.nav} controls={t.controls} />
       <main id="conteudo" tabIndex={-1} className="w-full max-w-full overflow-x-clip outline-none">
-        <Hero t={t.hero} />
+        <Hero t={t.hero} videoSrc={localVideo("header.mp4")} />
         <Numbers t={t.numbers} locale={locale} />
-        <About t={t.about} g={t.gallery} />
+        <About t={t.about} videoSrc={localVideo("about.mp4")} />
         <Survey t={t.survey} locale={locale} />
         <Testimonials t={t.testimonials} lang={lang} />
         <Speakers t={t.speakers} lang={lang} />

@@ -24,11 +24,13 @@ const ctrlIcon = "grid size-9 place-items-center rounded-full bg-white text-[#2A
 // buffering, pause, end).
 export default function FullVideo({
   videoId,
+  src,
   open,
   onClose,
   labels,
 }: {
   videoId: string;
+  src?: string;
   open: boolean;
   onClose: () => void;
   labels: Labels;
@@ -36,6 +38,7 @@ export default function FullVideo({
   const dialog = useRef<HTMLDialogElement>(null);
   const holder = useRef<HTMLDivElement>(null);
   const player = useRef<YTPlayer | null>(null);
+  const video = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [steady, setSteady] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -48,7 +51,7 @@ export default function FullVideo({
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || src) return;
     let cancelled = false;
     let timer = 0;
     const host = holder.current;
@@ -96,9 +99,15 @@ export default function FullVideo({
       setSteady(false);
       setMuted(false);
     };
-  }, [open, videoId]);
+  }, [open, videoId, src]);
 
   const togglePlay = () => {
+    const v = video.current;
+    if (src && v) {
+      if (v.paused) void v.play();
+      else v.pause();
+      return;
+    }
     const p = player.current;
     if (!p) return;
     if (playing) p.pauseVideo();
@@ -106,6 +115,11 @@ export default function FullVideo({
   };
 
   const toggleSound = () => {
+    if (src && video.current) {
+      video.current.muted = !muted;
+      setMuted(!muted);
+      return;
+    }
     const p = player.current;
     if (!p) return;
     if (muted) p.unMute();
@@ -131,7 +145,33 @@ export default function FullVideo({
       </button>
 
       <div className="relative isolate aspect-video overflow-hidden rounded-[1.5rem] bg-black shadow-2xl ring-1 ring-white/15">
-        <div ref={holder} className="yt-cover yt-full absolute inset-0 overflow-hidden" aria-hidden />
+        {src ? (
+          open && (
+            <video
+              ref={video}
+              src={src}
+              autoPlay
+              playsInline
+              controls={false}
+              disablePictureInPicture
+              onPlay={() => {
+                setPlaying(true);
+                setSteady(true);
+              }}
+              onPause={() => {
+                setPlaying(false);
+                setSteady(false);
+              }}
+              onEnded={() => {
+                setPlaying(false);
+                setSteady(false);
+              }}
+              className="absolute inset-0 size-full object-cover"
+            />
+          )
+        ) : (
+          <div ref={holder} className="yt-cover yt-full absolute inset-0 overflow-hidden" aria-hidden />
+        )}
         {/* Poster + our own play button cover every moment YouTube shows chrome. */}
         <button
           type="button"
