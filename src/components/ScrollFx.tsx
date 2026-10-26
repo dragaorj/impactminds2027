@@ -15,7 +15,6 @@ gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 //   [data-reveal]       fade-up when entering the viewport (batched)
 //   [data-hbar]         horizontal bars grow from the left
 //   .art                Cartagena line art fades in, complete, on first view
-//   svg[data-draw]      mosaic strokes trace in with the scroll (scrub)
 //   [data-count]        number counts up once (data-decimals, data-locale)
 //   [data-img-scale]    image grows from 0.86 to 1 on approach
 //   [data-words] span   paragraph words brighten in sequence (scrub)
@@ -118,21 +117,8 @@ export default function ScrollFx() {
         );
       });
 
-      // Mosaic line art: one line travels with the scroll and draws the shapes
-      // in sequence, each closing before the next begins (like a pen that
-      // never lifts). Scrolling back up undraws them.
-      gsap.utils.toArray<SVGSVGElement>("svg[data-draw]").forEach((svg) => {
-        gsap.set(svg, { visibility: "visible" });
-        const strokes = gsap.utils.toArray<SVGPathElement>(svg.querySelectorAll("path"));
-        gsap.set(strokes, { strokeDasharray: 1, strokeDashoffset: 1 });
-        const tl = gsap.timeline({
-          scrollTrigger: { trigger: svg, start: "top 95%", end: "bottom 30%", scrub: 1.2 },
-        });
-        strokes.forEach((p) => tl.to(p, { strokeDashoffset: 0, duration: 1, ease: "none" }));
-      });
-
       // Line art arrives complete: a one-off fade and settle when it enters view.
-      gsap.utils.toArray<SVGSVGElement>("main .art:not([data-draw]), footer .art:not([data-draw])").forEach((svg) => {
+      gsap.utils.toArray<SVGSVGElement>("main .art:not([data-still]), footer .art:not([data-still])").forEach((svg) => {
         const target = Number(getComputedStyle(svg).opacity) || 0.2;
         gsap.fromTo(
           svg,

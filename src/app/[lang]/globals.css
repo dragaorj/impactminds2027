@@ -358,3 +358,7 @@ body, .bg-bg-2 {
 
 /* The full-video lightbox shows the whole frame (no overscan). */
 .yt-full iframe { transform: translate(-50%, -50%); }
+
+/* Static line art (the mosaic): always visible, outlines only, never animated. */
+.art[data-still] { visibility: visible !important; }
+.art[data-still] path { fill: none; stroke-dasharray: none !important; stroke-dashoffset: 0 !important; }

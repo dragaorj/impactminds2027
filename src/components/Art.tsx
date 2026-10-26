@@ -72,7 +72,7 @@ const range = (from: number, to: number, step: number) =>
 // move with the whole drawing's idle loop instead.
 type Stroke = string | { d: string; c: string; delay?: number };
 
-const drawings: Record<ArtName, { box: string; paths: Stroke[]; loop?: string; draw?: boolean }> = {
+const drawings: Record<ArtName, { box: string; paths: Stroke[]; loop?: string; still?: boolean }> = {
   balcony: {
     box: "0 0 240 260",
     paths: [
@@ -246,11 +246,12 @@ const drawings: Record<ArtName, { box: string; paths: Stroke[]; loop?: string; d
     ],
   },
   // The 2027 banner's geometric tiles (half circle, quarter discs, leaf,
-  // circle, paired D shapes) as line art, drawn stroke by stroke with the scroll.
+  // circle, paired D shapes) as static line art: outlines only, no fill, no
+  // entrance or scroll animation.
   mosaic: {
     box: "-2 -2 84 124",
     loop: "",
-    draw: true,
+    still: true,
     paths: [
       "M0 40 A20 20 0 0 1 40 40 Z",
       "M80 0 V40 H40 A40 40 0 0 1 80 0 Z",
@@ -283,7 +284,7 @@ const drawings: Record<ArtName, { box: string; paths: Stroke[]; loop?: string; d
 // Every drawing idles in an endless loop (CSS, paused under reduced motion):
 // by default the whole piece floats; marked strokes run their own loop.
 export default function Art({ name, className = "" }: { name: ArtName; className?: string }) {
-  const { box, paths, loop = "loop-float", draw } = drawings[name];
+  const { box, paths, loop = "loop-float", still } = drawings[name];
   return (
     <svg
       viewBox={box}
@@ -291,7 +292,7 @@ export default function Art({ name, className = "" }: { name: ArtName; className
       aria-hidden
       focusable="false"
       data-art
-      data-draw={draw ? "" : undefined}
+      data-still={still ? "" : undefined}
     >
       <g className={loop}>
         {paths.map((p, i) =>
