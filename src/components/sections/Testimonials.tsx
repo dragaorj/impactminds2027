@@ -7,7 +7,6 @@ import type { Dict } from "@/lib/dictionaries/pt";
 import type { Locale } from "@/lib/i18n";
 import { testimonials } from "@/lib/site";
 import Art from "../Art";
-import Geo from "../Geo";
 import { H2, container, section } from "../ui";
 
 const initials = (name: string) =>
@@ -23,12 +22,12 @@ export default function Testimonials({ t, lang }: { t: Dict["testimonials"]; lan
   const total = testimonials.length;
   const go = (step: number) => setIndex((i) => (i + step + total) % total);
   const arrow =
-    "grid size-12 place-items-center rounded-full text-ink ring-1 ring-line transition-transform duration-500 ease-[var(--ease-spring)] hover:bg-ink/5 active:scale-95";
+    "grid size-12 place-items-center rounded-full btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] active:scale-95";
 
   return (
     <section id="depoimentos" className={`${section} overflow-hidden bg-bg-2`} aria-labelledby="depoimentos-title">
-      <Art name="arcs" className="absolute -right-6 bottom-0 hidden w-64 md:block" />
-      <Geo set="strip" className="absolute right-0 top-0 w-40 md:w-56" />
+      <Art name="arcs" className="pointer-events-none absolute bottom-0 right-0 hidden w-36 min-[1440px]:block" />
+      <Art name="mosaic" className="pointer-events-none absolute -right-16 top-20 w-40 md:-right-14 md:w-52 xl:w-64" />
       <div className={container}>
         <H2 id="depoimentos-title" className="max-w-xl">
           <span data-reveal className="block">{t.title}</span>
@@ -84,10 +83,10 @@ export default function Testimonials({ t, lang }: { t: Dict["testimonials"]; lan
             </ul>
             <div className="flex gap-2">
               <button type="button" className={arrow} onClick={() => go(-1)} aria-label={t.prev}>
-                <ArrowLeft size={18} />
+                <ArrowLeft size="1.125rem" />
               </button>
               <button type="button" className={arrow} onClick={() => go(1)} aria-label={t.next}>
-                <ArrowRight size={18} />
+                <ArrowRight size="1.125rem" />
               </button>
             </div>
           </div>

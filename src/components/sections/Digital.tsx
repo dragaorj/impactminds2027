@@ -4,7 +4,7 @@ import { H2, container, section } from "../ui";
 
 // Stat values never wrap: a currency prefix drops to a small label instead.
 function Figure({ value }: { value: string }) {
-  const m = value.match(/^(USD)s(.+)$/);
+  const m = value.match(/^(USD)\s(.+)$/);
   if (!m) return <>{value}</>;
   return (
     <>
@@ -21,7 +21,7 @@ function Group({ label, items }: { label: string; items: { value: string; label:
       <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-10">
         {items.map((item) => (
           <div key={item.label} data-reveal className="flex flex-col">
-            <dt className="order-last mt-2 text-[15px] leading-snug text-ink-2">{item.label}</dt>
+            <dt className="order-last mt-2 text-[0.9375rem] leading-snug text-ink-2">{item.label}</dt>
             <dd className="whitespace-nowrap font-display text-[clamp(2rem,3.6vw,3.25rem)] leading-none text-brand">
               <Figure value={item.value} />
             </dd>
@@ -36,7 +36,7 @@ function Group({ label, items }: { label: string; items: { value: string; label:
 export default function Digital({ t }: { t: Dict["digital"] }) {
   return (
     <section id="alcance" className={section} aria-labelledby="alcance-title">
-      <Art name="arcs" className="absolute bottom-0 right-0 hidden w-56 md:block" />
+      <Art name="arcs" className="absolute bottom-0 right-0 hidden w-56 xl:block" />
       <div className={container}>
         <H2 id="alcance-title" className="max-w-3xl">
           {t.title}

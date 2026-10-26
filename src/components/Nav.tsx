@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Minus, Moon, PersonArmsSpread, Plus, Sun } from "@phosphor-icons/react";
+import { ArrowRight, Minus, Moon, PersonArmsSpread, Plus, Sun } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { locales, type Locale } from "@/lib/i18n";
 import { usePrefs } from "./prefs";
@@ -9,7 +9,7 @@ import { usePrefs } from "./prefs";
 type Props = { lang: Locale; nav: Dict["nav"]; controls: Dict["controls"] };
 
 const iconBtn =
-  "grid size-10 place-items-center rounded-full text-ink transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:bg-ink/8 active:scale-[0.96]";
+  "grid size-10 place-items-center rounded-full text-ink transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-brand hover:text-brand-ink active:scale-[0.96]";
 
 function LangSwitch({ lang, label }: { lang: Locale; label: string }) {
   return (
@@ -25,7 +25,7 @@ function LangSwitch({ lang, label }: { lang: Locale; label: string }) {
             document.cookie = `im-lang=${l};path=/;max-age=31536000;samesite=lax`;
           }}
           className={`rounded-full px-2.5 py-1 text-xs font-medium uppercase tracking-wide transition-colors duration-300 ${
-            l === lang ? "bg-brand text-brand-ink" : "text-ink-2 hover:text-ink"
+            l === lang ? "bg-brand text-brand-ink" : "text-ink-2 hover:bg-brand-soft hover:text-brand"
           }`}
         >
           {l}
@@ -109,7 +109,7 @@ export default function Nav({ lang, nav, controls }: Props) {
       </a>
 
       <header className="fixed inset-x-0 top-3 z-40 px-3 sm:top-5 sm:px-6" data-hero>
-        <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between gap-3 rounded-full bg-surface/75 py-2 pl-5 pr-2 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-[77.5rem] items-center justify-between gap-3 rounded-full bg-surface/75 py-2 pl-5 pr-2 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl">
           <a href="#top" className="flex items-baseline gap-2 text-ink" aria-label="Impact Minds 2027">
             <span className="font-display text-xl leading-none">Impact Minds</span>
             <span className="hidden text-xs font-medium text-brand sm:inline">2027</span>
@@ -121,9 +121,14 @@ export default function Nav({ lang, nav, controls }: Props) {
                 <li key={item.label}>
                   <a
                     href={item.href}
-                    className="whitespace-nowrap rounded-full px-3.5 py-2 text-sm text-ink-2 transition-colors duration-300 hover:bg-ink/6 hover:text-ink"
+                    className="group relative block whitespace-nowrap px-3.5 py-2 text-sm text-ink-2 transition-colors duration-300 hover:text-brand focus-visible:text-brand"
                   >
                     {item.label}
+                    {/* Gold rule grows from the left on hover / keyboard focus. */}
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-3.5 bottom-1 h-[2px] origin-left scale-x-0 rounded-full bg-sun transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover:scale-x-100 group-focus-visible:scale-x-100"
+                    />
                   </a>
                 </li>
               ))}
@@ -140,7 +145,7 @@ export default function Nav({ lang, nav, controls }: Props) {
               onClick={() => setTheme(isDark ? "light" : "dark")}
               aria-label={isDark ? controls.themeToLight : controls.themeToDark}
             >
-              {isDark ? <Sun size={20} weight="light" /> : <Moon size={20} weight="light" />}
+              {isDark ? <Sun size="1.25rem" weight="light" /> : <Moon size="1.25rem" weight="light" />}
             </button>
 
             <div className="relative">
@@ -153,7 +158,7 @@ export default function Nav({ lang, nav, controls }: Props) {
                 aria-controls="a11y-panel"
                 onClick={() => setPanelOpen((v) => !v)}
               >
-                <PersonArmsSpread size={21} weight="light" />
+                <PersonArmsSpread size="1.3125rem" weight="light" />
               </button>
               {panelOpen && (
                 <div
@@ -175,7 +180,7 @@ export default function Nav({ lang, nav, controls }: Props) {
                           disabled={prefs.a11y.text <= 1}
                           onClick={() => setA11y({ text: Math.max(1, prefs.a11y.text - 1) as 1 | 2 | 3 })}
                         >
-                          <Minus size={16} />
+                          <Minus size="1rem" />
                         </button>
                         <span className="w-8 text-center tabular-nums" aria-live="polite">
                           {[100, 112, 125][prefs.a11y.text - 1]}%
@@ -187,7 +192,7 @@ export default function Nav({ lang, nav, controls }: Props) {
                           disabled={prefs.a11y.text >= 3}
                           onClick={() => setA11y({ text: Math.min(3, prefs.a11y.text + 1) as 1 | 2 | 3 })}
                         >
-                          <Plus size={16} />
+                          <Plus size="1rem" />
                         </button>
                       </div>
                     </div>
@@ -197,7 +202,7 @@ export default function Nav({ lang, nav, controls }: Props) {
                     <button
                       type="button"
                       onClick={resetA11y}
-                      className="mt-2 w-full rounded-full px-4 py-2.5 text-sm font-medium text-brand ring-1 ring-line transition-colors hover:bg-brand-soft"
+                      className="mt-2 w-full rounded-full px-4 py-2.5 text-sm font-medium text-brand ring-1 ring-line transition-colors hover:bg-brand hover:text-brand-ink"
                     >
                       {controls.reset}
                     </button>
@@ -245,9 +250,20 @@ export default function Nav({ lang, nav, controls }: Props) {
                 <a
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className="block py-2 font-display text-4xl text-ink sm:text-5xl"
+                  className="group relative flex items-center py-2 font-display text-4xl text-ink transition-colors duration-300 hover:text-brand focus-visible:text-brand active:text-brand sm:text-5xl"
                 >
-                  {item.label}
+                  <ArrowRight
+                    aria-hidden
+                    size="1.75rem"
+                    className="-ml-9 mr-0 w-7 shrink-0 text-sun opacity-0 transition-[margin,opacity] duration-500 ease-[var(--ease-out-expo)] group-hover:ml-0 group-hover:mr-3 group-hover:opacity-100 group-focus-visible:ml-0 group-focus-visible:mr-3 group-focus-visible:opacity-100 group-active:ml-0 group-active:mr-3 group-active:opacity-100"
+                  />
+                  <span className="relative">
+                    {item.label}
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-0 -bottom-1 h-[2px] origin-left scale-x-0 rounded-full bg-sun transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover:scale-x-100 group-focus-visible:scale-x-100 group-active:scale-x-100"
+                    />
+                  </span>
                 </a>
               </li>
             ))}

@@ -2,7 +2,6 @@ import Image from "next/image";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { photos } from "@/lib/site";
 import Art from "../Art";
-import Geo from "../Geo";
 import { Bezel, H2, container, section } from "../ui";
 
 function Stat({ value, prefix = "", locale, className = "" }: { value: number; prefix?: string; locale: string; className?: string }) {
@@ -17,10 +16,10 @@ function Stat({ value, prefix = "", locale, className = "" }: { value: number; p
 }
 
 export default function Numbers({ t, locale }: { t: Dict["numbers"]; locale: string }) {
-  const label = "mt-3 max-w-[22ch] text-[15px] leading-snug";
+  const label = "mt-3 max-w-[22ch] text-[0.9375rem] leading-snug";
   return (
     <section id="numeros" className={section} aria-labelledby="numeros-title">
-      <Geo set="stack" className="absolute left-4 top-24 hidden w-20 md:block lg:left-[3%] lg:w-24" />
+      <Art name="mosaic" className="pointer-events-none absolute -left-16 top-20 w-40 md:-left-14 md:w-52 xl:w-64" />
       <div className={container}>
         <div className="max-w-3xl" data-reveal>
           <H2 id="numeros-title">{t.title}</H2>
@@ -30,7 +29,7 @@ export default function Numbers({ t, locale }: { t: Dict["numbers"]; locale: str
         <div className="mt-14 grid grid-flow-dense grid-cols-2 gap-3 md:mt-20 lg:auto-rows-[minmax(12.5rem,auto)] lg:grid-cols-12 lg:gap-4">
           <Bezel className="col-span-2 lg:col-span-6 lg:row-span-2" inner="bg-block text-block-ink">
             <div data-reveal className="flex h-full min-h-[20rem] flex-col justify-between p-7 md:p-10">
-              <Art name="window" className="absolute -bottom-6 right-4 w-40 !opacity-25 [color:var(--block-muted)] md:w-52" />
+              <Art name="window" className="absolute -bottom-6 right-4 -z-10 w-40 !opacity-25 [color:var(--block-muted)] md:w-52" />
               <Stat value={580} locale={locale} className="text-[clamp(5rem,13vw,10rem)]" />
               <p className="relative text-xl text-block-muted">{t.participants}</p>
             </div>
@@ -45,7 +44,7 @@ export default function Numbers({ t, locale }: { t: Dict["numbers"]; locale: str
 
           <Bezel className="lg:col-span-3" inner="bg-sun text-sun-ink">
             <div data-reveal className="flex h-full flex-col justify-end p-6">
-              <Art name="arcs" className="absolute -right-2 -top-2 w-24 !opacity-40 [color:var(--sun-ink)]" />
+              <Art name="arcs" className="absolute -right-2 -top-2 -z-10 w-24 !opacity-40 [color:var(--sun-ink)]" />
               <Stat value={33} locale={locale} className="text-5xl md:text-6xl" />
               <p className={label}>{t.countries}</p>
             </div>

@@ -15,6 +15,7 @@ gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 //   [data-reveal]       fade-up when entering the viewport (batched)
 //   [data-hbar]         horizontal bars grow from the left
 //   .art                Cartagena line art fades in, complete, on first view
+//   svg[data-draw]      mosaic strokes trace in with the scroll (scrub)
 //   [data-count]        number counts up once (data-decimals, data-locale)
 //   [data-img-scale]    image grows from 0.86 to 1 on approach
 //   [data-words] span   paragraph words brighten in sequence (scrub)
@@ -79,7 +80,7 @@ export default function ScrollFx() {
       ].join(",");
       gsap.utils.toArray<HTMLElement>(textSel).forEach((el) => {
         if (
-          el.closest("#top, [data-words], a, button, [aria-hidden='true']") ||
+          el.closest("#top, [data-words], [data-nosplit], a, button, [aria-hidden='true']") ||
           el.querySelector("[data-count], svg, img") ||
           !el.textContent?.trim()
         )
@@ -118,8 +119,24 @@ export default function ScrollFx() {
         );
       });
 
+      // Mosaic line art: nothing but the strokes tracing themselves in, tied to
+      // the scroll position (scrolling back up undraws them).
+      gsap.utils.toArray<SVGSVGElement>("svg[data-draw]").forEach((svg) => {
+        gsap.set(svg, { visibility: "visible" });
+        gsap.fromTo(
+          svg.querySelectorAll("path"),
+          { strokeDasharray: 1, strokeDashoffset: 1 },
+          {
+            strokeDashoffset: 0,
+            ease: "none",
+            stagger: 0.12,
+            scrollTrigger: { trigger: svg, start: "top 95%", end: "center 40%", scrub: 0.8 },
+          },
+        );
+      });
+
       // Line art arrives complete: a one-off fade and settle when it enters view.
-      gsap.utils.toArray<SVGSVGElement>("main .art, footer .art").forEach((svg) => {
+      gsap.utils.toArray<SVGSVGElement>("main .art:not([data-draw]), footer .art:not([data-draw])").forEach((svg) => {
         const target = Number(getComputedStyle(svg).opacity) || 0.2;
         gsap.fromTo(
           svg,

@@ -166,6 +166,13 @@ const es: Dict = {
   },
   editions: {
     title: "Ediciones anteriores",
+    close: "Cerrar",
+    prev: "Foto anterior",
+    next: "Foto siguiente",
+    open: "Ampliar foto",
+    choose: "Elige la edición",
+    soon: "Las fotos de esta edición llegarán pronto.",
+    photos: "fotos",
     list: [
       { city: "Manaos, Brasil", year: "2026" },
       { city: "Cartagena, Colombia", year: "2025" },

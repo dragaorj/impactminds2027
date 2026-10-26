@@ -70,6 +70,8 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
 
   useEffect(() => {
     let cancelled = false;
+    let revealTimer = 0;
+    let firstReveal = true;
     const host = holder.current;
     const mount = document.createElement("div");
     host?.appendChild(mount);
@@ -99,9 +101,16 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
             if (autoplay) e.target.playVideo();
           },
           onStateChange: (e: { data: number }) => {
-            // Keep the poster up a moment longer so YouTube's start-up overlay
-            // (shown on touch devices) has faded before the video is revealed.
-            if (e.data === 1) window.setTimeout(() => setStarted(true), 2500);
+            // YouTube flashes its own play/pause chrome whenever playback
+            // starts, buffers or loops. The poster covers the video in those
+            // moments and only lifts once playback has been steady for a while.
+            window.clearTimeout(revealTimer);
+            if (e.data === 1) {
+              revealTimer = window.setTimeout(() => setStarted(true), firstReveal ? 3000 : 1600);
+              firstReveal = false;
+            } else if (e.data === -1 || e.data === 0 || e.data === 3) {
+              setStarted(false);
+            }
           },
         },
       });
@@ -109,6 +118,7 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
 
     return () => {
       cancelled = true;
+      window.clearTimeout(revealTimer);
       player.current?.destroy();
       player.current = null;
       if (host) host.innerHTML = "";
@@ -125,7 +135,7 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
           fill
           priority
           sizes="100vw"
-          className={`object-cover transition-opacity duration-1000 ${started ? "opacity-0" : "opacity-100"}`}
+          className={`object-cover transition-opacity ${started ? "opacity-0 duration-1000" : "opacity-100 duration-150"}`}
         />
         <div ref={holder} className="yt-cover absolute inset-0 overflow-hidden" aria-hidden />
         {/* Mobile keeps the upper half nearly clear so the video reads; the wash only builds behind the text. */}
@@ -135,7 +145,7 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
 
       <Art name="birds" className="pointer-events-none absolute right-[8%] top-[22%] hidden w-40 !opacity-40 [color:#fff] md:block" />
 
-      <div className="mx-auto flex min-h-[100dvh] max-w-[1240px] flex-col justify-end gap-5 px-4 pb-6 pt-28 sm:gap-10 sm:px-6 md:pb-12 lg:grid lg:grid-cols-12 lg:items-end lg:gap-8">
+      <div className="mx-auto flex min-h-[100dvh] max-w-[77.5rem] flex-col justify-end gap-5 px-4 pb-6 pt-28 sm:gap-10 sm:px-6 md:pb-12 lg:grid lg:grid-cols-12 lg:items-end lg:gap-8">
         <div className="lg:col-span-7">
           <p data-hero className="mb-3 inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-full bg-white/10 px-3 py-1 text-xs ring-1 ring-white/20 backdrop-blur-md sm:mb-5 sm:px-4 sm:py-1.5 sm:text-sm">
             <span>{t.eyebrow}</span>
@@ -152,11 +162,11 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
           <div data-hero className="mt-4 flex flex-wrap gap-3 sm:mt-8">
             <a
               href="#numeros"
-              className="group flex h-10 items-center gap-3 rounded-full bg-white pl-5 pr-1 text-sm font-medium text-[#2A1240] transition-transform duration-500 ease-[var(--ease-spring)] active:scale-[0.98] sm:h-12 sm:pl-6 sm:pr-1.5 sm:text-[15px]"
+              className="group flex h-10 items-center gap-3 rounded-full bg-white pl-5 pr-1 text-sm font-medium text-[#2A1240] transition-[transform,background-color] hover:bg-[#D9B865] duration-500 ease-[var(--ease-spring)] active:scale-[0.98] sm:h-12 sm:pl-6 sm:pr-1.5 sm:text-[0.9375rem]"
             >
               {t.cta}
               <span className="grid size-8 place-items-center rounded-full bg-[#2A1240] text-white transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-y-0.5 group-hover:scale-105 sm:size-9">
-                <ArrowDown size={16} />
+                <ArrowDown size="1rem" />
               </span>
             </a>
             <button
@@ -167,7 +177,7 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
               className="group relative grid size-10 place-items-center rounded-full bg-white/15 text-white ring-1 ring-white/40 backdrop-blur-md transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:scale-105 hover:bg-white hover:text-[#2A1240] active:scale-95 sm:size-12"
             >
               <span aria-hidden className="absolute inset-0 animate-ping rounded-full ring-1 ring-white/40 [animation-duration:2.4s] motion-reduce:hidden" />
-              <Play size={16} weight="fill" className="translate-x-px" />
+              <Play size="1rem" weight="fill" className="translate-x-px" />
             </button>
           </div>
         </div>
@@ -198,7 +208,7 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
           aria-label={t.close}
           className="absolute -top-14 right-0 grid size-11 place-items-center rounded-full bg-white text-[#2A1240] transition-transform duration-500 ease-[var(--ease-spring)] hover:scale-105 active:scale-95"
         >
-          <X size={18} />
+          <X size="1.125rem" />
         </button>
         <div className="aspect-video overflow-hidden rounded-[1.5rem] bg-black shadow-2xl ring-1 ring-white/15">
           {open && (

@@ -1,6 +1,5 @@
 import type { Dict } from "@/lib/dictionaries/pt";
 import Art from "../Art";
-import Geo from "../Geo";
 import { Bezel, H2, container, section } from "../ui";
 
 // Three launches as an asymmetric trio: the flagship bioeconomy initiative
@@ -10,7 +9,7 @@ export default function Launches({ t }: { t: Dict["launches"] }) {
   const order = [c, a, b];
   return (
     <section id="lancamentos" className={section} aria-labelledby="lancamentos-title">
-      <Geo set="stack" className="absolute left-4 top-24 hidden w-16 lg:left-[3%] lg:block" />
+      <Art name="mosaic" className="pointer-events-none absolute -left-16 top-20 w-40 md:-left-14 md:w-52 xl:w-64" />
       <div className={container}>
         <div className="max-w-3xl">
           <H2 id="lancamentos-title">{t.title}</H2>
@@ -28,7 +27,7 @@ export default function Launches({ t }: { t: Dict["launches"] }) {
               >
                 <article data-reveal className={`flex h-full flex-col justify-between gap-10 p-7 md:p-10 ${lead ? "min-h-[26rem]" : ""}`}>
                   {lead && (
-                    <Art name="skyline" className="absolute inset-x-6 bottom-28 w-[calc(100%-3rem)] !opacity-25 [color:var(--gold)]" />
+                    <Art name="skyline" className="absolute inset-x-6 bottom-28 -z-10 hidden w-[calc(100%-3rem)] !opacity-25 [color:var(--gold)] lg:block" />
                   )}
                   <div className="relative">
                     <span

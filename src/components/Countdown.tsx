@@ -67,7 +67,7 @@ export default function Countdown({
     <dl className={`grid grid-cols-4 ${compact ? "gap-3" : "gap-2 sm:gap-4"}`}>
       {units.map((u) => (
         <div key={u.key} className="flex flex-col items-start">
-          <dt className={`order-last mt-1 tracking-wide opacity-75 sm:mt-2 ${size === "lg" ? "text-sm" : "text-[11px] sm:text-xs"}`}>{u.label}</dt>
+          <dt className={`order-last mt-1 tracking-wide opacity-75 sm:mt-2 ${size === "lg" ? "text-sm" : "text-[0.6875rem] sm:text-xs"}`}>{u.label}</dt>
           <dd
             className={`font-display tabular-nums leading-none ${compact ? "text-3xl" : size === "lg" ? "text-[clamp(2.5rem,4.6vw,4.5rem)]" : "text-[clamp(1.6rem,4.2vw,3.25rem)]"}`}
             aria-hidden={u.key === "seconds" ? true : undefined}

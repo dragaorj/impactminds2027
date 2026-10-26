@@ -45,7 +45,7 @@ export default function Events({ t }: { t: Dict["events"] }) {
                     <span className="block text-sm text-[#E2C985]">{item.place}</span>
                     <span className="mt-1 block font-display text-2xl leading-tight md:text-3xl">{item.title}</span>
                     <span
-                      className={`mt-3 block max-w-[46ch] text-[15px] leading-relaxed text-white/85 transition-[opacity,transform] duration-700 ease-[var(--ease-out-expo)] ${
+                      className={`mt-3 block max-w-[46ch] text-[0.9375rem] leading-relaxed text-white/85 transition-[opacity,transform] duration-700 ease-[var(--ease-out-expo)] ${
                         open ? "translate-y-0 opacity-100" : "lg:translate-y-4 lg:opacity-0"
                       }`}
                     >

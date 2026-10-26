@@ -29,11 +29,11 @@ export default function BackToTop({ label }: { label: string }) {
           window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
           document.getElementById("conteudo")?.focus({ preventScroll: true });
         }}
-        className={`group fixed bottom-5 right-5 z-40 grid size-12 place-items-center rounded-full bg-brand text-brand-ink shadow-[var(--shadow)] ring-1 ring-white/20 transition-[opacity,transform] duration-500 ease-[var(--ease-spring)] hover:-translate-y-1 active:scale-95 sm:bottom-8 sm:right-8 sm:size-14 ${
+        className={`group fixed bottom-5 right-5 z-40 grid size-12 place-items-center rounded-full btn-solid shadow-[var(--shadow)] ring-1 ring-white/20 transition-[opacity,transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:-translate-y-1 active:scale-95 sm:bottom-8 sm:right-8 sm:size-14 ${
           visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
         }`}
       >
-        <ArrowUp size={20} className="transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-translate-y-0.5" />
+        <ArrowUp size="1.25rem" className="transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-translate-y-0.5" />
       </button>
     </>
   );

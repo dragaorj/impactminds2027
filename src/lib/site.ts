@@ -4,7 +4,7 @@
 export const EVENT_START = "2027-08-24T08:00:00-05:00"; // Cartagena (UTC-5)
 export const EVENT_END = "2027-08-27T23:59:59-05:00";
 
-export const HERO_VIDEO_ID = "WlLP7vRG0R8";
+export const HERO_VIDEO_ID = "ZX4sEmQpA3s";
 
 export const links = {
   latimpacto: "https://www.latimpacto.org",
@@ -29,23 +29,24 @@ export const links = {
 };
 
 // Event photos come from the official Impact Minds 2026 report.
-// TODO: replace the picsum placeholders for 2022 to 2025 with photos of those editions.
-const ph = (seed: string, w = 1600, h = 1100) =>
-  `https://picsum.photos/seed/${seed}/${w}/${h}`;
-
 export const photos = {
   gallery: ["/photos/panel-ai.jpg", "/photos/networking.jpg", "/photos/stage-panel.jpg", "/photos/members-dinner.jpg"],
   speakersTile: "/photos/academic-2.jpg",
   events: ["/photos/members-dinner.jpg", "/photos/opening-cocktail.jpg", "/photos/closing-party.jpg"],
   visits: Array.from({ length: 12 }, (_, i) => `/photos/visit-${String(i + 1).padStart(2, "0")}.jpg`),
-  editions: {
-    manaus: "/photos/stage-panel.jpg",
-    cartagena: ph("impactminds-cartagena-2025", 900, 900),
-    oaxaca: ph("impactminds-oaxaca-2024", 900, 900),
-    rio: ph("impactminds-rio-2023", 900, 900),
-    medellin: ph("impactminds-medellin-2022", 900, 900),
-  },
 };
+
+// Bento gallery per edition, in the order of the dictionaries' editions list
+// (2026 first). Twelve photos fill the grid; an empty list shows "coming soon".
+// TODO: add the 12 photos for 2025, 2024, 2023 and 2022 when the client sends them.
+const ed2026 = (n: string) => `/photos/editions/2026/${n}.jpg`;
+export const editionGalleries: string[][] = [
+  ["01", "02", "06", "04", "05", "08", "07", "09", "11", "10", "03", "12"].map(ed2026),
+  [],
+  [],
+  [],
+  [],
+];
 
 type Trilingual = { pt: string; es: string; en: string };
 export type Speaker = { name: string; org: string; role: Trilingual; photo?: string };

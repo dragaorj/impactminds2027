@@ -2,7 +2,6 @@ import { InstagramLogo, LinkedinLogo, YoutubeLogo } from "@phosphor-icons/react/
 import type { Dict } from "@/lib/dictionaries/pt";
 import { EVENT_END, EVENT_START, links } from "@/lib/site";
 import Art from "../Art";
-import Geo from "../Geo";
 import Countdown from "../Countdown";
 import { Button, container } from "../ui";
 
@@ -14,7 +13,7 @@ export default function Footer({ t, hero }: { t: Dict["footer"]; hero: Dict["her
   ];
   return (
     <footer className="relative overflow-hidden border-t border-line pb-10 pt-24 md:pt-36">
-      <Geo set="stack" className="absolute left-4 top-16 hidden w-20 md:block lg:left-[3%] lg:w-24" />
+      <Art name="mosaic" className="pointer-events-none absolute -left-16 top-20 w-40 md:-left-14 md:w-52 xl:w-64" />
       <div className={container}>
         <div data-reveal>
           <p className="text-lg text-ink-2">{hero.dates}</p>
@@ -50,9 +49,9 @@ export default function Footer({ t, hero }: { t: Dict["footer"]; hero: Dict["her
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={label}
-                      className="grid size-12 place-items-center rounded-full text-ink ring-1 ring-line transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:scale-105 hover:bg-ink/5"
+                      className="grid size-12 place-items-center rounded-full btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:scale-105 hover:bg-ink/5"
                     >
-                      <Icon size={20} weight="light" />
+                      <Icon size="1.25rem" weight="light" />
                     </a>
                   </li>
                 ))}

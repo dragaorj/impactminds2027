@@ -164,6 +164,13 @@ const pt = {
   },
   editions: {
     title: "Edições anteriores",
+    close: "Fechar",
+    prev: "Foto anterior",
+    next: "Próxima foto",
+    open: "Ampliar foto",
+    choose: "Escolha a edição",
+    soon: "As fotos desta edição chegam em breve.",
+    photos: "fotos",
     list: [
       { city: "Manaus, Brasil", year: "2026" },
       { city: "Cartagena, Colômbia", year: "2025" },

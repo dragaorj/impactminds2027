@@ -22,16 +22,16 @@ const placeholderArt = ["door", "window", "balcony", "tower"] as const;
 function Card({ s, i, lang }: { s: Speaker; i: number; lang: Locale }) {
   return (
     <>
-      {/* Oval frame: the platform's speaker photos are already cut as ovals. */}
-      <div className="rounded-[50%] bg-ink/[0.04] p-1.5 ring-1 ring-line">
-        <div className="group relative aspect-[3/4] overflow-hidden rounded-[50%] bg-block">
+      {/* Circular frame; the platform photos are oval cut-outs, so they are scaled up to fill the circle. */}
+      <div className="rounded-full bg-ink/[0.04] p-1.5 ring-1 ring-line">
+        <div className="group relative aspect-square overflow-hidden rounded-full bg-block">
           {s.photo ? (
             <Image
               src={s.photo}
               alt={s.name}
               fill
               sizes="18rem"
-              className="scale-[1.06] object-cover grayscale-[35%] transition-[transform,filter] duration-700 ease-out group-hover:scale-110 group-hover:grayscale-0"
+              className="scale-[1.24] object-cover object-[50%_35%] grayscale-[35%] transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.3] group-hover:grayscale-0"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
@@ -42,7 +42,7 @@ function Card({ s, i, lang }: { s: Speaker; i: number; lang: Locale }) {
         </div>
       </div>
       <p className="mt-5 text-center font-display text-2xl leading-tight text-ink">{s.name}</p>
-      <p className="mx-auto mt-2 max-w-[26ch] text-center text-[15px] leading-snug text-muted">
+      <p className="mx-auto mt-2 max-w-[26ch] text-center text-[0.9375rem] leading-snug text-muted">
         {s.role[lang]}, {s.org}
       </p>
     </>
@@ -66,10 +66,10 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
             type="button"
             onClick={() => setPaused((p) => !p)}
             aria-pressed={paused}
-            className="speaker-toggle flex h-12 w-max items-center gap-2.5 rounded-full p-1.5 pr-5 text-sm text-ink ring-1 ring-line transition-colors hover:bg-ink/5"
+            className="speaker-toggle flex h-12 w-max items-center gap-2.5 rounded-full p-1.5 pr-5 text-sm btn-outline"
           >
             <span className="grid size-9 place-items-center rounded-full bg-brand text-brand-ink">
-              {paused ? <Play size={14} weight="fill" /> : <Pause size={14} weight="fill" />}
+              {paused ? <Play size="0.875rem" weight="fill" /> : <Pause size="0.875rem" weight="fill" />}
             </span>
             {paused ? t.play : t.pause}
           </button>
@@ -104,11 +104,11 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
           href={links.speakers2026Page}
           target="_blank"
           rel="noopener noreferrer"
-          className="group inline-flex h-12 items-center gap-3 rounded-full pl-6 pr-1.5 text-[15px] font-medium text-ink ring-1 ring-line transition-transform duration-500 ease-[var(--ease-spring)] hover:bg-ink/5 active:scale-[0.98]"
+          className="group inline-flex h-12 items-center gap-3 rounded-full pl-6 pr-1.5 text-[0.9375rem] font-medium btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-ink/5 active:scale-[0.98]"
         >
           {t.cta}
           <span className="grid size-9 place-items-center rounded-full bg-brand text-brand-ink transition-transform duration-500 ease-[var(--ease-spring)] group-hover:scale-105">
-            <ArrowUpRight size={16} />
+            <ArrowUpRight size="1rem" />
           </span>
         </a>
       </div>

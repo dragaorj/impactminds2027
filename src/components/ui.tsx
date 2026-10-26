@@ -14,7 +14,7 @@ export function Bezel({
   return (
     <div className={`rounded-[2rem] bg-ink/[0.04] p-1.5 ring-1 ring-line ${className}`}>
       <div
-        className={`relative h-full overflow-hidden rounded-[calc(2rem-6px)] shadow-[inset_0_1px_1px_rgb(255_255_255/0.12)] ${inner}`}
+        className={`relative isolate h-full overflow-hidden rounded-[calc(2rem-6px)] shadow-[inset_0_1px_1px_rgb(255_255_255/0.12)] ${inner}`}
       >
         {children}
       </div>
@@ -23,7 +23,7 @@ export function Bezel({
 }
 
 const btnBase =
-  "group inline-flex h-12 items-center gap-3 whitespace-nowrap rounded-full pl-6 pr-1.5 text-[15px] font-medium transition-transform duration-500 ease-[var(--ease-spring)] active:scale-[0.98]";
+  "group inline-flex h-12 items-center gap-3 whitespace-nowrap rounded-full pl-6 pr-1.5 text-[0.9375rem] font-medium transition-transform duration-500 ease-[var(--ease-spring)] active:scale-[0.98]";
 
 export function Button({
   href,
@@ -37,9 +37,9 @@ export function Button({
   external?: boolean;
 }) {
   const tones = {
-    brand: ["bg-brand text-brand-ink", "bg-brand-ink/15"],
-    light: ["bg-block-ink text-block", "bg-block/10"],
-    ghost: ["text-ink ring-1 ring-line hover:bg-ink/5", "bg-ink/8"],
+    brand: ["btn-solid", "bg-brand-ink/15"],
+    light: ["btn-light", "bg-block/10"],
+    ghost: ["btn-outline", "bg-ink/8"],
   } as const;
   const [shell, icon] = tones[tone];
   return (
@@ -52,7 +52,7 @@ export function Button({
       <span
         className={`grid size-9 place-items-center rounded-full ${icon} transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-translate-y-px group-hover:translate-x-0.5 group-hover:scale-105`}
       >
-        <ArrowUpRight size={16} />
+        <ArrowUpRight size="1rem" />
       </span>
     </a>
   );
@@ -66,5 +66,6 @@ export function H2({ children, className = "", id }: { children: ReactNode; clas
   );
 }
 
-export const container = "mx-auto w-full max-w-[1240px] px-4 sm:px-6";
+// Content sits above the decorative vectors (which are absolutely positioned).
+export const container = "relative z-[1] mx-auto w-full max-w-[77.5rem] px-4 sm:px-6";
 export const section = "relative py-24 md:py-36";

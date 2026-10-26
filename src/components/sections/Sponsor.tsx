@@ -89,7 +89,7 @@ function GrowthChart({ t, locale }: { t: Dict["sponsor"]; locale: string }) {
 
   return (
     <figure className="flex h-full flex-col p-6 md:p-9">
-      <figcaption className="text-[15px] font-medium text-ink">{t.chartTitle}</figcaption>
+      <figcaption className="text-[0.9375rem] font-medium text-ink">{t.chartTitle}</figcaption>
       <svg viewBox={`0 0 ${W} ${BASE + 44}`} className="mt-6 w-full overflow-visible" aria-hidden data-bars>
         <defs>
           <linearGradient id="wall-shade" x1="0" x2="1" y1="0" y2="0">
@@ -176,7 +176,7 @@ export default function Sponsor({ t, locale }: { t: Dict["sponsor"]; locale: str
             ) : (
               <span
                 aria-disabled="true"
-                className="inline-flex h-12 items-center gap-3 rounded-full bg-brand pl-6 pr-1.5 text-[15px] font-medium text-brand-ink opacity-90"
+                className="inline-flex h-12 items-center gap-3 rounded-full bg-brand pl-6 pr-1.5 text-[0.9375rem] font-medium text-brand-ink opacity-90"
               >
                 {t.cta}
                 <span className="rounded-full bg-brand-ink/15 px-3 py-1.5 text-xs">{t.soon}</span>

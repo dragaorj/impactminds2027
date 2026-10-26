@@ -1,6 +1,5 @@
 import type { Dict } from "@/lib/dictionaries/pt";
 import Art from "../Art";
-import Geo from "../Geo";
 import { Bezel, H2, container, section } from "../ui";
 
 // Unit chart: one dot per scale point, the last one partially filled.
@@ -65,7 +64,7 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
   const fmt = (n: number) => n.toLocaleString(locale, { minimumFractionDigits: 1 });
   return (
     <section id="pesquisa" className={section} aria-labelledby="pesquisa-title">
-      <Art name="laurel" className="absolute left-[3%] top-10 hidden w-44 md:block" />
+      <Art name="laurel" className="pointer-events-none absolute left-[calc((100vw_-_77.5rem)/2_-_9rem)] top-24 hidden w-32 min-[1440px]:block" />
       <div className={container}>
         <div data-reveal className="max-w-3xl">
           <H2 id="pesquisa-title">{t.title}</H2>
@@ -98,8 +97,7 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
 
         <Bezel className="mt-16 md:mt-24" inner="bg-block text-block-ink">
           <div className="relative grid gap-12 p-7 md:p-12 lg:grid-cols-12 lg:gap-14 [--art:var(--gold)] [--art-opacity:0.5]">
-            <Art name="arcs" className="absolute -bottom-2 -left-2 w-40 -scale-x-100 md:w-56" />
-            <Geo set="strip" className="absolute right-6 top-6 hidden w-36 opacity-90 md:block" />
+            <Art name="arcs" className="absolute -bottom-2 -left-2 -z-10 hidden w-56 -scale-x-100 xl:block" />
 
             <div className="lg:col-span-5">
               <h3 className="font-display text-3xl leading-tight md:text-[2.75rem]">{t.connectionsTitle}</h3>
@@ -107,7 +105,7 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
               <div className="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                 <div>
                   <Network count={11} label={<span data-count={11} data-locale={locale}>11</span>} />
-                  <p className="mt-4 max-w-[24ch] text-[15px] leading-snug text-block-muted">{t.avgConnections}</p>
+                  <p className="mt-4 max-w-[24ch] text-[0.9375rem] leading-snug text-block-muted">{t.avgConnections}</p>
                 </div>
                 <div className="flex flex-col justify-end">
                   <p className="font-display text-7xl leading-none text-sun">
@@ -117,7 +115,7 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
                   <div className="mt-4">
                     <Dots value={4.2} max={5} size="size-5" tone="gold" />
                   </div>
-                  <p className="mt-4 max-w-[26ch] text-[15px] leading-snug text-block-muted">{t.interactAgain}</p>
+                  <p className="mt-4 max-w-[26ch] text-[0.9375rem] leading-snug text-block-muted">{t.interactAgain}</p>
                 </div>
               </div>
             </div>

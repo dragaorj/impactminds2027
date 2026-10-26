@@ -14,7 +14,8 @@ type ArtName =
   | "birds"
   | "skyline"
   | "laurel"
-  | "arcs";
+  | "arcs"
+  | "mosaic";
 
 const f1 = (n: number) => n.toFixed(1);
 
@@ -71,7 +72,7 @@ const range = (from: number, to: number, step: number) =>
 // move with the whole drawing's idle loop instead.
 type Stroke = string | { d: string; c: string; delay?: number };
 
-const drawings: Record<ArtName, { box: string; paths: Stroke[]; loop?: string }> = {
+const drawings: Record<ArtName, { box: string; paths: Stroke[]; loop?: string; draw?: boolean }> = {
   balcony: {
     box: "0 0 240 260",
     paths: [
@@ -244,6 +245,21 @@ const drawings: Record<ArtName, { box: string; paths: Stroke[]; loop?: string }>
       { d: "M514 42 q2 -10 13 -9 q5 -11 18 -5 q11 -2 12 9 z", c: "loop-drift" },
     ],
   },
+  // The 2027 banner's geometric tiles (half circle, quarter discs, leaf,
+  // circle, paired D shapes) as line art, drawn stroke by stroke with the scroll.
+  mosaic: {
+    box: "-2 -2 84 124",
+    loop: "",
+    draw: true,
+    paths: [
+      "M0 40 A20 20 0 0 1 40 40 Z",
+      "M80 0 V40 H40 A40 40 0 0 1 80 0 Z",
+      "M0 80 Q0 40 40 40 Q40 80 0 80 Z",
+      "M44 60 a16 16 0 1 0 32 0 a16 16 0 1 0 -32 0",
+      "M0 80 H40 A40 40 0 0 1 0 120 Z",
+      "M40 80 A20 20 0 0 1 40 120 Z M80 80 A20 20 0 0 0 80 120 Z",
+    ],
+  },
   laurel: { box: "0 0 160 120", paths: laurel(), loop: "loop-sway-soft" },
   arcs: {
     box: "0 0 120 120",
@@ -267,9 +283,16 @@ const drawings: Record<ArtName, { box: string; paths: Stroke[]; loop?: string }>
 // Every drawing idles in an endless loop (CSS, paused under reduced motion):
 // by default the whole piece floats; marked strokes run their own loop.
 export default function Art({ name, className = "" }: { name: ArtName; className?: string }) {
-  const { box, paths, loop = "loop-float" } = drawings[name];
+  const { box, paths, loop = "loop-float", draw } = drawings[name];
   return (
-    <svg viewBox={box} className={`art ${className}`} aria-hidden focusable="false" data-art>
+    <svg
+      viewBox={box}
+      className={`art ${className}`}
+      aria-hidden
+      focusable="false"
+      data-art
+      data-draw={draw ? "" : undefined}
+    >
       <g className={loop}>
         {paths.map((p, i) =>
           typeof p === "string" ? (

@@ -6,7 +6,6 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, Images } from "@phosphor-icons/rea
 import type { Dict } from "@/lib/dictionaries/pt";
 import { links, photos } from "@/lib/site";
 import Art from "../Art";
-import Geo from "../Geo";
 import { H2, container, section } from "../ui";
 
 const albumLinks = [links.albums.dinner, links.albums.cocktail, links.albums.day1, links.albums.day2];
@@ -16,12 +15,12 @@ export default function About({ t, g }: { t: Dict["about"]; g: Dict["gallery"] }
   const total = photos.gallery.length;
   const go = (step: number) => setIndex((i) => (i + step + total) % total);
   const arrow =
-    "grid size-11 place-items-center rounded-full bg-surface/85 text-ink ring-1 ring-line backdrop-blur-md transition-transform duration-500 ease-[var(--ease-spring)] hover:scale-105 active:scale-95";
+    "grid size-11 place-items-center rounded-full btn-outline bg-surface/85 backdrop-blur-md transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:scale-105 active:scale-95";
 
   return (
     <section id="sobre" className={`${section} bg-bg-2`} aria-labelledby="sobre-title">
-      <Art name="balcony" className="absolute -right-8 bottom-16 hidden w-64 lg:block" />
-      <Geo set="strip" className="absolute right-0 top-0 w-40 md:w-56" />
+      <Art name="balcony" className="pointer-events-none absolute bottom-24 right-[calc((100vw_-_77.5rem)/2_-_9rem)] hidden w-32 min-[1440px]:block" />
+      <Art name="mosaic" className="pointer-events-none absolute -right-16 top-20 w-40 md:-right-14 md:w-52 xl:w-64" />
       <div className={`${container} grid gap-14 lg:grid-cols-12 lg:gap-10`}>
         <div className="lg:col-span-5 lg:pt-6" data-reveal>
           <H2 id="sobre-title">{t.title}</H2>
@@ -49,10 +48,10 @@ export default function About({ t, g }: { t: Dict["about"]; g: Dict["gallery"] }
               ))}
               <div className="absolute bottom-4 right-4 flex gap-2">
                 <button type="button" className={arrow} onClick={() => go(-1)} aria-label={g.prev}>
-                  <ArrowLeft size={18} />
+                  <ArrowLeft size="1.125rem" />
                 </button>
                 <button type="button" className={arrow} onClick={() => go(1)} aria-label={g.next}>
-                  <ArrowRight size={18} />
+                  <ArrowRight size="1.125rem" />
                 </button>
               </div>
             </div>
@@ -91,24 +90,24 @@ export default function About({ t, g }: { t: Dict["about"]; g: Dict["gallery"] }
                 <li key={album}>
                   <a
                     href={albumLinks[i]}
-                    className="group flex items-center justify-between gap-3 rounded-full bg-surface px-5 py-3.5 text-[15px] text-ink ring-1 ring-line transition-colors duration-300 hover:bg-brand-soft"
+                    className="group flex items-center justify-between gap-3 rounded-full bg-surface px-5 py-3.5 text-[0.9375rem] text-ink ring-1 ring-line transition-colors duration-300 hover:bg-brand hover:text-brand-ink"
                   >
                     <span className="flex items-center gap-3">
-                      <Images size={18} weight="light" className="text-brand" />
+                      <Images size="1.125rem" weight="light" className="text-brand" />
                       {album}
                     </span>
-                    <ArrowUpRight size={16} className="transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-translate-y-px group-hover:translate-x-0.5" />
+                    <ArrowUpRight size="1rem" className="transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-translate-y-px group-hover:translate-x-0.5" />
                   </a>
                 </li>
               ))}
             </ul>
             <a
               href={links.allPhotos}
-              className="group mt-5 inline-flex h-12 items-center gap-3 rounded-full bg-brand pl-6 pr-1.5 text-[15px] font-medium text-brand-ink transition-transform duration-500 ease-[var(--ease-spring)] active:scale-[0.98]"
+              className="group mt-5 inline-flex h-12 items-center gap-3 rounded-full btn-solid pl-6 pr-1.5 text-[0.9375rem] font-medium transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] active:scale-[0.98]"
             >
               {g.all}
               <span className="grid size-9 place-items-center rounded-full bg-brand-ink/15 transition-transform duration-500 ease-[var(--ease-spring)] group-hover:scale-105">
-                <ArrowUpRight size={16} />
+                <ArrowUpRight size="1rem" />
               </span>
             </a>
           </div>
