@@ -11,9 +11,17 @@ type Props = { lang: Locale; nav: Dict["nav"]; controls: Dict["controls"] };
 const iconBtn =
   "grid size-10 place-items-center rounded-full text-ink transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-brand hover:text-brand-ink active:scale-[0.96]";
 
-function LangSwitch({ lang, label }: { lang: Locale; label: string }) {
+// Same buttons while the bar sits transparent over the hero video.
+const iconBtnOnVideo =
+  "grid size-10 place-items-center rounded-full text-white transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-white hover:text-block active:scale-[0.96]";
+
+function LangSwitch({ lang, label, onVideo = false }: { lang: Locale; label: string; onVideo?: boolean }) {
   return (
-    <div role="group" aria-label={label} className="flex w-max rounded-full bg-ink/6 p-1">
+    <div
+      role="group"
+      aria-label={label}
+      className={`flex w-max rounded-full p-1 transition-colors duration-500 ${onVideo ? "bg-white/12" : "bg-ink/6"}`}
+    >
       {locales.map((l) => (
         <a
           key={l}
@@ -25,7 +33,13 @@ function LangSwitch({ lang, label }: { lang: Locale; label: string }) {
             document.cookie = `im-lang=${l};path=/;max-age=31536000;samesite=lax`;
           }}
           className={`rounded-full px-2.5 py-1 text-xs font-medium uppercase tracking-wide transition-colors duration-300 ${
-            l === lang ? "bg-brand text-brand-ink" : "text-ink-2 hover:bg-brand-soft hover:text-brand"
+            l === lang
+              ? onVideo
+                ? "bg-white text-block"
+                : "bg-brand text-brand-ink"
+              : onVideo
+                ? "text-white/80 hover:bg-white/15 hover:text-white"
+                : "text-ink-2 hover:bg-brand-soft hover:text-brand"
           }`}
         >
           {l}
@@ -97,7 +111,20 @@ export default function Nav({ lang, nav, controls }: Props) {
     document.body.style.overflow = menuOpen ? "hidden" : "";
   }, [menuOpen]);
 
+  // The bar only materialises once the page leaves the top of the hero.
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setScrolled(!e.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   const isDark = prefs.theme === "dark";
+  const onVideo = !scrolled && !menuOpen;
+  const btn = onVideo ? iconBtnOnVideo : iconBtn;
 
   return (
     <>
@@ -108,11 +135,34 @@ export default function Nav({ lang, nav, controls }: Props) {
         {nav.skip}
       </a>
 
-      <header className="fixed inset-x-0 top-3 z-40 px-3 sm:top-5 sm:px-8 lg:px-[5vw]" data-hero>
-        <div className="flex h-16 w-full items-center justify-between gap-3 rounded-full bg-surface/75 py-2 pl-5 pr-2 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl">
-          <a href="#top" className="flex items-baseline gap-2 text-ink" aria-label="Impact Minds 2027">
-            <span className="whitespace-nowrap font-display text-xl leading-none">Impact Minds</span>
-            <span className="hidden text-xs font-medium text-brand sm:inline">2027</span>
+      <div ref={sentinelRef} aria-hidden className="pointer-events-none absolute left-0 top-0 h-24 w-px" />
+
+      <header
+        className={`fixed inset-x-0 z-40 px-3 transition-[top] duration-700 ease-[var(--ease-out-expo)] sm:px-8 lg:px-[5vw] ${
+          scrolled ? "top-3 sm:top-4" : "top-3 sm:top-6"
+        }`}
+        data-hero
+      >
+        <div
+          className={`mx-auto flex h-16 items-center justify-between gap-3 rounded-full py-2 pl-5 pr-2 transition-[max-width,background-color,box-shadow,backdrop-filter] duration-700 ease-[var(--ease-out-expo)] ${
+            scrolled
+              ? "max-w-[30rem] xl:max-w-[66rem] bg-surface/60 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150"
+              : "max-w-full bg-transparent shadow-none ring-1 ring-transparent backdrop-blur-0"
+          }`}
+        >
+          <a href="#top" className="relative block h-7 w-[7.6rem] shrink-0 sm:h-8 sm:w-[8.7rem]" aria-label="Latimpacto">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/latimpacto-white.svg"
+              alt=""
+              className={`absolute inset-0 size-full transition-opacity duration-500 ${onVideo ? "opacity-100" : "opacity-0 dark:opacity-100"}`}
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/latimpacto.svg"
+              alt=""
+              className={`absolute inset-0 size-full transition-opacity duration-500 ${onVideo ? "opacity-0" : "opacity-100 dark:opacity-0"}`}
+            />
           </a>
 
           <nav aria-label={nav.primary} className="hidden xl:block">
@@ -121,7 +171,9 @@ export default function Nav({ lang, nav, controls }: Props) {
                 <li key={item.label}>
                   <a
                     href={item.href}
-                    className="group relative block whitespace-nowrap px-3.5 py-2 text-sm text-ink-2 transition-colors duration-300 hover:text-brand focus-visible:text-brand"
+                    className={`group relative block whitespace-nowrap px-3.5 py-2 text-sm transition-colors duration-300 ${
+                      onVideo ? "text-white/85 hover:text-white" : "text-ink-2 hover:text-brand focus-visible:text-brand"
+                    }`}
                   >
                     {item.label}
                     {/* Gold rule grows from the left on hover / keyboard focus. */}
@@ -137,11 +189,11 @@ export default function Nav({ lang, nav, controls }: Props) {
 
           <div className="flex items-center gap-1">
             <div className="hidden sm:block">
-              <LangSwitch lang={lang} label={controls.language} />
+              <LangSwitch lang={lang} label={controls.language} onVideo={onVideo} />
             </div>
             <button
               type="button"
-              className={iconBtn}
+              className={btn}
               onClick={() => setTheme(isDark ? "light" : "dark")}
               aria-label={isDark ? controls.themeToLight : controls.themeToDark}
             >
@@ -152,7 +204,7 @@ export default function Nav({ lang, nav, controls }: Props) {
               <button
                 ref={panelBtnRef}
                 type="button"
-                className={iconBtn}
+                className={btn}
                 aria-label={controls.a11yOpen}
                 aria-expanded={panelOpen}
                 aria-controls="a11y-panel"
@@ -213,7 +265,7 @@ export default function Nav({ lang, nav, controls }: Props) {
 
             <button
               type="button"
-              className={iconBtn + " relative xl:hidden"}
+              className={btn + " relative xl:hidden"}
               aria-label={menuOpen ? nav.closeMenu : nav.openMenu}
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
