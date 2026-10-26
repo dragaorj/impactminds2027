@@ -295,6 +295,45 @@ html.js:not([data-motion="reduce"]) [data-hero] {
 }
 html[data-motion="reduce"] .visit-timer { animation: none; stroke-dashoffset: 100; }
 
+/* Editions bento. Phones: two columns, a few tiles span both. From md: twelve
+   named areas on 6 columns x 4 rows; Editions.tsx swaps --cols/--rows and the
+   track sizes glide between sets, so every tile reshapes smoothly in place.
+     a a b c d e
+     f f b g d h
+     f f i g j h
+     k k i l l l                                                              */
+.editions-bento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 9rem;
+  gap: 0.5rem;
+}
+@media (max-width: 47.99rem) {
+  /* The named areas only exist from md; on phones tiles flow in order. */
+  .editions-bento > li { grid-area: auto !important; }
+  .editions-bento > li:nth-child(1),
+  .editions-bento > li:nth-child(6),
+  .editions-bento > li:nth-child(12) { grid-column: span 2 !important; }
+}
+@media (min-width: 48rem) {
+  .editions-bento {
+    gap: 0.75rem;
+    height: clamp(30rem, 44vw, 46rem);
+    grid-auto-rows: auto;
+    grid-template-areas:
+      "a a b c d e"
+      "f f b g d h"
+      "f f i g j h"
+      "k k i l l l";
+    grid-template-columns: var(--cols);
+    grid-template-rows: var(--rows);
+    transition:
+      grid-template-columns 3.2s cubic-bezier(0.45, 0, 0.2, 1),
+      grid-template-rows 3.2s cubic-bezier(0.45, 0, 0.2, 1);
+  }
+}
+html[data-motion="reduce"] .editions-bento { transition: none; }
+
 /* Survey rating dots: a soft gold pulse keeps travelling along each row. */
 @keyframes dotWave {
   0%, 36%, 100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }

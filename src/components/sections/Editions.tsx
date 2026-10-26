@@ -1,39 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { editionGalleries } from "@/lib/site";
 import Art from "../Art";
 import Lightbox from "../Lightbox";
+import { prefersReducedMotion } from "../prefs";
 import { H2, container, section } from "../ui";
 
-// Twelve tiles, gapless at every breakpoint (grid-flow-dense):
-//   lg (12 cols): rows 1-2  6x2 | 3x1 | 3x2 / 3x1
-//                 rows 3-4  4x1 | 4x2 | 4x1 / 4x1 | 4x1
-//                 rows 5-6  3x2 | 6x2 | 3x2
-//   md (4 cols): first tile 2x2, last 2x1, ten singles = 4 full rows
-//   phones (2 cols): first and last span both columns, ten singles
-const spans = [
-  "col-span-2 md:row-span-2 lg:col-span-6",
-  "lg:col-span-3",
-  "lg:col-span-3 lg:row-span-2",
-  "lg:col-span-3",
-  "lg:col-span-4",
-  "lg:col-span-4 lg:row-span-2",
-  "lg:col-span-4",
-  "lg:col-span-4",
-  "lg:col-span-4",
-  "lg:col-span-3 lg:row-span-2",
-  "lg:col-span-6 lg:row-span-2",
-  "col-span-2 lg:col-span-3 lg:row-span-2",
+// A true bento: twelve tiles of different shapes on a 6x4 grid (the areas
+// live in globals.css, .editions-bento). Every few seconds the column and row
+// track sizes move to a new set, and because track sizes interpolate the tiles
+// grow and shrink smoothly in both directions without ever reordering.
+// Phones get a static two-column version.
+const COLS = [
+  "1.5fr 1fr 0.7fr 1fr 0.8fr 1fr",
+  "0.8fr 1.1fr 1.2fr 0.7fr 1.3fr 0.9fr",
+  "1fr 0.7fr 1fr 1.4fr 0.8fr 1.1fr",
+  "1.1fr 1.3fr 0.8fr 0.9fr 1fr 0.7fr",
 ];
+const ROWS = [
+  "1fr 1.4fr 0.9fr 0.7fr",
+  "1.3fr 0.8fr 1fr 1fr",
+  "0.8fr 1fr 1.4fr 0.8fr",
+  "1fr 0.9fr 0.8fr 1.3fr",
+];
+const AREAS = "abcdefghijkl";
+// Focal point per tile (object-position) for the 2026 photos, chosen so faces
+// stay in frame however narrow or wide the tile gets during the animation.
+const FOCUS_2026 = [
+  "45% 50%", // group on stage
+  "72% 40%", // speaker at the lectern
+  "45% 25%", // conversation
+  "55% 45%", // panel under the banner
+  "40% 42%", // two speakers
+  "50% 55%", // group at the backdrop
+  "50% 35%", // seated talk
+  "58% 42%", // panel by the cube
+  "45% 55%", // circle of chairs
+  "50% 68%", // stage panel
+  "40% 32%", // audience
+  "62% 62%", // lounge
+];
+const STEP_MS = 5000;
 
 export default function Editions({ t }: { t: Dict["editions"] }) {
   const [active, setActive] = useState(0);
   const [viewing, setViewing] = useState<number | null>(null);
   const photos = editionGalleries[active] ?? [];
   const current = t.list[active];
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (viewing !== null || prefersReducedMotion()) return;
+    const id = window.setInterval(() => setTick((n) => n + 1), STEP_MS);
+    return () => window.clearInterval(id);
+  }, [viewing]);
 
   return (
     <section id="edicoes" className={`${section} scroll-mt-20`} aria-labelledby="edicoes-title">
@@ -48,13 +71,14 @@ export default function Editions({ t }: { t: Dict["editions"] }) {
         {photos.length ? (
           <ul
             key={active}
-            className="mt-12 grid grid-flow-dense auto-rows-[9rem] grid-cols-2 gap-2 sm:auto-rows-[11rem] md:mt-16 md:grid-cols-4 md:gap-3 lg:auto-rows-[12rem] lg:grid-cols-12"
+            className="editions-bento mt-12 md:mt-16"
+            style={{ "--cols": COLS[tick % COLS.length], "--rows": ROWS[(tick + 1) % ROWS.length] } as React.CSSProperties}
           >
             {photos.slice(0, 12).map((src, i) => (
               <li
                 key={src}
-                className={`group relative overflow-hidden rounded-[1.5rem] bg-block ring-1 ring-line ${spans[i]} animate-[menuIn_0.9s_var(--ease-out-expo)_both] motion-reduce:animate-none`}
-                style={{ animationDelay: `${i * 45}ms` }}
+                className="group relative min-h-0 min-w-0 overflow-hidden rounded-[1.25rem] bg-block ring-1 ring-line transition-shadow duration-500 hover:ring-sun/60 md:rounded-[1.5rem] animate-[menuIn_0.9s_var(--ease-out-expo)_both] motion-reduce:animate-none"
+                style={{ gridArea: AREAS[i], animationDelay: `${i * 45}ms` } as React.CSSProperties}
               >
                 <button
                   type="button"
@@ -66,8 +90,13 @@ export default function Editions({ t }: { t: Dict["editions"] }) {
                     src={src}
                     alt={`${current.city} ${current.year}, ${t.photos} ${i + 1}`}
                     fill
-                    sizes={i === 0 || i === 10 ? "(min-width:1024px) 50vw, 100vw" : "(min-width:1024px) 33vw, 50vw"}
-                    className="object-cover transition-transform duration-1000 ease-[var(--ease-out-expo)] group-hover:scale-105"
+                    sizes="(min-width:1024px) 40vw, 60vw"
+                    className="object-cover transition-transform duration-[1800ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.06]"
+                    style={{ objectPosition: active === 0 ? FOCUS_2026[i] : "50% 40%" }}
+                  />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(34_14_52/0)_55%,rgb(34_14_52/0.45))] opacity-60 transition-opacity duration-700 group-hover:opacity-0"
                   />
                 </button>
               </li>

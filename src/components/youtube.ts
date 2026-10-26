@@ -12,6 +12,7 @@ export type YTPlayer = {
   seekTo(seconds: number, allowSeekAhead: boolean): void;
   getCurrentTime(): number;
   getDuration(): number;
+  getPlayerState(): number;
   destroy(): void;
 };
 type YTNamespace = {
@@ -71,5 +72,34 @@ export function keepLooping(getPlayer: () => YTPlayer | null, onLoop: () => void
       }
     } catch {}
   }, 200);
+  return () => window.clearInterval(id);
+}
+
+// Watchdog for muted background playback: whenever the video should be
+// playing but is paused, unstarted or frozen on the same frame (a stalled
+// buffer), it is nudged back into motion instead of sitting still.
+export function keepPlaying(getPlayer: () => YTPlayer | null, shouldPlay: () => boolean) {
+  let lastTime = -1;
+  let stuck = 0;
+  const id = window.setInterval(() => {
+    const p = getPlayer();
+    if (!p || !shouldPlay()) {
+      stuck = 0;
+      return;
+    }
+    try {
+      const state = p.getPlayerState();
+      const t = p.getCurrentTime();
+      if (state === 2 || state === 5 || state === -1) p.playVideo();
+      stuck = (state === 1 || state === 3) && Math.abs(t - lastTime) < 0.05 ? stuck + 1 : 0;
+      lastTime = t;
+      if (stuck >= 3) {
+        // Frozen for ~3s: skip a hair ahead, which makes YouTube re-request the stream.
+        p.seekTo(t + 0.5, true);
+        p.playVideo();
+        stuck = 0;
+      }
+    } catch {}
+  }, 1000);
   return () => window.clearInterval(id);
 }
