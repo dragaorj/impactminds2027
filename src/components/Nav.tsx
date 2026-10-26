@@ -147,7 +147,7 @@ export default function Nav({ lang, nav, controls }: Props) {
       >
         <div
           className={`mx-auto flex h-16 items-center justify-between gap-3 rounded-full py-2 pl-5 pr-2 transition-[max-width,background-color,box-shadow,backdrop-filter] duration-700 ease-[var(--ease-out-expo)] ${
-            scrolled
+            scrolled || menuOpen
               ? "max-w-[30rem] xl:max-w-[66rem] bg-surface/60 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150"
               : "max-w-full bg-transparent shadow-none ring-1 ring-transparent backdrop-blur-0"
           }`}
@@ -288,43 +288,54 @@ export default function Nav({ lang, nav, controls }: Props) {
         </div>
       </header>
 
-      <div
-        id="mobile-menu"
-        hidden={!menuOpen}
-        className="fixed inset-0 z-30 flex flex-col justify-between bg-bg/92 px-6 pb-10 pt-32 backdrop-blur-2xl xl:hidden"
-      >
-        <nav aria-label={nav.primary}>
-          <ul className="flex flex-col gap-2">
-            {items.map((item, i) => (
-              <li
-                key={item.label}
-                className="animate-[menuIn_0.7s_var(--ease-out-expo)_both]"
-                style={{ animationDelay: `${80 + i * 60}ms` }}
-              >
-                <a
-                  href={item.href}
-                  onClick={() => setMenuOpen(false)}
-                  className="group relative flex items-center py-2 font-display text-4xl text-ink transition-colors duration-300 hover:text-brand focus-visible:text-brand active:text-brand sm:text-5xl"
-                >
-                  <ArrowRight
-                    aria-hidden
-                    size="1.75rem"
-                    className="-ml-9 mr-0 w-7 shrink-0 text-sun opacity-0 transition-[margin,opacity] duration-500 ease-[var(--ease-out-expo)] group-hover:ml-0 group-hover:mr-3 group-hover:opacity-100 group-focus-visible:ml-0 group-focus-visible:mr-3 group-focus-visible:opacity-100 group-active:ml-0 group-active:mr-3 group-active:opacity-100"
-                  />
-                  <span className="relative">
-                    {item.label}
-                    <span
-                      aria-hidden
-                      className="absolute inset-x-0 -bottom-1 h-[2px] origin-left scale-x-0 rounded-full bg-sun transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover:scale-x-100 group-focus-visible:scale-x-100 group-active:scale-x-100"
-                    />
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <LangSwitch lang={lang} label={controls.language} />
-      </div>
+      {menuOpen && (
+        <>
+          {/* Soft veil over the page; tapping it closes the menu. */}
+          <div
+            aria-hidden
+            onClick={() => setMenuOpen(false)}
+            className="fixed inset-0 z-30 animate-[fadeIn_0.4s_ease-out_both] bg-block/30 backdrop-blur-[6px] xl:hidden"
+          />
+          {/* Glass card that drops from the pill, same material as the bar. */}
+          <div
+            id="mobile-menu"
+            className="fixed inset-x-3 top-[5.25rem] z-40 mx-auto max-w-[30rem] origin-top animate-[menuDrop_0.55s_var(--ease-out-expo)_both] rounded-[2rem] bg-surface/70 p-2 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:inset-x-8 sm:top-[5.75rem] xl:hidden"
+          >
+            <nav aria-label={nav.primary}>
+              <ul className="flex flex-col">
+                {items.map((item, i) => (
+                  <li
+                    key={item.label}
+                    className="animate-[menuItem_0.6s_var(--ease-out-expo)_both] [&+li]:border-t [&+li]:border-line"
+                    style={{ animationDelay: `${60 + i * 50}ms` }}
+                  >
+                    <a
+                      href={item.href}
+                      onClick={() => setMenuOpen(false)}
+                      className="group flex items-center gap-4 rounded-[1.5rem] px-4 py-4 text-ink transition-colors duration-300 hover:bg-brand/8 hover:text-brand focus-visible:bg-brand/8 focus-visible:text-brand active:bg-brand/8"
+                    >
+                      <span className="w-6 text-xs font-medium tabular-nums text-sun">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="flex-1 font-display text-[1.375rem] leading-tight">{item.label}</span>
+                      <ArrowRight
+                        aria-hidden
+                        size="1.125rem"
+                        className="shrink-0 text-ink-2 transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-x-1 group-hover:text-brand"
+                      />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <div
+              className="mt-1 flex animate-[menuItem_0.6s_var(--ease-out-expo)_both] items-center justify-between gap-3 rounded-[1.5rem] bg-ink/5 py-2 pl-4 pr-2"
+              style={{ animationDelay: `${60 + items.length * 50}ms` }}
+            >
+              <span className="text-xs text-ink-2">{controls.language}</span>
+              <LangSwitch lang={lang} label={controls.language} />
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }
