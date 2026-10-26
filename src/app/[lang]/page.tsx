@@ -1,0 +1,57 @@
+import { notFound } from "next/navigation";
+import { getDictionary, hasLocale, htmlLang } from "@/lib/i18n";
+import Nav from "@/components/Nav";
+import Hero from "@/components/Hero";
+import Preloader from "@/components/Preloader";
+import ScrollFx from "@/components/ScrollFx";
+import BackToTop from "@/components/BackToTop";
+import Numbers from "@/components/sections/Numbers";
+import About from "@/components/sections/About";
+import Survey from "@/components/sections/Survey";
+import Speakers from "@/components/sections/Speakers";
+import Testimonials from "@/components/sections/Testimonials";
+import Launches from "@/components/sections/Launches";
+import Events from "@/components/sections/Events";
+import Visits from "@/components/sections/Visits";
+import Digital from "@/components/sections/Digital";
+import Connections from "@/components/sections/Connections";
+import Agenda from "@/components/sections/Agenda";
+import Sponsor from "@/components/sections/Sponsor";
+import Carbon from "@/components/sections/Carbon";
+import Editions from "@/components/sections/Editions";
+import Footer from "@/components/sections/Footer";
+
+export default async function Page({ params }: PageProps<"/[lang]">) {
+  const { lang } = await params;
+  if (!hasLocale(lang)) notFound();
+  const t = getDictionary(lang);
+  const locale = htmlLang[lang];
+
+  return (
+    <>
+      <Preloader caption={`${t.hero.eyebrow} · ${t.hero.dates}`} />
+      <div className="grain" aria-hidden />
+      <Nav lang={lang} nav={t.nav} controls={t.controls} />
+      <main id="conteudo" tabIndex={-1} className="w-full max-w-full overflow-x-clip outline-none">
+        <Hero t={t.hero} />
+        <Numbers t={t.numbers} locale={locale} />
+        <About t={t.about} g={t.gallery} />
+        <Survey t={t.survey} locale={locale} />
+        <Testimonials t={t.testimonials} lang={lang} />
+        <Speakers t={t.speakers} lang={lang} />
+        <Connections t={t.connections} />
+        <Launches t={t.launches} />
+        <Events t={t.events} />
+        <Visits t={t.visits} />
+        <Agenda t={t.agenda} place={t.hero.eyebrow} />
+        <Sponsor t={t.sponsor} locale={locale} />
+        <Carbon t={t.carbon} />
+        <Digital t={t.digital} />
+        <Editions t={t.editions} />
+      </main>
+      <Footer t={t.footer} hero={t.hero} />
+      <BackToTop label={t.footer.backToTop} />
+      <ScrollFx />
+    </>
+  );
+}

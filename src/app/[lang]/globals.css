@@ -1,0 +1,290 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+  Shape system: interactive controls are full pills, cards use the
+  double-bezel pair (outer 2rem, inner 2rem - 6px). Nothing else is rounded.
+  Z-index scale: art 0, content 10, nav 40, overlays 60, preloader 90.
+*/
+
+/*
+  Impact Minds 2027 palette (from the official Cartagena banner)
+  Papel     #F3F1EE  textured paper background
+  Púrpura   #5B2A86  "MINDS", primary accent
+  Noche     #3E1A5E  deep purple blocks (agenda, preloader)
+  Violeta   #8E63C6  geometric tiles
+  Lavanda   #C9B5E6  soft tiles and fills
+  Oro       #C9A24D  line-art, "CARTAGENA, COLOMBIA"
+  Tinta     #2A1240  text
+*/
+:root {
+  --bg: #f3f1ee;
+  --bg-2: #ebe6ef;
+  --surface: #fbfaf8;
+  --ink: #2a1240;
+  --ink-2: #4a3560;
+  --muted: #6b5a7e;
+  --line: rgb(42 18 64 / 0.12);
+  --brand: #5b2a86;
+  --brand-ink: #fbf8ff;
+  --brand-soft: #e6dcf3;
+  --block: #3e1a5e;
+  --block-ink: #f6f1fb;
+  --block-muted: #cdbbe3;
+  --sun: #c9a24d;
+  --sun-ink: #2a1c00;
+  --terra: #8e63c6;
+  --terra-ink: #1e0b33;
+  --lavender: #c9b5e6;
+  --gold: #b8913c;
+  --art: #b8913c;
+  --art-opacity: 0.55;
+  --shadow: 0 30px 80px -40px rgb(62 26 94 / 0.35);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #150b20;
+  --bg-2: #1c1029;
+  --surface: #231533;
+  --ink: #f4eff8;
+  --ink-2: #d8cde4;
+  --muted: #ab9bbf;
+  --line: rgb(244 239 248 / 0.12);
+  --brand: #c3a1ee;
+  --brand-ink: #1e0b33;
+  --brand-soft: #33204a;
+  --block: #2d1446;
+  --block-ink: #f6f1fb;
+  --block-muted: #c6b3de;
+  --sun: #d9b865;
+  --sun-ink: #241800;
+  --terra: #a585d6;
+  --terra-ink: #170827;
+  --lavender: #6e559a;
+  --gold: #d9b865;
+  --art: #d9b865;
+  --art-opacity: 0.4;
+  --shadow: 0 30px 80px -40px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+[data-contrast="high"] {
+  --ink: #12061f;
+  --ink-2: #12061f;
+  --muted: #2b1d3a;
+  --line: rgb(18 6 31 / 0.6);
+  --brand: #3e1466;
+  --block: #24083f;
+  --block-muted: #ffffff;
+  --art-opacity: 0.25;
+}
+
+[data-theme="dark"][data-contrast="high"] {
+  --ink: #ffffff;
+  --ink-2: #ffffff;
+  --muted: #efe8f6;
+  --line: rgb(255 255 255 / 0.6);
+  --brand: #e2cfff;
+  --block: #000000;
+  --block-muted: #ffffff;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-block: var(--block);
+  --color-block-ink: var(--block-ink);
+  --color-block-muted: var(--block-muted);
+  --color-sun: var(--sun);
+  --color-terra: var(--terra);
+  --color-terra-ink: var(--terra-ink);
+  --color-lavender: var(--lavender);
+  --color-gold: var(--gold);
+  --color-sun-ink: var(--sun-ink);
+  --font-sans: var(--font-gsans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-gloock), Georgia, serif;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Text size steps from the accessibility panel scale every rem on the page. */
+html { font-size: 100%; scroll-behavior: smooth; }
+html[data-text="2"] { font-size: 112.5%; }
+html[data-text="3"] { font-size: 125%; }
+html[data-motion="reduce"] { scroll-behavior: auto; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--brand); color: var(--brand-ink); }
+
+:focus-visible {
+  outline: 3px solid var(--sun);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+html[data-links="on"] main a,
+html[data-links="on"] footer a {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 4px;
+  outline: 2px dashed var(--sun);
+  outline-offset: 2px;
+}
+
+.font-display { font-weight: 400; letter-spacing: -0.02em; }
+
+/* Grain lives on a fixed layer only, never on scrolling content. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+[data-theme="dark"] .grain { opacity: 0.07; }
+
+/* Cartagena line art: fades in whole as it enters the viewport (ScrollFx);
+   only the preloader balcony draws its strokes. */
+.art { color: var(--art); opacity: var(--art-opacity); pointer-events: none; }
+.art path, .art circle, .art line, .art rect, .art ellipse, .art polyline {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+html.js:not([data-motion="reduce"]) .pl-art [pathLength] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+html.js:not([data-motion="reduce"]) main .art,
+html.js:not([data-motion="reduce"]) footer .art {
+  visibility: hidden;
+}
+
+/* Initial states for GSAP; skipped entirely when motion is reduced. */
+html.js:not([data-motion="reduce"]) [data-reveal],
+html.js:not([data-motion="reduce"]) [data-hero] {
+  opacity: 0;
+}
+
+/* YouTube background sized like object-fit: cover. */
+.yt-cover { container-type: size; }
+.yt-cover iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100cqw, 177.78cqh);
+  height: max(100cqh, 56.25cqw);
+  transform: translate(-50%, -50%);
+  border: 0;
+  pointer-events: none;
+}
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+@keyframes menuIn {
+  from { opacity: 0; transform: translateY(3rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* Idle loops for the Cartagena line art and the geometric tiles. Each runs
+   on its own element (inside the svg) so GSAP's entrance transform on the svg
+   itself is never overridden. */
+.loop-float, .loop-sway, .loop-sway-soft, .loop-wave, .loop-bob, .loop-fly, .loop-drift,
+.geo-turn, .geo-breathe, .geo-mirror {
+  transform-box: fill-box;
+  will-change: transform;
+}
+@keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-6px) rotate(0.6deg); } }
+@keyframes sway { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
+@keyframes wave { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-14px); } }
+@keyframes bob { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-4px) rotate(1.5deg); } }
+@keyframes fly { 0% { transform: translate(0, 0); } 25% { transform: translate(14px, -5px); } 50% { transform: translate(26px, 0); } 75% { transform: translate(12px, 4px); } 100% { transform: translate(0, 0); } }
+@keyframes drift { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-22px); } }
+@keyframes pulse-line { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+@keyframes geo-turn { 0%, 30% { transform: rotate(0deg); } 50%, 80% { transform: rotate(180deg); } 100% { transform: rotate(360deg); } }
+@keyframes geo-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.78); } }
+@keyframes geo-mirror { 0%, 35% { transform: scaleX(1); } 50%, 85% { transform: scaleX(-1); } 100% { transform: scaleX(1); } }
+
+.loop-float { transform-origin: 50% 100%; animation: float 7s ease-in-out infinite; }
+.loop-sway { transform-origin: 50% 100%; animation: sway 5s ease-in-out infinite; }
+.loop-sway-soft { transform-origin: 0% 100%; animation: sway 6s ease-in-out infinite; }
+.loop-wave { animation: wave 4s ease-in-out infinite; }
+.loop-bob { transform-origin: 50% 100%; animation: bob 3.2s ease-in-out infinite; }
+.loop-fly { animation: fly 9s ease-in-out infinite; }
+.loop-drift { animation: drift 12s ease-in-out infinite; }
+.loop-pulse { animation: pulse-line 3.2s ease-in-out infinite; }
+.geo-turn { transform-origin: 50% 50%; animation: geo-turn 8s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+.geo-breathe { transform-origin: 50% 50%; animation: geo-breathe 5s ease-in-out infinite; }
+.geo-mirror { transform-origin: 50% 50%; animation: geo-mirror 7s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+
+html[data-motion="reduce"] :is(.loop-float, .loop-sway, .loop-sway-soft, .loop-wave, .loop-bob, .loop-fly, .loop-drift, .loop-pulse, .geo-turn, .geo-breathe, .geo-mirror) {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.loop-float, .loop-sway, .loop-sway-soft, .loop-wave, .loop-bob, .loop-fly, .loop-drift, .loop-pulse, .geo-turn, .geo-breathe, .geo-mirror) {
+    animation: none;
+  }
+}
+
+/* Participants chart: marching dashes and a light running along the rooftops. */
+@keyframes march { to { stroke-dashoffset: -16; } }
+@keyframes run {
+  0% { offset-distance: 0%; opacity: 0; }
+  8% { opacity: 1; }
+  92% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+.chart-march { animation: march 0.9s linear infinite; }
+.chart-runner { offset-rotate: 0deg; animation: run 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+html[data-motion="reduce"] .chart-march { animation: none; }
+html[data-motion="reduce"] .chart-runner { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .chart-march { animation: none; }
+  .chart-runner { display: none; }
+}
+
+/* Speakers conveyor: two identical lists, the track slides by one list width. */
+.speaker-track { animation: marquee 80s linear infinite; }
+.speaker-loop:hover .speaker-track,
+.speaker-loop:focus-within .speaker-track,
+.speaker-loop[data-paused] .speaker-track { animation-play-state: paused; }
+html[data-motion="reduce"] .speaker-loop { overflow-x: auto; mask-image: none; padding-inline: 1rem; }
+html[data-motion="reduce"] .speaker-track { animation: none; }
+html[data-motion="reduce"] .speaker-copy,
+html[data-motion="reduce"] .speaker-toggle { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .speaker-loop { overflow-x: auto; mask-image: none; }
+  .speaker-track { animation: none; }
+  .speaker-copy, .speaker-toggle { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+.preloader { display: none; }
+html.js:not([data-motion="reduce"]) .preloader { display: flex; }
