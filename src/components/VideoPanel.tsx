@@ -35,7 +35,7 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
   const [started, setStarted] = useState(false);
   const [open, setOpen] = useState(false);
 
-  // The loop should run while the panel is on screen and the lightbox is closed.
+  // The loop should run whenever the lightbox is closed.
   const wanted = useRef(false);
   const lightboxOpen = useRef(false);
 
@@ -48,22 +48,9 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
     const mount = document.createElement("div");
     host?.appendChild(mount);
     const autoplay = !prefersReducedMotion();
-    // Plays by default; the observer below only pauses it while off screen, so
-    // playback never depends on visibility reports arriving.
+    // It keeps playing off screen too: every resume after a pause makes
+    // YouTube flash its title and controls, so the loop is never paused.
     wanted.current = autoplay;
-
-    // Off screen the video pauses, so it never competes for bandwidth with
-    // the rest of the page, and resumes as soon as it is back in view.
-    const io = new IntersectionObserver(([entry]) => {
-      wanted.current = autoplay && entry.isIntersecting;
-      const p = player.current;
-      if (!p || lightboxOpen.current) return;
-      try {
-        if (wanted.current) p.playVideo();
-        else p.pauseVideo();
-      } catch {}
-    });
-    if (host) io.observe(host);
 
     loadYouTube().then((YT) => {
       if (cancelled) return;
@@ -79,15 +66,14 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
           },
           onStateChange: (e: { data: number }) => {
             // Same trick as the hero: keep the poster up until playback is steady
-            // so YouTube's start-up chrome never shows. Once the video has been
-            // revealed, a short buffer keeps the last frame instead of flashing
-            // the poster, and a resume after a pause uncovers quickly.
+            // so YouTube's start/resume chrome never shows. Once the video has
+            // been revealed, a short buffer (3) leaves things as they are: the
+            // last frame stays instead of flashing the poster.
+            if (e.data === 3 && revealed) return;
             window.clearTimeout(timer);
             if (e.data === 1) {
-              timer = window.setTimeout(() => setStarted(true), revealed ? 700 : 4000);
+              timer = window.setTimeout(() => setStarted(true), revealed ? 3500 : 4000);
               revealed = true;
-            } else if (e.data === 3 && revealed) {
-              setStarted(true);
             } else if (e.data === -1 || e.data === 0 || e.data === 2 || e.data === 3) {
               setStarted(false);
             }
@@ -111,7 +97,6 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
     );
 
     return () => {
-      io.disconnect();
       stopWatchdog();
       stopLoop();
       cancelled = true;
