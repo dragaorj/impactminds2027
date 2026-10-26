@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
     title: dict.meta.title,
     description: dict.meta.description,
     alternates: {
-      languages: Object.fromEntries(locales.map((l) => [htmlLang[l], `/${l}`])),
+      languages: { ...Object.fromEntries(locales.map((l) => [htmlLang[l], `/${l}`])), "x-default": "/en" },
     },
     openGraph: { title: dict.meta.title, description: dict.meta.description, type: "website" },
   };

@@ -4,7 +4,8 @@ import en from "./dictionaries/en";
 
 export const locales = ["pt", "es", "en"] as const;
 export type Locale = (typeof locales)[number];
-export const defaultLocale: Locale = "pt";
+// Used when the browser asks for none of the three languages.
+export const defaultLocale: Locale = "en";
 
 export const htmlLang: Record<Locale, string> = { pt: "pt-BR", es: "es", en: "en" };
 
