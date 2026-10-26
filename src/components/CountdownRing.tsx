@@ -136,7 +136,7 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
             <a
               href="#agenda-2027"
               onClick={() => setOpen(false)}
-              className="group mt-5 flex items-center justify-between rounded-full py-2 pl-4 pr-2 text-sm font-medium text-brand ring-1 ring-line transition-colors hover:bg-brand hover:text-brand-ink"
+              className="group mt-5 flex items-center justify-between rounded-full py-2 pl-4 pr-2 text-sm font-medium text-brand ring-1 ring-line transition-colors hover:bg-sun hover:text-sun-ink"
             >
               {labels.agendaLink}
               <ArrowRight size="1rem" className="transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-x-0.5" />

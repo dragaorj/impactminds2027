@@ -21,7 +21,7 @@ type Labels = {
 const pill =
   "group inline-flex h-12 items-center gap-2.5 rounded-full btn-outline p-1.5 pr-5 text-[0.9375rem] font-medium transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] active:scale-[0.97] disabled:opacity-50";
 const pillIcon =
-  "grid size-9 place-items-center rounded-full bg-brand text-brand-ink transition-colors duration-500 group-hover:bg-brand-ink group-hover:text-brand";
+  "grid size-9 place-items-center rounded-full bg-brand text-brand-ink transition-colors duration-500 group-hover:bg-sun-ink group-hover:text-sun";
 
 // Inline video that plays muted on a loop (unless motion is reduced). One
 // button lets the visitor turn the sound on in place; the other opens the full

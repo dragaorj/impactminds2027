@@ -246,6 +246,9 @@ const es: Dict = {
     "close": "Cerrar",
     "prev": "Foto anterior",
     "next": "Foto siguiente",
+    "pause": "Pausar fotos",
+    "play": "Reanudar fotos",
+    "enlarge": "Ampliar foto",
     "list": [
       {
         "name": "Fazenda Remata",

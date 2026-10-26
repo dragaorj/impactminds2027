@@ -15,7 +15,7 @@ type Labels = {
 };
 
 const ctrl =
-  "group inline-flex h-12 items-center gap-2.5 rounded-full bg-white/10 p-1.5 pr-5 text-[0.9375rem] font-medium text-white ring-1 ring-white/25 backdrop-blur-md transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:bg-white/20 active:scale-[0.97]";
+  "group inline-flex h-12 items-center gap-2.5 rounded-full bg-white/10 p-1.5 pr-5 text-[0.9375rem] font-medium text-white ring-1 ring-white/25 backdrop-blur-md transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-[0.97]";
 const ctrlIcon = "grid size-9 place-items-center rounded-full bg-white text-[#2A1240]";
 
 // Full video with sound in a lightbox, with no YouTube chrome at any moment:

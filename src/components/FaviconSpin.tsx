@@ -7,8 +7,10 @@ const TURN_MS = 12_000; // one slow revolution
 const FRAME_MS = 100;
 
 // Browsers show SVG favicons as a still image, so the Latimpacto mark is drawn
-// rotated onto a canvas and swapped in as the tab icon a few times a second.
-// The static /icon.svg stays as the fallback for crawlers and reduced motion.
+// rotated onto a canvas and fed to the tab a few times a second. Chrome
+// prefers an SVG icon over any PNG one, so instead of adding a second link the
+// existing icon links are taken over while spinning and restored afterwards.
+// The static /icon.svg stays for crawlers and reduced motion.
 export default function FaviconSpin() {
   useEffect(() => {
     if (prefersReducedMotion()) return;
@@ -18,13 +20,27 @@ export default function FaviconSpin() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const link = document.createElement("link");
-    link.rel = "icon";
-    link.type = "image/png";
+    let links: { el: HTMLLinkElement; href: string; type: string; sizes: string }[] = [];
+    let added: HTMLLinkElement | null = null;
     let timer = 0;
     const img = new Image();
     img.onload = () => {
-      document.head.appendChild(link);
+      links = [...document.querySelectorAll<HTMLLinkElement>('link[rel~="icon"]')].map((el) => ({
+        el,
+        href: el.href,
+        type: el.type,
+        sizes: el.getAttribute("sizes") ?? "",
+      }));
+      if (!links.length) {
+        added = document.createElement("link");
+        added.rel = "icon";
+        document.head.appendChild(added);
+        links = [{ el: added, href: "", type: "", sizes: "" }];
+      }
+      for (const { el } of links) {
+        el.type = "image/png";
+        el.removeAttribute("sizes");
+      }
       const draw = () => {
         ctx.clearRect(0, 0, size, size);
         ctx.save();
@@ -34,7 +50,8 @@ export default function FaviconSpin() {
         const s = size * 0.7;
         ctx.drawImage(img, -s / 2, -s / 2, s, s);
         ctx.restore();
-        link.href = canvas.toDataURL("image/png");
+        const url = canvas.toDataURL("image/png");
+        for (const { el } of links) el.href = url;
       };
       draw();
       timer = window.setInterval(draw, FRAME_MS);
@@ -43,7 +60,13 @@ export default function FaviconSpin() {
 
     return () => {
       window.clearInterval(timer);
-      link.remove();
+      added?.remove();
+      for (const { el, href, type, sizes } of links) {
+        if (el === added) continue;
+        el.href = href;
+        el.type = type;
+        if (sizes) el.setAttribute("sizes", sizes);
+      }
     };
   }, []);
 

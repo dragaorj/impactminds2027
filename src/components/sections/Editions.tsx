@@ -100,12 +100,12 @@ export default function Editions({ t }: { t: Dict["editions"] }) {
                     setActive(i);
                     setViewing(null);
                   }}
-                  className={`shrink-0 rounded-full px-5 py-3 text-left transition-[background-color,color,box-shadow] duration-300 ${
+                  className={`group shrink-0 rounded-full px-5 py-3 text-left transition-[background-color,color,box-shadow] duration-300 ${
                     on ? "bg-brand text-brand-ink" : "btn-outline"
                   }`}
                 >
                   <span className="block font-display text-lg leading-none">{e.year}</span>
-                  <span className={`mt-1 block text-xs ${on ? "text-brand-ink/80" : "text-muted"}`}>{e.city}</span>
+                  <span className={`mt-1 block text-xs ${on ? "text-brand-ink/80" : "text-muted group-hover:text-sun-ink/75 group-focus-visible:text-sun-ink/75"}`}>{e.city}</span>
                 </button>
               );
             })}

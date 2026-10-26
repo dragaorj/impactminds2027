@@ -244,6 +244,9 @@ const pt = {
     "close": "Fechar",
     "prev": "Foto anterior",
     "next": "Próxima foto",
+    "pause": "Pausar fotos",
+    "play": "Retomar fotos",
+    "enlarge": "Ampliar foto",
     "list": [
       {
         "name": "Fazenda Remata",

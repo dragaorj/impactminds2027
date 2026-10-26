@@ -47,7 +47,7 @@ function Card({ s, i, lang, label, onOpen }: { s: Speaker; i: number; lang: Loca
           <span aria-hidden className="speaker-wash pointer-events-none absolute inset-0 rounded-full" />
         </span>
       </span>
-      <span className="mt-5 block text-center font-display text-2xl leading-tight text-ink transition-colors duration-500 group-hover:text-brand">
+      <span className="mt-5 block text-center font-display text-2xl leading-tight text-ink transition-colors duration-500 group-hover:text-gold">
         {s.name}
       </span>
       <span className="mx-auto mt-2 block max-w-[26ch] text-center text-[0.9375rem] leading-snug text-muted">
@@ -60,7 +60,7 @@ function Card({ s, i, lang, label, onOpen }: { s: Speaker; i: number; lang: Loca
 type BoxLabels = { title: string; close: string; prev: string; next: string; edition: string };
 
 const navBtn =
-  "grid size-12 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 backdrop-blur-md transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:bg-white/20 active:scale-95";
+  "grid size-12 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 backdrop-blur-md transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-95";
 
 // Speaker lightbox: the portrait in full colour beside name, role and
 // organisation; arrows and the keyboard step through the whole line-up.
@@ -205,7 +205,7 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
           href={links.speakers2026Page}
           target="_blank"
           rel="noopener noreferrer"
-          className="group inline-flex h-12 items-center gap-3 rounded-full pl-6 pr-1.5 text-[0.9375rem] font-medium btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-ink/5 active:scale-[0.98]"
+          className="group inline-flex h-12 items-center gap-3 rounded-full pl-6 pr-1.5 text-[0.9375rem] font-medium btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] active:scale-[0.98]"
         >
           {t.cta}
           <span className="grid size-9 place-items-center rounded-full bg-brand text-brand-ink transition-transform duration-500 ease-[var(--ease-spring)] group-hover:scale-105">

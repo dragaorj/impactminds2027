@@ -109,7 +109,7 @@ export default function Hero({ t, videoSrc }: { t: Dict["hero"]; videoSrc?: stri
       {/* Phones: everything fits the first screen (svh = height with the browser
           bars showing): eyebrow, title, launch line, then the CTA at full width.
           From lg the CTA sits under the title. The countdown floats bottom right. */}
-      <div className="flex min-h-[100svh] w-full flex-col justify-end gap-4 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-24 sm:gap-8 sm:px-8 md:pb-12 lg:grid lg:min-h-[100dvh] lg:grid-cols-12 lg:items-end lg:gap-8 lg:px-[5vw]">
+      <div className="mx-auto flex min-h-[100svh] w-full max-w-[132rem] flex-col justify-end gap-4 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-24 sm:gap-8 sm:px-8 md:pb-12 lg:grid lg:min-h-[100dvh] lg:grid-cols-12 lg:items-end lg:gap-8 lg:px-[5vw]">
         <div className="lg:col-span-7">
           <p data-hero className="mb-3 inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-full bg-white/10 px-3 py-1 text-xs ring-1 ring-white/20 backdrop-blur-md sm:mb-5 sm:px-4 sm:py-1.5 sm:text-sm">
             <span>{t.eyebrow}</span>

@@ -30,12 +30,12 @@ export default function Connections({ t }: { t: Dict["connections"] }) {
         <ul className="grid gap-4 sm:grid-cols-2 xl:col-span-7">
           {t.items.map((item, i) => (
             <li key={item.title} data-reveal>
-              <div className="group flex h-full flex-col rounded-[2rem] bg-surface p-7 ring-1 ring-line transition-[box-shadow,transform] duration-500 ease-[var(--ease-spring)] hover:-translate-y-1 hover:shadow-[var(--shadow)] hover:ring-brand/30 md:p-8">
+              <div className="group flex h-full flex-col rounded-[2rem] bg-surface p-7 ring-1 ring-line transition-[box-shadow,transform] duration-500 ease-[var(--ease-spring)] hover:-translate-y-1 hover:shadow-[var(--shadow)] hover:ring-sun/50 md:p-8">
                 <Art
                   name={art[i]}
                   className="h-20 w-20 transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:-rotate-3 group-hover:scale-110"
                 />
-                <h3 className="mt-6 font-display text-[clamp(1.75rem,2.6vw,2.4rem)] leading-[1.05] text-ink transition-colors duration-500 group-hover:text-brand">
+                <h3 className="mt-6 font-display text-[clamp(1.75rem,2.6vw,2.4rem)] leading-[1.05] text-ink transition-colors duration-500 group-hover:text-gold">
                   {item.title}
                 </h3>
                 <p className="mt-2 text-base font-medium text-brand">{item.sub}</p>

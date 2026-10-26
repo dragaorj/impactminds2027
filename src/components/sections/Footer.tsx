@@ -13,7 +13,6 @@ export default function Footer({ t, hero, nav }: { t: Dict["footer"]; hero: Dict
     { href: links.social.youtube, label: "YouTube", Icon: YoutubeLogo },
   ];
   const items = [
-    { href: "#top", label: nav.home },
     { href: "#conexoes", label: nav.agenda2026 },
     { href: "#palestrantes", label: nav.speakers2026 },
     { href: "#edicoes", label: nav.editions },
@@ -23,7 +22,7 @@ export default function Footer({ t, hero, nav }: { t: Dict["footer"]; hero: Dict
       <Art name="mosaic" className="pointer-events-none absolute right-[calc(4vw_-_13rem)] top-16 hidden w-52 lg:block" />
       <div className={container}>
         <div data-reveal className="flex flex-col items-start gap-5">
-          <p className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-full bg-ink/5 px-4 py-1.5 text-sm text-ink-2 ring-1 ring-line">
+          <p className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-full bg-ink/5 px-4 py-1.5 text-sm text-ink-2 ring-1 ring-line" data-nosplit>
             <span>{hero.eyebrow}</span>
             <span aria-hidden className="h-3 w-px bg-line" />
             <span className="font-medium text-gold">{hero.dates}</span>
@@ -55,12 +54,12 @@ export default function Footer({ t, hero, nav }: { t: Dict["footer"]; hero: Dict
                 <li key={item.href} className="border-b border-line last:border-b-0">
                   <a
                     href={item.href}
-                    className="group flex items-center justify-between gap-4 py-3.5 text-ink transition-colors duration-300 hover:text-brand"
+                    className="group flex items-center justify-between gap-4 py-3.5 text-ink transition-colors duration-300 hover:text-gold"
                   >
                     {item.label}
                     <ArrowUpRight
                       size="1rem"
-                      className="shrink-0 text-muted transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand"
+                      className="shrink-0 text-muted transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-gold"
                     />
                   </a>
                 </li>
@@ -78,7 +77,7 @@ export default function Footer({ t, hero, nav }: { t: Dict["footer"]; hero: Dict
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={label}
-                    className="grid size-12 place-items-center rounded-full btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:scale-105 hover:bg-brand hover:text-brand-ink"
+                    className="grid size-12 place-items-center rounded-full btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:scale-105 hover:bg-sun hover:text-sun-ink"
                   >
                     <Icon size="1.25rem" weight="light" />
                   </a>

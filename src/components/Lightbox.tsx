@@ -8,7 +8,7 @@ export type LightboxItem = { src: string; title: string; subtitle?: string };
 type Labels = { label: string; close: string; prev: string; next: string };
 
 const navBtn =
-  "grid size-12 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 backdrop-blur-md transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:bg-white/20 active:scale-95";
+  "grid size-12 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 backdrop-blur-md transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-95";
 
 // Full-screen photo viewer shared by the field visits and the editions grid.
 // Controlled by `index` (null = closed). The photo box takes the image's own

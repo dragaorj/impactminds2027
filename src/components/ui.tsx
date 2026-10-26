@@ -70,5 +70,7 @@ export function H2({ children, className = "", id }: { children: ReactNode; clas
 // Full-width layout: content spans the screen with proportional side gutters
 // (readable line lengths come from max-w-[..ch] on the text itself).
 export const gutter = "px-5 sm:px-8 lg:px-[5vw]";
-export const container = `relative z-[1] w-full ${gutter}`;
+// Content never stretches past 132rem: on ultrawide screens it stays centred
+// at desktop proportions while section backgrounds still run edge to edge.
+export const container = `relative z-[1] mx-auto w-full max-w-[132rem] ${gutter}`;
 export const section = "relative py-24 md:py-36";
