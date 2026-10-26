@@ -302,3 +302,55 @@ html.js:not([data-motion="reduce"]) .preloader { display: flex; }
 .btn-outline { color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
 .btn-outline:hover, .btn-outline:focus-visible { background: var(--brand); color: var(--brand-ink); box-shadow: inset 0 0 0 1px var(--brand); }
 .btn-solid .bg-brand-ink\/15 { transition: background-color 0.3s; }
+
+/* Hero CTA: a light sweeps around the border and a soft ring pulses out. */
+@property --sweep { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes sweep { to { --sweep: 360deg; } }
+@keyframes ring-out {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(1.08, 1.45); opacity: 0; }
+}
+.shimmer { position: relative; isolation: isolate; }
+.shimmer::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(from var(--sweep), transparent 0deg, #fff 50deg, #d9b865 95deg, transparent 150deg, transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: sweep 2.8s linear infinite;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  border-radius: inherit;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.55);
+  animation: ring-out 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+html[data-motion="reduce"] .shimmer::before,
+html[data-motion="reduce"] .shimmer::after { animation: none; }
+html[data-motion="reduce"] .shimmer::after { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .shimmer::before, .shimmer::after { animation: none; }
+  .shimmer::after { opacity: 0; }
+}
+
+
+/* Soft vector texture on the page background: the banner's tiles (half
+   circles, quarter discs, leaves, dots, birds) as hairlines at very low
+   opacity. Only on the flat backgrounds, never over photos or cards. */
+:root { --paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27200%27%20height%3D%27200%27%20viewBox%3D%270%200%20200%20200%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%235b2a86%27%20stroke-width%3D%270.9%27%20stroke-linecap%3D%27round%27%20opacity%3D%270.07%27%3E%3Cpath%20d%3D%27M14%2040%20A16%2016%200%200%201%2046%2040%27%2F%3E%3Cpath%20d%3D%27M120%2014%20V46%20H88%20A32%2032%200%200%201%20120%2014%27%2F%3E%3Cpath%20d%3D%27M70%20112%20Q70%2084%2098%2084%20Q98%20112%2070%20112%27%2F%3E%3Cpath%20d%3D%27M150%20120%20a10%2010%200%201%200%2020%200%20a10%2010%200%201%200%20-20%200%27%2F%3E%3Cpath%20d%3D%27M18%20150%20A14%2014%200%200%201%2018%20178%20M46%20150%20A14%2014%200%200%200%2046%20178%27%2F%3E%3Cpath%20d%3D%27M150%2040%20q8%20-8%2016%200%20q8%20-8%2016%200%27%2F%3E%3Cpath%20d%3D%27M0%2092%20q10%20-6%2020%200%20t20%200%27%2F%3E%3Ccircle%20cx%3D%2760%27%20cy%3D%2720%27%20r%3D%271.2%27%20fill%3D%27%235b2a86%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27130%27%20cy%3D%27150%27%20r%3D%271.2%27%20fill%3D%27%235b2a86%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2730%27%20cy%3D%27120%27%20r%3D%271.2%27%20fill%3D%27%235b2a86%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27100%27%20cy%3D%2760%27%20r%3D%271.2%27%20fill%3D%27%235b2a86%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27170%27%20cy%3D%2790%27%20r%3D%271.2%27%20fill%3D%27%235b2a86%27%20stroke%3D%27none%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
+[data-theme="dark"] { --paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27200%27%20height%3D%27200%27%20viewBox%3D%270%200%20200%20200%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23c9b5e6%27%20stroke-width%3D%270.9%27%20stroke-linecap%3D%27round%27%20opacity%3D%270.06%27%3E%3Cpath%20d%3D%27M14%2040%20A16%2016%200%200%201%2046%2040%27%2F%3E%3Cpath%20d%3D%27M120%2014%20V46%20H88%20A32%2032%200%200%201%20120%2014%27%2F%3E%3Cpath%20d%3D%27M70%20112%20Q70%2084%2098%2084%20Q98%20112%2070%20112%27%2F%3E%3Cpath%20d%3D%27M150%20120%20a10%2010%200%201%200%2020%200%20a10%2010%200%201%200%20-20%200%27%2F%3E%3Cpath%20d%3D%27M18%20150%20A14%2014%200%200%201%2018%20178%20M46%20150%20A14%2014%200%200%200%2046%20178%27%2F%3E%3Cpath%20d%3D%27M150%2040%20q8%20-8%2016%200%20q8%20-8%2016%200%27%2F%3E%3Cpath%20d%3D%27M0%2092%20q10%20-6%2020%200%20t20%200%27%2F%3E%3Ccircle%20cx%3D%2760%27%20cy%3D%2720%27%20r%3D%271.2%27%20fill%3D%27%23c9b5e6%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27130%27%20cy%3D%27150%27%20r%3D%271.2%27%20fill%3D%27%23c9b5e6%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2730%27%20cy%3D%27120%27%20r%3D%271.2%27%20fill%3D%27%23c9b5e6%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27100%27%20cy%3D%2760%27%20r%3D%271.2%27%20fill%3D%27%23c9b5e6%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27170%27%20cy%3D%2790%27%20r%3D%271.2%27%20fill%3D%27%23c9b5e6%27%20stroke%3D%27none%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
+[data-contrast="high"] { --paper: none; }
+body, .bg-bg-2 {
+  background-image: var(--paper);
+  background-size: 200px 200px;
+  background-repeat: repeat;
+}

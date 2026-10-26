@@ -13,17 +13,13 @@ export default function Footer({ t, hero }: { t: Dict["footer"]; hero: Dict["her
   ];
   return (
     <footer className="relative overflow-hidden border-t border-line pb-10 pt-24 md:pt-36">
-      <Art name="mosaic" className="pointer-events-none absolute -left-16 top-20 w-40 md:-left-14 md:w-52 xl:w-64" />
+      <Art name="mosaic" className="pointer-events-none absolute right-[calc(4vw_-_13rem)] top-16 hidden w-52 lg:block" />
       <div className={container}>
         <div data-reveal>
           <p className="text-lg text-ink-2">{hero.dates}</p>
           <p className="mt-4 max-w-4xl font-display text-[clamp(3rem,9vw,7.5rem)] leading-[0.98] text-ink">{t.closing}</p>
         </div>
         <Art name="skyline" className="mt-14 w-full max-w-4xl" />
-        <div className="mt-4 flex justify-between">
-          <Art name="laurel" className="w-24 md:w-32" />
-          <Art name="laurel" className="w-24 -scale-x-100 md:w-32" />
-        </div>
 
         <div className="mt-16 grid gap-12 border-t border-line pt-12 md:grid-cols-12">
           <div className="md:col-span-5" data-reveal>

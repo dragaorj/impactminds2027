@@ -27,7 +27,7 @@ export default function Testimonials({ t, lang }: { t: Dict["testimonials"]; lan
   return (
     <section id="depoimentos" className={`${section} overflow-hidden bg-bg-2`} aria-labelledby="depoimentos-title">
       <Art name="arcs" className="pointer-events-none absolute bottom-0 right-0 hidden w-36 min-[1440px]:block" />
-      <Art name="mosaic" className="pointer-events-none absolute -right-16 top-20 w-40 md:-right-14 md:w-52 xl:w-64" />
+      <Art name="mosaic" className="pointer-events-none absolute bottom-6 right-[calc(4vw_-_13rem)] hidden w-52 lg:block" />
       <div className={container}>
         <H2 id="depoimentos-title" className="max-w-xl">
           <span data-reveal className="block">{t.title}</span>

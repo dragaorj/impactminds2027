@@ -64,7 +64,7 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
   const fmt = (n: number) => n.toLocaleString(locale, { minimumFractionDigits: 1 });
   return (
     <section id="pesquisa" className={section} aria-labelledby="pesquisa-title">
-      <Art name="laurel" className="pointer-events-none absolute left-[calc((100vw_-_77.5rem)/2_-_9rem)] top-24 hidden w-32 min-[1440px]:block" />
+      <Art name="laurel" className="pointer-events-none absolute left-[calc(4vw_-_9rem)] top-20 hidden w-36 lg:block" />
       <div className={container}>
         <div data-reveal className="max-w-3xl">
           <H2 id="pesquisa-title">{t.title}</H2>

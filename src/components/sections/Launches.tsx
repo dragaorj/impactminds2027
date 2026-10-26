@@ -9,7 +9,7 @@ export default function Launches({ t }: { t: Dict["launches"] }) {
   const order = [c, a, b];
   return (
     <section id="lancamentos" className={section} aria-labelledby="lancamentos-title">
-      <Art name="mosaic" className="pointer-events-none absolute -left-16 top-20 w-40 md:-left-14 md:w-52 xl:w-64" />
+      <Art name="mosaic" className="pointer-events-none absolute bottom-6 left-[calc(4vw_-_13rem)] hidden w-52 lg:block" />
       <div className={container}>
         <div className="max-w-3xl">
           <H2 id="lancamentos-title">{t.title}</H2>

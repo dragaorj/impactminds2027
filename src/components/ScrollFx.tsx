@@ -119,20 +119,17 @@ export default function ScrollFx() {
         );
       });
 
-      // Mosaic line art: nothing but the strokes tracing themselves in, tied to
-      // the scroll position (scrolling back up undraws them).
+      // Mosaic line art: one line travels with the scroll and draws the shapes
+      // in sequence, each closing before the next begins (like a pen that
+      // never lifts). Scrolling back up undraws them.
       gsap.utils.toArray<SVGSVGElement>("svg[data-draw]").forEach((svg) => {
         gsap.set(svg, { visibility: "visible" });
-        gsap.fromTo(
-          svg.querySelectorAll("path"),
-          { strokeDasharray: 1, strokeDashoffset: 1 },
-          {
-            strokeDashoffset: 0,
-            ease: "none",
-            stagger: 0.12,
-            scrollTrigger: { trigger: svg, start: "top 95%", end: "center 40%", scrub: 0.8 },
-          },
-        );
+        const strokes = gsap.utils.toArray<SVGPathElement>(svg.querySelectorAll("path"));
+        gsap.set(strokes, { strokeDasharray: 1, strokeDashoffset: 1 });
+        const tl = gsap.timeline({
+          scrollTrigger: { trigger: svg, start: "top 95%", end: "bottom 30%", scrub: 1.2 },
+        });
+        strokes.forEach((p) => tl.to(p, { strokeDashoffset: 0, duration: 1, ease: "none" }));
       });
 
       // Line art arrives complete: a one-off fade and settle when it enters view.

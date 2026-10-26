@@ -68,6 +68,11 @@ const es: Dict = {
   },
   about: {
     title: "Qué es Impact Minds",
+    soundOn: "Activar sonido",
+    soundOff: "Silenciar",
+    watch: "Ver completo",
+    close: "Cerrar video",
+    videoLabel: "Video de Impact Minds 2026",
     p1: "La conferencia de Latimpacto, Impact Minds, es más que un evento: es un punto de encuentro donde ideas, estrategia y capital se conectan para transformar realidades. Este espacio reúne a grandes proveedores de capital de todo el mundo que comparten una visión de impacto para América Latina y el Caribe.",
     p2: "Diseñado para inspirar una participación genuina, Impact Minds invita a cada participante a asumir un rol protagonista: conectar, aprender y cocrear soluciones que movilicen capital hacia el impacto social y ambiental que nuestra región necesita.",
   },

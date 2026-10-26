@@ -68,6 +68,11 @@ const en: Dict = {
   },
   about: {
     title: "What is Impact Minds",
+    soundOn: "Turn sound on",
+    soundOff: "Mute",
+    watch: "Watch full video",
+    close: "Close video",
+    videoLabel: "Impact Minds 2026 video",
     p1: "Latimpacto's conference, Impact Minds, is more than an event: it is a meeting point where ideas, strategy, and capital connect to transform realities. It brings together major capital providers from around the world who share a vision of impact for Latin America and the Caribbean.",
     p2: "Designed to inspire genuine participation, Impact Minds invites every participant to take a leading role: connect, learn, and co-create solutions that mobilize capital for the social and environmental impact our region needs.",
   },

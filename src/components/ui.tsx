@@ -67,5 +67,8 @@ export function H2({ children, className = "", id }: { children: ReactNode; clas
 }
 
 // Content sits above the decorative vectors (which are absolutely positioned).
-export const container = "relative z-[1] mx-auto w-full max-w-[77.5rem] px-4 sm:px-6";
+// Full-width layout: content spans the screen with proportional side gutters
+// (readable line lengths come from max-w-[..ch] on the text itself).
+export const gutter = "px-5 sm:px-8 lg:px-[5vw]";
+export const container = `relative z-[1] w-full ${gutter}`;
 export const section = "relative py-24 md:py-36";

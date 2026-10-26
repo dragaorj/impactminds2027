@@ -19,7 +19,7 @@ export default function Numbers({ t, locale }: { t: Dict["numbers"]; locale: str
   const label = "mt-3 max-w-[22ch] text-[0.9375rem] leading-snug";
   return (
     <section id="numeros" className={section} aria-labelledby="numeros-title">
-      <Art name="mosaic" className="pointer-events-none absolute -left-16 top-20 w-40 md:-left-14 md:w-52 xl:w-64" />
+      <Art name="mosaic" className="pointer-events-none absolute bottom-6 left-[calc(4vw_-_13rem)] hidden w-52 lg:block" />
       <div className={container}>
         <div className="max-w-3xl" data-reveal>
           <H2 id="numeros-title">{t.title}</H2>

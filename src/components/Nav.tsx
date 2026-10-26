@@ -108,8 +108,8 @@ export default function Nav({ lang, nav, controls }: Props) {
         {nav.skip}
       </a>
 
-      <header className="fixed inset-x-0 top-3 z-40 px-3 sm:top-5 sm:px-6" data-hero>
-        <div className="mx-auto flex h-16 max-w-[77.5rem] items-center justify-between gap-3 rounded-full bg-surface/75 py-2 pl-5 pr-2 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl">
+      <header className="fixed inset-x-0 top-3 z-40 px-3 sm:top-5 sm:px-8 lg:px-[5vw]" data-hero>
+        <div className="flex h-16 w-full items-center justify-between gap-3 rounded-full bg-surface/75 py-2 pl-5 pr-2 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl">
           <a href="#top" className="flex items-baseline gap-2 text-ink" aria-label="Impact Minds 2027">
             <span className="font-display text-xl leading-none">Impact Minds</span>
             <span className="hidden text-xs font-medium text-brand sm:inline">2027</span>
