@@ -182,10 +182,10 @@ const es: Dict = {
     photos: "fotos",
     list: [
       { city: "Manaos, Brasil", year: "2026" },
-      { city: "Cartagena, Colombia", year: "2025" },
+      { city: "Medellín, Colombia", year: "2025" },
       { city: "Oaxaca, México", year: "2024" },
       { city: "Río de Janeiro, Brasil", year: "2023" },
-      { city: "Medellín, Colombia", year: "2022" },
+      { city: "Cartagena, Colombia", year: "2022" },
     ],
   },
   launches: {

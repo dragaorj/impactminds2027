@@ -180,10 +180,10 @@ const pt = {
     photos: "fotos",
     list: [
       { city: "Manaus, Brasil", year: "2026" },
-      { city: "Cartagena, Colômbia", year: "2025" },
+      { city: "Medellín, Colômbia", year: "2025" },
       { city: "Oaxaca, México", year: "2024" },
       { city: "Rio de Janeiro, Brasil", year: "2023" },
-      { city: "Medellín, Colômbia", year: "2022" },
+      { city: "Cartagena, Colômbia", year: "2022" },
     ],
   },
   launches: {
