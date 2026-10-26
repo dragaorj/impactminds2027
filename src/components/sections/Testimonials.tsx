@@ -33,8 +33,8 @@ export default function Testimonials({ t, lang }: { t: Dict["testimonials"]; lan
           <span data-reveal className="block">{t.title}</span>
         </H2>
 
-        <div className="mt-14 grid gap-10 md:mt-20 lg:grid-cols-12 lg:gap-12" data-reveal>
-          <div className="relative lg:col-span-9">
+        <div className="mt-14 grid gap-10 md:mt-20 xl:grid-cols-12 xl:gap-12" data-reveal>
+          <div className="relative xl:col-span-9">
             <span aria-hidden className="absolute -left-2 -top-16 font-display text-[10rem] leading-none text-brand/25 md:-top-20 md:text-[13rem]">
               “
             </span>
@@ -59,8 +59,8 @@ export default function Testimonials({ t, lang }: { t: Dict["testimonials"]; lan
             </div>
           </div>
 
-          <div className="flex flex-col justify-end gap-6 lg:col-span-3">
-            <ul className="flex flex-wrap gap-3 lg:flex-col" aria-label={t.choose}>
+          <div className="flex flex-col justify-end gap-6 xl:col-span-3">
+            <ul className="flex flex-wrap gap-3 xl:flex-col" aria-label={t.choose}>
               {testimonials.map((item, i) => (
                 <li key={item.name}>
                   <button

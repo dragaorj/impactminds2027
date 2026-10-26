@@ -11,9 +11,9 @@ export default function Agenda({ t, place }: { t: Dict["agenda"]; place: string 
       className="relative overflow-hidden bg-block py-24 text-block-ink md:py-36 [--art:var(--gold)] [--art-opacity:0.75]"
       aria-labelledby="agenda-title"
     >
-      <div className={`${container} grid gap-14 lg:grid-cols-12 lg:gap-12`}>
-        <div className="lg:col-span-5">
-          <div className="lg:sticky lg:top-32" data-reveal>
+      <div className={`${container} grid gap-14 xl:grid-cols-12 xl:gap-12`}>
+        <div className="xl:col-span-5">
+          <div className="xl:sticky xl:top-32" data-reveal>
             <p className="text-sm text-block-muted">{place}</p>
             <h2 id="agenda-title" className="mt-4 font-display text-[clamp(2.25rem,5.2vw,4.25rem)] leading-[1.02]">
               {t.title}
@@ -23,7 +23,7 @@ export default function Agenda({ t, place }: { t: Dict["agenda"]; place: string 
           </div>
         </div>
 
-        <ol className="relative lg:col-span-7">
+        <ol className="relative xl:col-span-7">
           {t.days.map((d, i) => (
             <li key={d.day} data-reveal className={i > 0 ? "mt-4" : ""}>
               <div className="rounded-[2rem] bg-white/5 p-1.5 ring-1 ring-white/12">

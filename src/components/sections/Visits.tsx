@@ -17,9 +17,9 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
 
   return (
     <section id="visitas" className={section} aria-labelledby="visitas-title">
-      <div className={`${container} grid gap-14 lg:grid-cols-12 lg:gap-14`}>
-        <div className="lg:col-span-5">
-          <div className="lg:sticky lg:top-28">
+      <div className={`${container} grid gap-14 xl:grid-cols-12 xl:gap-14`}>
+        <div className="xl:col-span-5">
+          <div className="xl:sticky xl:top-28">
             <h2 id="visitas-title" className="font-display text-[clamp(2.25rem,4.4vw,3.75rem)] leading-[1.02] text-ink">
               {t.title}
             </h2>
@@ -46,7 +46,7 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
           </div>
         </div>
 
-        <ul className="columns-1 gap-4 sm:columns-2 lg:col-span-7">
+        <ul className="columns-1 gap-4 sm:columns-2 xl:col-span-7">
           {photos.visits.map((src, i) => (
             <li key={src} data-reveal className="mb-4 break-inside-avoid">
               <figure>

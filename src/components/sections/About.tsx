@@ -15,11 +15,11 @@ export default function About({ t, g }: { t: Dict["about"]; g: Dict["gallery"] }
   return (
     <section id="sobre" className={`${section} bg-bg-2`} aria-labelledby="sobre-title">
       <Art name="mosaic" className="pointer-events-none absolute bottom-6 right-[calc(4vw_-_13rem)] hidden w-52 lg:block" />
-      <div className={`${container} grid gap-14 lg:grid-cols-12 lg:gap-10`}>
-        <div className="lg:col-span-5 lg:pt-6">
+      <div className={`${container} grid gap-14 xl:grid-cols-12 xl:gap-10`}>
+        <div className="xl:col-span-5 xl:pt-6">
           <div data-reveal>
             <H2 id="sobre-title">{t.title}</H2>
-            <div className="mt-8 space-y-5 text-lg leading-relaxed text-ink-2">
+            <div className="mt-8 max-w-[62ch] space-y-5 text-lg leading-relaxed text-ink-2">
               <p>{t.p1}</p>
               <p>{t.p2}</p>
             </div>
@@ -55,10 +55,18 @@ export default function About({ t, g }: { t: Dict["about"]; g: Dict["gallery"] }
           </div>
         </div>
 
-        <div className="lg:col-span-7" data-reveal>
+        <div className="xl:col-span-7" data-reveal>
           <VideoPanel
             videoId={ABOUT_VIDEO_ID}
-            labels={{ soundOn: t.soundOn, soundOff: t.soundOff, watch: t.watch, close: t.close, videoLabel: t.videoLabel }}
+            labels={{
+              soundOn: t.soundOn,
+              soundOff: t.soundOff,
+              watch: t.watch,
+              close: t.close,
+              videoLabel: t.videoLabel,
+              play: t.play,
+              pause: t.pause,
+            }}
           />
         </div>
       </div>

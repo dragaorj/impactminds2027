@@ -44,7 +44,7 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
             if (e.data === 1) {
               revealTimer = window.setTimeout(() => setStarted(true), firstReveal ? 3000 : 1600);
               firstReveal = false;
-            } else if (e.data === -1 || e.data === 0 || e.data === 3) {
+            } else if (e.data === -1 || e.data === 0 || e.data === 2 || e.data === 3) {
               setStarted(false);
             }
           },

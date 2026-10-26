@@ -68,6 +68,8 @@ const en: Dict = {
   },
   about: {
     title: "What is Impact Minds",
+    play: "Play",
+    pause: "Pause",
     soundOn: "Turn sound on",
     soundOff: "Mute",
     watch: "Watch full video",

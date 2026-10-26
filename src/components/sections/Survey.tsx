@@ -96,13 +96,13 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
         <p className="border-t border-line pt-5 text-sm text-muted">* {t.note}</p>
 
         <Bezel className="mt-16 md:mt-24" inner="bg-block text-block-ink">
-          <div className="relative grid gap-12 p-7 md:p-12 lg:grid-cols-12 lg:gap-14 [--art:var(--gold)] [--art-opacity:0.5]">
+          <div className="relative grid gap-12 p-7 md:p-12 xl:grid-cols-12 xl:gap-14 [--art:var(--gold)] [--art-opacity:0.5]">
             <Art name="arcs" className="absolute -bottom-2 -left-2 -z-10 hidden w-56 -scale-x-100 xl:block" />
 
-            <div className="lg:col-span-5">
+            <div className="xl:col-span-5">
               <h3 className="font-display text-3xl leading-tight md:text-[2.75rem]">{t.connectionsTitle}</h3>
 
-              <div className="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <div className="mt-10 grid gap-10 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
                 <div>
                   <Network count={11} label={<span data-count={11} data-locale={locale}>11</span>} />
                   <p className="mt-4 max-w-[24ch] text-[0.9375rem] leading-snug text-block-muted">{t.avgConnections}</p>
@@ -121,7 +121,7 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
             </div>
 
             {/* Ranked share of connection types: one gold bar per type, labeled, no track. */}
-            <div className="relative lg:col-span-7 lg:border-l lg:border-white/12 lg:pl-14">
+            <div className="relative xl:col-span-7 xl:border-l xl:border-white/12 xl:pl-14">
               <p className="text-sm font-medium tracking-wide text-block-muted">{t.typesTitle}</p>
               <ul className="mt-8 space-y-6" data-hbars>
                 {t.types.map((type, i) => (

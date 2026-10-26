@@ -156,13 +156,13 @@ export default function Sponsor({ t, locale }: { t: Dict["sponsor"]; locale: str
   return (
     <section id="patrocinio" className={section} aria-labelledby="patrocinio-title">
       <Art name="arcs" className="absolute bottom-0 left-0 hidden w-48 -scale-x-100 xl:block" />
-      <div className={`${container} grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-12`}>
-        <Bezel className="lg:col-span-7" inner="bg-surface">
+      <div className={`${container} grid gap-12 xl:grid-cols-12 xl:items-center xl:gap-12`}>
+        <Bezel className="xl:col-span-7" inner="bg-surface">
           <div data-reveal className="h-full">
             <GrowthChart t={t} locale={locale} />
           </div>
         </Bezel>
-        <div className="lg:col-span-5" data-reveal>
+        <div className="xl:col-span-5" data-reveal>
           <p className="text-lg text-ink-2">{t.kicker}</p>
           <H2 id="patrocinio-title" className="mt-4 !text-[clamp(2.1rem,4.4vw,3.5rem)]">
             {t.title}

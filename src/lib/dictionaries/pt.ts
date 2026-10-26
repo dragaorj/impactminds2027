@@ -66,6 +66,8 @@ const pt = {
   },
   about: {
     title: "O que é o Impact Minds",
+    play: "Reproduzir",
+    pause: "Pausar",
     soundOn: "Ativar som",
     soundOff: "Desativar som",
     watch: "Assistir completo",

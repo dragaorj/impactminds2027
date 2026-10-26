@@ -68,6 +68,8 @@ const es: Dict = {
   },
   about: {
     title: "Qué es Impact Minds",
+    play: "Reproducir",
+    pause: "Pausar",
     soundOn: "Activar sonido",
     soundOff: "Silenciar",
     watch: "Ver completo",
