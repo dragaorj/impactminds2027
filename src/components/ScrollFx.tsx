@@ -200,7 +200,24 @@ export default function ScrollFx() {
       const refresh = () => ScrollTrigger.refresh();
       window.addEventListener("im:ready", refresh);
       document.fonts?.ready.then(refresh);
-      return () => window.removeEventListener("im:ready", refresh);
+      // After a language switch the intro is skipped and the new page streams
+      // in under these triggers, so re-measure whenever the page height settles.
+      let timer = 0;
+      let height = document.body.offsetHeight;
+      const ro = new ResizeObserver(() => {
+        if (document.body.offsetHeight === height) return;
+        height = document.body.offsetHeight;
+        clearTimeout(timer);
+        timer = window.setTimeout(refresh, 150);
+      });
+      ro.observe(document.body);
+      const frame = requestAnimationFrame(refresh);
+      return () => {
+        ro.disconnect();
+        clearTimeout(timer);
+        cancelAnimationFrame(frame);
+        window.removeEventListener("im:ready", refresh);
+      };
     },
     { dependencies: [reduce], revertOnUpdate: true },
   );

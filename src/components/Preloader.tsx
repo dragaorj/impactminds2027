@@ -24,7 +24,14 @@ export default function Preloader({ caption }: { caption: string }) {
           { y: 0, opacity: 1, duration: 1.2, stagger: 0.09, ease: "expo.out", delay, clearProps: "transform" },
         );
 
-      if (prefersReducedMotion()) {
+      // A language switch is a client-side navigation that remounts the page:
+      // the intro already played in this document, so skip straight to the content.
+      const w = window as Window & { __imIntroDone?: boolean };
+      const softNav = w.__imIntroDone === true;
+      w.__imIntroDone = true;
+
+      if (softNav || prefersReducedMotion()) {
+        if (root.current) root.current.style.display = "none";
         gsap.set(heroEls(), { opacity: 1 });
         window.dispatchEvent(new Event("im:ready"));
         return;

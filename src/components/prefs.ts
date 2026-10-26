@@ -55,6 +55,23 @@ export function applyA11y(a11y: A11y) {
   window.dispatchEvent(new Event("im:motion"));
 }
 
+// Client mirror of the layout's pre-paint script. A language switch re-renders
+// <html> from the server payload, which drops these attributes, so they are
+// re-applied after that commit.
+export function restorePrefs() {
+  const d = document.documentElement;
+  d.classList.add("js");
+  let theme: string | null = null;
+  try {
+    theme = localStorage.getItem("im-theme");
+  } catch {}
+  if (theme !== "light" && theme !== "dark") {
+    theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  d.dataset.theme = theme;
+  applyA11y(readStoredA11y());
+}
+
 export function usePrefs() {
   const snap = useSyncExternalStore(subscribe, readSnapshot, () => SERVER_SNAPSHOT);
   const [theme, text, contrast, motion, links] = snap.split("|");

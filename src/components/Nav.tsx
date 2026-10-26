@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { ArrowRight, Minus, Moon, PersonArmsSpread, Plus, Sun } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { locales, type Locale } from "@/lib/i18n";
@@ -23,11 +24,12 @@ function LangSwitch({ lang, label, onVideo = false }: { lang: Locale; label: str
       className={`flex w-max rounded-full p-1 transition-colors duration-500 ${onVideo ? "bg-white/12" : "bg-ink/6"}`}
     >
       {locales.map((l) => (
-        <a
+        <Link
           key={l}
           href={`/${l}`}
           hrefLang={l}
           lang={l}
+          scroll={false}
           aria-current={l === lang ? "true" : undefined}
           onClick={() => {
             document.cookie = `im-lang=${l};path=/;max-age=31536000;samesite=lax`;
@@ -43,7 +45,7 @@ function LangSwitch({ lang, label, onVideo = false }: { lang: Locale; label: str
           }`}
         >
           {l}
-        </a>
+        </Link>
       ))}
     </div>
   );

@@ -3,6 +3,8 @@ import localFont from "next/font/local";
 import { Google_Sans } from "next/font/google";
 import { notFound } from "next/navigation";
 import { getDictionary, hasLocale, htmlLang, locales } from "@/lib/i18n";
+import InlineScript from "@/components/InlineScript";
+import PrefsSync from "@/components/PrefsSync";
 import "./globals.css";
 
 const gloock = localFont({
@@ -56,9 +58,12 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: prefsScript }} />
+        <InlineScript html={prefsScript} />
       </head>
-      <body className="min-h-[100dvh] overflow-x-clip">{children}</body>
+      <body className="min-h-[100dvh] overflow-x-clip">
+        <PrefsSync lang={lang} />
+        {children}
+      </body>
     </html>
   );
 }
