@@ -31,7 +31,7 @@ export const links = {
   },
 };
 
-// Event photos come from the official Impact Minds 2026 report.
+// Event photos come from the official Impact Minds 2026 report.
 export const photos = {
   gallery: ["/photos/panel-ai.jpg", "/photos/networking.jpg", "/photos/stage-panel.jpg", "/photos/members-dinner.jpg"],
   speakersTile: "/photos/academic-2.jpg",
@@ -139,15 +139,15 @@ export const speakers: Speaker[] = [
 
 export type Testimonial = { quote: Trilingual; name: string; role: Trilingual; photo?: string };
 
-// Quotes from the Impact Minds 2026 report (and Marcus Bessa from the 2026 site).
+// Quotes from the Impact Minds 2026 report (and Marcus Bessa from the 2026 site).
 export const testimonials: Testimonial[] = [
   {
     name: "Marla Blow",
     role: { pt: "CEO e Presidente, Skoll Foundation", es: "CEO y Presidenta, Skoll Foundation", en: "CEO and President, Skoll Foundation" },
     quote: {
-      pt: "Nossa experiência na Impact Minds foi incrível! Foi maravilhoso nos conectar com o ecossistema de impacto e uma ótima oportunidade para conhecer diferentes atores, investidores e organizações que fazem parte da comunidade da Latimpacto.",
-      es: "¡Nuestra experiencia en Impact Minds fue increíble! Fue maravilloso conectarnos con el ecosistema de impacto y una gran oportunidad para conocer a distintos actores, inversionistas y organizaciones que forman parte de la comunidad de Latimpacto.",
-      en: "Our experience at Impact Minds was incredible! It was wonderful to connect with the impact ecosystem and a great opportunity to meet the different actors, investors, and organizations that are part of the Latimpacto community.",
+      pt: "Nossa experiência na Impact Minds foi incrível! Foi maravilhoso nos conectar com o ecossistema de impacto e uma ótima oportunidade para conhecer diferentes atores, investidores e organizações que fazem parte da comunidade da Latimpacto.",
+      es: "¡Nuestra experiencia en Impact Minds fue increíble! Fue maravilloso conectarnos con el ecosistema de impacto y una gran oportunidad para conocer a distintos actores, inversionistas y organizaciones que forman parte de la comunidad de Latimpacto.",
+      en: "Our experience at Impact Minds was incredible! It was wonderful to connect with the impact ecosystem and a great opportunity to meet the different actors, investors, and organizations that are part of the Latimpacto community.",
     },
   },
   {
@@ -158,27 +158,27 @@ export const testimonials: Testimonial[] = [
       en: "Director of Corporate Citizenship and ESG Communications, Latin America, Lenovo",
     },
     quote: {
-      pt: "É sempre muito gratificante estar na Impact Minds, porque a Latimpacto representa a essência do impacto coletivo na América Latina. Um encontro como este é uma oportunidade única para criar conexões entre os diferentes atores do ecossistema.",
-      es: "Siempre es muy gratificante estar en Impact Minds, porque Latimpacto representa la esencia del impacto colectivo en América Latina. Un encuentro como este es una oportunidad única para crear conexiones entre los distintos actores del ecosistema.",
-      en: "It is always very rewarding to be at Impact Minds, because Latimpacto represents the essence of collective impact in Latin America. A gathering like this is a unique opportunity to build connections across the ecosystem.",
+      pt: "É sempre muito gratificante estar na Impact Minds, porque a Latimpacto representa a essência do impacto coletivo na América Latina. Um encontro como este é uma oportunidade única para criar conexões entre os diferentes atores do ecossistema.",
+      es: "Siempre es muy gratificante estar en Impact Minds, porque Latimpacto representa la esencia del impacto colectivo en América Latina. Un encuentro como este es una oportunidad única para crear conexiones entre los distintos actores del ecosistema.",
+      en: "It is always very rewarding to be at Impact Minds, because Latimpacto represents the essence of collective impact in Latin America. A gathering like this is a unique opportunity to build connections across the ecosystem.",
     },
   },
   {
     name: "Macarena Cea",
     role: { pt: "CEO, Fundação Luksic", es: "CEO, Fundación Luksic", en: "CEO, Luksic Foundation" },
     quote: {
-      pt: "Estamos de coração cheio, porque a Impact Minds proporcionou conversas muito enriquecedoras e úteis. As pessoas que estão aqui são extraordinárias e têm projetos e experiências incríveis.",
-      es: "Estamos con el corazón lleno, porque Impact Minds generó conversaciones muy enriquecedoras y útiles. Las personas que están aquí son extraordinarias y tienen proyectos y experiencias increíbles.",
-      en: "Our hearts are full, because Impact Minds sparked truly enriching and useful conversations. The people here are extraordinary, with incredible projects and experiences.",
+      pt: "Estamos de coração cheio, porque a Impact Minds proporcionou conversas muito enriquecedoras e úteis. As pessoas que estão aqui são extraordinárias e têm projetos e experiências incríveis.",
+      es: "Estamos con el corazón lleno, porque Impact Minds generó conversaciones muy enriquecedoras y útiles. Las personas que están aquí son extraordinarias y tienen proyectos y experiencias increíbles.",
+      en: "Our hearts are full, because Impact Minds sparked truly enriching and useful conversations. The people here are extraordinary, with incredible projects and experiences.",
     },
   },
   {
     name: "Daniela Konietzko",
     role: { pt: "Presidente, Fundação WWB Colômbia", es: "Presidenta, Fundación WWB Colombia", en: "President, WWB Colombia Foundation" },
     quote: {
-      pt: "O mais enriquecedor para mim na Impact Minds são as conversas sobre as tendências. Venho aqui para aprender, me reconectar com todos e conhecer o trabalho que estão realizando em seus territórios.",
-      es: "Lo más enriquecedor para mí en Impact Minds son las conversaciones sobre tendencias. Vengo a aprender, a reconectarme con todos y a conocer el trabajo que están haciendo en sus territorios.",
-      en: "What I value most at Impact Minds are the conversations about trends. I come here to learn, reconnect with everyone, and see the work they are doing in their territories.",
+      pt: "O mais enriquecedor para mim na Impact Minds são as conversas sobre as tendências. Venho aqui para aprender, me reconectar com todos e conhecer o trabalho que estão realizando em seus territórios.",
+      es: "Lo más enriquecedor para mí en Impact Minds son las conversaciones sobre tendencias. Vengo a aprender, a reconectarme con todos y a conocer el trabajo que están haciendo en sus territorios.",
+      en: "What I value most at Impact Minds are the conversations about trends. I come here to learn, reconnect with everyone, and see the work they are doing in their territories.",
     },
   },
   {
@@ -189,9 +189,9 @@ export const testimonials: Testimonial[] = [
       en: "Superintendent of Social Development and Public Management, BNDES",
     },
     quote: {
-      pt: "A Impact Minds proporciona um ambiente que nos convida a pensar juntos em como construir soluções que respeitem cada um dos setores e que, ao mesmo tempo, nos permitam compartilhar os mesmos ideais.",
-      es: "Impact Minds ofrece un ambiente que nos invita a pensar juntos cómo construir soluciones que respeten a cada uno de los sectores y que, al mismo tiempo, nos permitan compartir los mismos ideales.",
-      en: "Impact Minds creates a space that invites us to think together about building solutions that respect every sector while letting us share the same ideals.",
+      pt: "A Impact Minds proporciona um ambiente que nos convida a pensar juntos em como construir soluções que respeitem cada um dos setores e que, ao mesmo tempo, nos permitam compartilhar os mesmos ideais.",
+      es: "Impact Minds ofrece un ambiente que nos invita a pensar juntos cómo construir soluciones que respeten a cada uno de los sectores y que, al mismo tiempo, nos permitan compartir los mismos ideales.",
+      en: "Impact Minds creates a space that invites us to think together about building solutions that respect every sector while letting us share the same ideals.",
     },
   },
   {
@@ -199,9 +199,9 @@ export const testimonials: Testimonial[] = [
     role: { pt: "Cofundador, Impact Hub Manaus", es: "Cofundador, Impact Hub Manaus", en: "Co-founder, Impact Hub Manaus" },
     photo: sb("1784213121095-4zlcdg"),
     quote: {
-      pt: "Pelo tamanho e pela pluralidade da rede, fico muito feliz que a Impact Minds chegue a Manaus, porque acredito que conecta muito com a discussão que estamos tendo em nível global.",
-      es: "Por el tamaño y la pluralidad de la red, me alegra mucho que Impact Minds llegue a Manaos, porque creo que conecta mucho con la discusión que estamos teniendo a nivel global.",
-      en: "Given the size and diversity of the network, I'm very happy Impact Minds came to Manaus, because it connects closely with the conversation we're having globally.",
+      pt: "Pelo tamanho e pela pluralidade da rede, fico muito feliz que a Impact Minds chegue a Manaus, porque acredito que conecta muito com a discussão que estamos tendo em nível global.",
+      es: "Por el tamaño y la pluralidad de la red, me alegra mucho que Impact Minds llegue a Manaos, porque creo que conecta mucho con la discusión que estamos teniendo a nivel global.",
+      en: "Given the size and diversity of the network, I'm very happy Impact Minds came to Manaus, because it connects closely with the conversation we're having globally.",
     },
   },
 ];

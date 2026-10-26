@@ -1,10 +1,11 @@
 import type { Dict } from "@/lib/dictionaries/pt";
 import Art from "../Art";
+import CountUp from "../CountUp";
 import { Bezel, H2, container, section } from "../ui";
 
 // Three launches as an asymmetric trio: the flagship bioeconomy initiative
 // leads in deep purple, the two calls stack beside it.
-export default function Launches({ t }: { t: Dict["launches"] }) {
+export default function Launches({ t, locale }: { t: Dict["launches"]; locale: string }) {
   const [a, b, c] = t.items;
   const order = [c, a, b];
   return (
@@ -42,18 +43,27 @@ export default function Launches({ t }: { t: Dict["launches"] }) {
                     </h3>
                     <p className={`mt-4 max-w-[46ch] text-base leading-relaxed ${lead ? "text-block-muted" : "text-ink-2"}`}>{item.text}</p>
                   </div>
-                  <p className="relative flex flex-col items-start gap-2" data-nosplit>
-                    <span className={`whitespace-nowrap font-display leading-none ${lead ? "text-6xl text-sun md:text-7xl" : "text-4xl text-brand"}`}>
-                      {item.figure.startsWith("USD ") ? (
-                        <>
-                          <span className="mr-1.5 align-top font-sans text-[0.32em] font-medium tracking-wide">USD</span>
-                          {item.figure.slice(4)}
-                        </>
-                      ) : (
-                        item.figure
+                  {/* Stat row: the figure and what it measures share one baseline,
+                      ruled off from the story above. */}
+                  <p
+                    className={`relative flex items-end justify-between gap-6 border-t pt-6 ${lead ? "border-white/15" : "border-line"}`}
+                    data-nosplit
+                  >
+                    <span className={`flex items-baseline gap-2 whitespace-nowrap font-display leading-none ${lead ? "text-6xl text-sun md:text-7xl" : "text-5xl text-brand"}`}>
+                      {item.figure.startsWith("USD ") && (
+                        <span className={`font-sans text-xs font-medium tracking-[0.18em] md:text-sm ${lead ? "text-block-muted" : "text-muted"}`}>
+                          USD
+                        </span>
                       )}
+                      <span>
+                        <CountUp value={item.figure.replace(/^USD /, "")} locale={locale} />
+                      </span>
                     </span>
-                    <span className={`text-base ${lead ? "text-block-muted" : "text-muted"}`}>{item.figureLabel}</span>
+                    <span
+                      className={`max-w-[12ch] pb-1 text-right text-xs font-medium uppercase leading-snug tracking-[0.14em] md:text-[0.8125rem] ${lead ? "text-block-muted" : "text-ink-2"}`}
+                    >
+                      {item.figureLabel}
+                    </span>
                   </p>
                 </article>
               </Bezel>

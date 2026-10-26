@@ -1,5 +1,6 @@
 import type { Dict } from "@/lib/dictionaries/pt";
 import Art from "../Art";
+import CountUp from "../CountUp";
 import { Bezel, H2, container, section } from "../ui";
 
 // Unit chart: one dot per scale point, the last one partially filled.
@@ -41,13 +42,17 @@ function Dots({
   tone?: "brand" | "gold";
 }) {
   const fillCls = tone === "gold" ? "bg-sun" : "bg-brand";
-  const ringCls = tone === "gold" ? "ring-sun/50" : "ring-brand/40";
+  const ringCls = tone === "gold" ? "border-sun/70" : "border-brand/40";
   return (
     <div className="flex flex-wrap gap-1.5 md:gap-2" data-dots aria-hidden>
       {Array.from({ length: max }, (_, i) => {
         const fill = Math.max(0, Math.min(1, value - i));
         return (
-          <span key={i} className={`relative ${size} overflow-hidden rounded-full ring-1 ${ringCls}`}>
+          <span
+            key={i}
+            className={`dot-wave relative ${size} overflow-hidden rounded-full border ${ringCls}`}
+            style={{ animationDelay: `${i * 140}ms` }}
+          >
             <span
               data-dot
               className={`absolute inset-y-0 left-0 ${fillCls}`}
@@ -72,24 +77,33 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
         </div>
 
         <ul className="mt-14 md:mt-20">
-          {t.scores.map((s) => (
+          {t.scores.map((s, i) => (
             <li
               key={s.label}
               data-reveal
-              className="grid gap-5 border-t border-line py-8 md:grid-cols-12 md:items-center md:gap-8 md:py-10"
+              className="group grid gap-5 border-t border-line py-8 md:grid-cols-12 md:items-center md:gap-8 md:py-10"
             >
-              <p className="md:col-span-3">
-                <span className="font-display text-[clamp(3.5rem,7vw,5.5rem)] leading-none text-brand">{fmt(s.value)}</span>
-                <span className="ml-2 text-base text-muted">/10</span>
+              {/* What was asked leads the row; the score answers it. */}
+              <div className="md:col-span-5 md:order-last" data-nosplit>
+                <p className="flex items-center gap-3 text-xs font-medium uppercase tracking-[0.18em] text-gold">
+                  <span className="tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                  <span aria-hidden className="h-px w-10 bg-gold/50 transition-[width] duration-700 ease-[var(--ease-out-expo)] group-hover:w-16" />
+                </p>
+                <p className="mt-3 max-w-[30ch] font-display text-[clamp(1.375rem,2.2vw,2rem)] leading-[1.15] text-ink">
+                  {s.label}
+                  <span aria-hidden className="text-muted">*</span>
+                </p>
+              </div>
+              <p className="flex items-baseline gap-2 md:col-span-3" data-nosplit>
+                <span className="font-display text-[clamp(3.5rem,7vw,5.5rem)] leading-none text-brand">
+                  <CountUp value={fmt(s.value)} locale={locale} />
+                </span>
+                <span className="text-base text-muted">/10</span>
                 <span className="sr-only"> {t.outOf}</span>
               </p>
-              <div className="md:col-span-5">
-                <Dots value={s.value} max={10} />
+              <div className="md:col-span-4">
+                <Dots value={s.value} max={10} tone="gold" size="size-4 md:size-[1.375rem]" />
               </div>
-              <p className="text-lg leading-snug text-ink md:col-span-4">
-                {s.label}
-                <span aria-hidden className="text-muted">*</span>
-              </p>
             </li>
           ))}
         </ul>

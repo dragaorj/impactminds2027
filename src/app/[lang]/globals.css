@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+/* Sticky side columns only pin on screens tall enough to show them whole;
+   on short screens (ultrawides, laptops) they scroll with the section. */
+@custom-variant pin (@media (min-width: 80rem) and (min-height: 52rem));
 
 /*
   Shape system: interactive controls are full pills, cards use the
@@ -124,10 +127,24 @@
 html { --text-scale: 1; --screen-scale: 1; font-size: calc(100% * var(--text-scale) * var(--screen-scale)); scroll-behavior: smooth; }
 html[data-text="2"] { --text-scale: 1.125; }
 html[data-text="3"] { --text-scale: 1.25; }
-@media (min-width: 1920px) { html { --screen-scale: 1.15; } }
-@media (min-width: 2560px) { html { --screen-scale: 1.4; } }
-@media (min-width: 3440px) { html { --screen-scale: 1.75; } }
+/* Scale up only when the screen is both wide and tall: ultrawides (wide but
+   short) keep near-desktop sizes so a whole section still fits the viewport. */
+@media (min-width: 1920px) and (min-height: 1000px) { html { --screen-scale: 1.1; } }
+@media (min-width: 2560px) and (min-height: 1350px) { html { --screen-scale: 1.25; } }
+@media (min-width: 3200px) and (min-height: 1700px) { html { --screen-scale: 1.5; } }
 html[data-motion="reduce"] { scroll-behavior: auto; }
+
+/* Tailwind v4 leaves buttons with the default arrow; every clickable control
+   gets the hand cursor; disabled buttons show "not allowed". */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="switch"],
+  summary,
+  label[for],
+  select { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+}
 
 body {
   background: var(--bg);
@@ -231,6 +248,28 @@ html.js:not([data-motion="reduce"]) [data-hero] {
 
 @keyframes marquee { to { transform: translateX(-50%); } }
 
+/* Survey rating dots: a soft gold pulse keeps travelling along each row. */
+@keyframes dotWave {
+  0%, 36%, 100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
+  18% { transform: scale(1.22); box-shadow: 0 0 0 5px color-mix(in oklab, var(--sun) 22%, transparent); }
+}
+.dot-wave { animation: dotWave 2.8s var(--ease-out-expo) infinite both; }
+html[data-motion="reduce"] .dot-wave { animation: none; }
+
+/* Countdown ring: the centre unit rises in, a gold dot orbits once a minute. */
+/* One cycle per unit (matches the 2.6s switch in CountdownRing): drift up and
+   fade in, hold, then drift up and fade out before the next unit arrives. */
+@keyframes ringUnit {
+  0% { opacity: 0; transform: translateY(35%); filter: blur(3px); }
+  22%, 78% { opacity: 1; transform: translateY(0); filter: blur(0); }
+  100% { opacity: 0; transform: translateY(-35%); filter: blur(3px); }
+}
+.ring-unit { animation: ringUnit 2.6s cubic-bezier(0.45, 0, 0.25, 1) both; }
+@keyframes ringOrbit { to { transform: rotate(360deg); } }
+.ring-orbit { transform-origin: 50px 50px; animation: ringOrbit 60s linear infinite; }
+html[data-motion="reduce"] .ring-unit,
+html[data-motion="reduce"] .ring-orbit { animation: none; }
+
 /* Idle loops for the Cartagena line art and the geometric tiles. Each runs
    on its own element (inside the svg) so GSAP's entrance transform on the svg
    itself is never overridden. */
@@ -290,6 +329,23 @@ html[data-motion="reduce"] .chart-runner { display: none; }
 
 /* Speakers conveyor: two identical lists, the track slides by one list width. */
 .speaker-track { animation: marquee 80s linear infinite; }
+
+/* Speaker portraits: muted purple duotone at rest; colour and a slow zoom on
+   hover or keyboard focus. The lightbox portrait keeps full colour. */
+.speaker-card .portrait-img {
+  filter: grayscale(1) brightness(0.82) contrast(1.05);
+  transition: transform 1.2s var(--ease-out-expo), filter 0.8s ease;
+}
+.speaker-card:hover .portrait-img,
+.speaker-card:focus-visible .portrait-img { filter: none; transform: scale(1.34); }
+.speaker-wash {
+  background: var(--brand);
+  mix-blend-mode: color;
+  opacity: 0.85;
+  transition: opacity 0.8s ease;
+}
+.speaker-card:hover .speaker-wash,
+.speaker-card:focus-visible .speaker-wash { opacity: 0; }
 .speaker-loop:hover .speaker-track,
 .speaker-loop:focus-within .speaker-track,
 .speaker-loop[data-paused] .speaker-track { animation-play-state: paused; }

@@ -42,16 +42,16 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
         <Testimonials t={t.testimonials} lang={lang} />
         <Speakers t={t.speakers} lang={lang} />
         <Connections t={t.connections} />
-        <Launches t={t.launches} />
+        <Launches t={t.launches} locale={locale} />
         <Events t={t.events} />
         <Visits t={t.visits} />
         <Agenda t={t.agenda} place={t.hero.eyebrow} />
         <Sponsor t={t.sponsor} locale={locale} />
-        <Carbon t={t.carbon} />
-        <Digital t={t.digital} />
+        <Carbon t={t.carbon} locale={locale} />
+        <Digital t={t.digital} locale={locale} />
         <Editions t={t.editions} />
       </main>
-      <Footer t={t.footer} hero={t.hero} />
+      <Footer t={t.footer} hero={t.hero} nav={t.nav} />
       <CountdownRing labels={{ ...t.hero, agendaLink: t.agenda.title }} />
       <BackToTop label={t.footer.backToTop} />
       <ScrollFx />

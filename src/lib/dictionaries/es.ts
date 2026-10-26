@@ -129,6 +129,11 @@ const es: Dict = {
     cta: "Conoce a los speakers de la última edición",
     pause: "Pausar",
     play: "Reanudar",
+    open: "Ver perfil de",
+    close: "Cerrar",
+    prev: "Ponente anterior",
+    next: "Siguiente ponente",
+    edition: "Ponente · Impact Minds 2026",
   },
   connections: {
     title: "Las Cuatro Conexiones Clave",
@@ -138,10 +143,10 @@ const es: Dict = {
     proposals: "La agenda se construyó a partir de más de 160 propuestas enviadas por los miembros de Latimpacto.",
     cta: "Agenda Académica 2026",
     items: [
-      { title: "Conectar Intenciones", sub: "Propósito y claridad estratégica", text: "Dar claridad al propósito, articular una teoría de cambio coherente y asegurar que el capital corresponda a los resultados buscados." },
-      { title: "Conectar Capital", sub: "El continuo de instrumentos", text: "De la filantropía a la inversión de mercado: entender cuándo se necesita capital concesional y cuándo el mercado está listo para escalar." },
-      { title: "Conectar Actores", sub: "Ecosistema y colaboración", text: "Diálogo productivo entre sectores y geografías para que proveedores de capital, implementadores y comunidades cocreen soluciones." },
-      { title: "Conectar Sistemas", sub: "Impacto estructural", text: "Vincular intervenciones con cambios estructurales y alinear el capital privado con las políticas públicas, hacia un cambio sistémico duradero." },
+      { title: "Intenciones", sub: "Propósito y claridad estratégica", text: "Dar claridad al propósito, articular una teoría de cambio coherente y asegurar que el capital corresponda a los resultados buscados." },
+      { title: "Capital", sub: "El continuo de instrumentos", text: "De la filantropía a la inversión de mercado: entender cuándo se necesita capital concesional y cuándo el mercado está listo para escalar." },
+      { title: "Actores", sub: "Ecosistema y colaboración", text: "Diálogo productivo entre sectores y geografías para que proveedores de capital, implementadores y comunidades cocreen soluciones." },
+      { title: "Sistemas", sub: "Impacto estructural", text: "Vincular intervenciones con cambios estructurales y alinear el capital privado con las políticas públicas, hacia un cambio sistémico duradero." },
     ],
   },
   agenda: {

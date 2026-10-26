@@ -1,20 +1,21 @@
 import type { Dict } from "@/lib/dictionaries/pt";
 import Art from "../Art";
+import CountUp from "../CountUp";
 import { H2, container, section } from "../ui";
 
 // Stat values never wrap: a currency prefix drops to a small label instead.
-function Figure({ value }: { value: string }) {
+function Figure({ value, locale }: { value: string; locale: string }) {
   const m = value.match(/^(USD)\s(.+)$/);
-  if (!m) return <>{value}</>;
+  if (!m) return <CountUp value={value} locale={locale} />;
   return (
     <>
       <span className="mr-1.5 align-top font-sans text-[0.32em] font-medium tracking-wide">{m[1]}</span>
-      {m[2]}
+      <CountUp value={m[2]} locale={locale} />
     </>
   );
 }
 
-function Group({ label, items }: { label: string; items: { value: string; label: string }[] }) {
+function Group({ label, items, locale }: { label: string; items: { value: string; label: string }[]; locale: string }) {
   return (
     <div>
       <p className="border-b border-line pb-3 text-sm font-medium text-muted">{label}</p>
@@ -23,7 +24,7 @@ function Group({ label, items }: { label: string; items: { value: string; label:
           <div key={item.label} data-reveal className="flex flex-col">
             <dt className="order-last mt-2 text-[0.9375rem] leading-snug text-ink-2">{item.label}</dt>
             <dd className="whitespace-nowrap font-display text-[clamp(2rem,3.6vw,3.25rem)] leading-none text-brand">
-              <Figure value={item.value} />
+              <Figure value={item.value} locale={locale} />
             </dd>
           </div>
         ))}
@@ -33,7 +34,7 @@ function Group({ label, items }: { label: string; items: { value: string; label:
 }
 
 // Reach in two plain stat groups: no cards, the numbers carry the section.
-export default function Digital({ t }: { t: Dict["digital"] }) {
+export default function Digital({ t, locale }: { t: Dict["digital"]; locale: string }) {
   return (
     <section id="alcance" className={section} aria-labelledby="alcance-title">
       <Art name="arcs" className="absolute bottom-0 right-0 hidden w-56 xl:block" />
@@ -42,8 +43,8 @@ export default function Digital({ t }: { t: Dict["digital"] }) {
           {t.title}
         </H2>
         <div className="mt-14 grid gap-14 md:mt-20 lg:grid-cols-2 lg:gap-20">
-          <Group label={t.online} items={t.onlineItems} />
-          <Group label={t.media} items={t.mediaItems} />
+          <Group label={t.online} items={t.onlineItems} locale={locale} />
+          <Group label={t.media} items={t.mediaItems} locale={locale} />
         </div>
         <p className="mt-16 max-w-[60ch] font-display text-2xl leading-snug text-ink">{t.intl}</p>
       </div>

@@ -44,12 +44,22 @@ export default function Events({ t }: { t: Dict["events"] }) {
                   <span className="absolute inset-x-0 bottom-0 block p-6 text-white md:p-8">
                     <span className="block text-sm text-[#E2C985]">{item.place}</span>
                     <span className="mt-1 block font-display text-2xl leading-tight md:text-3xl">{item.title}</span>
+                    {/* Closed panels collapse the story to zero height, so place and
+                        title rest on the bottom edge instead of floating mid-card. */}
                     <span
-                      className={`mt-3 block max-w-[46ch] text-[0.9375rem] leading-relaxed text-white/85 transition-[opacity,transform] duration-700 ease-[var(--ease-out-expo)] ${
-                        open ? "translate-y-0 opacity-100" : "lg:translate-y-4 lg:opacity-0"
+                      className={`grid transition-[grid-template-rows] duration-700 ease-[var(--ease-out-expo)] ${
+                        open ? "grid-rows-[1fr]" : "grid-rows-[1fr] lg:grid-rows-[0fr]"
                       }`}
                     >
-                      {item.text}
+                      <span className="overflow-hidden">
+                        <span
+                          className={`block max-w-[46ch] pt-3 text-[0.9375rem] leading-relaxed text-white/85 transition-[opacity,transform] duration-700 ease-[var(--ease-out-expo)] ${
+                            open ? "translate-y-0 opacity-100" : "lg:translate-y-4 lg:opacity-0"
+                          }`}
+                        >
+                          {item.text}
+                        </span>
+                      </span>
                     </span>
                   </span>
                 </button>

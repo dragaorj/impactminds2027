@@ -13,7 +13,7 @@ export default function Agenda({ t, place }: { t: Dict["agenda"]; place: string 
     >
       <div className={`${container} grid gap-14 xl:grid-cols-12 xl:gap-12`}>
         <div className="xl:col-span-5">
-          <div className="xl:sticky xl:top-32" data-reveal>
+          <div className="pin:sticky pin:top-32" data-reveal>
             <p className="text-sm text-block-muted">{place}</p>
             <h2 id="agenda-title" className="mt-4 font-display text-[clamp(2.25rem,5.2vw,4.25rem)] leading-[1.02]">
               {t.title}

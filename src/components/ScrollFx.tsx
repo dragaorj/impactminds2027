@@ -20,6 +20,33 @@ gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 //   [data-words] span   paragraph words brighten in sequence (scrub)
 //   [data-bar]          chart bars grow from the baseline
 //   [data-dot]          rating dots fill one by one
+// SplitText turns non-breaking spaces into plain ones, which would let a line
+// break inside "Impact Minds". Wrapping each occurrence in a nowrap span first
+// keeps the name on one line in the split result.
+const BRAND = "Impact Minds";
+function keepTogether(el: HTMLElement) {
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const nodes: Text[] = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode as Text;
+    if (node.nodeValue?.includes(BRAND) && !node.parentElement?.dataset.brand) nodes.push(node);
+  }
+  for (const node of nodes) {
+    const frag = document.createDocumentFragment();
+    node.nodeValue!.split(BRAND).forEach((part, i) => {
+      if (i > 0) {
+        const span = document.createElement("span");
+        span.dataset.brand = "";
+        span.style.whiteSpace = "nowrap";
+        span.textContent = BRAND;
+        frag.append(span);
+      }
+      if (part) frag.append(part);
+    });
+    node.replaceWith(frag);
+  }
+}
+
 export default function ScrollFx() {
   const [reduce, setReduce] = useState<boolean | null>(null);
 
@@ -37,10 +64,11 @@ export default function ScrollFx() {
       const counters = gsap.utils.toArray<HTMLElement>("[data-count]");
       const format = (el: HTMLElement, n: number) => {
         const decimals = Number(el.dataset.decimals ?? 0);
-        el.textContent = n.toLocaleString(el.dataset.locale ?? "pt-BR", {
+        const text = n.toLocaleString(el.dataset.locale ?? "pt-BR", {
           minimumFractionDigits: decimals,
           maximumFractionDigits: decimals,
         });
+        el.textContent = el.dataset.pad ? text.padStart(Number(el.dataset.pad), "0") : text;
       };
 
       if (reduce) {
@@ -84,6 +112,7 @@ export default function ScrollFx() {
         )
           return;
         const heading = /^H[23]$/.test(el.tagName) || el.classList.contains("font-display");
+        keepTogether(el);
         SplitText.create(el, {
           type: "lines",
           mask: "lines",
@@ -143,7 +172,8 @@ export default function ScrollFx() {
           duration: 2,
           ease: "expo.out",
           onUpdate: () => format(el, state.n),
-          scrollTrigger: { trigger: el, start: "top 90%", once: true },
+          // Counts from zero every time it scrolls into view from above.
+          scrollTrigger: { trigger: el, start: "top 90%", toggleActions: "restart none none reset" },
         });
       });
 

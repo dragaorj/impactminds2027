@@ -60,7 +60,7 @@ export default function Editions({ t }: { t: Dict["editions"] }) {
                   type="button"
                   onClick={() => setViewing(i)}
                   aria-label={`${t.open}: ${current.city} ${current.year}, ${t.photos} ${i + 1}`}
-                  className="absolute inset-0 block size-full cursor-zoom-in"
+                  className="absolute inset-0 block size-full"
                 >
                   <Image
                     src={src}

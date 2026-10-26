@@ -17,9 +17,9 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
 
   return (
     <section id="visitas" className={section} aria-labelledby="visitas-title">
-      <div className={`${container} grid gap-14 xl:grid-cols-12 xl:gap-14`}>
-        <div className="xl:col-span-5">
-          <div className="xl:sticky xl:top-24 xl:flex xl:min-h-[calc(100dvh-7rem)] xl:flex-col xl:justify-center">
+      <div className={`${container} grid gap-14 xl:grid-cols-12 xl:gap-x-[5vw]`}>
+        <div className="xl:col-span-5 xl:pr-4">
+          <div className="pin:sticky pin:top-24 pin:flex pin:min-h-[calc(100dvh-7rem)] pin:flex-col pin:justify-center">
             <h2 id="visitas-title" className="font-display text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.02] text-ink">
               {t.title}
             </h2>

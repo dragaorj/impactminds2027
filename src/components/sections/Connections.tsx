@@ -11,7 +11,7 @@ export default function Connections({ t }: { t: Dict["connections"] }) {
     <section id="conexoes" className={`${section} scroll-mt-20 bg-bg-2`} aria-labelledby="conexoes-title">
       <div className={`${container} grid gap-14 xl:grid-cols-12 xl:gap-12`}>
         <div className="xl:col-span-5">
-          <div className="xl:sticky xl:top-28" data-reveal>
+          <div className="pin:sticky pin:top-28" data-reveal>
           <H2 id="conexoes-title">{t.title}</H2>
           <div className="mt-8 max-w-[62ch] space-y-5 text-lg leading-relaxed text-ink-2">
             <p>{t.p1}</p>

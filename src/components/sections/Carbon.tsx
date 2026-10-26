@@ -1,10 +1,11 @@
 import { Leaf } from "@phosphor-icons/react/dist/ssr";
 import type { Dict } from "@/lib/dictionaries/pt";
 import Art from "../Art";
+import CountUp from "../CountUp";
 import { container, section } from "../ui";
 
 // Manifesto layout: centered statement, the paragraph brightens word by word.
-export default function Carbon({ t }: { t: Dict["carbon"] }) {
+export default function Carbon({ t, locale }: { t: Dict["carbon"]; locale: string }) {
   return (
     <section id="carbono" className={`${section} overflow-hidden bg-bg-2`} aria-labelledby="carbono-title">
       <Art name="laurel" className="absolute bottom-10 left-[3%] w-28 md:left-[8%] md:w-44" />
@@ -24,7 +25,7 @@ export default function Carbon({ t }: { t: Dict["carbon"] }) {
         </p>
         <div data-reveal className="mt-16">
           <p className="font-display text-[clamp(4.5rem,14vw,11rem)] leading-none text-brand">
-            {t.value}
+            <CountUp value={t.value} locale={locale} />
             <span className="ml-3 align-top font-sans text-[clamp(1.25rem,2.4vw,2rem)] text-ink-2">
               tCO<sub>2</sub>e
             </span>

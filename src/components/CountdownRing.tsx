@@ -5,12 +5,16 @@ import { ArrowRight } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { COUNTDOWN_FROM, EVENT_END, EVENT_START } from "@/lib/site";
 import Countdown from "./Countdown";
+import { prefersReducedMotion } from "./prefs";
 
 type Labels = Dict["hero"] & { agendaLink: string };
 
 const TICKS = 60;
 
-type State = { phase: "before"; days: number; progress: number } | { phase: "live" } | { phase: "after" };
+type State =
+  | { phase: "before"; days: number; hours: number; minutes: number; seconds: number; progress: number }
+  | { phase: "live" }
+  | { phase: "after" };
 
 // Floating countdown: a ring of ticks fills from COUNTDOWN_FROM to the first
 // day, with the days left in the middle; clicking it opens the full countdown.
@@ -58,19 +62,45 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
     const tick = () => {
       const now = Date.now();
       if (now < s) {
+        const left = Math.floor((s - now) / 1000);
         setState({
           phase: "before",
-          days: Math.floor((s - now) / 86_400_000),
+          days: Math.floor(left / 86_400),
+          hours: Math.floor((left % 86_400) / 3600),
+          minutes: Math.floor((left % 3600) / 60),
+          seconds: left % 60,
           progress: Math.min(1, Math.max(0, (now - from) / (s - from))),
         });
       } else if (now <= e) setState({ phase: "live" });
       else setState({ phase: "after" });
     };
     tick();
-    const id = window.setInterval(tick, 60_000);
+    const id = window.setInterval(tick, 1000);
     return () => window.clearInterval(id);
   }, []);
 
+  // The centre steps through days → hours → minutes → seconds, so the ring
+  // always shows the whole countdown, one unit at a time.
+  const [unit, setUnit] = useState(0);
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    const id = window.setInterval(() => setUnit((u) => (u + 1) % 4), 2600);
+    return () => window.clearInterval(id);
+  }, []);
+
+  // A gold dot orbits once a minute, synced to the current second.
+  const orbit = useRef<SVGGElement>(null);
+  useEffect(() => {
+    if (orbit.current) orbit.current.style.animationDelay = `${-((Date.now() / 1000) % 60)}s`;
+  }, []);
+
+  const before = state?.phase === "before" ? state : null;
+  const units = [
+    { value: before?.days ?? 0, label: labels.days },
+    { value: before?.hours ?? 0, label: labels.hours },
+    { value: before?.minutes ?? 0, label: labels.minutes },
+    { value: before?.seconds ?? 0, label: labels.seconds },
+  ];
   const progress = state === null ? 0 : state.phase === "before" ? state.progress : 1;
   const filled = Math.round(progress * TICKS);
   const label =
@@ -120,9 +150,11 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
           aria-expanded={open}
           aria-controls="countdown-panel"
           onClick={() => setOpen((v) => !v)}
-          className="group relative grid size-16 place-items-center rounded-full bg-surface/60 text-ink shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 transition-transform duration-500 ease-[var(--ease-spring)] hover:scale-105 active:scale-95 sm:size-20"
+          className={`group relative grid size-16 place-items-center rounded-full shadow-[var(--shadow)] ring-1 backdrop-blur-xl backdrop-saturate-150 transition-[transform,background-color,color,box-shadow] duration-500 ease-[var(--ease-spring)] hover:scale-105 active:scale-95 sm:size-20 ${
+            raised ? "bg-surface/60 text-ink ring-line" : "bg-[rgb(34_14_52/0.45)] text-white ring-white/20"
+          }`}
         >
-          <svg viewBox="0 0 100 100" aria-hidden className="absolute inset-0 size-full -rotate-90">
+          <svg viewBox="0 0 100 100" aria-hidden className="absolute inset-0 size-full -rotate-90 overflow-visible">
             {Array.from({ length: TICKS }, (_, i) => {
               const on = i < filled;
               const lead = i === filled - 1 && state?.phase === "before";
@@ -136,22 +168,25 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
                   transform={`rotate(${(i * 360) / TICKS} 50 50)`}
                   strokeWidth={i % 5 === 0 ? 2.4 : 1.8}
                   strokeLinecap="round"
-                  className={`transition-[stroke] duration-500 ${on ? "stroke-sun" : "stroke-ink/15"} ${lead ? "animate-pulse" : ""}`}
+                  className={`transition-[stroke] duration-500 ${on ? "stroke-sun" : raised ? "stroke-ink/15" : "stroke-white/25"} ${lead ? "animate-pulse" : ""}`}
                   style={{ transitionDelay: `${i * 12}ms` }}
                 />
               );
             })}
+            <g ref={orbit} className="ring-orbit">
+              <circle cx="100" cy="50" r="2.6" className="fill-sun" />
+            </g>
           </svg>
-          <span className="relative flex flex-col items-center leading-none">
+          <span className="relative flex h-10 flex-col items-center justify-center overflow-hidden leading-none sm:h-12">
             {state?.phase === "before" || state === null ? (
-              <>
-                <span className="font-display text-xl tabular-nums sm:text-[1.625rem]">
-                  {state?.phase === "before" ? state.days : "--"}
+              <span key={unit} className="ring-unit flex flex-col items-center">
+                <span className="font-display text-lg tabular-nums sm:text-[1.375rem]">
+                  {state?.phase === "before" ? String(units[unit].value).padStart(unit === 0 ? 1 : 2, "0") : "--"}
                 </span>
-                <span className="mt-0.5 text-[0.5625rem] uppercase tracking-[0.12em] text-ink-2 sm:text-[0.625rem]">
-                  {labels.days}
+                <span className={`mt-0.5 text-[0.5rem] uppercase tracking-[0.14em] sm:text-[0.5625rem] ${raised ? "text-ink-2" : "text-white/75"}`}>
+                  {units[unit].label}
                 </span>
-              </>
+              </span>
             ) : (
               <span className="font-display text-base sm:text-lg">2027</span>
             )}

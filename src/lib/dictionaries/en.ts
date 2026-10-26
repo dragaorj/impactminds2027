@@ -129,6 +129,11 @@ const en: Dict = {
     cta: "Meet the speakers from the last edition",
     pause: "Pause",
     play: "Resume",
+    open: "View profile of",
+    close: "Close",
+    prev: "Previous speaker",
+    next: "Next speaker",
+    edition: "Speaker · Impact Minds 2026",
   },
   connections: {
     title: "The Four Key Connections",
@@ -138,10 +143,10 @@ const en: Dict = {
     proposals: "The agenda was built from more than 160 proposals submitted by Latimpacto members.",
     cta: "2026 Academic Agenda",
     items: [
-      { title: "Connecting Intentions", sub: "Purpose and strategic clarity", text: "Bring clarity to purpose, articulate a coherent theory of change, and make sure the capital matches the results being sought." },
-      { title: "Connecting Capital", sub: "The continuum of instruments", text: "From philanthropy to market investment: knowing when concessional capital is needed and when markets are ready to scale." },
-      { title: "Connecting Actors", sub: "Ecosystem and collaboration", text: "Productive dialogue across sectors and geographies so capital providers, implementers, and communities co-create solutions." },
-      { title: "Connecting Systems", sub: "Structural impact", text: "Link interventions to structural change and align private capital with public policy, toward lasting systemic change." },
+      { title: "Intentions", sub: "Purpose and strategic clarity", text: "Bring clarity to purpose, articulate a coherent theory of change, and make sure the capital matches the results being sought." },
+      { title: "Capital", sub: "The continuum of instruments", text: "From philanthropy to market investment: knowing when concessional capital is needed and when markets are ready to scale." },
+      { title: "Actors", sub: "Ecosystem and collaboration", text: "Productive dialogue across sectors and geographies so capital providers, implementers, and communities co-create solutions." },
+      { title: "Systems", sub: "Structural impact", text: "Link interventions to structural change and align private capital with public policy, toward lasting systemic change." },
     ],
   },
   agenda: {
