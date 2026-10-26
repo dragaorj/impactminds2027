@@ -42,7 +42,7 @@ export default function Launches({ t }: { t: Dict["launches"] }) {
                     </h3>
                     <p className={`mt-4 max-w-[46ch] text-base leading-relaxed ${lead ? "text-block-muted" : "text-ink-2"}`}>{item.text}</p>
                   </div>
-                  <p className="relative flex items-baseline gap-3">
+                  <p className="relative flex flex-col items-start gap-2" data-nosplit>
                     <span className={`whitespace-nowrap font-display leading-none ${lead ? "text-6xl text-sun md:text-7xl" : "text-4xl text-brand"}`}>
                       {item.figure.startsWith("USD ") ? (
                         <>
@@ -53,7 +53,7 @@ export default function Launches({ t }: { t: Dict["launches"] }) {
                         item.figure
                       )}
                     </span>
-                    <span className={`text-sm ${lead ? "text-block-muted" : "text-muted"}`}>{item.figureLabel}</span>
+                    <span className={`text-base ${lead ? "text-block-muted" : "text-muted"}`}>{item.figureLabel}</span>
                   </p>
                 </article>
               </Bezel>

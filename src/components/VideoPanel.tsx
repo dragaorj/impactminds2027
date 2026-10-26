@@ -5,7 +5,7 @@ import Image from "next/image";
 import { ArrowsOut, SpeakerHigh, SpeakerSlash } from "@phosphor-icons/react";
 import FullVideo from "./FullVideo";
 import { prefersReducedMotion } from "./prefs";
-import { loadYouTube, loopVars, type YTPlayer } from "./youtube";
+import { keepLooping, loadYouTube, loopVars, type YTPlayer } from "./youtube";
 
 type Labels = {
   soundOn: string;
@@ -36,6 +36,7 @@ export default function VideoPanel({ videoId, labels }: { videoId: string; label
   useEffect(() => {
     let cancelled = false;
     let timer = 0;
+    let firstReveal = true;
     const host = holder.current;
     const mount = document.createElement("div");
     host?.appendChild(mount);
@@ -57,14 +58,27 @@ export default function VideoPanel({ videoId, labels }: { videoId: string; label
             // Same trick as the hero: keep the poster up until playback is steady
             // so YouTube's start-up chrome never shows.
             window.clearTimeout(timer);
-            if (e.data === 1) timer = window.setTimeout(() => setStarted(true), 1800);
+            if (e.data === 1) {
+              timer = window.setTimeout(() => setStarted(true), firstReveal ? 4000 : 2200);
+              firstReveal = false;
+            }
             else if (e.data === -1 || e.data === 0 || e.data === 2 || e.data === 3) setStarted(false);
           },
         },
       });
     });
 
+    const stopLoop = keepLooping(
+      () => player.current,
+      () => {
+        window.clearTimeout(timer);
+        setStarted(false);
+        timer = window.setTimeout(() => setStarted(true), 2200);
+      },
+    );
+
     return () => {
+      stopLoop();
       cancelled = true;
       window.clearTimeout(timer);
       player.current?.destroy();

@@ -8,7 +8,7 @@ import { EVENT_END, EVENT_START, HERO_VIDEO_ID } from "@/lib/site";
 import Countdown from "./Countdown";
 import Art from "./Art";
 import { prefersReducedMotion } from "./prefs";
-import { loadYouTube, loopVars, type YTPlayer } from "./youtube";
+import { keepLooping, loadYouTube, loopVars, type YTPlayer } from "./youtube";
 
 // The background loop stays muted and chrome-less.
 export default function Hero({ t }: { t: Dict["hero"] }) {
@@ -42,7 +42,7 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
             // moments and only lifts once playback has been steady for a while.
             window.clearTimeout(revealTimer);
             if (e.data === 1) {
-              revealTimer = window.setTimeout(() => setStarted(true), firstReveal ? 3000 : 1600);
+              revealTimer = window.setTimeout(() => setStarted(true), firstReveal ? 4000 : 2200);
               firstReveal = false;
             } else if (e.data === -1 || e.data === 0 || e.data === 2 || e.data === 3) {
               setStarted(false);
@@ -52,7 +52,17 @@ export default function Hero({ t }: { t: Dict["hero"] }) {
       });
     });
 
+    const stopLoop = keepLooping(
+      () => player.current,
+      () => {
+        window.clearTimeout(revealTimer);
+        setStarted(false);
+        revealTimer = window.setTimeout(() => setStarted(true), 2200);
+      },
+    );
+
     return () => {
+      stopLoop();
       cancelled = true;
       window.clearTimeout(revealTimer);
       player.current?.destroy();

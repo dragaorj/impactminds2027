@@ -79,7 +79,7 @@ export default function FullVideo({
           onStateChange: (e: { data: number }) => {
             window.clearTimeout(timer);
             setPlaying(e.data === 1);
-            if (e.data === 1) timer = window.setTimeout(() => setSteady(true), 1200);
+            if (e.data === 1) timer = window.setTimeout(() => setSteady(true), 3500);
             else setSteady(false);
           },
         },
@@ -131,7 +131,7 @@ export default function FullVideo({
       </button>
 
       <div className="relative isolate aspect-video overflow-hidden rounded-[1.5rem] bg-black shadow-2xl ring-1 ring-white/15">
-        <div ref={holder} className="yt-cover absolute inset-0 overflow-hidden" aria-hidden />
+        <div ref={holder} className="yt-cover yt-full absolute inset-0 overflow-hidden" aria-hidden />
         {/* Poster + our own play button cover every moment YouTube shows chrome. */}
         <button
           type="button"

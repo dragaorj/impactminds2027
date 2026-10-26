@@ -28,7 +28,7 @@ export default function Agenda({ t, place }: { t: Dict["agenda"]; place: string 
             <li key={d.day} data-reveal className={i > 0 ? "mt-4" : ""}>
               <div className="rounded-[2rem] bg-white/5 p-1.5 ring-1 ring-white/12">
                 <div className="relative grid gap-6 overflow-hidden rounded-[calc(2rem-6px)] bg-[rgb(255_255_255/0.04)] p-7 shadow-[inset_0_1px_1px_rgb(255_255_255/0.08)] sm:grid-cols-[9rem_1fr] sm:items-center md:p-9">
-                  <p className="flex items-baseline gap-2 sm:flex-col sm:gap-1">
+                  <p className="flex items-baseline gap-2 sm:flex-col sm:gap-1" data-nosplit>
                     <span className="font-display text-7xl leading-none md:text-8xl">{d.day}</span>
                     <span className="text-sm text-block-muted">{t.month}</span>
                   </p>

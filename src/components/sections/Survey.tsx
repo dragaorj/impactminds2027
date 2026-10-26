@@ -132,7 +132,7 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
                     </div>
                     <div
                       data-hbar
-                      className={`mt-2.5 h-2 rounded-r-full ${i === 0 ? "bg-sun" : "bg-lavender"}`}
+                      className={`mt-2.5 h-2 rounded-full ${i === 0 ? "bg-sun" : "bg-lavender"}`}
                       style={{ width: `${(type.value / t.types[0].value) * 100}%` }}
                       aria-hidden
                     />

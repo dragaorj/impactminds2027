@@ -2,9 +2,9 @@ import type { Dict } from "./pt";
 
 const en: Dict = {
   meta: {
-    title: "Impact Minds 2027 | Connecting Us | Cartagena",
+    title: "Impact Minds 2027 | Connecting Us | Cartagena",
     description:
-      "Latimpacto's conference comes to Cartagena in August 2027. See the results of Impact Minds 2026 in Manaus and get ready for the next edition.",
+      "Latimpacto's conference comes to Cartagena in August 2027. See the results of Impact Minds 2026 in Manaus and get ready for the next edition.",
   },
   nav: {
     skip: "Skip to content",
@@ -33,13 +33,13 @@ const en: Dict = {
   },
   hero: {
     eyebrow: "Cartagena, Colombia",
-    title: "Impact Minds",
+    title: "Impact Minds",
     subtitle: "Connecting Us",
     dates: "August 24 to 27, 2027",
     launch: "Official launch in March 2027",
-    countdown: "Countdown to Impact Minds 2027",
-    live: "Impact Minds 2027 is happening now in Cartagena",
-    after: "Thank you for being part of Impact Minds 2027",
+    countdown: "Countdown to Impact Minds 2027",
+    live: "Impact Minds 2027 is happening now in Cartagena",
+    after: "Thank you for being part of Impact Minds 2027",
     days: "days",
     hours: "hours",
     minutes: "min",
@@ -47,10 +47,10 @@ const en: Dict = {
     cta: "See 2026 results",
     watch: "Watch the video with sound",
     close: "Close video",
-    videoLabel: "Impact Minds 2026 video",
+    videoLabel: "Impact Minds 2026 video",
   },
   numbers: {
-    title: "Impact Minds 2026 in numbers",
+    title: "Impact Minds 2026 in numbers",
     lead: "Manaus was the meeting point for a community committed to connecting capital, knowledge, and action to drive impact across Latin America and the Caribbean.",
     participants: "participants",
     organizations: "organizations represented",
@@ -67,16 +67,16 @@ const en: Dict = {
     connections: "connections, on average, made by each organization at the event",
   },
   about: {
-    title: "What is Impact Minds",
+    title: "What is Impact Minds",
     play: "Play",
     pause: "Pause",
     soundOn: "Turn sound on",
     soundOff: "Mute",
     watch: "Watch full video",
     close: "Close video",
-    videoLabel: "Impact Minds 2026 video",
-    p1: "Latimpacto's conference, Impact Minds, is more than an event: it is a meeting point where ideas, strategy, and capital connect to transform realities. It brings together major capital providers from around the world who share a vision of impact for Latin America and the Caribbean.",
-    p2: "Designed to inspire genuine participation, Impact Minds invites every participant to take a leading role: connect, learn, and co-create solutions that mobilize capital for the social and environmental impact our region needs.",
+    videoLabel: "Impact Minds 2026 video",
+    p1: "Latimpacto's conference, Impact Minds, is more than an event: it is a meeting point where ideas, strategy, and capital connect to transform realities. It brings together major capital providers from around the world who share a vision of impact for Latin America and the Caribbean.",
+    p2: "Designed to inspire genuine participation, Impact Minds invites every participant to take a leading role: connect, learn, and co-create solutions that mobilize capital for the social and environmental impact our region needs.",
   },
   gallery: {
     title: "View photos from our last edition",
@@ -88,7 +88,7 @@ const en: Dict = {
     ],
     all: "See all photos",
     alt: [
-      "Main stage at Impact Minds 2026",
+      "Main stage at Impact Minds 2026",
       "Participants talking in the networking area",
       "Audience watching a panel",
       "Latimpacto members' dinner",
@@ -98,9 +98,9 @@ const en: Dict = {
   },
   survey: {
     title: "What participants say",
-    subtitle: "Survey conducted among Impact Minds 2026 participants",
+    subtitle: "Survey conducted among Impact Minds 2026 participants",
     scores: [
-      { value: 8.5, label: "Likelihood of attending Impact Minds again" },
+      { value: 8.5, label: "Likelihood of attending Impact Minds again" },
       { value: 7.3, label: "Academic program content" },
       { value: 8.8, label: "Logistics and production" },
     ],
@@ -132,7 +132,7 @@ const en: Dict = {
   },
   connections: {
     title: "The Four Key Connections",
-    p1: "In 2026, Connecting Us was the guiding theme of Impact Minds, an invitation to go beyond collaboration and strengthen connections with purpose.",
+    p1: "In 2026, Connecting Us was the guiding theme of Impact Minds, an invitation to go beyond collaboration and strengthen connections with purpose.",
     p2: "Throughout the edition, we connected intentions, capital, actors, and systems, bringing together different sectors, financial instruments, and strategies to drive actions capable of creating systemic impact.",
     p3: "More than bringing a community together, Connecting Us reinforced the importance of connecting better to transform not only projects, but also the systems that shape our realities.",
     proposals: "The agenda was built from more than 160 proposals submitted by Latimpacto members.",
@@ -157,8 +157,8 @@ const en: Dict = {
   },
   sponsor: {
     kicker: "The conference keeps growing every year.",
-    title: "Interested in being part of Impact Minds 2027?",
-    text: "Discover how your organization can become a sponsor of Impact Minds in Cartagena.",
+    title: "Interested in being part of Impact Minds 2027?",
+    text: "Discover how your organization can become a sponsor of Impact Minds in Cartagena.",
     cta: "Become a sponsor",
     soon: "Coming soon",
     chartTitle: "Participants per edition",
@@ -166,7 +166,7 @@ const en: Dict = {
     tableYear: "Year",
   },
   carbon: {
-    title: "Impact Minds is a Carbon Neutral event",
+    title: "Impact Minds is a Carbon Neutral event",
     text: "We take action and offset our carbon footprint to ensure a more sustainable experience, thanks to our strategic ally The Carbon Sink.",
     label: "Tonnes of CO₂ offset at the last conference",
     value: "638.79",
@@ -190,7 +190,7 @@ const en: Dict = {
   },
   launches: {
     "title": "From connections to action",
-    "lead": "At Impact Minds 2026, Latimpacto presented three initiatives that turn collaboration into concrete mechanisms for the region.",
+    "lead": "At Impact Minds 2026, Latimpacto presented three initiatives that turn collaboration into concrete mechanisms for the region.",
     "items": [
       {
         "tag": "Culture Fund",
@@ -237,7 +237,7 @@ const en: Dict = {
   },
   visits: {
     "title": "12 field visits",
-    "lead": "Immersive experiences that brought the Impact Minds conversations closer to the reality of the Amazon.",
+    "lead": "Immersive experiences that brought the Impact Minds conversations closer to the reality of the Amazon.",
     "close": "Close",
     "prev": "Previous photo",
     "next": "Next photo",

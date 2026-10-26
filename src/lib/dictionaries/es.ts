@@ -2,9 +2,9 @@ import type { Dict } from "./pt";
 
 const es: Dict = {
   meta: {
-    title: "Impact Minds 2027 | Connecting Us | Cartagena",
+    title: "Impact Minds 2027 | Connecting Us | Cartagena",
     description:
-      "La conferencia de Latimpacto llega a Cartagena en agosto de 2027. Conoce los resultados de Impact Minds 2026 en Manaos y prepárate para la próxima edición.",
+      "La conferencia de Latimpacto llega a Cartagena en agosto de 2027. Conoce los resultados de Impact Minds 2026 en Manaos y prepárate para la próxima edición.",
   },
   nav: {
     skip: "Saltar al contenido",
@@ -33,13 +33,13 @@ const es: Dict = {
   },
   hero: {
     eyebrow: "Cartagena, Colombia",
-    title: "Impact Minds",
+    title: "Impact Minds",
     subtitle: "Connecting Us",
     dates: "24 al 27 de agosto de 2027",
     launch: "Lanzamiento oficial en marzo de 2027",
-    countdown: "Cuenta regresiva para Impact Minds 2027",
-    live: "Impact Minds 2027 está sucediendo ahora en Cartagena",
-    after: "Gracias por ser parte de Impact Minds 2027",
+    countdown: "Cuenta regresiva para Impact Minds 2027",
+    live: "Impact Minds 2027 está sucediendo ahora en Cartagena",
+    after: "Gracias por ser parte de Impact Minds 2027",
     days: "días",
     hours: "horas",
     minutes: "min",
@@ -47,10 +47,10 @@ const es: Dict = {
     cta: "Ver resultados 2026",
     watch: "Ver el video con sonido",
     close: "Cerrar video",
-    videoLabel: "Video de Impact Minds 2026",
+    videoLabel: "Video de Impact Minds 2026",
   },
   numbers: {
-    title: "Impact Minds 2026 en cifras",
+    title: "Impact Minds 2026 en cifras",
     lead: "Manaos fue el punto de encuentro de una comunidad comprometida con conectar capital, conocimiento y acción para generar impacto en América Latina y el Caribe.",
     participants: "participantes",
     organizations: "organizaciones representadas",
@@ -67,16 +67,16 @@ const es: Dict = {
     connections: "conexiones generadas, en promedio, por cada organización presente",
   },
   about: {
-    title: "Qué es Impact Minds",
+    title: "Qué es Impact Minds",
     play: "Reproducir",
     pause: "Pausar",
     soundOn: "Activar sonido",
     soundOff: "Silenciar",
     watch: "Ver completo",
     close: "Cerrar video",
-    videoLabel: "Video de Impact Minds 2026",
-    p1: "La conferencia de Latimpacto, Impact Minds, es más que un evento: es un punto de encuentro donde ideas, estrategia y capital se conectan para transformar realidades. Este espacio reúne a grandes proveedores de capital de todo el mundo que comparten una visión de impacto para América Latina y el Caribe.",
-    p2: "Diseñado para inspirar una participación genuina, Impact Minds invita a cada participante a asumir un rol protagonista: conectar, aprender y cocrear soluciones que movilicen capital hacia el impacto social y ambiental que nuestra región necesita.",
+    videoLabel: "Video de Impact Minds 2026",
+    p1: "La conferencia de Latimpacto, Impact Minds, es más que un evento: es un punto de encuentro donde ideas, estrategia y capital se conectan para transformar realidades. Este espacio reúne a grandes proveedores de capital de todo el mundo que comparten una visión de impacto para América Latina y el Caribe.",
+    p2: "Diseñado para inspirar una participación genuina, Impact Minds invita a cada participante a asumir un rol protagonista: conectar, aprender y cocrear soluciones que movilicen capital hacia el impacto social y ambiental que nuestra región necesita.",
   },
   gallery: {
     title: "Accede a las fotos de nuestra última edición",
@@ -88,7 +88,7 @@ const es: Dict = {
     ],
     all: "Ver todas las fotos",
     alt: [
-      "Escenario principal de Impact Minds 2026",
+      "Escenario principal de Impact Minds 2026",
       "Participantes conversando en el espacio de networking",
       "Público asistiendo a un panel",
       "Cena de miembros de Latimpacto",
@@ -98,9 +98,9 @@ const es: Dict = {
   },
   survey: {
     title: "Qué dicen los participantes",
-    subtitle: "Encuesta realizada con los participantes de Impact Minds 2026",
+    subtitle: "Encuesta realizada con los participantes de Impact Minds 2026",
     scores: [
-      { value: 8.5, label: "Probabilidad de volver a participar de Impact Minds" },
+      { value: 8.5, label: "Probabilidad de volver a participar de Impact Minds" },
       { value: 7.3, label: "Contenidos de la agenda académica" },
       { value: 8.8, label: "Logística y producción" },
     ],
@@ -132,7 +132,7 @@ const es: Dict = {
   },
   connections: {
     title: "Las Cuatro Conexiones Clave",
-    p1: "En 2026, Impact Minds tuvo como hilo conductor Connecting Us, una invitación a ir más allá de la colaboración y fortalecer conexiones con propósito.",
+    p1: "En 2026, Impact Minds tuvo como hilo conductor Connecting Us, una invitación a ir más allá de la colaboración y fortalecer conexiones con propósito.",
     p2: "A lo largo de esta edición, conectamos intenciones, capital, actores y sistemas, acercando diferentes sectores, instrumentos financieros y estrategias para impulsar acciones capaces de generar impacto sistémico.",
     p3: "Más que reunir a una comunidad, Connecting Us reforzó la importancia de conectarnos mejor para transformar no solo proyectos, sino los sistemas que moldean nuestras realidades.",
     proposals: "La agenda se construyó a partir de más de 160 propuestas enviadas por los miembros de Latimpacto.",
@@ -157,8 +157,8 @@ const es: Dict = {
   },
   sponsor: {
     kicker: "La conferencia es un evento en constante crecimiento.",
-    title: "¿Te interesa ser parte de Impact Minds 2027?",
-    text: "Descubre cómo tu organización puede ser patrocinadora de Impact Minds en Cartagena.",
+    title: "¿Te interesa ser parte de Impact Minds 2027?",
+    text: "Descubre cómo tu organización puede ser patrocinadora de Impact Minds en Cartagena.",
     cta: "Sé patrocinador",
     soon: "Próximamente",
     chartTitle: "Participantes por edición",
@@ -166,7 +166,7 @@ const es: Dict = {
     tableYear: "Año",
   },
   carbon: {
-    title: "Impact Minds es un evento Carbono Neutro",
+    title: "Impact Minds es un evento Carbono Neutro",
     text: "Adoptamos medidas y compensamos nuestra huella de carbono para garantizar una experiencia más sostenible, gracias a nuestro aliado estratégico The Carbon Sink.",
     label: "Toneladas de CO₂ compensadas en la última conferencia",
     value: "638,79",
@@ -190,7 +190,7 @@ const es: Dict = {
   },
   launches: {
     "title": "De las conexiones a la acción",
-    "lead": "En Impact Minds 2026, Latimpacto presentó tres iniciativas que convierten la colaboración en mecanismos concretos para la región.",
+    "lead": "En Impact Minds 2026, Latimpacto presentó tres iniciativas que convierten la colaboración en mecanismos concretos para la región.",
     "items": [
       {
         "tag": "Fondo Cultura",
@@ -237,7 +237,7 @@ const es: Dict = {
   },
   visits: {
     "title": "12 visitas de campo",
-    "lead": "Experiencias inmersivas que acercaron las conversaciones de Impact Minds a la realidad del territorio amazónico.",
+    "lead": "Experiencias inmersivas que acercaron las conversaciones de Impact Minds a la realidad del territorio amazónico.",
     "close": "Cerrar",
     "prev": "Foto anterior",
     "next": "Foto siguiente",

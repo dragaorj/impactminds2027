@@ -19,12 +19,12 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
     <section id="visitas" className={section} aria-labelledby="visitas-title">
       <div className={`${container} grid gap-14 xl:grid-cols-12 xl:gap-14`}>
         <div className="xl:col-span-5">
-          <div className="xl:sticky xl:top-28">
-            <h2 id="visitas-title" className="font-display text-[clamp(2.25rem,4.4vw,3.75rem)] leading-[1.02] text-ink">
+          <div className="xl:sticky xl:top-24 xl:flex xl:min-h-[calc(100dvh-7rem)] xl:flex-col xl:justify-center">
+            <h2 id="visitas-title" className="font-display text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.02] text-ink">
               {t.title}
             </h2>
-            <p className="mt-5 max-w-[46ch] text-lg leading-relaxed text-ink-2">{t.lead}</p>
-            <ol className="-mx-3 mt-8 grid grid-cols-1 gap-x-3 gap-y-1 sm:grid-cols-2">
+            <p className="mt-5 max-w-[46ch] text-xl leading-relaxed text-ink-2">{t.lead}</p>
+            <ol className="-mx-3 mt-10 grid grid-cols-1 gap-x-3 gap-y-1.5 sm:grid-cols-2">
               {t.list.map((v, i) => (
                 <li key={v.name}>
                   <button
@@ -32,12 +32,12 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
                     onClick={() => open(i)}
                     className="group flex w-full items-baseline gap-3 rounded-2xl px-3 py-2.5 text-left ring-1 ring-transparent transition-[background-color,box-shadow] duration-300 hover:bg-surface hover:ring-brand/35 focus-visible:bg-surface focus-visible:ring-brand/35"
                   >
-                    <span className="w-5 shrink-0 font-display text-sm text-sun tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="w-7 shrink-0 font-display text-base text-sun tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                     <span className="min-w-0">
-                      <span className="block font-display text-base leading-tight text-ink transition-colors group-hover:text-brand">
+                      <span className="block font-display text-lg leading-tight text-ink transition-colors group-hover:text-brand md:text-xl">
                         {v.name}
                       </span>
-                      <span className="block text-xs leading-snug text-muted">{v.theme}</span>
+                      <span className="mt-0.5 block text-sm leading-snug text-muted">{v.theme}</span>
                     </span>
                   </button>
                 </li>

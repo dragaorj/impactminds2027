@@ -74,7 +74,6 @@ export default function ScrollFx() {
         "main h3",
         "main p",
         "main blockquote",
-        "main figcaption",
         "main li > span",
         "footer p",
       ].join(",");

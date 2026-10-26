@@ -200,7 +200,8 @@ html.js:not([data-motion="reduce"]) [data-hero] {
   left: 50%;
   width: max(100cqw, 177.78cqh);
   height: max(100cqh, 56.25cqw);
-  transform: translate(-50%, -50%);
+  /* Slight overscan crops the edges where YouTube draws its title bar. */
+  transform: translate(-50%, -50%) scale(1.18);
   border: 0;
   pointer-events: none;
 }
@@ -354,3 +355,6 @@ body, .bg-bg-2 {
   background-size: 200px 200px;
   background-repeat: repeat;
 }
+
+/* The full-video lightbox shows the whole frame (no overscan). */
+.yt-full iframe { transform: translate(-50%, -50%); }
