@@ -94,6 +94,11 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
     const stopWatchdog = keepPlaying(
       () => player.current,
       () => wanted.current && !lightboxOpen.current,
+      () => {
+        window.clearTimeout(timer);
+        setStarted(false);
+        timer = window.setTimeout(() => setStarted(true), 3500);
+      },
     );
 
     return () => {

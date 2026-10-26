@@ -176,16 +176,11 @@ html[data-links="on"] footer a {
 
 .font-display { font-weight: 400; letter-spacing: -0.02em; }
 
-/* Grain lives on a fixed layer only, never on scrolling content. */
-.grain {
-  position: fixed;
-  inset: 0;
-  z-index: 70;
-  pointer-events: none;
-  opacity: 0.05;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-[data-theme="dark"] .grain { opacity: 0.07; }
+/* Loop animations stop while their section is off screen (MotionGate sets
+   data-idle), so only what is visible costs anything. */
+[data-idle] *,
+[data-idle] *::before,
+[data-idle] *::after { animation-play-state: paused !important; }
 
 /* Cartagena line art: fades in whole as it enters the viewport (ScrollFx);
    only the preloader balcony draws its strokes. */
@@ -336,9 +331,10 @@ html[data-motion="reduce"] .editions-bento { transition: none; }
 
 /* Survey rating dots: a soft gold pulse keeps travelling along each row. */
 @keyframes dotWave {
-  0%, 36%, 100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
-  18% { transform: scale(1.22); box-shadow: 0 0 0 5px color-mix(in oklab, var(--sun) 22%, transparent); }
+  0%, 36%, 100% { transform: scale(1); }
+  18% { transform: scale(1.25); }
 }
+/* transform only, so the pulse stays on the compositor (no repaints). */
 .dot-wave { animation: dotWave 2.8s var(--ease-out-expo) infinite both; }
 html[data-motion="reduce"] .dot-wave { animation: none; }
 

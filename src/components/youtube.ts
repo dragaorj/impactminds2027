@@ -78,7 +78,9 @@ export function keepLooping(getPlayer: () => YTPlayer | null, onLoop: () => void
 // Watchdog for muted background playback: whenever the video should be
 // playing but is paused, unstarted or frozen on the same frame (a stalled
 // buffer), it is nudged back into motion instead of sitting still.
-export function keepPlaying(getPlayer: () => YTPlayer | null, shouldPlay: () => boolean) {
+// onNudge fires right before a nudge so callers can cover the frame (a seek
+// makes YouTube flash its progress bar).
+export function keepPlaying(getPlayer: () => YTPlayer | null, shouldPlay: () => boolean, onNudge?: () => void) {
   let lastTime = -1;
   let stuck = 0;
   const id = window.setInterval(() => {
@@ -95,6 +97,7 @@ export function keepPlaying(getPlayer: () => YTPlayer | null, shouldPlay: () => 
       lastTime = t;
       if (stuck >= 3) {
         // Frozen for ~3s: skip a hair ahead, which makes YouTube re-request the stream.
+        onNudge?.();
         p.seekTo(t + 0.5, true);
         p.playVideo();
         stuck = 0;

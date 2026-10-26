@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import { getDictionary, hasLocale, htmlLang, locales } from "@/lib/i18n";
 import InlineScript from "@/components/InlineScript";
 import PrefsSync from "@/components/PrefsSync";
-import FaviconSpin from "@/components/FaviconSpin";
 import "./globals.css";
 
 const gloock = localFont({
@@ -63,7 +62,6 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
       </head>
       <body className="min-h-[100dvh] overflow-x-clip">
         <PrefsSync lang={lang} />
-        <FaviconSpin />
         {children}
       </body>
     </html>

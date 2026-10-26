@@ -5,6 +5,7 @@ import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import Preloader from "@/components/Preloader";
 import ScrollFx from "@/components/ScrollFx";
+import MotionGate from "@/components/MotionGate";
 import BackToTop from "@/components/BackToTop";
 import CountdownRing from "@/components/CountdownRing";
 import Numbers from "@/components/sections/Numbers";
@@ -32,7 +33,6 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
   return (
     <>
       <Preloader caption={`${t.hero.eyebrow} · ${t.hero.dates}`} />
-      <div className="grain" aria-hidden />
       <Nav lang={lang} nav={t.nav} controls={t.controls} />
       <main id="conteudo" tabIndex={-1} className="w-full max-w-full overflow-x-clip outline-none">
         <Hero t={t.hero} videoSrc={localVideo("header.mp4")} />
@@ -45,7 +45,7 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
         <Launches t={t.launches} locale={locale} />
         <Events t={t.events} />
         <Visits t={t.visits} />
-        <Agenda t={t.agenda} place={t.hero.eyebrow} />
+        <Agenda t={t.agenda} place={t.hero.eyebrow} dates={t.hero.dates} locale={locale} />
         <Sponsor t={t.sponsor} locale={locale} />
         <Carbon t={t.carbon} locale={locale} />
         <Digital t={t.digital} locale={locale} />
@@ -55,6 +55,7 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
       <CountdownRing labels={{ ...t.hero, agendaLink: t.agenda.title }} />
       <BackToTop label={t.footer.backToTop} />
       <ScrollFx />
+      <MotionGate />
     </>
   );
 }

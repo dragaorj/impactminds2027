@@ -54,7 +54,11 @@ export default function Editions({ t }: { t: Dict["editions"] }) {
 
   useEffect(() => {
     if (viewing !== null || prefersReducedMotion()) return;
-    const id = window.setInterval(() => setTick((n) => n + 1), STEP_MS);
+    // No reflow work while the grid is off screen or the tab is hidden.
+    const id = window.setInterval(() => {
+      if (document.hidden || document.getElementById("edicoes")?.hasAttribute("data-idle")) return;
+      setTick((n) => n + 1);
+    }, STEP_MS);
     return () => window.clearInterval(id);
   }, [viewing]);
 
