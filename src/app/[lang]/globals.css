@@ -484,6 +484,9 @@ html[data-motion="reduce"] .visit-timer { animation: none; stroke-dashoffset: 10
   .editions-bento > li:nth-child(1),
   .editions-bento > li:nth-child(6),
   .editions-bento > li:nth-child(12) { grid-column: span 2 !important; }
+  /* Tiles 7-11 are five halves: the tenth runs two rows tall beside the
+     ninth and eleventh, so the grid closes with no empty cell. */
+  .editions-bento > li:nth-child(10) { grid-row: span 2 !important; }
 }
 @media (min-width: 48rem) {
   .editions-bento {
