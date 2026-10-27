@@ -65,9 +65,8 @@ export function restorePrefs() {
   try {
     theme = localStorage.getItem("im-theme");
   } catch {}
-  if (theme !== "light" && theme !== "dark") {
-    theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  }
+  // Dark is the site's default; light only when the visitor picked it.
+  if (theme !== "light") theme = "dark";
   d.dataset.theme = theme;
   applyA11y(readStoredA11y());
 }

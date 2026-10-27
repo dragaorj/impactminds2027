@@ -2,6 +2,7 @@ import { ArrowUpRight, InstagramLogo, LinkedinLogo, YoutubeLogo } from "@phospho
 import type { Dict } from "@/lib/dictionaries/pt";
 import { links } from "@/lib/site";
 import Image from "next/image";
+import TypeOnView from "../TypeOnView";
 import { Bezel, Button, container } from "../ui";
 
 // Closing statement beside the Cartagena banner, then a glass card with the
@@ -32,10 +33,10 @@ export default function Footer({ t, hero, nav }: { t: Dict["footer"]; hero: Dict
               <span className="font-medium text-gold">{hero.dates}</span>
             </p>
             {/* Always two lines, "Nos vemos em" / "Cartagena": the type is sized to
-                this column's own width (cqi), so the first line fits on any screen. */}
-            <p className="w-full font-display text-[clamp(2.5rem,15.5cqi,6rem)] leading-[0.98] text-ink" data-nosplit>
-              <span className="block whitespace-nowrap">{closingHead}</span>
-              <span className="block">{closingTail}</span>
+                this column's own width (cqi), so the first line fits on any screen.
+                In gold like the hero's typed line, typing itself in on arrival. */}
+            <p className="w-full font-display text-[clamp(2.5rem,15.5cqi,6rem)] leading-[0.98] text-gold" data-nosplit>
+              <TypeOnView lines={[closingHead, closingTail ?? ""]} className="block" />
             </p>
           </div>
           <Bezel className="lg:col-span-7" inner="bg-[#f3f1ee]">
@@ -108,7 +109,9 @@ export default function Footer({ t, hero, nav }: { t: Dict["footer"]; hero: Dict
         </div>
 
         {/* Credits, centred at the very end of the page. */}
-        <div className="mt-10 flex flex-col items-center gap-2 border-t border-line pt-8 text-center text-sm text-muted">
+        {/* data-nosplit: at the very bottom of the page a scroll-triggered line
+            reveal may never fire, so the credits are always shown as is. */}
+        <div data-nosplit className="mt-10 flex flex-col items-center gap-2 border-t border-line pt-8 text-center text-sm text-muted">
           <p>© 2026 Impact&nbsp;Minds: Standing Together. Latimpacto. All rights reserved.</p>
           <p>
             {t.madeBy}{" "}

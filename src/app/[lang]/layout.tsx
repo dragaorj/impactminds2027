@@ -20,7 +20,7 @@ const googleSans = Google_Sans({
 });
 
 // Runs before first paint so theme and accessibility choices never flash.
-const prefsScript = `(function(){try{var d=document.documentElement;d.classList.add('js');try{if(sessionStorage.getItem('im-switch')!==null)d.dataset.switch='1'}catch(e){}var m=window.matchMedia;var t=localStorage.getItem('im-theme');if(t!=='light'&&t!=='dark')t=m('(prefers-color-scheme: dark)').matches?'dark':'light';d.dataset.theme=t;var a={};try{a=JSON.parse(localStorage.getItem('im-a11y')||'{}')}catch(e){}if(a.text)d.dataset.text=String(a.text);if(a.contrast)d.dataset.contrast='high';if(a.links)d.dataset.links='on';if(a.motion||m('(prefers-reduced-motion: reduce)').matches)d.dataset.motion='reduce';}catch(e){}})();`;
+const prefsScript = `(function(){try{var d=document.documentElement;d.classList.add('js');try{if(sessionStorage.getItem('im-switch')!==null)d.dataset.switch='1'}catch(e){}var m=window.matchMedia;var t=localStorage.getItem('im-theme');if(t!=='light')t='dark';d.dataset.theme=t;var a={};try{a=JSON.parse(localStorage.getItem('im-a11y')||'{}')}catch(e){}if(a.text)d.dataset.text=String(a.text);if(a.contrast)d.dataset.contrast='high';if(a.links)d.dataset.links='on';if(a.motion||m('(prefers-reduced-motion: reduce)').matches)d.dataset.motion='reduce';}catch(e){}})();`;
 
 const restoreScript = `(function(){try{var y=sessionStorage.getItem('im-switch');if(y!==null)window.scrollTo({top:+y,behavior:'instant'})}catch(e){}})();`;
 
@@ -43,10 +43,7 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
 }
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f3f1ee" },
-    { media: "(prefers-color-scheme: dark)", color: "#150b20" },
-  ],
+  themeColor: "#150b20",
 };
 
 export default async function RootLayout({ children, params }: LayoutProps<"/[lang]">) {
@@ -57,6 +54,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
     <html
       lang={htmlLang[lang]}
       className={`${gloock.variable} ${googleSans.variable}`}
+      data-theme="dark"
       suppressHydrationWarning
     >
       <head>
