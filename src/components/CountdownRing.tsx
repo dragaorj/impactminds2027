@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ArrowRight } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { COUNTDOWN_FROM, EVENT_END, EVENT_START } from "@/lib/site";
@@ -26,6 +26,12 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
   const sentinel = useRef<HTMLDivElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const btn = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  // Where the open popup fits: `top` (hero, desktop) opens it beside the ring,
+  // that many px from the ring's top, because there is no room below; maxH is
+  // the room in the direction it opens, so it scrolls instead of being cut.
+  const [fit, setFit] = useState<{ top: number | null; maxH: number } | null>(null);
+  const sideTop = fit?.top ?? null;
   const [raised, setRaised] = useState(false);
   // Fixed-position box (px). null until measured, so the ring never flashes
   // in the wrong place.
@@ -182,6 +188,31 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
   ];
   const progress = state === null ? 0 : state.phase === "before" ? state.progress : 1;
   const filled = Math.round(progress * TICKS);
+  // Before the popup paints, check it fits below the ring; on short screens
+  // (laptops, tablets on their side) it moves beside the ring instead, shifted
+  // up as far as needed to stay fully on screen.
+  useLayoutEffect(() => {
+    const el = panel.current;
+    let next: { top: number | null; maxH: number } | null = null;
+    if (open && box && el) {
+      const gap = 12;
+      const vh = window.innerHeight;
+      const h = el.scrollHeight;
+      if (raised) {
+        // Phones: above the ring. Larger screens: to its left, bottoms aligned.
+        next = { top: null, maxH: (window.innerWidth >= 640 ? box.top + box.size : box.top - gap) - gap };
+      } else if (window.innerWidth < 1024) {
+        next = { top: null, maxH: box.top - 2 * gap };
+      } else if (box.top + box.size + gap + h <= vh - gap) {
+        next = { top: null, maxH: vh - box.top - box.size - 2 * gap };
+      } else {
+        const top = Math.max(gap, Math.min(box.top, vh - gap - h));
+        next = { top: top - box.top, maxH: vh - 2 * gap };
+      }
+    }
+    setFit((cur) => (cur && next && cur.top === next.top && cur.maxH === next.maxH ? cur : next));
+  }, [open, raised, box]);
+
   const label =
     state?.phase === "before"
       ? `${labels.countdown}: ${state.days} ${labels.days} · ${labels.dates}`
@@ -206,15 +237,20 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
       >
         {open && (
           <div
+            ref={panel}
             id="countdown-panel"
             role="dialog"
             aria-label={labels.countdown}
-            className={`absolute w-[min(22rem,calc(100vw-1.5rem))] animate-[menuDrop_0.5s_var(--ease-out-expo)_both] ${
+            style={fit ? { top: sideTop ?? undefined, maxHeight: fit.maxH } : undefined}
+            className={`absolute w-[min(22rem,calc(100vw-1.5rem))] overflow-y-auto animate-[menuDrop_0.5s_var(--ease-out-expo)_both] ${
               raised
                 ? "bottom-[calc(100%+0.75rem)] right-0 origin-bottom-right sm:bottom-0 sm:right-[calc(100%+0.75rem)]"
-                : // In the hero the popup drops below the ring on desktop; on phones the
-                  // ring sits at the bottom of the screen, so it opens above.
-                  "bottom-[calc(100%+0.75rem)] right-0 origin-bottom-right lg:bottom-auto lg:right-auto lg:left-0 lg:top-[calc(100%+0.75rem)] lg:origin-top-left"
+                : sideTop !== null
+                  ? // Short desktop screens: beside the ring, kept inside the viewport.
+                    "left-[calc(100%+0.75rem)] origin-left"
+                  : // In the hero the popup drops below the ring on desktop; on phones the
+                    // ring sits at the bottom of the screen, so it opens above.
+                    "bottom-[calc(100%+0.75rem)] right-0 origin-bottom-right lg:bottom-auto lg:right-auto lg:left-0 lg:top-[calc(100%+0.75rem)] lg:origin-top-left"
             } rounded-[1.75rem] bg-surface/75 p-5 text-ink shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:w-[22rem] sm:p-6`}
           >
             <p className="text-xs text-ink-2 sm:text-sm">{labels.countdown}</p>
