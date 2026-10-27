@@ -33,7 +33,7 @@ const pt = {
     eyebrow: "Cartagena, Colômbia",
     title: "Impact Minds",
     subtitle: "Connecting Us",
-    typed: ["Obrigado por tudo em 2026", "Nos vemos em Cartagena em 2027"],
+    typed: ["Connecting Us", "Obrigado por tudo em 2026", "Nos vemos em Cartagena em 2027"],
     dates: "24 a 27 de agosto de 2027",
     launch: "Lançamento oficial em março de 2027",
     countdown: "Contagem regressiva para o Impact Minds 2027",

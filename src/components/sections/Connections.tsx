@@ -8,7 +8,7 @@ const art = ["door", "palm", "church", "bougainvillea"] as const;
 // Text pinned on the left; the four connections as rounded cards in a 2x2 grid.
 export default function Connections({ t }: { t: Dict["connections"] }) {
   return (
-    <section id="conexoes" className={`${section} scroll-mt-20 bg-bg-2`} aria-labelledby="conexoes-title">
+    <section id="conexoes" className={`${section} scroll-mt-20 bg-bg-2 wave-y`} aria-labelledby="conexoes-title">
       <div className={`${container} grid gap-14 xl:grid-cols-12 xl:gap-12`}>
         <div className="xl:col-span-5">
           <div className="pin:sticky pin:top-28" data-reveal>

@@ -27,7 +27,7 @@ export default function Agenda({
   return (
     <section
       id="agenda-2027"
-      className="relative overflow-hidden bg-bg-2 py-24 text-ink md:py-32 dark:bg-block dark:text-block-ink [--art:var(--gold)] [--art-opacity:0.75]"
+      className="wave-y relative overflow-hidden bg-bg-2 py-24 text-ink md:py-32 dark:bg-block dark:text-block-ink [--art:var(--gold)] [--art-opacity:0.75]"
       aria-labelledby="agenda-title"
     >
       <div className={container}>

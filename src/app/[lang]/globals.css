@@ -691,3 +691,53 @@ html[data-motion="reduce"] .shimmer::after { opacity: 0; }
 /* Static line art (the mosaic): always visible, outlines only, never animated. */
 .art[data-still] { visibility: visible !important; }
 .art[data-still] path { fill: none; stroke-dasharray: none !important; stroke-dashoffset: 0 !important; }
+
+/* Section dividers: long, soft waves that drift slowly sideways. A section
+   with its own background (bg-2, the hero) carries a strip of the page colour
+   on its top and/or bottom edge, cut to a wave; the neighbouring sections are
+   page-coloured, so the strip reads as their colour curving in. Each strip
+   is one tile wider than the section and slides by exactly one seamless tile
+   (transform only, so it never repaints the section). Content never sits in
+   the strip: the section padding is deeper than the wave. */
+:root {
+  --wave: clamp(1.75rem, 4.2vw, 4.75rem);
+  --wave-tile: max(1440px, 150vw);
+}
+.wave-y::before,
+.wave-y::after,
+.wave-b::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: calc(100% + var(--wave-tile));
+  height: calc(var(--wave) + 1px);
+  background: var(--bg);
+  pointer-events: none;
+  mask-repeat: repeat-x;
+  -webkit-mask-repeat: repeat-x;
+  mask-size: var(--wave-tile) 100%;
+  -webkit-mask-size: var(--wave-tile) 100%;
+  will-change: transform;
+}
+.wave-y::before {
+  top: -1px;
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%201440%20100'%20preserveAspectRatio%3D'none'%3E%3Cpath%20d%3D'M0%2050C120%2030%20240%2020%20360%2020S600%2030%20720%2050S960%2080%201080%2080S1320%2070%201440%2050V0H0Z'%2F%3E%3C%2Fsvg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%201440%20100'%20preserveAspectRatio%3D'none'%3E%3Cpath%20d%3D'M0%2050C120%2030%20240%2020%20360%2020S600%2030%20720%2050S960%2080%201080%2080S1320%2070%201440%2050V0H0Z'%2F%3E%3C%2Fsvg%3E");
+  animation: waveDrift 46s linear infinite;
+}
+.wave-y::after,
+.wave-b::after {
+  bottom: -1px;
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%201440%20100'%20preserveAspectRatio%3D'none'%3E%3Cpath%20d%3D'M0%2050C120%2030%20240%2020%20360%2020S600%2030%20720%2050S960%2080%201080%2080S1320%2070%201440%2050V100H0Z'%2F%3E%3C%2Fsvg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%201440%20100'%20preserveAspectRatio%3D'none'%3E%3Cpath%20d%3D'M0%2050C120%2030%20240%2020%20360%2020S600%2030%20720%2050S960%2080%201080%2080S1320%2070%201440%2050V100H0Z'%2F%3E%3C%2Fsvg%3E");
+  animation: waveDrift 58s linear infinite reverse;
+}
+@keyframes waveDrift {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-1 * var(--wave-tile))); }
+}
+[data-idle]::before,
+[data-idle]::after { animation-play-state: paused !important; }
+html[data-motion="reduce"] .wave-y::before,
+html[data-motion="reduce"] .wave-y::after,
+html[data-motion="reduce"] .wave-b::after { animation: none; }

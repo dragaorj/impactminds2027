@@ -14,7 +14,7 @@ export default function Events({ t }: { t: Dict["events"] }) {
   const [active, setActive] = useState(0);
   const [viewing, setViewing] = useState<number | null>(null);
   return (
-    <section id="eventos" className={`${section} bg-bg-2`} aria-labelledby="eventos-title">
+    <section id="eventos" className={`${section} bg-bg-2 wave-y`} aria-labelledby="eventos-title">
       <div className={container}>
         <H2 id="eventos-title">{t.title}</H2>
 

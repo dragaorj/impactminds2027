@@ -35,7 +35,7 @@ const es: Dict = {
     eyebrow: "Cartagena, Colombia",
     title: "Impact Minds",
     subtitle: "Connecting Us",
-    typed: ["Gracias por todo en 2026", "Nos vemos en Cartagena en 2027"],
+    typed: ["Connecting Us", "Gracias por todo en 2026", "Nos vemos en Cartagena en 2027"],
     dates: "24 al 27 de agosto de 2027",
     launch: "Lanzamiento oficial en marzo de 2027",
     countdown: "Cuenta regresiva para Impact Minds 2027",

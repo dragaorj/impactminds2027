@@ -122,8 +122,8 @@ const cards: ((p: CardProps) => React.ReactNode)[] = [
 // every testimonial is visible at once and the layout breathes at any width.
 export default function Testimonials({ t, lang }: { t: Dict["testimonials"]; lang: Locale }) {
   return (
-    <section id="depoimentos" className={`${section} overflow-hidden bg-bg-2`} aria-labelledby="depoimentos-title">
-      <Art name="mosaic" className="pointer-events-none absolute bottom-6 right-[calc(4vw_-_13rem)] hidden w-52 lg:block" />
+    <section id="depoimentos" className={`${section} overflow-hidden bg-bg-2 wave-y`} aria-labelledby="depoimentos-title">
+      <Art name="mosaic" className="pointer-events-none absolute bottom-[calc(var(--wave)+0.5rem)] right-[calc(4vw_-_13rem)] hidden w-52 lg:block" />
       <div className={container}>
         <H2 id="depoimentos-title" className="max-w-2xl">
           {t.title}

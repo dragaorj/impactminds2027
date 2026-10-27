@@ -93,8 +93,10 @@ export default function Hero({ t, videoSrc }: { t: Dict["hero"]; videoSrc?: stri
     };
   }, [videoSrc]);
 
+  // The section is one wave taller than the screen: the video fills the whole
+  // first fold and the wave into the next section only shows once scrolling.
   return (
-    <section id="top" className="relative isolate min-h-[100svh] overflow-hidden lg:min-h-[100dvh] bg-[#1c0c2c] text-white">
+    <section id="top" className="wave-b relative isolate min-h-[calc(100svh+var(--wave))] overflow-hidden lg:min-h-[calc(100dvh+var(--wave))] bg-[#1c0c2c] text-white">
       <div className="absolute inset-0 -z-10" aria-label={t.videoLabel} role="img">
         <Image
           src={`https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`}
@@ -127,8 +129,8 @@ export default function Hero({ t, videoSrc }: { t: Dict["hero"]; videoSrc?: stri
           </p>
           <h1 data-hero className="font-display leading-[0.95]">
             <span className="block text-[clamp(2.5rem,8vw,6.75rem)]">{t.title}</span>
-            {/* Closing the 2026 edition while inviting to 2027: the gold line types a
-                thank-you, then the invitation, on a loop. A fixed min-height keeps
+            {/* Closing the 2026 edition while inviting to 2027: the gold line opens on
+                "Connecting Us", then types a thank-you and the invitation, on a loop. A fixed min-height keeps
                 the layout still while the text changes length. */}
             <TypeLine
               phrases={t.typed}

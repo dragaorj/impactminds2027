@@ -7,9 +7,9 @@ import { container, section } from "../ui";
 // Manifesto layout: centered statement, the paragraph brightens word by word.
 export default function Carbon({ t, locale }: { t: Dict["carbon"]; locale: string }) {
   return (
-    <section id="carbono" className={`${section} overflow-hidden bg-bg-2`} aria-labelledby="carbono-title">
-      <Art name="laurel" className="absolute bottom-10 left-[3%] w-28 md:left-[8%] md:w-44" />
-      <Art name="laurel" className="absolute bottom-10 right-[3%] w-28 -scale-x-100 md:right-[8%] md:w-44" />
+    <section id="carbono" className={`${section} overflow-hidden bg-bg-2 wave-y`} aria-labelledby="carbono-title">
+      <Art name="laurel" className="absolute bottom-[calc(var(--wave)+1rem)] left-[3%] w-28 md:left-[8%] md:w-44" />
+      <Art name="laurel" className="absolute bottom-[calc(var(--wave)+1rem)] right-[3%] w-28 -scale-x-100 md:right-[8%] md:w-44" />
       <div className={`${container} relative text-center`}>
         <p data-reveal className="mx-auto inline-flex items-center gap-2 rounded-full bg-brand-soft px-4 py-1.5 text-sm text-ink">
           <Leaf size="1rem" weight="light" className="text-brand" />
