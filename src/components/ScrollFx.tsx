@@ -72,7 +72,7 @@ export default function ScrollFx() {
       };
 
       if (reduce) {
-        gsap.set("[data-reveal], [data-hero]", { opacity: 1, y: 0, clearProps: "transform" });
+        gsap.set("[data-reveal], [data-hero], [data-stagger-item], [data-stagger-dot]", { opacity: 1, y: 0, clearProps: "transform" });
         gsap.set("main .art, footer .art", { visibility: "visible" });
         gsap.set("[data-bar]", { scaleY: 1 });
         gsap.set("[data-hbar]", { scaleX: 1 });
@@ -92,6 +92,36 @@ export default function ScrollFx() {
             { y: 48, opacity: 0 },
             { y: 0, opacity: 1, duration: 1.1, stagger: 0.08, ease: "expo.out", clearProps: "transform" },
           ),
+      });
+
+      // [data-stagger]: a slower, softer entrance for a row of cards. The rule
+      // ([data-stagger-line]) draws across, then each card ([data-stagger-item])
+      // rises out of a light blur one after another, with its node
+      // ([data-stagger-dot]) popping in as it lands.
+      gsap.utils.toArray<HTMLElement>("[data-stagger]").forEach((group) => {
+        const items = group.querySelectorAll("[data-stagger-item]");
+        const dots = group.querySelectorAll("[data-stagger-dot]");
+        const line = group.querySelectorAll("[data-stagger-line]");
+        gsap.set(items, { opacity: 0, y: 56, scale: 0.97, filter: "blur(8px)" });
+        gsap.set(dots, { scale: 0, opacity: 0 });
+        gsap
+          .timeline({ scrollTrigger: { trigger: group, start: "top 85%", once: true } })
+          .fromTo(line, { scaleX: 0, scaleY: 0 }, { scaleX: 1, scaleY: 1, duration: 1.6, ease: "power2.inOut" }, 0)
+          .to(
+            items,
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              filter: "blur(0px)",
+              duration: 1.5,
+              stagger: 0.18,
+              ease: "power3.out",
+              clearProps: "transform,filter",
+            },
+            0.15,
+          )
+          .to(dots, { scale: 1, opacity: 1, duration: 0.7, stagger: 0.18, ease: "back.out(2.2)" }, 0.45);
       });
 
       // Every heading and text block outside the hero rises line by line from
@@ -163,19 +193,32 @@ export default function ScrollFx() {
         );
       });
 
-      counters.forEach((el) => {
+      // Each number counts up from zero once per visit. Scrolling away and back
+      // leaves it as it is; the back-to-top button (im:replay) rewinds them
+      // all so they count again on the way down, as does a full reload.
+      const counterTweens = counters.map((el) => {
         const target = Number(el.dataset.count);
         const state = { n: 0 };
         format(el, 0);
-        gsap.to(state, {
+        return gsap.to(state, {
           n: target,
-          duration: 2,
+          duration: Number(el.dataset.duration ?? 2),
           ease: "expo.out",
           onUpdate: () => format(el, state.n),
-          // Counts from zero every time it scrolls into view from above.
-          scrollTrigger: { trigger: el, start: "top 90%", toggleActions: "restart none none reset" },
+          onComplete: () => {
+            el.dataset.done = "";
+          },
+          scrollTrigger: { trigger: el, start: "top 90%", toggleActions: "play none none none" },
         });
       });
+      const replayCounters = () => {
+        counterTweens.forEach((tw) => tw.pause(0));
+        counters.forEach((el) => {
+          format(el, 0);
+          delete el.dataset.done;
+        });
+      };
+      window.addEventListener("im:replay", replayCounters);
 
       gsap.utils.toArray<HTMLElement>("[data-img-scale]").forEach((el) => {
         gsap.fromTo(
@@ -247,6 +290,7 @@ export default function ScrollFx() {
         clearTimeout(timer);
         cancelAnimationFrame(frame);
         window.removeEventListener("im:ready", refresh);
+        window.removeEventListener("im:replay", replayCounters);
       };
     },
     { dependencies: [reduce], revertOnUpdate: true },

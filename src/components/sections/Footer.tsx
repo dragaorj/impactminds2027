@@ -1,10 +1,10 @@
 import { ArrowUpRight, InstagramLogo, LinkedinLogo, YoutubeLogo } from "@phosphor-icons/react/dist/ssr";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { EVENT_START, links } from "@/lib/site";
-import Art from "../Art";
-import { Button, container } from "../ui";
+import Image from "next/image";
+import { Bezel, Button, container } from "../ui";
 
-// Closing statement over the Cartagena skyline, then a glass card with the
+// Closing statement beside the Cartagena banner, then a glass card with the
 // Latimpacto signature: about, the page's own navigation and social links.
 export default function Footer({ t, hero, nav }: { t: Dict["footer"]; hero: Dict["hero"]; nav: Dict["nav"] }) {
   const social = [
@@ -19,17 +19,29 @@ export default function Footer({ t, hero, nav }: { t: Dict["footer"]; hero: Dict
   ];
   return (
     <footer className="relative overflow-hidden border-t border-line pb-8 pt-24 md:pt-32">
-      <Art name="mosaic" className="pointer-events-none absolute right-[calc(4vw_-_13rem)] top-16 hidden w-52 lg:block" />
       <div className={container}>
-        <div data-reveal className="flex flex-col items-start gap-5">
-          <p className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-full bg-ink/5 px-4 py-1.5 text-sm text-ink-2 ring-1 ring-line" data-nosplit>
-            <span>{hero.eyebrow}</span>
-            <span aria-hidden className="h-3 w-px bg-line" />
-            <span className="font-medium text-gold">{hero.dates}</span>
-          </p>
-          <p className="max-w-4xl font-display text-[clamp(3rem,8vw,6.5rem)] leading-[0.98] text-ink">{t.closing}</p>
+        {/* Closing line beside the official Cartagena banner, framed like the site's cards. */}
+        <div className="grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-12">
+          <div data-reveal className="flex flex-col items-start gap-5 lg:col-span-5">
+            <p className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-full bg-ink/5 px-4 py-1.5 text-sm text-ink-2 ring-1 ring-line" data-nosplit>
+              <span>{hero.eyebrow}</span>
+              <span aria-hidden className="h-3 w-px bg-line" />
+              <span className="font-medium text-gold">{hero.dates}</span>
+            </p>
+            <p className="max-w-4xl font-display text-[clamp(3rem,6.5vw,6rem)] leading-[0.98] text-ink">{t.closing}</p>
+          </div>
+          <Bezel className="lg:col-span-7" inner="bg-[#f3f1ee]">
+            <div data-reveal className="relative aspect-[1356/550]">
+              <Image
+                src="/brand/banner-2027.jpg"
+                alt={`Impact Minds 2027 · ${hero.eyebrow}`}
+                fill
+                sizes="(min-width:1024px) 55vw, 100vw"
+                className="object-cover"
+              />
+            </div>
+          </Bezel>
         </div>
-        <Art name="skyline" className="mt-12 w-full max-w-4xl" />
 
         <div
           data-reveal

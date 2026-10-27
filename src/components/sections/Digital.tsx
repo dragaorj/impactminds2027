@@ -3,22 +3,25 @@ import Art from "../Art";
 import CountUp from "../CountUp";
 import { H2, container, section } from "../ui";
 
-// Stat values never wrap: a currency prefix drops to a small label instead.
+// Stat values never wrap: a currency prefix becomes a small gold label that
+// sits on the number's baseline (the same treatment as the launch figures).
 function Figure({ value, locale }: { value: string; locale: string }) {
   const m = value.match(/^(USD)\s(.+)$/);
   if (!m) return <CountUp value={value} locale={locale} />;
   return (
-    <>
-      <span className="mr-1.5 align-top font-sans text-[0.32em] font-medium tracking-wide">{m[1]}</span>
-      <CountUp value={m[2]} locale={locale} />
-    </>
+    <span className="inline-flex items-baseline gap-2">
+      <span className="font-sans text-xs font-medium tracking-[0.18em] text-gold md:text-sm">{m[1]}</span>
+      <span>
+        <CountUp value={m[2]} locale={locale} />
+      </span>
+    </span>
   );
 }
 
 function Group({ label, items, locale }: { label: string; items: { value: string; label: string }[]; locale: string }) {
   return (
     <div>
-      <p className="border-b border-line pb-3 text-sm font-medium text-muted">{label}</p>
+      <p className="border-b border-gold/50 pb-3 text-sm font-medium uppercase tracking-[0.14em] text-gold">{label}</p>
       <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-10">
         {items.map((item) => (
           <div key={item.label} data-reveal className="flex flex-col">

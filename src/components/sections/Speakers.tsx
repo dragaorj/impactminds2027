@@ -214,6 +214,18 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
         </a>
       </div>
 
+      {/* Same warm-up as the photo lightbox: the large portraits load (lazily,
+          at the lightbox's own sizes) once this section nears the screen. */}
+      <div aria-hidden className="pointer-events-none absolute left-0 top-0 size-px overflow-hidden opacity-0">
+        {speakers.map((s) =>
+          s.photo ? (
+            <div key={s.name} className="relative size-px">
+              <Image src={s.photo} alt="" fill sizes="(min-width:768px) 26rem, 70vw" loading="lazy" />
+            </div>
+          ) : null,
+        )}
+      </div>
+
       <SpeakerBox
         index={open}
         onIndex={setOpen}

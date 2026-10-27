@@ -1,7 +1,9 @@
 // Wraps the number inside a stat string ("25 mil+", "8.7K", "638,79", "03")
 // in a [data-count] span, so ScrollFx counts it up from zero while any prefix
 // or unit around it stays put. The server-rendered text is the final value.
-export default function CountUp({ value, locale }: { value: string; locale: string }) {
+// Optional duration (seconds) overrides ScrollFx's default; once the count
+// lands the span gets data-done, which styles can hook into.
+export default function CountUp({ value, locale, duration }: { value: string; locale: string; duration?: number }) {
   const m = value.match(/^(.*?)(\d+(?:[.,]\d+)?)(.*)$/);
   if (!m) return <>{value}</>;
   const [, before, num, after] = m;
@@ -16,6 +18,7 @@ export default function CountUp({ value, locale }: { value: string; locale: stri
         data-decimals={decimals || undefined}
         data-pad={pad}
         data-locale={locale}
+        data-duration={duration}
         className="tabular-nums"
       >
         {num}

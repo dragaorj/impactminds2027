@@ -35,6 +35,7 @@ export const links = {
 export const photos = {
   gallery: ["/photos/panel-ai.jpg", "/photos/networking.jpg", "/photos/stage-panel.jpg", "/photos/members-dinner.jpg"],
   speakersTile: "/photos/academic-2.jpg",
+  numbersHero: "/photos/editions/2026/01.jpg",
   events: ["/photos/members-dinner.jpg", "/photos/opening-cocktail.jpg", "/photos/closing-party.jpg"],
   visits: Array.from({ length: 12 }, (_, i) => `/photos/visit-${String(i + 1).padStart(2, "0")}.jpg`),
 };

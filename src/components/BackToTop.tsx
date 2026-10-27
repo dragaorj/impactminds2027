@@ -26,6 +26,8 @@ export default function BackToTop({ label }: { label: string }) {
         aria-label={label}
         tabIndex={visible ? 0 : -1}
         onClick={() => {
+          // Rewinds the stat counters so they count up again on the way down.
+          window.dispatchEvent(new Event("im:replay"));
           window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
           document.getElementById("conteudo")?.focus({ preventScroll: true });
         }}

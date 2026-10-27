@@ -4,12 +4,15 @@ import { useState } from "react";
 import Image from "next/image";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { photos } from "@/lib/site";
+import Lightbox from "../Lightbox";
 import { H2, container, section } from "../ui";
 
 // Horizontal accordion: on desktop the active night widens and reveals its
-// story; on phones the three panels simply stack, all open.
+// story; on phones the three panels simply stack, all open. Clicking a panel
+// opens its photo in the lightbox.
 export default function Events({ t }: { t: Dict["events"] }) {
   const [active, setActive] = useState(0);
+  const [viewing, setViewing] = useState<number | null>(null);
   return (
     <section id="eventos" className={`${section} bg-bg-2`} aria-labelledby="eventos-title">
       <div className={container}>
@@ -29,8 +32,12 @@ export default function Events({ t }: { t: Dict["events"] }) {
                 <button
                   type="button"
                   onFocus={() => setActive(i)}
-                  onClick={() => setActive(i)}
-                  aria-expanded={open}
+                  onClick={() => {
+                    setActive(i);
+                    setViewing(i);
+                  }}
+                  aria-label={`${t.enlarge}: ${item.title}`}
+                  aria-haspopup="dialog"
                   className="group absolute inset-0 text-left"
                 >
                   <Image
@@ -68,6 +75,16 @@ export default function Events({ t }: { t: Dict["events"] }) {
           })}
         </ul>
       </div>
+
+      <Lightbox
+        items={t.items.map((item, i) => ({ src: photos.events[i], title: item.title, subtitle: item.place }))}
+        index={viewing}
+        onIndex={(i) => {
+          setViewing(i);
+          if (i !== null) setActive(i);
+        }}
+        labels={{ label: t.title, close: t.close, prev: t.prev, next: t.next }}
+      />
     </section>
   );
 }

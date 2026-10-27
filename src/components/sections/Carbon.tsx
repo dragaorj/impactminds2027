@@ -24,8 +24,8 @@ export default function Carbon({ t, locale }: { t: Dict["carbon"]; locale: strin
           ))}
         </p>
         <div data-reveal className="mt-16">
-          <p className="font-display text-[clamp(4.5rem,14vw,11rem)] leading-none text-brand">
-            <CountUp value={t.value} locale={locale} />
+          <p className="carbon-value font-display text-[clamp(4.5rem,14vw,11rem)] leading-none text-brand transition-colors duration-700">
+            <CountUp value={t.value} locale={locale} duration={1.1} />
             <span className="ml-3 align-top font-sans text-[clamp(1.25rem,2.4vw,2rem)] text-ink-2">
               tCO<sub>2</sub>e
             </span>

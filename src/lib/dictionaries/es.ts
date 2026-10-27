@@ -52,6 +52,7 @@ const es: Dict = {
   numbers: {
     title: "Impact Minds 2026 en cifras",
     lead: "Manaos fue el punto de encuentro de una comunidad comprometida con conectar capital, conocimiento y acción para generar impacto en América Latina y el Caribe.",
+    place: "Manaos · 2026",
     participants: "participantes",
     organizations: "organizaciones representadas",
     countries: "países presentes",
@@ -68,6 +69,12 @@ const es: Dict = {
   },
   about: {
     title: "Qué es Impact Minds",
+    kicker: "La conferencia de Latimpacto · desde 2022",
+    pillars: [
+      { title: "Capital", text: "Proveedores de capital de todo el mundo con foco en la región" },
+      { title: "Conocimiento", text: "Agenda académica, talleres e intercambio entre pares" },
+      { title: "Acción", text: "Soluciones cocreadas para el impacto social y ambiental" },
+    ],
     play: "Reproducir",
     pause: "Pausar",
     soundOn: "Activar sonido",
@@ -169,6 +176,17 @@ const es: Dict = {
     chartTitle: "Participantes por edición",
     chartUnit: "participantes",
     tableYear: "Año",
+    growthLabel: "más participantes desde 2022",
+    stats: [
+      { value: "+240", label: "miembros en la red Latimpacto" },
+      { value: "100 mi", label: "de alcance potencial en medios" },
+    ],
+    benefitsTitle: "Lo que encuentra tu organización",
+    benefits: [
+      "Visibilidad frente a líderes de capital de impacto de toda América Latina y el Caribe",
+      "Conexión directa con familias, family offices, fundaciones, empresas y organismos multilaterales",
+      "Presencia en la conferencia, en los contenidos y en todo el alcance digital de Impact Minds",
+    ],
   },
   carbon: {
     title: "Impact Minds es un evento Carbono Neutro",
@@ -222,6 +240,10 @@ const es: Dict = {
   },
   events: {
     "title": "Eventos de conexión",
+    "close": "Cerrar",
+    "prev": "Foto anterior",
+    "next": "Foto siguiente",
+    "enlarge": "Ampliar foto",
     "items": [
       {
         "title": "Cena exclusiva de miembros",

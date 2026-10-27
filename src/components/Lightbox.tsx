@@ -26,7 +26,14 @@ export default function Lightbox({
   labels: Labels;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
-  const [ratio, setRatio] = useState(1.5);
+  // Aspect ratio per photo, learned from the preloads below, so each photo
+  // opens at its final size instead of resizing once it arrives.
+  const [ratios, setRatios] = useState<Record<string, number>>({});
+  const remember = (src: string, img: HTMLImageElement) => {
+    if (!img.naturalWidth || !img.naturalHeight) return;
+    const r = img.naturalWidth / img.naturalHeight;
+    setRatios((m) => (m[src] === r ? m : { ...m, [src]: r }));
+  };
   const total = items.length;
 
   useEffect(() => {
@@ -48,8 +55,21 @@ export default function Lightbox({
 
   const item = index === null ? null : items[index];
   const close = () => onIndex(null);
+  const ratio = (item && ratios[item.src]) ?? 1.5;
+  const SIZES = "(min-width:1024px) 80vw, 100vw";
 
   return (
+    <>
+    {/* Warm the cache: every photo is fetched at the exact size the viewer asks
+        for (same sizes attribute) as soon as its section nears the screen
+        (lazy), so opening the lightbox is instant. */}
+    <div aria-hidden className="pointer-events-none absolute left-0 top-0 size-px overflow-hidden opacity-0">
+      {items.map((it) => (
+        <div key={it.src} className="relative size-px">
+          <Image src={it.src} alt="" fill sizes={SIZES} loading="lazy" onLoad={(e) => remember(it.src, e.currentTarget)} />
+        </div>
+      ))}
+    </div>
     <dialog
       ref={dialog}
       onClose={close}
@@ -78,12 +98,9 @@ export default function Lightbox({
                 src={item.src}
                 alt={item.subtitle ? `${item.title}: ${item.subtitle}` : item.title}
                 fill
-                sizes="(min-width:1024px) 80vw, 100vw"
+                sizes={SIZES}
                 className="object-cover"
-                onLoad={(e) => {
-                  const img = e.currentTarget;
-                  if (img.naturalWidth && img.naturalHeight) setRatio(img.naturalWidth / img.naturalHeight);
-                }}
+                onLoad={(e) => remember(item.src, e.currentTarget)}
               />
             </div>
           </div>
@@ -105,5 +122,6 @@ export default function Lightbox({
         </div>
       )}
     </dialog>
+    </>
   );
 }

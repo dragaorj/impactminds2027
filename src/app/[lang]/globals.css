@@ -176,6 +176,31 @@ html[data-links="on"] footer a {
 
 .font-display { font-weight: 400; letter-spacing: -0.02em; }
 
+/* Connection networks (survey and numbers): the spokes turn slowly around the
+   hub while each one shrinks and grows in turn, a soft wave around the circle.
+   Origins sit on the SVG's centre (view-box). */
+.net-spin {
+  transform-box: view-box;
+  transform-origin: center;
+  animation: netSpin 48s linear infinite;
+}
+.net-spoke {
+  transform-box: view-box;
+  transform-origin: center;
+  animation: netBreathe 4.2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.38s);
+}
+@keyframes netSpin { to { transform: rotate(360deg); } }
+@keyframes netBreathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.74); }
+}
+html[data-motion="reduce"] .net-spin,
+html[data-motion="reduce"] .net-spoke { animation: none; }
+
+/* The carbon figure turns gold once its count lands. */
+.carbon-value:has([data-done]) { color: var(--sun); }
+
 /* Loop animations stop while their section is off screen (MotionGate sets
    data-idle), so only what is visible costs anything. */
 [data-idle] *,
@@ -204,6 +229,8 @@ html.js:not([data-motion="reduce"]) footer .art {
 
 /* Initial states for GSAP; skipped entirely when motion is reduced. */
 html.js:not([data-motion="reduce"]) [data-reveal],
+html.js:not([data-motion="reduce"]) [data-stagger-item],
+html.js:not([data-motion="reduce"]) [data-stagger-dot],
 html.js:not([data-motion="reduce"]) [data-hero] {
   opacity: 0;
 }
@@ -494,6 +521,19 @@ html[data-motion="reduce"] .shimmer::after { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   .shimmer::before, .shimmer::after { animation: none; }
   .shimmer::after { opacity: 0; }
+}
+
+/* Quieter variant for secondary CTAs: thinner, fainter and slower light,
+   with a barely-there ring. */
+.shimmer-soft::before {
+  inset: -1.5px;
+  padding: 1.5px;
+  background: conic-gradient(from var(--sweep), transparent 0deg, rgb(255 255 255 / 0.5) 45deg, rgb(217 184 101 / 0.6) 85deg, transparent 140deg, transparent 360deg);
+  animation-duration: 4.5s;
+}
+.shimmer-soft::after {
+  box-shadow: 0 0 0 1px rgb(201 181 230 / 0.35);
+  animation-duration: 3.6s;
 }
 
 

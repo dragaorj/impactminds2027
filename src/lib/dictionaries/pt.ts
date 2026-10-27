@@ -50,6 +50,7 @@ const pt = {
   numbers: {
     title: "Impact Minds 2026 em números",
     lead: "Manaus foi o ponto de encontro de uma comunidade comprometida em conectar capital, conhecimento e ação para gerar impacto na América Latina e no Caribe.",
+    place: "Manaus · 2026",
     participants: "participantes",
     organizations: "organizações representadas",
     countries: "países presentes no evento",
@@ -66,6 +67,12 @@ const pt = {
   },
   about: {
     title: "O que é o Impact Minds",
+    kicker: "A conferência da Latimpacto · desde 2022",
+    pillars: [
+      { title: "Capital", text: "Provedores de capital de todo o mundo com foco na região" },
+      { title: "Conhecimento", text: "Agenda acadêmica, workshops e trocas entre pares" },
+      { title: "Ação", text: "Soluções cocriadas para o impacto social e ambiental" },
+    ],
     play: "Reproduzir",
     pause: "Pausar",
     soundOn: "Ativar som",
@@ -167,6 +174,17 @@ const pt = {
     chartTitle: "Participantes por edição",
     chartUnit: "participantes",
     tableYear: "Ano",
+    growthLabel: "mais participantes desde 2022",
+    stats: [
+      { value: "+240", label: "membros na rede Latimpacto" },
+      { value: "100 mi", label: "de alcance potencial na mídia" },
+    ],
+    benefitsTitle: "O que sua organização encontra",
+    benefits: [
+      "Visibilidade diante de líderes de capital de impacto de toda a América Latina e o Caribe",
+      "Conexão direta com famílias, family offices, fundações, empresas e organismos multilaterais",
+      "Presença na conferência, nos conteúdos e em todo o alcance digital da Impact Minds",
+    ],
   },
   carbon: {
     title: "Impact Minds é um evento Carbono Neutro",
@@ -220,6 +238,10 @@ const pt = {
   },
   events: {
     "title": "Eventos de conexão",
+    "close": "Fechar",
+    "prev": "Foto anterior",
+    "next": "Próxima foto",
+    "enlarge": "Ampliar foto",
     "items": [
       {
         "title": "Jantar exclusivo de membros",

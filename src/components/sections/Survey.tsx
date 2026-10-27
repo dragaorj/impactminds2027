@@ -16,13 +16,16 @@ function Network({ count, label }: { count: number; label: React.ReactNode }) {
   return (
     <div className="relative size-40">
       <svg viewBox="0 0 160 160" className="absolute inset-0 size-full" aria-hidden>
-        {nodes.map(([x, y], i) => (
-          <line key={i} x1={80} y1={80} x2={x} y2={y} stroke="var(--gold)" strokeWidth={1} opacity={0.6} />
-        ))}
         <circle cx={80} cy={80} r={R} fill="none" stroke="var(--lavender)" strokeWidth={0.75} strokeDasharray="2 4" opacity={0.6} />
-        {nodes.map(([x, y], i) => (
-          <circle key={i} cx={x} cy={y} r={5.5} fill="var(--lavender)" />
-        ))}
+        {/* Spokes turn slowly while each one eases in and out, in a wave. */}
+        <g className="net-spin">
+          {nodes.map(([x, y], i) => (
+            <g key={i} className="net-spoke" style={{ "--i": i } as React.CSSProperties}>
+              <line x1={80} y1={80} x2={x} y2={y} stroke="var(--gold)" strokeWidth={1} opacity={0.6} />
+              <circle cx={x} cy={y} r={5.5} fill="var(--lavender)" />
+            </g>
+          ))}
+        </g>
         <circle cx={80} cy={80} r={30} fill="var(--sun)" />
       </svg>
       <p className="absolute inset-0 grid place-items-center font-display text-4xl leading-none text-sun-ink">{label}</p>

@@ -1,6 +1,8 @@
 import type { Dict } from "@/lib/dictionaries/pt";
 import { links, participantsByYear } from "@/lib/site";
+import { Check } from "@phosphor-icons/react/dist/ssr";
 import Art from "../Art";
+import CountUp from "../CountUp";
 import { Bezel, Button, H2, container, section } from "../ui";
 
 // Bar chart drawn as a street of Cartagena houses: each facade's height is the
@@ -153,6 +155,9 @@ function GrowthChart({ t, locale }: { t: Dict["sponsor"]; locale: string }) {
 }
 
 export default function Sponsor({ t, locale }: { t: Dict["sponsor"]; locale: string }) {
+  const first = participantsByYear[0].value;
+  const last = participantsByYear[participantsByYear.length - 1].value;
+  const growth = `+${Math.round(((last - first) / first) * 100)}%`;
   return (
     <section id="patrocinio" className={section} aria-labelledby="patrocinio-title">
       <Art name="arcs" className="absolute bottom-0 left-0 hidden w-48 -scale-x-100 xl:block" />
@@ -163,11 +168,36 @@ export default function Sponsor({ t, locale }: { t: Dict["sponsor"]; locale: str
           </div>
         </Bezel>
         <div className="xl:col-span-5" data-reveal>
-          <p className="text-lg text-ink-2">{t.kicker}</p>
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-gold md:text-sm">{t.kicker}</p>
           <H2 id="patrocinio-title" className="mt-4 !text-[clamp(2.1rem,4.4vw,3.5rem)]">
             {t.title}
           </H2>
           <p className="mt-6 max-w-[42ch] text-lg leading-relaxed text-ink-2">{t.text}</p>
+
+          {/* Why it matters, in numbers: growth comes straight from the chart data. */}
+          <dl className="mt-10 grid grid-cols-3 gap-4 border-y border-gold/40 py-6" data-nosplit>
+            {[{ value: growth, label: t.growthLabel }, ...t.stats].map((s) => (
+              <div key={s.label} className="flex flex-col">
+                <dt className="order-last mt-2 text-sm leading-snug text-ink-2">{s.label}</dt>
+                <dd className="whitespace-nowrap font-display text-[clamp(1.75rem,2.6vw,2.5rem)] leading-none text-brand">
+                  <CountUp value={s.value} locale={locale} />
+                </dd>
+              </div>
+            ))}
+          </dl>
+
+          <p className="mt-8 text-sm font-medium text-ink">{t.benefitsTitle}</p>
+          <ul className="mt-4 space-y-3">
+            {t.benefits.map((b) => (
+              <li key={b} className="flex gap-3 text-base leading-relaxed text-ink-2">
+                <span aria-hidden className="mt-[0.3em] grid size-5 shrink-0 place-items-center rounded-full bg-sun/20 text-gold">
+                  <Check size="0.75rem" weight="bold" />
+                </span>
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+
           <div className="mt-10">
             {links.sponsor2027 ? (
               <Button href={links.sponsor2027} external>
@@ -176,7 +206,7 @@ export default function Sponsor({ t, locale }: { t: Dict["sponsor"]; locale: str
             ) : (
               <span
                 aria-disabled="true"
-                className="inline-flex h-12 items-center gap-3 rounded-full bg-brand pl-6 pr-1.5 text-[0.9375rem] font-medium text-brand-ink opacity-90"
+                className="shimmer shimmer-soft inline-flex h-12 items-center gap-3 rounded-full bg-brand pl-6 pr-1.5 text-[0.9375rem] font-medium text-brand-ink"
               >
                 {t.cta}
                 <span className="rounded-full bg-brand-ink/15 px-3 py-1.5 text-xs">{t.soon}</span>
