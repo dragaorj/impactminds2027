@@ -63,11 +63,17 @@ export default function SpeakerFaces({ label }: { label: string }) {
     const faces = root.current.querySelectorAll<HTMLElement>(".face");
     const first = faces[0];
     const last = faces[faces.length - 1];
+    // GSAP moves only the slot's width on the button; the shrink, spin and
+    // bounce run on the inner circle. The hover hop and scale live on the
+    // button (CSS), so the two never fold into each other's transforms.
+    const firstIn = first.querySelector<HTMLElement>(".face-in");
+    const lastIn = last.querySelector<HTMLElement>(".face-in");
     const size = first.offsetWidth;
 
     const tl = gsap.timeline({
       onComplete: () => {
-        gsap.set(last, { clearProps: "width,scale,opacity,rotate" });
+        gsap.set(last, { clearProps: "width" });
+        gsap.set(lastIn, { clearProps: "all" });
         // The leaver goes to the back of the queue.
         setFaces((f) => ({ row: f.row.slice(1), queue: [...f.queue, f.row[0]] }));
       },
@@ -75,14 +81,14 @@ export default function SpeakerFaces({ label }: { label: string }) {
     // Newcomer: the slot opens while the circle springs in with a bounce.
     tl.fromTo(last, { width: 0 }, { width: size, duration: 0.9, ease: "power2.inOut" }, 0)
       .fromTo(
-        last,
+        lastIn,
         { scale: 0, opacity: 0, rotate: -18 },
         { scale: 1, opacity: 1, rotate: 0, duration: 1.1, ease: "back.out(1.9)" },
         0.15,
       )
       // Leaver: shrinks away as its slot closes; its right margin stands in
       // for the overlap the next circle loses once it becomes first.
-      .to(first, { scale: 0, opacity: 0, duration: 0.6, ease: "power2.in" }, 0)
+      .to(firstIn, { scale: 0, opacity: 0, duration: 0.6, ease: "power2.in" }, 0)
       .to(first, { width: 0, marginRight: OVERLAP, duration: 0.9, ease: "power2.inOut" }, 0);
     return () => {
       tl.kill();
@@ -97,9 +103,9 @@ export default function SpeakerFaces({ label }: { label: string }) {
           type="button"
           aria-label={`${label} ${f.name}`}
           onClick={() => window.dispatchEvent(new CustomEvent("im:open-speaker", { detail: f.name }))}
-          className="face group/face relative size-7 shrink-0 cursor-pointer rounded-full ring-2 ring-[#2a1240] sm:size-8"
+          className="face group/face relative size-7 shrink-0 cursor-pointer rounded-full sm:size-8"
         >
-          <span className="absolute inset-0 overflow-hidden rounded-full bg-[#2a1240]">
+          <span className="face-in absolute inset-0 overflow-hidden rounded-full bg-[#2a1240] ring-2 ring-[#2a1240]">
             <Image src={f.photo!} alt="" fill sizes={SIZES} className="scale-[1.24] object-cover object-[50%_30%]" />
           </span>
           {/* Name tooltip, above the circle. */}
