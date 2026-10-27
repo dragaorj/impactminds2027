@@ -30,9 +30,15 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
   // Where the open popup fits: `top` (hero, desktop) opens it beside the ring,
   // that many px from the ring's top, because there is no room below; `lift`
   // (hero, phones/tablets) raises it that many px further above the ring, clear
-  // of the hero text; maxH is
+  // of the hero text, and `span` stretches it across the hero's content
+  // column (from the text's left edge to the ring's right edge); maxH is
   // the room in the direction it opens, so it scrolls instead of being cut.
-  const [fit, setFit] = useState<{ top: number | null; lift: number; maxH: number } | null>(null);
+  const [fit, setFit] = useState<{
+    top: number | null;
+    lift: number;
+    span: { left: number; width: number } | null;
+    maxH: number;
+  } | null>(null);
   const sideTop = fit?.top ?? null;
   const [raised, setRaised] = useState(false);
   // Fixed-position box (px). null until measured, so the ring never flashes
@@ -195,14 +201,14 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
   // up as far as needed to stay fully on screen.
   useLayoutEffect(() => {
     const el = panel.current;
-    let next: { top: number | null; lift: number; maxH: number } | null = null;
+    let next: typeof fit = null;
     if (open && box && el) {
       const gap = 12;
       const vh = window.innerHeight;
       const h = el.scrollHeight;
       if (raised) {
         // Phones: above the ring. Larger screens: to its left, bottoms aligned.
-        next = { top: null, lift: 0, maxH: (window.innerWidth >= 640 ? box.top + box.size : box.top - gap) - gap };
+        next = { top: null, lift: 0, span: null, maxH: (window.innerWidth >= 640 ? box.top + box.size : box.top - gap) - gap };
       } else if (window.innerWidth < 1024) {
         // Phones and tablets: the ring sits beside the CTA under the title, so
         // open above the whole hero text (eyebrow included), below the nav; on
@@ -211,19 +217,33 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
           .map((n) => n.getBoundingClientRect())
           .filter((r) => r.height > 0 && r.bottom <= box.top + 1);
         const textTop = above.length ? Math.min(...above.map((r) => r.top)) : box.top;
+        const textLeft = above.length ? Math.min(...above.map((r) => r.left)) : box.left;
+        // Phones only: tablets keep the compact popup.
+        const span =
+          window.innerWidth < 640
+            ? { left: Math.round(textLeft - box.left), width: Math.round(box.left + box.size - textLeft) }
+            : null;
         const navBottom = document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
         const panelTop = Math.max(navBottom + gap, textTop - gap - h);
         const bottom = Math.min(box.top - gap, panelTop + h);
-        next = { top: null, lift: Math.max(0, Math.round(box.top - gap - bottom)), maxH: box.top - 2 * gap };
+        next = { top: null, lift: Math.max(0, Math.round(box.top - gap - bottom)), span, maxH: box.top - 2 * gap };
       } else if (box.top + box.size + gap + h <= vh - gap) {
-        next = { top: null, lift: 0, maxH: vh - box.top - box.size - 2 * gap };
+        next = { top: null, lift: 0, span: null, maxH: vh - box.top - box.size - 2 * gap };
       } else {
         const top = Math.max(gap, Math.min(box.top, vh - gap - h));
-        next = { top: top - box.top, lift: 0, maxH: vh - 2 * gap };
+        next = { top: top - box.top, lift: 0, span: null, maxH: vh - 2 * gap };
       }
     }
     setFit((cur) =>
-      cur && next && cur.top === next.top && cur.lift === next.lift && cur.maxH === next.maxH ? cur : next,
+      cur &&
+      next &&
+      cur.top === next.top &&
+      cur.lift === next.lift &&
+      cur.maxH === next.maxH &&
+      cur.span?.left === next.span?.left &&
+      cur.span?.width === next.span?.width
+        ? cur
+        : next,
     );
   }, [open, raised, box]);
 
@@ -260,6 +280,7 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
                 ? {
                     top: sideTop ?? undefined,
                     bottom: fit.lift ? `calc(100% + 0.75rem + ${fit.lift}px)` : undefined,
+                    ...(fit.span ? { left: fit.span.left, right: "auto", width: fit.span.width } : {}),
                     maxHeight: fit.maxH,
                   }
                 : undefined
