@@ -208,41 +208,41 @@ export default function Hero({ t, videoSrc, agendaLink }: { t: Dict["hero"]; vid
           <div
             data-hero
             data-countdown-bar
-            className="relative mx-auto mt-6 w-full max-w-4xl rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur-xl backdrop-saturate-150 sm:mt-10"
+            className="relative mx-auto mt-6 w-full max-w-3xl rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur-xl backdrop-saturate-150 sm:mt-10"
           >
             <dl
               aria-hidden={countdown}
-              className={`grid grid-cols-4 px-3 py-3.5 text-center transition-[opacity,filter,translate] duration-500 ease-out sm:px-6 sm:py-5 ${
+              className={`grid grid-cols-4 px-3 py-3 text-center transition-[opacity,filter,translate] duration-500 ease-out sm:px-5 sm:py-3.5 ${
                 countdown ? "pointer-events-none -translate-y-1 opacity-0 blur-[2px]" : "opacity-100"
               }`}
             >
               {t.facts.map((f, i) => (
                 <div key={f.label} className={`flex flex-col-reverse items-center justify-start px-1 sm:px-2 ${i > 0 ? "border-l border-white/15" : ""}`}>
-                  <dt className="mt-1 text-[0.625rem] leading-tight text-white/75 sm:text-sm">{f.label}</dt>
-                  <dd className="font-display text-[1.05rem] leading-none sm:text-[2.1rem]">{f.value}</dd>
+                  <dt className="mt-1 text-[0.625rem] leading-tight text-white/75 sm:text-[0.8125rem]">{f.label}</dt>
+                  <dd className="font-display text-base leading-none sm:text-[1.65rem]">{f.value}</dd>
                 </div>
               ))}
             </dl>
             <div
               id="hero-countdown"
               aria-hidden={!countdown}
-              className={`absolute inset-0 flex flex-col justify-center px-3 text-left transition-[opacity,filter,translate] duration-500 ease-out sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-8 ${
+              className={`absolute inset-0 flex flex-col justify-center px-3 text-left transition-[opacity,filter,translate] duration-500 ease-out sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:px-7 ${
                 countdown ? "opacity-100 delay-150" : "pointer-events-none translate-y-1 opacity-0 blur-[2px]"
               }`}
             >
               {/* Phones: just the four units, laid out like the facts they replace
                   (four centred columns with dividers); title and dates from sm. */}
               <div className="hidden sm:block sm:shrink-0">
-                <p className="text-sm text-white/75">{t.countdown}</p>
-                <p className="mt-1 text-sm font-medium text-[#D9B865]">{t.dates}</p>
+                <p className="text-[0.8125rem] text-white/75">{t.countdown}</p>
+                <p className="mt-0.5 text-[0.8125rem] font-medium text-[#D9B865]">{t.dates}</p>
               </div>
-              <div className="w-full [&_dd]:text-2xl [&_dt]:mt-1 max-sm:[&_dl]:gap-0 max-sm:[&_dl>div]:items-center max-sm:[&_dl>div+div]:border-l max-sm:[&_dl>div+div]:border-white/15 max-sm:[&_dt]:text-[0.625rem] sm:w-auto sm:max-w-xs sm:flex-1 sm:[&_dd]:text-3xl">
+              <div className="w-full [&_dd]:text-xl [&_dt]:mt-1 max-sm:[&_dl]:gap-0 max-sm:[&_dl>div]:items-center max-sm:[&_dl>div+div]:border-l max-sm:[&_dl>div+div]:border-white/15 max-sm:[&_dt]:text-[0.625rem] sm:w-auto sm:max-w-[16rem] sm:flex-1 sm:[&_dd]:text-[1.65rem] sm:[&_dt]:text-xs">
                 <Countdown start={EVENT_START} end={EVENT_END} labels={t} compact />
               </div>
               <a
                 href="#agenda-2027"
                 tabIndex={countdown ? 0 : -1}
-                className="group hidden shrink-0 items-center gap-2 rounded-full py-2 pl-4 pr-2 text-sm font-medium ring-1 ring-white/25 transition-colors hover:bg-[#D9B865] hover:text-[#2A1240] md:flex"
+                className="group hidden shrink-0 items-center gap-2 rounded-full py-1.5 pl-3.5 pr-2 text-[0.8125rem] font-medium ring-1 ring-white/25 transition-colors hover:bg-[#D9B865] hover:text-[#2A1240] md:flex"
               >
                 {agendaLink}
                 <ArrowRight size="1rem" className="transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-x-0.5" />
