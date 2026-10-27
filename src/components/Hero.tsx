@@ -7,8 +7,9 @@ import { useGSAP } from "@gsap/react";
 import Image from "next/image";
 import { ArrowDown, ArrowRight } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
-import { EVENT_END, EVENT_START, HERO_VIDEO_ID, speakers } from "@/lib/site";
+import { EVENT_END, EVENT_START, HERO_VIDEO_ID } from "@/lib/site";
 import Countdown from "./Countdown";
+import SpeakerFaces from "./SpeakerFaces";
 import { prefersReducedMotion } from "./prefs";
 import { keepLooping, loadYouTube, loopVars, type YTPlayer } from "./youtube";
 import NativeLoop from "./NativeLoop";
@@ -16,13 +17,20 @@ import TypeLine from "./TypeLine";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-// Five speaker portraits for the social-proof pill above the title.
-const FACES = speakers.filter((s) => s.photo).slice(0, 5);
-
 // The background loop stays muted and chrome-less. With a self-hosted file
 // (videoSrc) it plays in a native <video>, which has no player chrome at all;
 // otherwise it falls back to the YouTube embed with the poster cover.
-export default function Hero({ t, videoSrc, agendaLink }: { t: Dict["hero"]; videoSrc?: string; agendaLink: string }) {
+export default function Hero({
+  t,
+  videoSrc,
+  agendaLink,
+  speakerLabel,
+}: {
+  t: Dict["hero"];
+  videoSrc?: string;
+  agendaLink: string;
+  speakerLabel: string;
+}) {
   const holder = useRef<HTMLDivElement>(null);
   const player = useRef<YTPlayer | null>(null);
   const [started, setStarted] = useState(false);
@@ -171,14 +179,7 @@ export default function Hero({ t, videoSrc, agendaLink }: { t: Dict["hero"]; vid
               data-hero
               className="faces-pill inline-flex items-center gap-3 rounded-full bg-white/10 py-1.5 pl-1.5 pr-4 text-xs ring-1 ring-white/20 backdrop-blur-md sm:text-sm"
             >
-              {/* Hovering the pill fans the portraits apart and hops them in turn. */}
-              <span aria-hidden className="faces flex">
-                {FACES.map((f) => (
-                  <span key={f.name} className="face relative size-7 overflow-hidden rounded-full bg-[#2a1240] ring-2 ring-[#2a1240] sm:size-8">
-                    <Image src={f.photo!} alt="" fill sizes="2rem" className="scale-[1.24] object-cover object-[50%_30%]" />
-                  </span>
-                ))}
-              </span>
+              <SpeakerFaces label={speakerLabel} />
               {t.speakersPill}
             </p>
           </div>
