@@ -7,6 +7,9 @@ import { Bezel, Button, container } from "../ui";
 // Closing statement beside the Cartagena banner, then a glass card with the
 // Latimpacto signature: about, the page's own navigation and social links.
 export default function Footer({ t, hero, nav }: { t: Dict["footer"]; hero: Dict["hero"]; nav: Dict["nav"] }) {
+  const words = t.closing.split(" ");
+  const closingTail = words.pop();
+  const closingHead = words.join(" ");
   const social = [
     { href: links.social.instagram, label: "Instagram", Icon: InstagramLogo },
     { href: links.social.linkedin, label: "LinkedIn", Icon: LinkedinLogo },
@@ -22,13 +25,18 @@ export default function Footer({ t, hero, nav }: { t: Dict["footer"]; hero: Dict
       <div className={container}>
         {/* Closing line beside the official Cartagena banner, framed like the site's cards. */}
         <div className="grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-12">
-          <div data-reveal className="flex flex-col items-start gap-5 lg:col-span-5">
+          <div data-reveal className="flex w-full flex-col items-start gap-5 [container-type:inline-size] lg:col-span-5">
             <p className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-full bg-ink/5 px-4 py-1.5 text-sm text-ink-2 ring-1 ring-line" data-nosplit>
               <span>{hero.eyebrow}</span>
               <span aria-hidden className="h-3 w-px bg-line" />
               <span className="font-medium text-gold">{hero.dates}</span>
             </p>
-            <p className="max-w-4xl font-display text-[clamp(3rem,6.5vw,6rem)] leading-[0.98] text-ink">{t.closing}</p>
+            {/* Always two lines, "Nos vemos em" / "Cartagena": the type is sized to
+                this column's own width (cqi), so the first line fits on any screen. */}
+            <p className="w-full font-display text-[clamp(2.5rem,15.5cqi,6rem)] leading-[0.98] text-ink" data-nosplit>
+              <span className="block whitespace-nowrap">{closingHead}</span>
+              <span className="block">{closingTail}</span>
+            </p>
           </div>
           <Bezel className="lg:col-span-7" inner="bg-[#f3f1ee]">
             <div data-reveal className="relative aspect-[1356/550]">

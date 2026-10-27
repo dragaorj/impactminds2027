@@ -83,16 +83,22 @@ export default function ScrollFx() {
         return;
       }
 
-      ScrollTrigger.batch("[data-reveal]", {
-        start: "top 88%",
-        once: true,
-        onEnter: (els) =>
-          gsap.fromTo(
-            els,
-            { y: 48, opacity: 0 },
-            { y: 0, opacity: 1, duration: 1.1, stagger: 0.08, ease: "expo.out", clearProps: "transform" },
-          ),
-      });
+      // Every entrance plays once. None of the triggers use `once: true`: after a
+      // language switch the page keeps its scroll position, so many triggers are
+      // created already passed, and a trigger that kills itself while it is
+      // being set up crashes ScrollTrigger ("reading 'end'"). Played-once state
+      // lives on the element (data-revealed) or in the tween instead.
+      const reveal = (batch: Element[]) => {
+        const els = (batch as HTMLElement[]).filter((el) => !el.hasAttribute("data-revealed"));
+        if (!els.length) return;
+        els.forEach((el) => el.setAttribute("data-revealed", ""));
+        gsap.fromTo(
+          els,
+          { y: 48, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.1, stagger: 0.08, ease: "expo.out", clearProps: "transform" },
+        );
+      };
+      ScrollTrigger.batch("[data-reveal]", { start: "top 88%", onEnter: reveal, onEnterBack: reveal });
 
       // [data-stagger]: a slower, softer entrance for a row of cards. The rule
       // ([data-stagger-line]) draws across, then each card ([data-stagger-item])
@@ -105,7 +111,7 @@ export default function ScrollFx() {
         gsap.set(items, { opacity: 0, y: 56, scale: 0.97, filter: "blur(8px)" });
         gsap.set(dots, { scale: 0, opacity: 0 });
         gsap
-          .timeline({ scrollTrigger: { trigger: group, start: "top 85%", once: true } })
+          .timeline({ scrollTrigger: { trigger: group, start: "top 85%", toggleActions: "play none none none" } })
           .fromTo(line, { scaleX: 0, scaleY: 0 }, { scaleX: 1, scaleY: 1, duration: 1.6, ease: "power2.inOut" }, 0)
           .to(
             items,
@@ -156,7 +162,7 @@ export default function ScrollFx() {
               duration: heading ? 1.2 : 1,
               stagger: heading ? 0.1 : 0.06,
               ease: "expo.out",
-              scrollTrigger: { trigger: el, start: "top 90%", once: true },
+              scrollTrigger: { trigger: el, start: "top 90%", toggleActions: "play none none none" },
             });
           },
         });
@@ -171,7 +177,7 @@ export default function ScrollFx() {
             duration: 1.4,
             stagger: 0.1,
             ease: "expo.out",
-            scrollTrigger: { trigger: group, start: "top 85%", once: true },
+            scrollTrigger: { trigger: group, start: "top 85%", toggleActions: "play none none none" },
           },
         );
       });
@@ -188,7 +194,7 @@ export default function ScrollFx() {
             scale: 1,
             duration: 1.6,
             ease: "expo.out",
-            scrollTrigger: { trigger: svg, start: "top 92%", once: true },
+            scrollTrigger: { trigger: svg, start: "top 92%", toggleActions: "play none none none" },
           },
         );
       });
@@ -251,7 +257,7 @@ export default function ScrollFx() {
             duration: 1.3,
             stagger: 0.12,
             ease: "expo.out",
-            scrollTrigger: { trigger: group, start: "top 80%", once: true },
+            scrollTrigger: { trigger: group, start: "top 80%", toggleActions: "play none none none" },
           },
         );
       });
@@ -265,7 +271,7 @@ export default function ScrollFx() {
             duration: 0.5,
             stagger: 0.07,
             ease: "power2.out",
-            scrollTrigger: { trigger: group, start: "top 85%", once: true },
+            scrollTrigger: { trigger: group, start: "top 85%", toggleActions: "play none none none" },
           },
         );
       });
