@@ -150,7 +150,14 @@ export default function NumbersShow({ t }: { t: T }) {
       .add(count(".show-65", 65, "+"), "<")
       .add(count(".show-23", 23), "<")
       .add(count(".show-12", 12), "<")
-      .to({}, { duration: 0.7 });
+      .to(q(".show-3"), { autoAlpha: 0, y: -24, duration: 0.4, ease: "power2.in" }, "+=0.7")
+      // Scene 4: the thank-you, word by word, then the invitation to Cartagena.
+      .to(q(".show-4"), { autoAlpha: 1, duration: 0.3 })
+      .fromTo(q(".show-4 .show-glow4"), { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.6, ease: "expo.out" }, "<")
+      .fromTo(q(".show-4 .show-star"), { scale: 0, rotate: -90 }, { scale: 1, rotate: 0, duration: 0.9, ease: "back.out(2)" }, "<")
+      .fromTo(q(".show-word"), { yPercent: 110 }, { yPercent: 0, duration: 0.9, stagger: 0.07, ease: "expo.out" }, "<0.15")
+      .fromTo(q(".show-4 .show-sub"), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: "expo.out" }, "-=0.4")
+      .to({}, { duration: 1.8 });
     // The progress ticks span the whole timeline, after the overlay fades in.
     const span = t1.duration() - 0.45;
     t1.to(q(".show-prog"), { opacity: 1, duration: 0.12, stagger: span / PROGRESS_TICKS, ease: "none" }, 0.45);
@@ -338,6 +345,28 @@ export default function NumbersShow({ t }: { t: T }) {
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* Scene 4: closing thank-you over a soft gold light. */}
+      <div className="show-scene show-4 absolute inset-0 grid place-items-center p-6 pb-28">
+        <span aria-hidden className="show-glow4 pointer-events-none absolute left-1/2 top-1/2 size-[min(48rem,120vw)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(217_184_101/0.22),transparent_62%)]" />
+        <div className="relative mx-auto w-full max-w-[60rem] text-center">
+          {/* Four-point sparkle, like the ornaments around "MINDS" on the banner. */}
+          <svg aria-hidden viewBox="0 0 24 24" className="show-star mx-auto size-8 fill-current show-fig sm:size-10">
+            <path d="M12 0c.9 6.4 5 10.6 12 12-7 1.4-11.1 5.6-12 12-.9-6.4-5-10.6-12-12C7 10.6 11.1 6.4 12 0Z" />
+          </svg>
+          <p className="mt-6 text-balance font-display text-[clamp(2.4rem,6.5vw,5.75rem)] leading-[1.04]">
+            {t.thanks.split(" ").map((w, i) => (
+              <span key={i}>
+                {i > 0 && " "}
+                <span className="inline-block overflow-hidden pb-[0.08em] align-bottom">
+                  <span className="show-word inline-block">{w}</span>
+                </span>
+              </span>
+            ))}
+          </p>
+          <p className="show-sub mt-5 font-display text-[clamp(1.4rem,3.2vw,2.75rem)] show-fig">{t.thanksSub}</p>
         </div>
       </div>
       </div>

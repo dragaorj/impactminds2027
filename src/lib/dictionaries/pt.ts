@@ -53,6 +53,8 @@ const pt = {
     lead: "Manaus foi o ponto de encontro de uma comunidade comprometida em conectar capital, conhecimento e ação para gerar impacto na América Latina e no Caribe.",
     place: "Manaus · 2026",
     skip: "Pular apresentação",
+    thanks: "Obrigado por fazer parte do Impact Minds 2026",
+    thanksSub: "Nos vemos em Cartagena em 2027",
     watch: "Ver apresentação",
     participants: "participantes",
     organizations: "organizações representadas",

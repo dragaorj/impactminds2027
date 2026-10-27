@@ -55,6 +55,8 @@ const es: Dict = {
     lead: "Manaos fue el punto de encuentro de una comunidad comprometida con conectar capital, conocimiento y acción para generar impacto en América Latina y el Caribe.",
     place: "Manaos · 2026",
     skip: "Saltar presentación",
+    thanks: "Gracias por ser parte de Impact Minds 2026",
+    thanksSub: "Nos vemos en Cartagena en 2027",
     watch: "Ver presentación",
     participants: "participantes",
     organizations: "organizaciones representadas",

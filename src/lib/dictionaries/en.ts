@@ -55,6 +55,8 @@ const en: Dict = {
     lead: "Manaus was the meeting point for a community committed to connecting capital, knowledge, and action to drive impact across Latin America and the Caribbean.",
     place: "Manaus · 2026",
     skip: "Skip presentation",
+    thanks: "Thank you for being part of Impact Minds 2026",
+    thanksSub: "See you in Cartagena in 2027",
     watch: "Watch presentation",
     participants: "participants",
     organizations: "organizations represented",
