@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import Image from "next/image";
 import { ArrowDown, ArrowRight } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
@@ -10,6 +13,8 @@ import { prefersReducedMotion } from "./prefs";
 import { keepLooping, loadYouTube, loopVars, type YTPlayer } from "./youtube";
 import NativeLoop from "./NativeLoop";
 import TypeLine from "./TypeLine";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 // Five speaker portraits for the social-proof pill above the title.
 const FACES = speakers.filter((s) => s.photo).slice(0, 5);
@@ -21,8 +26,30 @@ export default function Hero({ t, videoSrc, agendaLink }: { t: Dict["hero"]; vid
   const holder = useRef<HTMLDivElement>(null);
   const player = useRef<YTPlayer | null>(null);
   const [started, setStarted] = useState(false);
+  const root = useRef<HTMLElement>(null);
   // The countdown ring beside the CTA swaps the info bar to its details.
   const [countdown, setCountdown] = useState(false);
+
+  // Scrolling away flies through the title: "Impact Minds" grows towards the
+  // viewer, blurs and dissolves, while the rest of the hero parts (pill and
+  // gold line up, CTA and info bar down) and the video eases in, all scrubbed
+  // to the scroll. The tweens run on wrappers / inner spans, never on the
+  // [data-hero] elements the intro animates.
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) return;
+      const tl = gsap.timeline({
+        defaults: { ease: "power1.in" },
+        scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: 0.6 },
+      });
+      tl.to(".hero-media", { scale: 1.14, ease: "none", duration: 1 }, 0)
+        .to(".hero-title", { scale: 3.4, y: () => window.innerHeight * 0.3, filter: "blur(22px)", opacity: 0, duration: 0.75 }, 0)
+        .to(".hero-typed", { y: -50, filter: "blur(8px)", opacity: 0, duration: 0.45 }, 0)
+        .to(".hero-out-up", { y: -70, opacity: 0, duration: 0.4 }, 0)
+        .to(".hero-out-down", { y: 80, opacity: 0, duration: 0.45, stagger: 0.05 }, 0);
+    },
+    { scope: root },
+  );
 
   useEffect(() => {
     const on = (e: Event) => setCountdown((e as CustomEvent<boolean>).detail);
@@ -105,11 +132,13 @@ export default function Hero({ t, videoSrc, agendaLink }: { t: Dict["hero"]; vid
     };
   }, [videoSrc]);
 
-  // The section is one wave taller than the screen: the video fills the whole
+  // The section is one wave taller than the screen at its largest (lvh: the
+  // height with the browser bars hidden), so the video always fills the whole
   // first fold and the wave into the next section only shows once scrolling.
+  // The content itself is laid out in the always-visible height (svh/dvh).
   return (
-    <section id="top" className="wave-b relative isolate min-h-[calc(100svh+var(--wave))] overflow-hidden lg:min-h-[calc(100dvh+var(--wave))] bg-[#1c0c2c] text-white">
-      <div className="absolute inset-0 -z-10" aria-label={t.videoLabel} role="img">
+    <section ref={root} id="top" className="wave-b relative isolate min-h-[calc(100lvh+var(--wave))] overflow-hidden bg-[#1c0c2c] text-white">
+      <div className="hero-media absolute inset-0 -z-10" aria-label={t.videoLabel} role="img">
         <Image
           src={`https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`}
           alt=""
@@ -137,81 +166,88 @@ export default function Hero({ t, videoSrc, agendaLink }: { t: Dict["hero"]; vid
           block sits low so the video's upper half stays clear. */}
       <div className="mx-auto flex min-h-[100svh] w-full max-w-[132rem] flex-col px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-24 sm:px-8 md:pb-10 lg:min-h-[100dvh] lg:px-[5vw]">
         <div className="flex flex-1 flex-col items-center justify-end text-center lg:justify-center lg:pt-[14vh]">
-          <p
-            data-hero
-            className="faces-pill inline-flex items-center gap-3 rounded-full bg-white/10 py-1.5 pl-1.5 pr-4 text-xs ring-1 ring-white/20 backdrop-blur-md sm:text-sm"
-          >
-            {/* Hovering the pill fans the portraits apart and hops them in turn. */}
-            <span aria-hidden className="faces flex">
-              {FACES.map((f) => (
-                <span key={f.name} className="face relative size-7 overflow-hidden rounded-full bg-[#2a1240] ring-2 ring-[#2a1240] sm:size-8">
-                  <Image src={f.photo!} alt="" fill sizes="2rem" className="scale-[1.24] object-cover object-[50%_30%]" />
-                </span>
-              ))}
-            </span>
-            {t.speakersPill}
-          </p>
+          <div className="hero-out-up">
+            <p
+              data-hero
+              className="faces-pill inline-flex items-center gap-3 rounded-full bg-white/10 py-1.5 pl-1.5 pr-4 text-xs ring-1 ring-white/20 backdrop-blur-md sm:text-sm"
+            >
+              {/* Hovering the pill fans the portraits apart and hops them in turn. */}
+              <span aria-hidden className="faces flex">
+                {FACES.map((f) => (
+                  <span key={f.name} className="face relative size-7 overflow-hidden rounded-full bg-[#2a1240] ring-2 ring-[#2a1240] sm:size-8">
+                    <Image src={f.photo!} alt="" fill sizes="2rem" className="scale-[1.24] object-cover object-[50%_30%]" />
+                  </span>
+                ))}
+              </span>
+              {t.speakersPill}
+            </p>
+          </div>
           <h1 data-hero className="mt-5 font-display leading-[0.92] sm:mt-7">
-            <span className="block text-[clamp(3.25rem,11vw,9.5rem)]">{t.title}</span>
+            <span className="hero-title block text-[clamp(3.25rem,11vw,9.5rem)] will-change-[transform,filter]">{t.title}</span>
             {/* Closing the 2026 edition while inviting to 2027: the gold line opens on
                 "Connecting Us", then types a thank-you and the invitation, on a loop.
                 A fixed min-height keeps the layout still while the text changes length. */}
             <TypeLine
               phrases={t.typed}
-              className="mt-3 block min-h-[1.15em] text-[clamp(1.35rem,3.6vw,3.25rem)] text-[#D9B865]"
+              className="hero-typed mt-3 block min-h-[1.15em] text-[clamp(1.35rem,3.6vw,3.25rem)] text-[#D9B865]"
             />
           </h1>
           {/* The countdown ring parks in the slot beside the CTA (same height)
               while the page is at the top; CountdownRing measures it. */}
-          <div data-hero className="mt-7 flex w-full items-center justify-center gap-4 sm:mt-9 sm:w-auto sm:gap-6">
-            {cta("h-16 min-w-0 flex-1 justify-between whitespace-nowrap pl-5 pr-2.5 text-[0.95rem] sm:flex-none sm:pl-7 sm:text-base")}
-            <span data-countdown-slot aria-hidden className="size-16 shrink-0 lg:size-20" />
+          <div className="hero-out-down w-full sm:w-auto">
+            <div data-hero className="mt-7 flex w-full items-center justify-center gap-4 sm:mt-9 sm:w-auto sm:gap-6">
+              {cta("h-16 min-w-0 flex-1 justify-between whitespace-nowrap pl-5 pr-2.5 text-[0.95rem] sm:flex-none sm:pl-7 sm:text-base")}
+              <span data-countdown-slot aria-hidden className="size-16 shrink-0 lg:size-20" />
+            </div>
           </div>
         </div>
 
         {/* Frosted bar with the event's key facts. Clicking the countdown ring
             cross-fades it to the countdown's details (same box, same size). */}
-        <div
-          data-hero
-          data-countdown-bar
-          className="relative mx-auto mt-6 w-full max-w-4xl rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur-xl backdrop-saturate-150 sm:mt-10"
-        >
-          <dl
-            aria-hidden={countdown}
-            className={`grid grid-cols-4 px-3 py-3.5 text-center transition-[opacity,filter,translate] duration-500 ease-out sm:px-6 sm:py-5 ${
-              countdown ? "pointer-events-none -translate-y-1 opacity-0 blur-[2px]" : "opacity-100"
-            }`}
-          >
-            {t.facts.map((f, i) => (
-              <div key={f.label} className={`flex flex-col-reverse items-center justify-start px-1 sm:px-2 ${i > 0 ? "border-l border-white/15" : ""}`}>
-                <dt className="mt-1 text-[0.625rem] leading-tight text-white/75 sm:text-sm">{f.label}</dt>
-                <dd className="font-display text-[1.05rem] leading-none sm:text-[2.1rem]">{f.value}</dd>
-              </div>
-            ))}
-          </dl>
+        <div className="hero-out-down w-full">
           <div
-            id="hero-countdown"
-            aria-hidden={!countdown}
-            className={`absolute inset-0 flex flex-col justify-center gap-1.5 px-7 text-left transition-[opacity,filter,translate] duration-500 ease-out sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-8 ${
-              countdown ? "opacity-100 delay-150" : "pointer-events-none translate-y-1 opacity-0 blur-[2px]"
-            }`}
+            data-hero
+            data-countdown-bar
+            className="relative mx-auto mt-6 w-full max-w-4xl rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur-xl backdrop-saturate-150 sm:mt-10"
           >
-            {/* Phones: the dates over the four units; the full title from sm. */}
-            <div className="sm:shrink-0">
-              <p className="hidden text-sm text-white/75 sm:block">{t.countdown}</p>
-              <p className="text-[0.6875rem] font-medium text-[#D9B865] sm:mt-1 sm:text-sm">{t.dates}</p>
-            </div>
-            <div className="[&_dd]:text-2xl [&_dt]:mt-0.5 sm:max-w-xs sm:flex-1 sm:[&_dd]:text-3xl">
-              <Countdown start={EVENT_START} end={EVENT_END} labels={t} compact />
-            </div>
-            <a
-              href="#agenda-2027"
-              tabIndex={countdown ? 0 : -1}
-              className="group hidden shrink-0 items-center gap-2 rounded-full py-2 pl-4 pr-2 text-sm font-medium ring-1 ring-white/25 transition-colors hover:bg-[#D9B865] hover:text-[#2A1240] md:flex"
+            <dl
+              aria-hidden={countdown}
+              className={`grid grid-cols-4 px-3 py-3.5 text-center transition-[opacity,filter,translate] duration-500 ease-out sm:px-6 sm:py-5 ${
+                countdown ? "pointer-events-none -translate-y-1 opacity-0 blur-[2px]" : "opacity-100"
+              }`}
             >
-              {agendaLink}
-              <ArrowRight size="1rem" className="transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-x-0.5" />
-            </a>
+              {t.facts.map((f, i) => (
+                <div key={f.label} className={`flex flex-col-reverse items-center justify-start px-1 sm:px-2 ${i > 0 ? "border-l border-white/15" : ""}`}>
+                  <dt className="mt-1 text-[0.625rem] leading-tight text-white/75 sm:text-sm">{f.label}</dt>
+                  <dd className="font-display text-[1.05rem] leading-none sm:text-[2.1rem]">{f.value}</dd>
+                </div>
+              ))}
+            </dl>
+            <div
+              id="hero-countdown"
+              aria-hidden={!countdown}
+              className={`absolute inset-0 flex flex-col justify-center px-3 text-left transition-[opacity,filter,translate] duration-500 ease-out sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-8 ${
+                countdown ? "opacity-100 delay-150" : "pointer-events-none translate-y-1 opacity-0 blur-[2px]"
+              }`}
+            >
+              {/* Phones: just the four units, laid out like the facts they replace
+                  (four centred columns with dividers); title and dates from sm. */}
+              <div className="hidden sm:block sm:shrink-0">
+                <p className="text-sm text-white/75">{t.countdown}</p>
+                <p className="mt-1 text-sm font-medium text-[#D9B865]">{t.dates}</p>
+              </div>
+              <div className="w-full [&_dd]:text-2xl [&_dt]:mt-1 max-sm:[&_dl]:gap-0 max-sm:[&_dl>div]:items-center max-sm:[&_dl>div+div]:border-l max-sm:[&_dl>div+div]:border-white/15 max-sm:[&_dt]:text-[0.625rem] sm:w-auto sm:max-w-xs sm:flex-1 sm:[&_dd]:text-3xl">
+                <Countdown start={EVENT_START} end={EVENT_END} labels={t} compact />
+              </div>
+              <a
+                href="#agenda-2027"
+                tabIndex={countdown ? 0 : -1}
+                className="group hidden shrink-0 items-center gap-2 rounded-full py-2 pl-4 pr-2 text-sm font-medium ring-1 ring-white/25 transition-colors hover:bg-[#D9B865] hover:text-[#2A1240] md:flex"
+              >
+                {agendaLink}
+                <ArrowRight size="1rem" className="transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-x-0.5" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
