@@ -13,7 +13,7 @@
 
 /*
   Impact Minds 2027 palette (from the official Cartagena banner)
-  Papel     #F3F1EE  textured paper background
+  Papel     #F3F1EE  paper background
   Púrpura   #5B2A86  "MINDS", primary accent
   Noche     #3E1A5E  deep purple blocks (agenda, preloader)
   Violeta   #8E63C6  geometric tiles
@@ -439,18 +439,18 @@ html[data-motion="reduce"] .chart-runner { display: none; }
 /* Speakers conveyor: two identical lists, the track slides by one list width. */
 .speaker-track { animation: marquee 80s linear infinite; }
 
-/* Speaker portraits: muted purple duotone at rest; colour and a slow zoom on
+/* Speaker portraits: soft light-lilac duotone at rest; colour and a slow zoom on
    hover or keyboard focus. The lightbox portrait keeps full colour. */
 .speaker-card .portrait-img {
-  filter: grayscale(1) brightness(0.82) contrast(1.05);
+  filter: grayscale(1) brightness(1.18) contrast(0.86);
   transition: transform 1.2s var(--ease-out-expo), filter 0.8s ease;
 }
 .speaker-card:hover .portrait-img,
 .speaker-card:focus-visible .portrait-img { filter: none; transform: scale(1.34); }
 .speaker-wash {
-  background: var(--brand);
+  background: #cdb8ec;
   mix-blend-mode: color;
-  opacity: 0.85;
+  opacity: 0.9;
   transition: opacity 0.8s ease;
 }
 .speaker-card:hover .speaker-wash,
@@ -536,18 +536,6 @@ html[data-motion="reduce"] .shimmer::after { opacity: 0; }
   animation-duration: 3.6s;
 }
 
-
-/* Soft vector texture on the page background: the banner's tiles (half
-   circles, quarter discs, leaves, dots, birds) as hairlines at very low
-   opacity. Only on the flat backgrounds, never over photos or cards. */
-:root { --paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27200%27%20height%3D%27200%27%20viewBox%3D%270%200%20200%20200%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%235b2a86%27%20stroke-width%3D%270.9%27%20stroke-linecap%3D%27round%27%20opacity%3D%270.035%27%3E%3Cpath%20d%3D%27M14%2040%20A16%2016%200%200%201%2046%2040%27%2F%3E%3Cpath%20d%3D%27M120%2014%20V46%20H88%20A32%2032%200%200%201%20120%2014%27%2F%3E%3Cpath%20d%3D%27M70%20112%20Q70%2084%2098%2084%20Q98%20112%2070%20112%27%2F%3E%3Cpath%20d%3D%27M150%20120%20a10%2010%200%201%200%2020%200%20a10%2010%200%201%200%20-20%200%27%2F%3E%3Cpath%20d%3D%27M18%20150%20A14%2014%200%200%201%2018%20178%20M46%20150%20A14%2014%200%200%200%2046%20178%27%2F%3E%3Cpath%20d%3D%27M150%2040%20q8%20-8%2016%200%20q8%20-8%2016%200%27%2F%3E%3Cpath%20d%3D%27M0%2092%20q10%20-6%2020%200%20t20%200%27%2F%3E%3Ccircle%20cx%3D%2760%27%20cy%3D%2720%27%20r%3D%271.2%27%20fill%3D%27%235b2a86%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27130%27%20cy%3D%27150%27%20r%3D%271.2%27%20fill%3D%27%235b2a86%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2730%27%20cy%3D%27120%27%20r%3D%271.2%27%20fill%3D%27%235b2a86%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27100%27%20cy%3D%2760%27%20r%3D%271.2%27%20fill%3D%27%235b2a86%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27170%27%20cy%3D%2790%27%20r%3D%271.2%27%20fill%3D%27%235b2a86%27%20stroke%3D%27none%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
-[data-theme="dark"] { --paper: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27200%27%20height%3D%27200%27%20viewBox%3D%270%200%20200%20200%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23c9b5e6%27%20stroke-width%3D%270.9%27%20stroke-linecap%3D%27round%27%20opacity%3D%270.03%27%3E%3Cpath%20d%3D%27M14%2040%20A16%2016%200%200%201%2046%2040%27%2F%3E%3Cpath%20d%3D%27M120%2014%20V46%20H88%20A32%2032%200%200%201%20120%2014%27%2F%3E%3Cpath%20d%3D%27M70%20112%20Q70%2084%2098%2084%20Q98%20112%2070%20112%27%2F%3E%3Cpath%20d%3D%27M150%20120%20a10%2010%200%201%200%2020%200%20a10%2010%200%201%200%20-20%200%27%2F%3E%3Cpath%20d%3D%27M18%20150%20A14%2014%200%200%201%2018%20178%20M46%20150%20A14%2014%200%200%200%2046%20178%27%2F%3E%3Cpath%20d%3D%27M150%2040%20q8%20-8%2016%200%20q8%20-8%2016%200%27%2F%3E%3Cpath%20d%3D%27M0%2092%20q10%20-6%2020%200%20t20%200%27%2F%3E%3Ccircle%20cx%3D%2760%27%20cy%3D%2720%27%20r%3D%271.2%27%20fill%3D%27%23c9b5e6%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27130%27%20cy%3D%27150%27%20r%3D%271.2%27%20fill%3D%27%23c9b5e6%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2730%27%20cy%3D%27120%27%20r%3D%271.2%27%20fill%3D%27%23c9b5e6%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27100%27%20cy%3D%2760%27%20r%3D%271.2%27%20fill%3D%27%23c9b5e6%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27170%27%20cy%3D%2790%27%20r%3D%271.2%27%20fill%3D%27%23c9b5e6%27%20stroke%3D%27none%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
-[data-contrast="high"] { --paper: none; }
-body, .bg-bg-2 {
-  background-image: var(--paper);
-  background-size: 200px 200px;
-  background-repeat: repeat;
-}
 
 /* The full-video lightbox shows the whole frame (no overscan). */
 .yt-full iframe { transform: translate(-50%, -50%); }

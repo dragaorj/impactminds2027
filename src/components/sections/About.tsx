@@ -17,7 +17,10 @@ export default function About({ t, videoSrc }: { t: Dict["about"]; videoSrc?: st
         <div className="xl:col-span-5 xl:self-center">
           <div data-reveal>
             <p className="flex items-center gap-3 text-xs font-medium uppercase tracking-[0.16em] text-gold md:text-sm" data-nosplit>
-              <span aria-hidden className="h-px w-10 bg-gold/60" />
+              {/* Four-point sparkle, like the ornaments around "MINDS" on the banner. */}
+              <svg aria-hidden viewBox="0 0 24 24" className="size-4 shrink-0 fill-current md:size-[1.125rem]">
+                <path d="M12 0c.9 6.4 5 10.6 12 12-7 1.4-11.1 5.6-12 12-.9-6.4-5-10.6-12-12C7 10.6 11.1 6.4 12 0Z" />
+              </svg>
               {t.kicker}
             </p>
             <H2 id="sobre-title" className="mt-5">
@@ -52,7 +55,7 @@ export default function About({ t, videoSrc }: { t: Dict["about"]; videoSrc?: st
 
         </div>
 
-        <div className="xl:col-span-7" data-reveal>
+        <div className="xl:col-span-7 xl:self-center" data-reveal>
           <VideoPanel
             videoId={ABOUT_VIDEO_ID}
             src={videoSrc}
