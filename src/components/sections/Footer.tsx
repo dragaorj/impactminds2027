@@ -42,7 +42,7 @@ export default function Footer({ t, hero, nav }: { t: Dict["footer"]; hero: Dict
           <Bezel className="lg:col-span-7" inner="bg-[#f3f1ee]">
             <div data-reveal className="relative aspect-[1356/550]">
               <Image
-                src="/brand/banner-2027.jpg"
+                src="/brand/banner-2027.webp"
                 alt={`Impact Minds 2027 · ${hero.eyebrow}`}
                 fill
                 sizes="(min-width:1024px) 55vw, 100vw"

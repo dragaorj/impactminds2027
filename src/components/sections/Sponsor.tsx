@@ -3,6 +3,7 @@ import { links, participantsByYear } from "@/lib/site";
 import { Check } from "@phosphor-icons/react/dist/ssr";
 import Art from "../Art";
 import CountUp from "../CountUp";
+import SponsorForm from "../SponsorForm";
 import { Bezel, Button, H2, container, section } from "../ui";
 
 // Bar chart drawn as a street of Cartagena houses: each facade's height is the
@@ -160,7 +161,9 @@ export default function Sponsor({ t, locale }: { t: Dict["sponsor"]; locale: str
   const growth = `+${Math.round(((last - first) / first) * 100)}%`;
   return (
     <section id="patrocinio" className={section} aria-labelledby="patrocinio-title">
-      <Art name="arcs" className="absolute bottom-0 left-0 hidden w-48 -scale-x-100 xl:block" />
+      {/* Concentric rings sunk into the section's lower edge: the next section
+          (and its wave) is painted over their lower half, so they sit behind it. */}
+      <Art name="rings" className="absolute -bottom-36 left-[2vw] hidden w-72 xl:block" />
       <div className={`${container} grid gap-12 xl:grid-cols-12 xl:items-center xl:gap-12`}>
         <Bezel className="xl:col-span-7" inner="bg-surface">
           <div data-reveal className="h-full">
@@ -172,10 +175,10 @@ export default function Sponsor({ t, locale }: { t: Dict["sponsor"]; locale: str
           <H2 id="patrocinio-title" className="mt-4 !text-[clamp(2.1rem,4.4vw,3.5rem)]">
             {t.title}
           </H2>
-          <p className="mt-6 max-w-[42ch] text-lg leading-relaxed text-ink-2">{t.text}</p>
+          <p className="mt-5 max-w-[42ch] text-lg leading-relaxed text-ink-2">{t.text}</p>
 
           {/* Why it matters, in numbers: growth comes straight from the chart data. */}
-          <dl className="mt-10 grid grid-cols-3 gap-4 border-y border-gold/40 py-6" data-nosplit>
+          <dl className="mt-8 grid grid-cols-3 gap-4 border-y border-gold/40 py-5" data-nosplit>
             {[{ value: growth, label: t.growthLabel }, ...t.stats].map((s) => (
               <div key={s.label} className="flex flex-col">
                 <dt className="order-last mt-2 text-sm leading-snug text-ink-2">{s.label}</dt>
@@ -186,10 +189,27 @@ export default function Sponsor({ t, locale }: { t: Dict["sponsor"]; locale: str
             ))}
           </dl>
 
-          <p className="mt-8 text-sm font-medium text-ink">{t.benefitsTitle}</p>
-          <ul className="mt-4 space-y-3">
+
+          {/* Sponsorship page when it exists; meanwhile, an email form that
+              opens the visitor's mail app with the note ready (mailto). */}
+          <div className="mt-8 max-w-xl">
+            {links.sponsor2027 ? (
+              <Button href={links.sponsor2027} external>
+                {t.cta}
+              </Button>
+            ) : (
+              <SponsorForm labels={t.form} />
+            )}
+          </div>
+        </div>
+
+        {/* What a sponsor gets: a full-width row of three cards under chart and
+            text, so the text column stays as tall as the chart on laptops. */}
+        <div className="xl:col-span-12" data-reveal>
+          <p className="text-sm font-medium text-ink">{t.benefitsTitle}</p>
+          <ul className="mt-4 grid gap-3 md:grid-cols-3 md:gap-4">
             {t.benefits.map((b) => (
-              <li key={b} className="flex gap-3 text-base leading-relaxed text-ink-2">
+              <li key={b} className="flex gap-3 rounded-[1.5rem] bg-surface/70 p-5 text-base leading-relaxed text-ink-2 ring-1 ring-line">
                 <span aria-hidden className="mt-[0.3em] grid size-5 shrink-0 place-items-center rounded-full bg-sun/20 text-gold">
                   <Check size="0.75rem" weight="bold" />
                 </span>
@@ -197,22 +217,6 @@ export default function Sponsor({ t, locale }: { t: Dict["sponsor"]; locale: str
               </li>
             ))}
           </ul>
-
-          <div className="mt-10">
-            {links.sponsor2027 ? (
-              <Button href={links.sponsor2027} external>
-                {t.cta}
-              </Button>
-            ) : (
-              <span
-                aria-disabled="true"
-                className="shimmer shimmer-soft inline-flex h-12 items-center gap-3 rounded-full bg-brand pl-6 pr-1.5 text-[0.9375rem] font-medium text-brand-ink"
-              >
-                {t.cta}
-                <span className="rounded-full bg-brand-ink/15 px-3 py-1.5 text-xs">{t.soon}</span>
-              </span>
-            )}
-          </div>
         </div>
       </div>
     </section>

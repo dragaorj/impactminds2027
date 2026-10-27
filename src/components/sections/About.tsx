@@ -12,7 +12,7 @@ import { H2, container, section } from "../ui";
 export default function About({ t, videoSrc }: { t: Dict["about"]; videoSrc?: string }) {
   return (
     <section id="sobre" className={`${section} bg-bg-2 wave-y`} aria-labelledby="sobre-title">
-      <Art name="mosaic" className="pointer-events-none absolute bottom-[calc(var(--wave)+0.5rem)] right-[calc(4vw_-_13rem)] hidden w-52 lg:block" />
+      <Art name="mosaic" className="pointer-events-none absolute bottom-[calc(var(--wave)+0.5rem)] right-[1vw] hidden w-16 lg:block" />
       <div className={`${container} grid gap-10 md:gap-14 xl:grid-cols-12 xl:gap-x-12 xl:gap-y-14`}>
         <div className="xl:col-span-5 xl:self-center">
           <div data-reveal>

@@ -40,7 +40,7 @@ function Group({ label, items, locale }: { label: string; items: { value: string
 export default function Digital({ t, locale }: { t: Dict["digital"]; locale: string }) {
   return (
     <section id="alcance" className={section} aria-labelledby="alcance-title">
-      <Art name="arcs" className="absolute bottom-0 right-0 hidden w-56 xl:block" />
+      <Art name="rings" className="absolute bottom-10 right-[2vw] hidden w-56 xl:block" />
       <div className={container}>
         <H2 id="alcance-title" className="max-w-3xl">
           {t.title}

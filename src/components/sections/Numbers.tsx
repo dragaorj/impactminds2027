@@ -76,7 +76,7 @@ export default function Numbers({ t, locale }: { t: Dict["numbers"]; locale: str
 
   return (
     <section id="numeros" className={section} aria-labelledby="numeros-title">
-      <Art name="mosaic" className="pointer-events-none absolute bottom-6 left-[calc(4vw_-_13rem)] hidden w-52 lg:block" />
+      <Art name="mosaic" className="pointer-events-none absolute bottom-6 left-[1.25vw] hidden w-20 lg:block" />
       <div className={container}>
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between" data-reveal>
           <div className="max-w-3xl">

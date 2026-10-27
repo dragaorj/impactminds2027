@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight, X } from "@phosphor-icons/react";
+import { useDialogDismiss } from "./useDialogDismiss";
 
 export type LightboxItem = { src: string; title: string; subtitle?: string };
 type Labels = { label: string; close: string; prev: string; next: string };
@@ -55,6 +56,8 @@ export default function Lightbox({
 
   const item = index === null ? null : items[index];
   const close = () => onIndex(null);
+  // Closes on a click outside the photo or on a scroll gesture.
+  useDialogDismiss(dialog, index !== null, close);
   const ratio = (item && ratios[item.src]) ?? 1.5;
   const SIZES = "(min-width:1024px) 80vw, 100vw";
 
@@ -73,12 +76,11 @@ export default function Lightbox({
     <dialog
       ref={dialog}
       onClose={close}
-      onClick={(e) => e.target === e.currentTarget && close()}
       aria-label={labels.label}
       className="m-0 h-[100dvh] max-h-none w-screen max-w-none bg-[rgb(34_14_52/0.94)] p-0 backdrop:bg-transparent"
     >
       {index !== null && item && (
-        <div className="flex h-full flex-col px-4 pb-6 pt-4 sm:px-8" onClick={(e) => e.target === e.currentTarget && close()}>
+        <div className="flex h-full flex-col px-4 pb-6 pt-4 sm:px-8">
           <div className="flex items-center justify-between text-white">
             <p className="text-sm tabular-nums text-white/70">
               {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
@@ -91,6 +93,7 @@ export default function Lightbox({
           <div className="my-4 grid min-h-0 flex-1 place-items-center [container-type:size]">
             <div
               key={item.src}
+              data-keep
               className="relative animate-[menuIn_0.6s_var(--ease-out-expo)_both] overflow-hidden rounded-[1.5rem] ring-1 ring-white/15"
               style={{ aspectRatio: ratio, width: `min(100cqw, calc(100cqh * ${ratio}))` }}
             >

@@ -15,6 +15,7 @@ type ArtName =
   | "skyline"
   | "laurel"
   | "arcs"
+  | "rings"
   | "mosaic";
 
 const f1 = (n: number) => n.toFixed(1);
@@ -266,6 +267,16 @@ const drawings: Record<ArtName, { box: string; paths: Stroke[]; loop?: string; s
     box: "0 0 120 120",
     paths: [28, 44, 60, 76, 92, 108].map((r, i) => ({
       d: `M${120 - r} 120 A${r} ${r} 0 0 1 120 ${120 - r}`,
+      c: "loop-pulse",
+      delay: i * 0.35,
+    })),
+    loop: "",
+  },
+  // Full concentric circles (the arcs, closed), each pulsing in turn.
+  rings: {
+    box: "0 0 240 240",
+    paths: [28, 44, 60, 76, 92, 108].map((r, i) => ({
+      d: `M${120 - r} 120 a${r} ${r} 0 1 0 ${2 * r} 0 a${r} ${r} 0 1 0 ${-2 * r} 0`,
       c: "loop-pulse",
       delay: i * 0.35,
     })),

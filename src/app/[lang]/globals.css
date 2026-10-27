@@ -771,3 +771,15 @@ html[data-ring-raised] #top [data-countdown-slot] { width: 0; margin-left: -1rem
 @media (min-width: 40rem) {
   html[data-ring-raised] #top [data-countdown-slot] { margin-left: -1.5rem; }
 }
+
+/* A field inside a pill that shows focus itself (focus-within ring): no
+   second, rectangular outline around the bare input. */
+.field-bare:focus-visible { outline: none; }
+/* Browser autofill paints its own (light blue) box: keep the pill's look. */
+.field-bare:-webkit-autofill,
+.field-bare:-webkit-autofill:hover,
+.field-bare:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ink);
+  caret-color: var(--ink);
+  transition: background-color 600000s 0s;
+}

@@ -11,7 +11,7 @@ export default function Launches({ t, locale }: { t: Dict["launches"]; locale: s
   const order = [c, a, b];
   return (
     <section id="lancamentos" className={section} aria-labelledby="lancamentos-title">
-      <Art name="mosaic" className="pointer-events-none absolute bottom-6 left-[calc(4vw_-_13rem)] hidden w-52 lg:block" />
+      <Art name="mosaic" className="pointer-events-none absolute bottom-6 left-[1.25vw] hidden w-20 lg:block" />
       <div className={container}>
         <div className="max-w-3xl">
           <H2 id="lancamentos-title">{t.title}</H2>

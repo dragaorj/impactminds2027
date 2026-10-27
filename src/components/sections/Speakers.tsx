@@ -8,6 +8,7 @@ import type { Locale } from "@/lib/i18n";
 import { links, speakers, type Speaker } from "@/lib/site";
 import Art from "../Art";
 import { H2, container, section } from "../ui";
+import { useDialogDismiss } from "../useDialogDismiss";
 
 const initials = (name: string) =>
   name
@@ -109,17 +110,18 @@ function SpeakerBox({
 
   const s = index === null ? null : list[index];
   const close = () => onIndex(null);
+  // Closes on a click outside the portrait and text, or on a scroll gesture.
+  useDialogDismiss(dialog, index !== null, close);
 
   return (
     <dialog
       ref={dialog}
       onClose={close}
-      onClick={(e) => e.target === e.currentTarget && close()}
       aria-label={labels.title}
       className="m-0 h-[100dvh] max-h-none w-screen max-w-none bg-[rgb(34_14_52/0.94)] p-0 backdrop:bg-transparent"
     >
       {index !== null && s && (
-        <div className="flex h-full flex-col px-4 pb-6 pt-4 sm:px-8" onClick={(e) => e.target === e.currentTarget && close()}>
+        <div className="flex h-full flex-col px-4 pb-6 pt-4 sm:px-8">
           <div className="flex items-center justify-between text-white">
             <p className="text-sm tabular-nums text-white/70">
               {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
@@ -129,15 +131,15 @@ function SpeakerBox({
             </button>
           </div>
 
-          <div className="grid min-h-0 flex-1 place-items-center py-6" onClick={(e) => e.target === e.currentTarget && close()}>
+          <div className="grid min-h-0 flex-1 place-items-center py-6">
             <div
               key={s.name}
               className="flex w-full max-w-5xl animate-[menuIn_0.6s_var(--ease-out-expo)_both] flex-col items-center gap-8 text-center text-white md:flex-row md:gap-14 md:text-left"
             >
-              <div className="w-[min(70vw,24rem,44dvh)] shrink-0 rounded-full p-2 ring-1 ring-white/20 md:w-[min(38vw,26rem,62dvh)]">
+              <div data-keep className="w-[min(70vw,24rem,44dvh)] shrink-0 rounded-full p-2 ring-1 ring-white/20 md:w-[min(38vw,26rem,62dvh)]">
                 <Portrait s={s} i={index} sizes="(min-width:768px) 26rem, 70vw" />
               </div>
-              <div className="min-w-0">
+              <div data-keep className="min-w-0">
                 <p className="text-sm text-[#E2C985]">{labels.edition}</p>
                 <h3 className="mt-3 font-display text-[clamp(2.25rem,5vw,4rem)] leading-[1.02]">{s.name}</h3>
                 <p className="mt-5 text-lg text-white/85 sm:text-xl">{s.role[lang]}</p>
