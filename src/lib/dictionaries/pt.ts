@@ -127,6 +127,8 @@ const pt = {
     avgConnections: "a média de conexões feitas por cada organização",
     interactAgain: "a probabilidade de voltar a interagir com essas organizações",
     typesTitle: "Tipos de conexões feitas",
+    photoKicker: "Manaus · 2026",
+    photoCaption: "Mais de 350 organizações conectadas",
     types: [
       { label: "Troca de informações gerais", value: 60 },
       { label: "Oportunidades de colaboração futura", value: 20 },

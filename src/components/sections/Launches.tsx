@@ -1,10 +1,11 @@
+import Image from "next/image";
 import type { Dict } from "@/lib/dictionaries/pt";
 import Art from "../Art";
 import CountUp from "../CountUp";
 import { Bezel, H2, container, section } from "../ui";
 
 // Three launches as an asymmetric trio: the flagship bioeconomy initiative
-// leads in deep purple, the two calls stack beside it.
+// leads over a forest photo from the field visits, the two calls stack beside it.
 export default function Launches({ t, locale }: { t: Dict["launches"]; locale: string }) {
   const [a, b, c] = t.items;
   const order = [c, a, b];
@@ -28,7 +29,21 @@ export default function Launches({ t, locale }: { t: Dict["launches"]; locale: s
               >
                 <article data-reveal className={`flex h-full flex-col justify-between gap-10 p-7 md:p-10 ${lead ? "min-h-[26rem]" : ""}`}>
                   {lead && (
-                    <Art name="skyline" className="absolute inset-x-6 bottom-28 -z-10 hidden w-[calc(100%-3rem)] !opacity-25 [color:var(--gold)] lg:block" />
+                    <>
+                      <Image
+                        src="/photos/visit-07.jpg"
+                        alt=""
+                        fill
+                        sizes="(min-width:1024px) 58vw, 100vw"
+                        className="-z-10 object-cover object-[50%_58%]"
+                      />
+                      {/* Purple wash: deep behind the title and the figure, lighter in
+                          the middle so the forest and the people read. */}
+                      <span
+                        aria-hidden
+                        className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgb(34_14_52/0.92)_0%,rgb(34_14_52/0.55)_38%,rgb(34_14_52/0.35)_58%,rgb(34_14_52/0.95)_100%)]"
+                      />
+                    </>
                   )}
                   <div className="relative">
                     <span

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Dict } from "@/lib/dictionaries/pt";
 import Art from "../Art";
 import CountUp from "../CountUp";
@@ -116,9 +117,9 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
 
         <Bezel className="mt-16 md:mt-24" inner="bg-block text-block-ink">
           <div className="relative grid gap-10 p-6 md:p-12 xl:grid-cols-12 xl:gap-12 [--art:var(--gold)] [--art-opacity:0.5]">
-            <Art name="arcs" className="absolute -bottom-2 -left-2 -z-10 hidden w-56 -scale-x-100 xl:block" />
-
-            {/* Left: the title and the two headline figures, each in its own glass card. */}
+            {/* Left: the title, the two headline figures in glass cards and a
+                networking photo that stretches to fill whatever height the list
+                on the right leaves, so the column never ends in empty space. */}
             <div className="flex flex-col gap-6 xl:col-span-5">
               <h3 className="font-display text-3xl leading-tight md:text-[2.75rem]">{t.connectionsTitle}</h3>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -135,6 +136,25 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
                   <p className="text-[0.9375rem] leading-snug text-block-muted">{t.interactAgain}</p>
                 </div>
               </div>
+              <figure className="group relative min-h-[15rem] flex-1 overflow-hidden rounded-[1.5rem] ring-1 ring-white/10 sm:min-h-[18rem]">
+                <Image
+                  src="/photos/editions/2026/12.jpg"
+                  alt=""
+                  fill
+                  sizes="(min-width:1280px) 34vw, 100vw"
+                  className="object-cover object-[55%_40%] transition-[scale] duration-[1.2s] ease-[var(--ease-out-expo)] group-hover:scale-105"
+                />
+                <span aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,rgb(34_14_52/0.1)_25%,rgb(34_14_52/0.92))]" />
+                <figcaption className="absolute inset-x-0 bottom-0 p-6" data-nosplit>
+                  <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-[#E2C985]">
+                    <svg aria-hidden viewBox="0 0 24 24" className="size-3.5 shrink-0 fill-current">
+                      <path d="M12 0c.9 6.4 5 10.6 12 12-7 1.4-11.1 5.6-12 12-.9-6.4-5-10.6-12-12C7 10.6 11.1 6.4 12 0Z" />
+                    </svg>
+                    {t.photoKicker}
+                  </span>
+                  <span className="mt-2 block max-w-[24ch] font-display text-2xl leading-tight text-white md:text-[1.75rem]">{t.photoCaption}</span>
+                </figcaption>
+              </figure>
             </div>
 
             {/* Right: connection types ranked. Each meter has 100 fine ticks (1% each)

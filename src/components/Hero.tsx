@@ -189,7 +189,7 @@ export default function Hero({ t, videoSrc, agendaLink }: { t: Dict["hero"]; vid
                 A fixed min-height keeps the layout still while the text changes length. */}
             <TypeLine
               phrases={t.typed}
-              className="hero-typed mt-3 block min-h-[1.15em] text-[clamp(1.35rem,3.6vw,3.25rem)] text-[#D9B865]"
+              className="hero-typed mt-[clamp(0.625rem,1.5vw,1.6rem)] block min-h-[1.15em] text-[clamp(1.35rem,3.6vw,3.25rem)] text-[#D9B865]"
             />
           </h1>
           {/* The countdown ring parks in the slot beside the CTA (same height)
@@ -231,12 +231,13 @@ export default function Hero({ t, videoSrc, agendaLink }: { t: Dict["hero"]; vid
               }`}
             >
               {/* Phones: just the four units, laid out like the facts they replace
-                  (four centred columns with dividers); title and dates from sm. */}
+                  (four centred columns with dividers); a short title and the dates
+                  from sm, so the units keep room to breathe. */}
               <div className="hidden sm:block sm:shrink-0">
-                <p className="text-[0.8125rem] text-white/75">{t.countdown}</p>
+                <p className="text-[0.8125rem] text-white/75">{t.title} 2027</p>
                 <p className="mt-0.5 text-[0.8125rem] font-medium text-[#D9B865]">{t.dates}</p>
               </div>
-              <div className="w-full [&_dd]:text-xl [&_dt]:mt-1 max-sm:[&_dl]:gap-0 max-sm:[&_dl>div]:items-center max-sm:[&_dl>div+div]:border-l max-sm:[&_dl>div+div]:border-white/15 max-sm:[&_dt]:text-[0.625rem] sm:w-auto sm:max-w-[16rem] sm:flex-1 sm:[&_dd]:text-[1.65rem] sm:[&_dt]:text-xs">
+              <div className="w-full [&_dd]:text-xl [&_dt]:mt-1 max-sm:[&_dl]:gap-0 max-sm:[&_dl>div]:items-center max-sm:[&_dl>div+div]:border-l max-sm:[&_dl>div+div]:border-white/15 max-sm:[&_dt]:text-[0.625rem] sm:w-auto sm:flex-1 sm:[&_dl]:flex sm:[&_dl]:justify-between sm:[&_dl]:gap-5 sm:[&_dd]:text-[1.65rem] sm:[&_dt]:text-xs">
                 <Countdown start={EVENT_START} end={EVENT_END} labels={t} compact />
               </div>
               <a

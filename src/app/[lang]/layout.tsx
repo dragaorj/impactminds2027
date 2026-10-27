@@ -22,6 +22,10 @@ const googleSans = Google_Sans({
 // Runs before first paint so theme and accessibility choices never flash.
 const prefsScript = `(function(){try{var d=document.documentElement;d.classList.add('js');try{if(sessionStorage.getItem('im-switch')!==null)d.dataset.switch='1'}catch(e){}var m=window.matchMedia;var t=localStorage.getItem('im-theme');if(t!=='light')t='dark';d.dataset.theme=t;var a={};try{a=JSON.parse(localStorage.getItem('im-a11y')||'{}')}catch(e){}if(a.text)d.dataset.text=String(a.text);if(a.contrast)d.dataset.contrast='high';if(a.links)d.dataset.links='on';if(a.motion||m('(prefers-reduced-motion: reduce)').matches)d.dataset.motion='reduce';}catch(e){}})();`;
 
+// A reload always starts at the hero: the browser's own scroll restoration is
+// off (and a #hash is dropped on reload), so only a language switch, which
+// hands its position over explicitly, keeps the scroll.
+const topScript = `(function(){try{if('scrollRestoration' in history)history.scrollRestoration='manual';if(document.documentElement.dataset.switch)return;var n=performance.getEntriesByType('navigation')[0];if(n&&n.type==='reload'){if(location.hash)history.replaceState(history.state,'',location.pathname+location.search);window.scrollTo(0,0);addEventListener('load',function(){window.scrollTo({top:0,behavior:'instant'})},{once:true})}}catch(e){}})();`;
 const restoreScript = `(function(){try{var y=sessionStorage.getItem('im-switch');if(y!==null)window.scrollTo({top:+y,behavior:'instant'})}catch(e){}})();`;
 
 export function generateStaticParams() {
@@ -59,6 +63,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
     >
       <head>
         <InlineScript html={prefsScript} />
+        <InlineScript html={topScript} />
       </head>
       <body className="min-h-[100dvh] overflow-x-clip">
         <PrefsSync lang={lang} />

@@ -129,6 +129,8 @@ const es: Dict = {
     avgConnections: "es la cantidad promedio de conexiones hechas por cada organización",
     interactAgain: "la probabilidad de volver a interactuar con esas organizaciones",
     typesTitle: "Tipos de conexiones hechas",
+    photoKicker: "Manaos · 2026",
+    photoCaption: "Más de 350 organizaciones conectadas",
     types: [
       { label: "Intercambio de información general", value: 60 },
       { label: "Oportunidad de colaboración futura", value: 20 },
