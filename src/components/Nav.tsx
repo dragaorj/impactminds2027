@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { ArrowRight, Minus, Moon, PersonArmsSpread, Plus, Sun } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { locales, type Locale } from "@/lib/i18n";
@@ -16,7 +15,15 @@ const iconBtn =
 const iconBtnOnVideo =
   "grid size-10 place-items-center rounded-full text-white transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-[0.96]";
 
+// Language switch. It is a real page load on purpose: client-side switching
+// kept hidden copies of every visited language in the DOM (same ids, stale
+// animations), which made things vanish. To keep it instant, the other
+// languages are prefetched, the pill moves on click, and the scroll position
+// is handed over (sessionStorage "im-switch"): the new page restores it and
+// skips the intro and all entrance animations (html[data-switch]).
 function LangSwitch({ lang, label, onVideo = false }: { lang: Locale; label: string; onVideo?: boolean }) {
+  const [picked, setPicked] = useState<Locale | null>(null);
+  const current = picked ?? lang;
   return (
     <div
       role="group"
@@ -24,18 +31,25 @@ function LangSwitch({ lang, label, onVideo = false }: { lang: Locale; label: str
       className={`flex w-max rounded-full p-1 transition-colors duration-500 ${onVideo ? "bg-white/12" : "bg-ink/6"}`}
     >
       {locales.map((l) => (
-        <Link
+        <a
           key={l}
           href={`/${l}`}
           hrefLang={l}
           lang={l}
-          scroll={false}
-          aria-current={l === lang ? "true" : undefined}
-          onClick={() => {
+          aria-current={l === current ? "true" : undefined}
+          onClick={(e) => {
+            if (l === lang) {
+              e.preventDefault();
+              return;
+            }
+            setPicked(l);
+            try {
+              sessionStorage.setItem("im-switch", String(Math.round(window.scrollY)));
+            } catch {}
             document.cookie = `im-lang=${l};path=/;max-age=31536000;samesite=lax`;
           }}
           className={`rounded-full px-2.5 py-1 text-xs font-medium uppercase tracking-wide transition-colors duration-300 ${
-            l === lang
+            l === current
               ? onVideo
                 ? "bg-white text-block"
                 : "bg-brand text-brand-ink"
@@ -45,8 +59,13 @@ function LangSwitch({ lang, label, onVideo = false }: { lang: Locale; label: str
           }`}
         >
           {l}
-        </Link>
+        </a>
       ))}
+      {locales
+        .filter((l) => l !== lang)
+        .map((l) => (
+          <link key={`pf-${l}`} rel="prefetch" href={`/${l}`} as="document" />
+        ))}
     </div>
   );
 }
@@ -172,16 +191,15 @@ export default function Nav({ lang, nav, controls }: Props) {
                 <li key={item.label}>
                   <a
                     href={item.href}
-                    className={`group relative block whitespace-nowrap px-3.5 py-2 text-sm transition-colors duration-300 ${
+                    className={`nav-link group relative block whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors duration-300 ${
                       onVideo ? "text-white/85 hover:text-sun" : "text-ink-2 hover:text-gold focus-visible:text-gold"
                     }`}
                   >
                     {item.label}
-                    {/* Gold rule grows from the left on hover / keyboard focus. */}
-                    <span
-                      aria-hidden
-                      className="absolute inset-x-3.5 bottom-1 h-[2px] origin-left scale-x-0 rounded-full bg-sun transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover:scale-x-100 group-focus-visible:scale-x-100"
-                    />
+                    {/* A gold pill border draws itself around the label on hover / focus. */}
+                    <svg aria-hidden className="pointer-events-none absolute inset-0 size-full overflow-visible">
+                      <rect x="0.75" y="0.75" rx="17" pathLength={100} className="nav-link-border" />
+                    </svg>
                   </a>
                 </li>
               ))}
@@ -198,7 +216,7 @@ export default function Nav({ lang, nav, controls }: Props) {
               onClick={() => setTheme(isDark ? "light" : "dark")}
               aria-label={isDark ? controls.themeToLight : controls.themeToDark}
             >
-              {isDark ? <Sun size="1.25rem" weight="light" /> : <Moon size="1.25rem" weight="light" />}
+              {isDark ? <Sun size="1.25rem" weight="light" className="icon-sun" /> : <Moon size="1.25rem" weight="light" className="icon-moon" />}
             </button>
 
             <div className="relative">
@@ -211,7 +229,7 @@ export default function Nav({ lang, nav, controls }: Props) {
                 aria-controls="a11y-panel"
                 onClick={() => setPanelOpen((v) => !v)}
               >
-                <PersonArmsSpread size="1.3125rem" weight="light" />
+                <PersonArmsSpread size="1.3125rem" weight="light" className="icon-person" />
               </button>
               {panelOpen && (
                 <div

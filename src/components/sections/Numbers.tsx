@@ -12,6 +12,8 @@ import {
 import type { Dict } from "@/lib/dictionaries/pt";
 import { photos } from "@/lib/site";
 import Art from "../Art";
+import NumbersShow from "../NumbersShow";
+import WatchShow from "../WatchShow";
 import { Bezel, container, section } from "../ui";
 
 function Stat({ value, prefix = "", locale, className = "" }: { value: number; prefix?: string; locale: string; className?: string }) {
@@ -76,15 +78,18 @@ export default function Numbers({ t, locale }: { t: Dict["numbers"]; locale: str
     <section id="numeros" className={section} aria-labelledby="numeros-title">
       <Art name="mosaic" className="pointer-events-none absolute bottom-6 left-[calc(4vw_-_13rem)] hidden w-52 lg:block" />
       <div className={container}>
-        <div className="max-w-3xl" data-reveal>
+        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between" data-reveal>
+          <div className="max-w-3xl">
           <h2 id="numeros-title" className="font-display text-[clamp(2.25rem,5.2vw,4.25rem)] leading-[1.02] text-ink" data-nosplit>
             <span className="block">{titleHead}</span>
             {titleTail && <span className="block text-gold">{titleTail}</span>}
           </h2>
           <p className="mt-6 max-w-[60ch] text-lg leading-relaxed text-ink-2">{t.lead}</p>
+          </div>
+          <WatchShow label={t.watch} />
         </div>
 
-        <div className="mt-14 grid grid-flow-dense grid-cols-2 gap-3 md:mt-20 lg:auto-rows-[minmax(13rem,auto)] lg:grid-cols-12 lg:gap-4">
+        <div className="relative mt-14 grid grid-flow-dense grid-cols-2 gap-3 md:mt-20 lg:auto-rows-[minmax(13rem,auto)] lg:grid-cols-12 lg:gap-4">
           {/* Headline: participants over the community photo. */}
           <Bezel className={`col-span-2 lg:col-span-6 lg:row-span-2 ${card}`} inner="bg-block text-white">
             <div data-reveal className="group relative flex h-full min-h-[22rem] flex-col justify-between p-7 md:p-10">
@@ -198,6 +203,9 @@ export default function Numbers({ t, locale }: { t: Dict["numbers"]; locale: str
               <MiniNetwork />
             </div>
           </Bezel>
+
+          {/* Motion presentation played over the bento from the hero CTA. */}
+          <NumbersShow t={t} />
         </div>
       </div>
     </section>

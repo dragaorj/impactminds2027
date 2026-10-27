@@ -198,6 +198,146 @@ html[data-links="on"] footer a {
 html[data-motion="reduce"] .net-spin,
 html[data-motion="reduce"] .net-spoke { animation: none; }
 
+/* Survey tick meters (same language as the countdown ring): every 5th tick is
+   a little taller; when the group is lit the filled ticks turn gold and stand
+   up one after another, and the last one keeps a soft pulse. */
+.tick {
+  background: rgb(255 255 255 / 0.14);
+  transform: scaleY(0.5);
+  transform-origin: 50% 100%;
+  transition: background-color 0.5s ease, transform 0.6s var(--ease-spring);
+}
+.tick-major { transform: scaleY(0.75); }
+[data-lit] .tick-on { background: var(--sun); transform: scaleY(1); }
+[data-lit] .tick-lead { animation: tickPulse 1.8s ease-in-out 2s infinite; }
+@keyframes tickPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+html[data-motion="reduce"] .tick { transition: none; }
+html[data-motion="reduce"] .tick-lead { animation: none; }
+.survey-pct:has([data-done]) { color: var(--sun); }
+
+/* Numbers presentation: pointer reactions. Layers drift at different depths
+   (CSS translate, separate from GSAP's transforms), a gold light follows the
+   cursor, figures glow on hover, rings turn and photo cards tilt toward the
+   pointer with a spotlight. */
+.par-far, .par-mid, .par-near { transition: translate 0.8s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.par-far { translate: calc(var(--px, 0) * -22px) calc(var(--py, 0) * -14px); }
+.par-mid { translate: calc(var(--px, 0) * 14px) calc(var(--py, 0) * 8px); }
+.par-near { translate: calc(var(--px, 0) * 8px) calc(var(--py, 0) * 6px); }
+.show-glow {
+  background: radial-gradient(28rem circle at var(--gx, 50%) var(--gy, 50%), rgb(217 184 101 / 0.12), transparent 60%);
+}
+.show-hot { transition: scale 0.6s var(--ease-spring), filter 0.6s ease; }
+.show-hot:hover { scale: 1.06; filter: drop-shadow(0 0 28px rgb(217 184 101 / 0.45)); }
+.show-ringwrap svg { transition: rotate 1.2s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.show-ringwrap:hover svg { rotate: 30deg; }
+.show-card-in {
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.5s ease;
+}
+.show-card:hover .show-card-in { box-shadow: 0 30px 80px rgb(0 0 0 / 0.35), inset 0 0 0 1px rgb(217 184 101 / 0.45); }
+.show-card-img { transition: scale 1.2s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.show-card:hover .show-card-img { scale: 1.06; }
+.show-spot {
+  opacity: 0;
+  background: radial-gradient(18rem circle at var(--mx, 50%) var(--my, 50%), rgb(217 184 101 / 0.22), transparent 60%);
+  transition: opacity 0.5s ease;
+}
+.show-card:hover .show-spot { opacity: 1; }
+/* Presentation palette: an opaque cream overlay in light mode, the deep
+   purple one in dark. */
+.show-root { background: var(--bg); color: var(--ink); }
+.show-fig { color: var(--gold); }
+.show-muted { color: var(--ink-2); }
+.show-text { color: var(--ink); }
+.show-chip { background: rgb(42 18 64 / 0.06); box-shadow: inset 0 0 0 1px rgb(42 18 64 / 0.14); }
+.show-track { stroke: rgb(42 18 64 / 0.16); }
+.show-tick-track { background: rgb(42 18 64 / 0.18); }
+.show-card-line { box-shadow: inset 0 0 0 1px rgb(42 18 64 / 0.12); }
+.show-card .show-chip { background: rgb(251 250 248 / 0.85); }
+[data-theme="dark"] .show-card .show-chip { background: rgb(255 255 255 / 0.1); }
+[data-theme="dark"] .show-root { background: rgb(28 11 44); color: var(--block-ink); }
+[data-theme="dark"] .show-fig { color: var(--sun); }
+[data-theme="dark"] .show-muted { color: var(--block-muted); }
+[data-theme="dark"] .show-text { color: rgb(255 255 255 / 0.85); }
+[data-theme="dark"] .show-chip { background: rgb(255 255 255 / 0.1); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2); }
+[data-theme="dark"] .show-track { stroke: rgb(255 255 255 / 0.15); }
+[data-theme="dark"] .show-tick-track { background: rgb(255 255 255 / 0.2); }
+[data-theme="dark"] .show-card-line { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12); }
+/* Photo washes. In light mode a translucent cream over a dark photo turns
+   grey, so the backdrops fade warm (sepia, low opacity) into the page colour
+   and the cards keep the photo clean on top with a solid panel under the text. */
+.show-bgphoto { opacity: calc(var(--o, 0.4) * 0.6); filter: sepia(0.35) saturate(0.8); }
+.show-wash-1 { background: radial-gradient(ellipse at 50% 45%, rgb(243 241 238 / 0.45), var(--bg) 72%); }
+.show-wash-2 { background: linear-gradient(180deg, rgb(243 241 238 / 0.6), var(--bg) 85%); }
+.show-card-wash {
+  background: linear-gradient(180deg, transparent 32%, rgb(251 250 248 / 0.9) 52%, var(--surface) 64%);
+}
+[data-theme="dark"] .show-bgphoto { opacity: var(--o, 0.4); filter: none; }
+[data-theme="dark"] .show-wash-1 { background: radial-gradient(ellipse at 50% 45%, rgb(34 14 52 / 0.35), rgb(34 14 52 / 0.92) 75%); }
+[data-theme="dark"] .show-wash-2 { background: linear-gradient(180deg, rgb(34 14 52 / 0.55), rgb(34 14 52 / 0.9)); }
+[data-theme="dark"] .show-card-wash {
+  background: linear-gradient(180deg, rgb(34 14 52 / 0.25) 10%, rgb(34 14 52 / 0.55) 45%, rgb(34 14 52 / 0.95));
+}
+.show-chip:hover:is(button) { background: var(--sun); color: var(--sun-ink); }
+html[data-motion="reduce"] .par-far, html[data-motion="reduce"] .par-mid, html[data-motion="reduce"] .par-near { translate: none; }
+html[data-motion="reduce"] .show-card-in { transform: none; }
+
+/* Arriving from a language switch: no intro, everything already in place. */
+html[data-switch] .preloader { display: none !important; }
+html[data-switch] [data-reveal],
+html[data-switch] [data-hero],
+html[data-switch] [data-stagger-item],
+html[data-switch] [data-stagger-dot] { opacity: 1 !important; }
+
+/* Nav icons come alive now and then: the sun turns an eighth (its rays are
+   symmetric, so the loop is seamless), the moon rocks, the accessibility
+   figure dances. Mostly still; different periods so they never sync. */
+.icon-sun { animation: iconSun 7s cubic-bezier(0.5, 0, 0.2, 1) infinite; }
+.icon-moon { transform-origin: 50% 50%; animation: iconMoon 8s ease-in-out infinite; }
+.icon-person { transform-origin: 50% 90%; animation: iconPerson 6s ease-in-out 1.5s infinite; }
+@keyframes iconSun { 0%, 70% { rotate: 0deg; } 85%, 100% { rotate: 45deg; } }
+@keyframes iconMoon {
+  0%, 72%, 100% { rotate: 0deg; }
+  78% { rotate: -16deg; }
+  84% { rotate: 10deg; }
+  90% { rotate: -5deg; }
+}
+@keyframes iconPerson {
+  0%, 60%, 100% { rotate: 0deg; translate: 0 0; }
+  66% { rotate: -10deg; translate: 0 -2px; }
+  72% { rotate: 10deg; translate: 0 0; }
+  78% { rotate: -8deg; translate: 0 -2px; }
+  84% { rotate: 6deg; translate: 0 0; }
+  90% { rotate: 0deg; }
+}
+html[data-motion="reduce"] .icon-sun,
+html[data-motion="reduce"] .icon-moon,
+html[data-motion="reduce"] .icon-person { animation: none; }
+
+/* Desktop nav links: on hover a gold pill border draws itself around the
+   label (from the top-left, all the way round) over a faint gold tint. */
+.nav-link { transition: color 0.3s ease, background-color 0.4s ease; }
+.nav-link:hover, .nav-link:focus-visible { background-color: rgb(217 184 101 / 0.1); }
+.nav-link-border {
+  width: calc(100% - 1.5px);
+  height: calc(100% - 1.5px);
+  fill: none;
+  stroke: var(--sun);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.nav-link:hover .nav-link-border,
+.nav-link:focus-visible .nav-link-border { stroke-dashoffset: 0; }
+html[data-motion="reduce"] .nav-link-border { transition: none; }
+
+/* Hero typewriter caret. */
+.type-caret { animation: caretBlink 1s steps(1) infinite; }
+@keyframes caretBlink { 50% { opacity: 0; } }
+html[data-motion="reduce"] .type-caret { animation: none; }
+
 /* The carbon figure turns gold once its count lands. */
 .carbon-value:has([data-done]) { color: var(--sun); }
 

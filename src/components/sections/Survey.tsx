@@ -3,6 +3,8 @@ import Art from "../Art";
 import CountUp from "../CountUp";
 import { Bezel, H2, container, section } from "../ui";
 
+const TICKS = 100;
+
 // Unit chart: one dot per scale point, the last one partially filled.
 // Text stays in ink tokens; only the dots carry the brand color.
 // The average number of connections drawn literally: one organization at the
@@ -113,49 +115,66 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
         <p className="border-t border-line pt-5 text-sm text-muted">* {t.note}</p>
 
         <Bezel className="mt-16 md:mt-24" inner="bg-block text-block-ink">
-          <div className="relative grid gap-12 p-7 md:p-12 xl:grid-cols-12 xl:gap-14 [--art:var(--gold)] [--art-opacity:0.5]">
+          <div className="relative grid gap-10 p-6 md:p-12 xl:grid-cols-12 xl:gap-12 [--art:var(--gold)] [--art-opacity:0.5]">
             <Art name="arcs" className="absolute -bottom-2 -left-2 -z-10 hidden w-56 -scale-x-100 xl:block" />
 
-            <div className="xl:col-span-5">
+            {/* Left: the title and the two headline figures, each in its own glass card. */}
+            <div className="flex flex-col gap-6 xl:col-span-5">
               <h3 className="font-display text-3xl leading-tight md:text-[2.75rem]">{t.connectionsTitle}</h3>
-
-              <div className="mt-10 grid gap-10 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
-                <div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col items-start gap-5 rounded-[1.5rem] bg-white/[0.05] p-6 ring-1 ring-white/10">
                   <Network count={11} label={<span data-count={11} data-locale={locale}>11</span>} />
-                  <p className="mt-4 max-w-[24ch] text-[0.9375rem] leading-snug text-block-muted">{t.avgConnections}</p>
+                  <p className="text-[0.9375rem] leading-snug text-block-muted">{t.avgConnections}</p>
                 </div>
-                <div className="flex flex-col justify-end">
-                  <p className="font-display text-7xl leading-none text-sun">
-                    {fmt(4.2)}
+                <div className="flex flex-col justify-between gap-5 rounded-[1.5rem] bg-white/[0.05] p-6 ring-1 ring-white/10">
+                  <p className="font-display text-7xl leading-none text-sun" data-nosplit>
+                    <CountUp value={fmt(4.2)} locale={locale} />
                     <span className="ml-1 font-sans text-lg text-block-muted">/5</span>
                   </p>
-                  <div className="mt-4">
-                    <Dots value={4.2} max={5} size="size-5" tone="gold" />
-                  </div>
-                  <p className="mt-4 max-w-[26ch] text-[0.9375rem] leading-snug text-block-muted">{t.interactAgain}</p>
+                  <Dots value={4.2} max={5} size="size-5" tone="gold" />
+                  <p className="text-[0.9375rem] leading-snug text-block-muted">{t.interactAgain}</p>
                 </div>
               </div>
             </div>
 
-            {/* Ranked share of connection types: one gold bar per type, labeled, no track. */}
-            <div className="relative xl:col-span-7 xl:border-l xl:border-white/12 xl:pl-14">
-              <p className="text-sm font-medium tracking-wide text-block-muted">{t.typesTitle}</p>
-              <ul className="mt-8 space-y-6" data-hbars>
-                {t.types.map((type, i) => (
-                  <li key={type.label}>
-                    <div className="flex items-baseline justify-between gap-4">
-                      <span className="text-base leading-snug md:text-lg">{type.label}</span>
-                      <span className={`font-display tabular-nums ${i === 0 ? "text-4xl text-sun" : "text-2xl"}`}>{type.value}%</span>
-                    </div>
-                    <div
-                      data-hbar
-                      className={`mt-2.5 h-2 rounded-full ${i === 0 ? "bg-sun" : "bg-lavender"}`}
-                      style={{ width: `${(type.value / t.types[0].value) * 100}%` }}
-                      aria-hidden
-                    />
-                  </li>
-                ))}
-              </ul>
+            {/* Right: connection types ranked. Each meter has 100 fine ticks (1% each)
+                that light up gold one after another while the figure counts up and
+                turns gold; the leading type sits in a gold-tinted card. */}
+            <div className="xl:col-span-7">
+              <p className="flex items-center gap-3 text-xs font-medium uppercase tracking-[0.16em] text-[#E2C985] md:text-sm" data-nosplit>
+                <svg aria-hidden viewBox="0 0 24 24" className="size-4 shrink-0 fill-current">
+                  <path d="M12 0c.9 6.4 5 10.6 12 12-7 1.4-11.1 5.6-12 12-.9-6.4-5-10.6-12-12C7 10.6 11.1 6.4 12 0Z" />
+                </svg>
+                {t.typesTitle}
+              </p>
+              <ol className="mt-6 flex flex-col gap-2" data-ticks>
+                {t.types.map((type, i) => {
+                  const lead = i === 0;
+                  return (
+                    <li
+                      key={type.label}
+                      className={`rounded-[1.5rem] p-5 ring-1 md:px-6 ${lead ? "bg-sun/10 ring-sun/30 md:py-6" : "bg-white/[0.03] ring-white/[0.07]"}`}
+                    >
+                      <div className="flex items-baseline gap-4" data-nosplit>
+                        <span className="w-7 shrink-0 font-display text-sm tabular-nums text-[#E2C985]">{String(i + 1).padStart(2, "0")}</span>
+                        <span className={`min-w-0 flex-1 leading-snug ${lead ? "font-display text-xl md:text-2xl" : "text-base md:text-lg"}`}>{type.label}</span>
+                        <span className={`survey-pct shrink-0 font-display tabular-nums transition-colors duration-700 ${lead ? "text-5xl md:text-6xl" : "text-2xl md:text-3xl"}`}>
+                          <CountUp value={`${type.value}%`} locale={locale} duration={1.4} />
+                        </span>
+                      </div>
+                      <div className="mt-4 flex h-5 items-end justify-between pl-11" aria-hidden>
+                        {Array.from({ length: TICKS }, (_, k) => (
+                          <span
+                            key={k}
+                            className={`tick h-full w-px shrink-0 rounded-full sm:w-[2px] ${k % 10 === 0 ? "tick-major" : ""} ${k < type.value ? "tick-on" : ""} ${k === type.value - 1 ? "tick-lead" : ""}`}
+                            style={{ transitionDelay: `${k * 22 + i * 120}ms` }}
+                          />
+                        ))}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
             </div>
           </div>
         </Bezel>

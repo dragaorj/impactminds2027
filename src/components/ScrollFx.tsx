@@ -13,7 +13,7 @@ gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 // data attributes so the sections themselves stay Server Components:
 //   h2, h3, p, ...      text rises line by line behind a mask (SplitText)
 //   [data-reveal]       fade-up when entering the viewport (batched)
-//   [data-hbar]         horizontal bars grow from the left
+//   [data-ticks]        tick meters light up gold, tick by tick
 //   .art                Cartagena line art fades in, complete, on first view
 //   [data-count]        number counts up once (data-decimals, data-locale)
 //   [data-img-scale]    image grows from 0.86 to 1 on approach
@@ -60,6 +60,20 @@ export default function ScrollFx() {
   useGSAP(
     () => {
       if (reduce === null) return;
+      // Right after a language switch the page shows its final state at once
+      // (no entrances, line splits or counts to replay) at the scroll position
+      // the visitor left.
+      const root = document.documentElement;
+      const switched = root.dataset.switch === "1";
+      if (switched) {
+        let y = 0;
+        try {
+          y = Number(sessionStorage.getItem("im-switch")) || 0;
+          sessionStorage.removeItem("im-switch");
+        } catch {}
+        window.scrollTo({ top: y, behavior: "instant" });
+        delete root.dataset.switch;
+      }
 
       const counters = gsap.utils.toArray<HTMLElement>("[data-count]");
       const format = (el: HTMLElement, n: number) => {
@@ -71,15 +85,18 @@ export default function ScrollFx() {
         el.textContent = el.dataset.pad ? text.padStart(Number(el.dataset.pad), "0") : text;
       };
 
-      if (reduce) {
+      if (reduce || switched) {
         gsap.set("[data-reveal], [data-hero], [data-stagger-item], [data-stagger-dot]", { opacity: 1, y: 0, clearProps: "transform" });
         gsap.set("main .art, footer .art", { visibility: "visible" });
         gsap.set("[data-bar]", { scaleY: 1 });
-        gsap.set("[data-hbar]", { scaleX: 1 });
+        document.querySelectorAll("[data-ticks]").forEach((g) => g.setAttribute("data-lit", ""));
         gsap.set("[data-words] span", { opacity: 1 });
         gsap.set("[data-img-scale]", { scale: 1 });
         gsap.set("[data-dot]", { "--fill": 1 });
-        counters.forEach((el) => format(el, Number(el.dataset.count)));
+        counters.forEach((el) => {
+          format(el, Number(el.dataset.count));
+          el.dataset.done = "";
+        });
         return;
       }
 
@@ -168,22 +185,15 @@ export default function ScrollFx() {
         });
       });
 
-      gsap.utils.toArray<HTMLElement>("[data-hbars]").forEach((group) => {
-        gsap.fromTo(
-          group.querySelectorAll("[data-hbar]"),
-          { scaleX: 0, transformOrigin: "0% 50%" },
-          {
-            scaleX: 1,
-            duration: 1.4,
-            stagger: 0.1,
-            ease: "expo.out",
-            scrollTrigger: { trigger: group, start: "top 85%", toggleActions: "play none none none" },
-          },
-        );
+      // [data-ticks]: tick meters light up (CSS transitions, staggered per tick)
+      // once the group scrolls into view.
+      gsap.utils.toArray<HTMLElement>("[data-ticks]").forEach((group) => {
+        const light = () => group.setAttribute("data-lit", "");
+        ScrollTrigger.create({ trigger: group, start: "top 85%", onEnter: light, onEnterBack: light });
       });
 
       // Line art arrives complete: a one-off fade and settle when it enters view.
-      gsap.utils.toArray<SVGSVGElement>("main .art:not([data-still]), footer .art:not([data-still])").forEach((svg) => {
+      gsap.utils.toArray<SVGSVGElement>("main .art:not([data-still]):not(.show-art), footer .art:not([data-still])").forEach((svg) => {
         const target = Number(getComputedStyle(svg).opacity) || 0.2;
         gsap.fromTo(
           svg,

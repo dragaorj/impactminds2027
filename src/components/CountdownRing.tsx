@@ -10,6 +10,7 @@ import { prefersReducedMotion } from "./prefs";
 type Labels = Dict["hero"] & { agendaLink: string };
 
 const TICKS = 60;
+const SWAP_MS = 280;
 
 type State =
   | { phase: "before"; days: number; hours: number; minutes: number; seconds: number; progress: number }
@@ -18,14 +19,21 @@ type State =
 
 // Floating countdown: a ring of ticks fills from COUNTDOWN_FROM to the first
 // day, with the days left in the middle; clicking it opens the full countdown.
-// It shares the back-to-top button's vertical axis: in that slot at the top of
-// the page, then raised above the button once it appears (phones keep it
-// hidden over the hero, where the full-width CTA owns the bottom edge).
+// At the top of the page it parks in the hero, in the slot beside the CTA
+// ([data-countdown-slot]); as soon as the page scrolls it fades out and fades
+// back in at its corner on the back-to-top button's vertical axis, above that button.
 export default function CountdownRing({ labels }: { labels: Labels }) {
   const sentinel = useRef<HTMLDivElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const btn = useRef<HTMLButtonElement>(null);
   const [raised, setRaised] = useState(false);
+  // Fixed-position box (px). null until measured, so the ring never flashes
+  // in the wrong place.
+  const [box, setBox] = useState<{ top: number; left: number; size: number } | null>(null);
+  // Moving between the hero and the corner is a fade, not a trip across the
+  // page: fade out, jump while invisible, fade back in at the new spot.
+  const [swapping, setSwapping] = useState(false);
+  const firstPlace = useRef(true);
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<State | null>(null);
 
@@ -54,6 +62,55 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
     io.observe(el);
     return () => io.disconnect();
   }, []);
+
+  // Where the ring sits: the visible hero slot while at the top, otherwise the
+  // corner slot above back-to-top (centred on its axis, 12px above it).
+  useEffect(() => {
+    let frame = 0;
+    const measure = () => {
+      const slot = [...document.querySelectorAll<HTMLElement>("[data-countdown-slot]")].find(
+        (el) => el.getBoundingClientRect().width > 0,
+      );
+      if (!raised && slot) {
+        const r = slot.getBoundingClientRect();
+        setBox({ top: r.top, left: r.left, size: r.height });
+        return;
+      }
+      const sm = window.innerWidth >= 640;
+      const size = sm ? 80 : 64;
+      const axisRight = sm ? 60 : 44; // centre of the back-to-top button from the right edge
+      const above = sm ? 100 : 80; // its top edge plus a 12px gap, from the bottom
+      const w = document.documentElement.clientWidth;
+      setBox({ top: window.innerHeight - above - size, left: w - axisRight - size / 2, size });
+    };
+    const schedule = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(measure);
+    };
+    let swap = 0;
+    if (firstPlace.current) {
+      firstPlace.current = false;
+      schedule();
+    } else {
+      setSwapping(true);
+      setOpen(false);
+      swap = window.setTimeout(() => {
+        measure();
+        frame = requestAnimationFrame(() => setSwapping(false));
+      }, SWAP_MS);
+    }
+    // The hero settles after the intro (its entrance moves the slot), so measure again then.
+    window.addEventListener("im:ready", schedule);
+    window.addEventListener("resize", schedule);
+    const late = window.setTimeout(schedule, 1600);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(swap);
+      window.clearTimeout(late);
+      window.removeEventListener("im:ready", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, [raised]);
 
   useEffect(() => {
     const from = new Date(COUNTDOWN_FROM).getTime();
@@ -117,18 +174,26 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
       <div ref={sentinel} aria-hidden className="pointer-events-none absolute left-0 top-0 h-px w-px" />
       <div
         ref={wrap}
-        className={`fixed right-3 z-[35] transition-[bottom,opacity] duration-700 ease-[var(--ease-out-expo)] sm:right-5 ${
-          raised
-            ? "bottom-20 opacity-100 sm:bottom-[6.25rem]"
-            : "pointer-events-none bottom-5 opacity-0 sm:pointer-events-auto sm:opacity-100"
+        className={`fixed z-[35] transition-opacity ease-out ${
+          box && !swapping ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
+        style={{
+          transitionDuration: `${SWAP_MS}ms`,
+          ...(box ? { top: box.top, left: box.left, width: box.size, height: box.size } : {}),
+        }}
       >
         {open && (
           <div
             id="countdown-panel"
             role="dialog"
             aria-label={labels.countdown}
-            className="absolute bottom-[calc(100%+0.75rem)] right-0 w-[min(22rem,calc(100vw-1.5rem))] origin-bottom-right sm:bottom-0 sm:right-[calc(100%+0.75rem)] animate-[menuDrop_0.5s_var(--ease-out-expo)_both] rounded-[1.75rem] bg-surface/75 p-5 text-ink shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:w-[22rem] sm:p-6"
+            className={`absolute w-[min(22rem,calc(100vw-1.5rem))] animate-[menuDrop_0.5s_var(--ease-out-expo)_both] ${
+              raised
+                ? "bottom-[calc(100%+0.75rem)] right-0 origin-bottom-right sm:bottom-0 sm:right-[calc(100%+0.75rem)]"
+                : // In the hero the popup drops below the ring on desktop; on phones the
+                  // ring sits at the bottom of the screen, so it opens above.
+                  "bottom-[calc(100%+0.75rem)] right-0 origin-bottom-right lg:bottom-auto lg:right-auto lg:left-0 lg:top-[calc(100%+0.75rem)] lg:origin-top-left"
+            } rounded-[1.75rem] bg-surface/75 p-5 text-ink shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:w-[22rem] sm:p-6`}
           >
             <p className="text-xs text-ink-2 sm:text-sm">{labels.countdown}</p>
             <p className="mb-4 mt-1 text-xs font-medium text-gold sm:text-sm">{labels.dates}</p>
@@ -150,7 +215,7 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
           aria-expanded={open}
           aria-controls="countdown-panel"
           onClick={() => setOpen((v) => !v)}
-          className={`group relative grid size-16 place-items-center rounded-full shadow-[var(--shadow)] ring-1 backdrop-blur-xl backdrop-saturate-150 transition-[transform,background-color,color,box-shadow] duration-500 ease-[var(--ease-spring)] hover:scale-105 active:scale-95 sm:size-20 ${
+          className={`group relative grid size-full place-items-center rounded-full shadow-[var(--shadow)] ring-1 backdrop-blur-xl backdrop-saturate-150 transition-[transform,background-color,color,box-shadow] duration-500 ease-[var(--ease-spring)] hover:scale-105 active:scale-95 ${
             raised ? "bg-surface/60 text-ink ring-line" : "bg-[rgb(34_14_52/0.45)] text-white ring-white/20"
           }`}
         >
@@ -177,13 +242,13 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
               <circle cx="100" cy="50" r="2.6" className="fill-sun" />
             </g>
           </svg>
-          <span className="relative flex h-10 flex-col items-center justify-center overflow-hidden leading-none sm:h-12">
+          <span className="relative flex h-[56%] w-[56%] flex-col items-center justify-center overflow-hidden leading-none">
             {state?.phase === "before" || state === null ? (
               <span key={unit} className="ring-unit flex flex-col items-center">
-                <span className="font-display text-lg tabular-nums sm:text-[1.375rem]">
+                <span className={`font-display tabular-nums ${raised ? "text-lg sm:text-[1.375rem]" : "text-[1.3rem]"}`}>
                   {state?.phase === "before" ? String(units[unit].value).padStart(unit === 0 ? 1 : 2, "0") : "--"}
                 </span>
-                <span className={`mt-0.5 text-[0.5rem] uppercase tracking-[0.14em] sm:text-[0.5625rem] ${raised ? "text-ink-2" : "text-white/75"}`}>
+                <span className={`mt-0.5 uppercase tracking-[0.14em] ${raised ? "text-[0.5rem] text-ink-2 sm:text-[0.5625rem]" : "text-[0.5rem] text-white/75"}`}>
                   {units[unit].label}
                 </span>
               </span>

@@ -20,7 +20,9 @@ const googleSans = Google_Sans({
 });
 
 // Runs before first paint so theme and accessibility choices never flash.
-const prefsScript = `(function(){try{var d=document.documentElement;d.classList.add('js');var m=window.matchMedia;var t=localStorage.getItem('im-theme');if(t!=='light'&&t!=='dark')t=m('(prefers-color-scheme: dark)').matches?'dark':'light';d.dataset.theme=t;var a={};try{a=JSON.parse(localStorage.getItem('im-a11y')||'{}')}catch(e){}if(a.text)d.dataset.text=String(a.text);if(a.contrast)d.dataset.contrast='high';if(a.links)d.dataset.links='on';if(a.motion||m('(prefers-reduced-motion: reduce)').matches)d.dataset.motion='reduce';}catch(e){}})();`;
+const prefsScript = `(function(){try{var d=document.documentElement;d.classList.add('js');try{if(sessionStorage.getItem('im-switch')!==null)d.dataset.switch='1'}catch(e){}var m=window.matchMedia;var t=localStorage.getItem('im-theme');if(t!=='light'&&t!=='dark')t=m('(prefers-color-scheme: dark)').matches?'dark':'light';d.dataset.theme=t;var a={};try{a=JSON.parse(localStorage.getItem('im-a11y')||'{}')}catch(e){}if(a.text)d.dataset.text=String(a.text);if(a.contrast)d.dataset.contrast='high';if(a.links)d.dataset.links='on';if(a.motion||m('(prefers-reduced-motion: reduce)').matches)d.dataset.motion='reduce';}catch(e){}})();`;
+
+const restoreScript = `(function(){try{var y=sessionStorage.getItem('im-switch');if(y!==null)window.scrollTo({top:+y,behavior:'instant'})}catch(e){}})();`;
 
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
@@ -63,6 +65,9 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
       <body className="min-h-[100dvh] overflow-x-clip">
         <PrefsSync lang={lang} />
         {children}
+        {/* After a language switch, jump back to where the visitor was as soon
+            as the content exists (before hydration), so the top never flashes. */}
+        <InlineScript html={restoreScript} />
       </body>
     </html>
   );

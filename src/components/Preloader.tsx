@@ -27,7 +27,7 @@ export default function Preloader({ caption }: { caption: string }) {
       // A language switch is a client-side navigation that remounts the page:
       // the intro already played in this document, so skip straight to the content.
       const w = window as Window & { __imIntroDone?: boolean };
-      const softNav = w.__imIntroDone === true;
+      const softNav = w.__imIntroDone === true || document.documentElement.dataset.switch === "1";
       w.__imIntroDone = true;
 
       if (softNav || prefersReducedMotion()) {

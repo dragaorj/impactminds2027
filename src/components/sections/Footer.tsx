@@ -1,6 +1,6 @@
 import { ArrowUpRight, InstagramLogo, LinkedinLogo, YoutubeLogo } from "@phosphor-icons/react/dist/ssr";
 import type { Dict } from "@/lib/dictionaries/pt";
-import { EVENT_START, links } from "@/lib/site";
+import { links } from "@/lib/site";
 import Image from "next/image";
 import { Bezel, Button, container } from "../ui";
 
@@ -107,11 +107,20 @@ export default function Footer({ t, hero, nav }: { t: Dict["footer"]; hero: Dict
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col gap-2 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
+        {/* Credits, centred at the very end of the page. */}
+        <div className="mt-10 flex flex-col items-center gap-2 border-t border-line pt-8 text-center text-sm text-muted">
+          <p>© 2026 Impact&nbsp;Minds: Standing Together. Latimpacto. All rights reserved.</p>
           <p>
-            © {new Date(EVENT_START).getFullYear() - 1} Latimpacto. {t.rights}
+            {t.madeBy}{" "}
+            <a
+              href="https://www.linkedin.com/in/marlonwebdesigner/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-ink transition-colors hover:text-gold"
+            >
+              Marlon Dias
+            </a>
           </p>
-          <p>Impact&nbsp;Minds 2027 · Connecting Us</p>
         </div>
       </div>
     </footer>

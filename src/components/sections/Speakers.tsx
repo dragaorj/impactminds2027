@@ -19,6 +19,16 @@ const initials = (name: string) =>
 
 const placeholderArt = ["door", "window", "balcony", "tower"] as const;
 
+// Fisher-Yates on a copy.
+function shuffle<T>(items: readonly T[]): T[] {
+  const a = [...items];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 // The platform photos are oval cut-outs, so they are scaled up to fill the circle.
 function Portrait({ s, i, sizes }: { s: Speaker; i: number; sizes: string }) {
   return (
@@ -65,18 +75,20 @@ const navBtn =
 // Speaker lightbox: the portrait in full colour beside name, role and
 // organisation; arrows and the keyboard step through the whole line-up.
 function SpeakerBox({
+  list,
   index,
   onIndex,
   lang,
   labels,
 }: {
+  list: Speaker[];
   index: number | null;
   onIndex: (i: number | null) => void;
   lang: Locale;
   labels: BoxLabels;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
-  const total = speakers.length;
+  const total = list.length;
 
   useEffect(() => {
     const d = dialog.current;
@@ -95,7 +107,7 @@ function SpeakerBox({
     return () => window.removeEventListener("keydown", onKey);
   }, [index, total, onIndex]);
 
-  const s = index === null ? null : speakers[index];
+  const s = index === null ? null : list[index];
   const close = () => onIndex(null);
 
   return (
@@ -154,6 +166,13 @@ function SpeakerBox({
 export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Locale }) {
   const [paused, setPaused] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
+  // A fresh random order on every visit. The server renders the default order;
+  // the shuffle happens right after mount, long before the section scrolls in.
+  const [list, setList] = useState(speakers);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setList(shuffle(speakers)));
+    return () => cancelAnimationFrame(id);
+  }, []);
   const item = "w-[64vw] max-w-[17rem] shrink-0 sm:w-[16rem]";
 
   return (
@@ -184,14 +203,14 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
       >
         <div className="speaker-track flex w-max">
           <ul className="flex gap-6 pr-6 md:gap-10 md:pr-10" aria-label={t.title}>
-            {speakers.map((s, i) => (
+            {list.map((s, i) => (
               <li key={s.name} className={item}>
                 <Card s={s} i={i} lang={lang} label={t.open} onOpen={() => setOpen(i)} />
               </li>
             ))}
           </ul>
           <ul className="speaker-copy flex gap-6 pr-6 md:gap-10 md:pr-10" aria-hidden>
-            {speakers.map((s, i) => (
+            {list.map((s, i) => (
               <li key={s.name} className={item} inert>
                 <Card s={s} i={i} lang={lang} label={t.open} />
               </li>
@@ -227,6 +246,7 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
       </div>
 
       <SpeakerBox
+        list={list}
         index={open}
         onIndex={setOpen}
         lang={lang}
