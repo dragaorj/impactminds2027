@@ -202,18 +202,19 @@ html[data-motion="reduce"] .net-spoke { animation: none; }
    a little taller; when the group is lit the filled ticks turn gold and stand
    up one after another, and the last one keeps a soft pulse. */
 .tick {
-  background: rgb(255 255 255 / 0.14);
+  background: rgb(42 18 64 / 0.16);
   transform: scaleY(0.5);
   transform-origin: 50% 100%;
   transition: background-color 0.5s ease, transform 0.6s var(--ease-spring);
 }
+[data-theme="dark"] .tick { background: rgb(255 255 255 / 0.14); }
 .tick-major { transform: scaleY(0.75); }
 [data-lit] .tick-on { background: var(--sun); transform: scaleY(1); }
 [data-lit] .tick-lead { animation: tickPulse 1.8s ease-in-out 2s infinite; }
 @keyframes tickPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 html[data-motion="reduce"] .tick { transition: none; }
 html[data-motion="reduce"] .tick-lead { animation: none; }
-.survey-pct:has([data-done]) { color: var(--sun); }
+.survey-pct:has([data-done]) { color: var(--gold); }
 
 /* Numbers presentation: pointer reactions. Layers drift at different depths
    (CSS translate, separate from GSAP's transforms), a gold light follows the
