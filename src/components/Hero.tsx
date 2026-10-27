@@ -2,21 +2,33 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowDown } from "@phosphor-icons/react";
+import { ArrowDown, ArrowRight } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
-import { HERO_VIDEO_ID } from "@/lib/site";
+import { EVENT_END, EVENT_START, HERO_VIDEO_ID, speakers } from "@/lib/site";
+import Countdown from "./Countdown";
 import { prefersReducedMotion } from "./prefs";
 import { keepLooping, loadYouTube, loopVars, type YTPlayer } from "./youtube";
 import NativeLoop from "./NativeLoop";
 import TypeLine from "./TypeLine";
 
+// Five speaker portraits for the social-proof pill above the title.
+const FACES = speakers.filter((s) => s.photo).slice(0, 5);
+
 // The background loop stays muted and chrome-less. With a self-hosted file
 // (videoSrc) it plays in a native <video>, which has no player chrome at all;
 // otherwise it falls back to the YouTube embed with the poster cover.
-export default function Hero({ t, videoSrc }: { t: Dict["hero"]; videoSrc?: string }) {
+export default function Hero({ t, videoSrc, agendaLink }: { t: Dict["hero"]; videoSrc?: string; agendaLink: string }) {
   const holder = useRef<HTMLDivElement>(null);
   const player = useRef<YTPlayer | null>(null);
   const [started, setStarted] = useState(false);
+  // The countdown ring beside the CTA swaps the info bar to its details.
+  const [countdown, setCountdown] = useState(false);
+
+  useEffect(() => {
+    const on = (e: Event) => setCountdown((e as CustomEvent<boolean>).detail);
+    window.addEventListener("im:countdown-bar", on);
+    return () => window.removeEventListener("im:countdown-bar", on);
+  }, []);
 
   const cta = (size: string) => (
     <a
@@ -111,46 +123,98 @@ export default function Hero({ t, videoSrc }: { t: Dict["hero"]; videoSrc?: stri
         ) : (
           <div ref={holder} className="yt-cover absolute inset-0 overflow-hidden" aria-hidden />
         )}
-        {/* Mobile keeps the upper half nearly clear so the video reads; the wash only builds behind the text. */}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(34_14_52/0.45)_0%,rgb(34_14_52/0)_22%,rgb(34_14_52/0)_45%,rgb(34_14_52/0.94)_100%)] md:bg-[linear-gradient(180deg,rgb(34_14_52/0.5)_0%,rgb(34_14_52/0.1)_35%,rgb(34_14_52/0.35)_60%,rgb(34_14_52/0.92)_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_15%_95%,rgb(91_42_134/0.55),transparent_55%)] md:bg-[radial-gradient(ellipse_at_15%_85%,rgb(91_42_134/0.6),transparent_60%)]" />
+        {/* Dark purple film over the video so the centred text never competes
+            with it: an even tint, a gradient deepening towards the nav and the
+            info bar, and a darker pool right behind the title. */}
+        <div className="absolute inset-0 bg-[rgb(28_11_44/0.42)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(34_14_52/0.7)_0%,rgb(34_14_52/0.25)_28%,rgb(42_18_64/0.3)_55%,rgb(34_14_52/0.95)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_50%_at_50%_52%,rgb(34_14_52/0.6),transparent_75%)]" />
       </div>
 
-      {/* Phones: everything fits the first screen (svh = height with the browser
-          bars showing): eyebrow, title with the typed line, then the CTA at full width.
-          From lg the block sits in the vertical middle with the CTA under the title.
-          The countdown floats bottom right. */}
-      <div className="mx-auto flex min-h-[100svh] w-full max-w-[132rem] flex-col justify-end gap-4 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-24 sm:gap-8 sm:px-8 md:pb-12 lg:grid lg:min-h-[100dvh] lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-[5vw]">
-        <div className="lg:col-span-7">
-          <p data-hero className="mb-3 inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-full bg-white/10 px-3 py-1 text-xs ring-1 ring-white/20 backdrop-blur-md sm:mb-5 sm:px-4 sm:py-1.5 sm:text-sm">
-            <span>{t.eyebrow}</span>
-            <span aria-hidden className="h-3 w-px bg-white/40" />
-            <span className="text-white/80">{t.dates}</span>
+      {/* Centred, in the first screen: the speakers pill, the title with the
+          typed gold line and the CTA with the countdown ring beside it; the
+          event's key facts sit in a frosted bar at the bottom. On phones the
+          block sits low so the video's upper half stays clear. */}
+      <div className="mx-auto flex min-h-[100svh] w-full max-w-[132rem] flex-col px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-24 sm:px-8 md:pb-10 lg:min-h-[100dvh] lg:px-[5vw]">
+        <div className="flex flex-1 flex-col items-center justify-end text-center lg:justify-center lg:pt-[14vh]">
+          <p
+            data-hero
+            className="faces-pill inline-flex items-center gap-3 rounded-full bg-white/10 py-1.5 pl-1.5 pr-4 text-xs ring-1 ring-white/20 backdrop-blur-md sm:text-sm"
+          >
+            {/* Hovering the pill fans the portraits apart and hops them in turn. */}
+            <span aria-hidden className="faces flex">
+              {FACES.map((f) => (
+                <span key={f.name} className="face relative size-7 overflow-hidden rounded-full bg-[#2a1240] ring-2 ring-[#2a1240] sm:size-8">
+                  <Image src={f.photo!} alt="" fill sizes="2rem" className="scale-[1.24] object-cover object-[50%_30%]" />
+                </span>
+              ))}
+            </span>
+            {t.speakersPill}
           </p>
-          <h1 data-hero className="font-display leading-[0.95]">
-            <span className="block text-[clamp(2.5rem,8vw,6.75rem)]">{t.title}</span>
+          <h1 data-hero className="mt-5 font-display leading-[0.92] sm:mt-7">
+            <span className="block text-[clamp(3.25rem,11vw,9.5rem)]">{t.title}</span>
             {/* Closing the 2026 edition while inviting to 2027: the gold line opens on
-                "Connecting Us", then types a thank-you and the invitation, on a loop. A fixed min-height keeps
-                the layout still while the text changes length. */}
+                "Connecting Us", then types a thank-you and the invitation, on a loop.
+                A fixed min-height keeps the layout still while the text changes length. */}
             <TypeLine
               phrases={t.typed}
-              className="mt-2 block min-h-[1.15em] text-[clamp(1.25rem,3.6vw,3.25rem)] text-[#D9B865]"
+              className="mt-3 block min-h-[1.15em] text-[clamp(1.35rem,3.6vw,3.25rem)] text-[#D9B865]"
             />
           </h1>
           {/* The countdown ring parks in the slot beside the CTA (same height)
               while the page is at the top; CountdownRing measures it. */}
-          <div data-hero className="mt-8 hidden items-center gap-6 lg:flex">
-            {cta("h-16 pl-7 pr-2.5 text-base")}
-            <span data-countdown-slot aria-hidden className="size-20 shrink-0" />
+          <div data-hero className="mt-7 flex w-full items-center justify-center gap-4 sm:mt-9 sm:w-auto sm:gap-6">
+            {cta("h-16 min-w-0 flex-1 justify-between whitespace-nowrap pl-5 pr-2.5 text-[0.95rem] sm:flex-none sm:pl-7 sm:text-base")}
+            <span data-countdown-slot aria-hidden className="size-16 shrink-0 lg:size-20" />
           </div>
         </div>
 
-        <div data-hero className="flex items-center gap-4 lg:hidden">
-          {cta("h-16 min-w-0 flex-1 justify-between pl-6 pr-2.5 text-base")}
-          <span data-countdown-slot aria-hidden className="size-16 shrink-0" />
+        {/* Frosted bar with the event's key facts. Clicking the countdown ring
+            cross-fades it to the countdown's details (same box, same size). */}
+        <div
+          data-hero
+          data-countdown-bar
+          className="relative mx-auto mt-6 w-full max-w-4xl rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur-xl backdrop-saturate-150 sm:mt-10"
+        >
+          <dl
+            aria-hidden={countdown}
+            className={`grid grid-cols-4 px-3 py-3.5 text-center transition-[opacity,filter,translate] duration-500 ease-out sm:px-6 sm:py-5 ${
+              countdown ? "pointer-events-none -translate-y-1 opacity-0 blur-[2px]" : "opacity-100"
+            }`}
+          >
+            {t.facts.map((f, i) => (
+              <div key={f.label} className={`flex flex-col-reverse items-center justify-start px-1 sm:px-2 ${i > 0 ? "border-l border-white/15" : ""}`}>
+                <dt className="mt-1 text-[0.625rem] leading-tight text-white/75 sm:text-sm">{f.label}</dt>
+                <dd className="font-display text-[1.05rem] leading-none sm:text-[2.1rem]">{f.value}</dd>
+              </div>
+            ))}
+          </dl>
+          <div
+            id="hero-countdown"
+            aria-hidden={!countdown}
+            className={`absolute inset-0 flex flex-col justify-center gap-1.5 px-7 text-left transition-[opacity,filter,translate] duration-500 ease-out sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-8 ${
+              countdown ? "opacity-100 delay-150" : "pointer-events-none translate-y-1 opacity-0 blur-[2px]"
+            }`}
+          >
+            {/* Phones: the dates over the four units; the full title from sm. */}
+            <div className="sm:shrink-0">
+              <p className="hidden text-sm text-white/75 sm:block">{t.countdown}</p>
+              <p className="text-[0.6875rem] font-medium text-[#D9B865] sm:mt-1 sm:text-sm">{t.dates}</p>
+            </div>
+            <div className="[&_dd]:text-2xl [&_dt]:mt-0.5 sm:max-w-xs sm:flex-1 sm:[&_dd]:text-3xl">
+              <Countdown start={EVENT_START} end={EVENT_END} labels={t} compact />
+            </div>
+            <a
+              href="#agenda-2027"
+              tabIndex={countdown ? 0 : -1}
+              className="group hidden shrink-0 items-center gap-2 rounded-full py-2 pl-4 pr-2 text-sm font-medium ring-1 ring-white/25 transition-colors hover:bg-[#D9B865] hover:text-[#2A1240] md:flex"
+            >
+              {agendaLink}
+              <ArrowRight size="1rem" className="transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-x-0.5" />
+            </a>
+          </div>
         </div>
       </div>
-
     </section>
   );
 }

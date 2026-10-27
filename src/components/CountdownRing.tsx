@@ -26,20 +26,9 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
   const sentinel = useRef<HTMLDivElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const btn = useRef<HTMLButtonElement>(null);
-  const panel = useRef<HTMLDivElement>(null);
-  // Where the open popup fits: `top` (hero, desktop) opens it beside the ring,
-  // that many px from the ring's top, because there is no room below; `lift`
-  // (hero, phones/tablets) raises it that many px further above the ring, clear
-  // of the hero text, and `span` stretches it across the hero's content
-  // column (from the text's left edge to the ring's right edge); maxH is
-  // the room in the direction it opens, so it scrolls instead of being cut.
-  const [fit, setFit] = useState<{
-    top: number | null;
-    lift: number;
-    span: { left: number; width: number } | null;
-    maxH: number;
-  } | null>(null);
-  const sideTop = fit?.top ?? null;
+  // The corner popup's height cap: the room above the ring (phones) or up to
+  // its bottom edge (larger screens), so it scrolls instead of being cut.
+  const [maxH, setMaxH] = useState<number | null>(null);
   const [raised, setRaised] = useState(false);
   // Fixed-position box (px). null until measured, so the ring never flashes
   // in the wrong place.
@@ -51,6 +40,21 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<State | null>(null);
 
+  // In the hero the ring doesn't open a popup: its details replace the
+  // content of the hero's frosted info bar (Hero listens). In the corner the
+  // popup opens as usual, and the bar goes back to the event facts.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("im:countdown-bar", { detail: open && !raised }));
+  }, [open, raised]);
+
+  // While the ring is in the corner, its hero slot collapses (CSS) so the CTA
+  // sits centred on its own.
+  useEffect(() => {
+    const d = document.documentElement;
+    if (raised) d.dataset.ringRaised = "";
+    else delete d.dataset.ringRaised;
+  }, [raised]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -59,7 +63,10 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
       btn.current?.focus();
     };
     const onDown = (e: MouseEvent) => {
-      if (!wrap.current?.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Element;
+      // In the hero the details live in the hero's info bar: clicks there
+      // (the agenda link) must not close them.
+      if (!wrap.current?.contains(target) && !target.closest?.("[data-countdown-bar]")) setOpen(false);
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("mousedown", onDown);
@@ -128,6 +135,8 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
       swap = window.setTimeout(() => {
         measure();
         unswap = requestAnimationFrame(() => setSwapping(false));
+        // Back in the hero, the slot is still reopening: follow it.
+        if (!raised) follow(700);
       }, SWAP_MS);
     }
     // The hero slides in after the intro and the fonts may still swap: follow the slot then too.
@@ -196,55 +205,11 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
   ];
   const progress = state === null ? 0 : state.phase === "before" ? state.progress : 1;
   const filled = Math.round(progress * TICKS);
-  // Before the popup paints, check it fits below the ring; on short screens
-  // (laptops, tablets on their side) it moves beside the ring instead, shifted
-  // up as far as needed to stay fully on screen.
   useLayoutEffect(() => {
-    const el = panel.current;
-    let next: typeof fit = null;
-    if (open && box && el) {
-      const gap = 12;
-      const vh = window.innerHeight;
-      const h = el.scrollHeight;
-      if (raised) {
-        // Phones: above the ring. Larger screens: to its left, bottoms aligned.
-        next = { top: null, lift: 0, span: null, maxH: (window.innerWidth >= 640 ? box.top + box.size : box.top - gap) - gap };
-      } else if (window.innerWidth < 1024) {
-        // Phones and tablets: the ring sits beside the CTA under the title, so
-        // open above the whole hero text (eyebrow included), below the nav; on
-        // a screen too short for that, as high as the nav allows.
-        const above = [...document.querySelectorAll<HTMLElement>("#top [data-hero]")]
-          .map((n) => n.getBoundingClientRect())
-          .filter((r) => r.height > 0 && r.bottom <= box.top + 1);
-        const textTop = above.length ? Math.min(...above.map((r) => r.top)) : box.top;
-        const textLeft = above.length ? Math.min(...above.map((r) => r.left)) : box.left;
-        // Phones only: tablets keep the compact popup.
-        const span =
-          window.innerWidth < 640
-            ? { left: Math.round(textLeft - box.left), width: Math.round(box.left + box.size - textLeft) }
-            : null;
-        const navBottom = document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
-        const panelTop = Math.max(navBottom + gap, textTop - gap - h);
-        const bottom = Math.min(box.top - gap, panelTop + h);
-        next = { top: null, lift: Math.max(0, Math.round(box.top - gap - bottom)), span, maxH: box.top - 2 * gap };
-      } else if (box.top + box.size + gap + h <= vh - gap) {
-        next = { top: null, lift: 0, span: null, maxH: vh - box.top - box.size - 2 * gap };
-      } else {
-        const top = Math.max(gap, Math.min(box.top, vh - gap - h));
-        next = { top: top - box.top, lift: 0, span: null, maxH: vh - 2 * gap };
-      }
-    }
-    setFit((cur) =>
-      cur &&
-      next &&
-      cur.top === next.top &&
-      cur.lift === next.lift &&
-      cur.maxH === next.maxH &&
-      cur.span?.left === next.span?.left &&
-      cur.span?.width === next.span?.width
-        ? cur
-        : next,
-    );
+    if (!open || !raised || !box) return;
+    const gap = 12;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- layout measurement before paint
+    setMaxH((window.innerWidth >= 640 ? box.top + box.size : box.top - gap) - gap);
   }, [open, raised, box]);
 
   const label =
@@ -269,32 +234,13 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
           ...(box ? { top: box.top, left: box.left, width: box.size, height: box.size } : {}),
         }}
       >
-        {open && (
+        {open && raised && (
           <div
-            ref={panel}
             id="countdown-panel"
             role="dialog"
             aria-label={labels.countdown}
-            style={
-              fit
-                ? {
-                    top: sideTop ?? undefined,
-                    bottom: fit.lift ? `calc(100% + 0.75rem + ${fit.lift}px)` : undefined,
-                    ...(fit.span ? { left: fit.span.left, right: "auto", width: fit.span.width } : {}),
-                    maxHeight: fit.maxH,
-                  }
-                : undefined
-            }
-            className={`absolute w-[min(22rem,calc(100vw-1.5rem))] overflow-y-auto animate-[menuDrop_0.5s_var(--ease-out-expo)_both] ${
-              raised
-                ? "bottom-[calc(100%+0.75rem)] right-0 origin-bottom-right sm:bottom-0 sm:right-[calc(100%+0.75rem)]"
-                : sideTop !== null
-                  ? // Short desktop screens: beside the ring, kept inside the viewport.
-                    "left-[calc(100%+0.75rem)] origin-left"
-                  : // In the hero the popup drops below the ring on desktop; on phones the
-                    // ring sits at the bottom of the screen, so it opens above.
-                    "bottom-[calc(100%+0.75rem)] right-0 origin-bottom-right lg:bottom-auto lg:right-auto lg:left-0 lg:top-[calc(100%+0.75rem)] lg:origin-top-left"
-            } rounded-[1.75rem] bg-surface/75 p-5 text-ink shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:w-[22rem] sm:p-6`}
+            style={maxH ? { maxHeight: maxH } : undefined}
+            className="absolute bottom-[calc(100%+0.75rem)] right-0 w-[min(22rem,calc(100vw-1.5rem))] origin-bottom-right animate-[menuDrop_0.5s_var(--ease-out-expo)_both] overflow-y-auto rounded-[1.75rem] bg-surface/75 p-5 text-ink shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:bottom-0 sm:right-[calc(100%+0.75rem)] sm:w-[22rem] sm:p-6"
           >
             <p className="text-xs text-ink-2 sm:text-sm">{labels.countdown}</p>
             <p className="mb-4 mt-1 text-xs font-medium text-gold sm:text-sm">{labels.dates}</p>

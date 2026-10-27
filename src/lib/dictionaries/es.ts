@@ -36,6 +36,13 @@ const es: Dict = {
     title: "Impact Minds",
     subtitle: "Connecting Us",
     typed: ["Connecting Us", "Gracias por todo en 2026", "Nos vemos en Cartagena en 2027"],
+    speakersPill: "220+ ponentes del más alto nivel",
+    facts: [
+      { value: "Cartagena", label: "Colombia" },
+      { value: "24–27", label: "agosto de 2027" },
+      { value: "580", label: "participantes en 2026" },
+      { value: "33", label: "países representados" },
+    ],
     dates: "24 al 27 de agosto de 2027",
     launch: "Lanzamiento oficial en marzo de 2027",
     countdown: "Cuenta regresiva para Impact Minds 2027",

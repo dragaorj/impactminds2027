@@ -744,3 +744,30 @@ html[data-motion="reduce"] .shimmer::after { opacity: 0; }
 html[data-motion="reduce"] .wave-y::before,
 html[data-motion="reduce"] .wave-y::after,
 html[data-motion="reduce"] .wave-b::after { animation: none; }
+
+/* Hero speakers pill: overlapping portraits that fan apart on hover, each
+   hopping in turn; the one under the pointer grows a touch and comes forward. */
+.faces > .face + .face { margin-left: -0.625rem; }
+.faces > .face {
+  transition: margin-left 0.5s var(--ease-spring), scale 0.4s var(--ease-spring), box-shadow 0.4s ease;
+}
+.faces-pill:hover .faces > .face + .face { margin-left: 0.2rem; }
+.faces-pill:hover .faces > .face { animation: faceHop 0.7s var(--ease-spring) both; }
+.faces-pill .faces > .face:hover { scale: 1.18; z-index: 1; box-shadow: 0 0 0 2px #d9b865; }
+.faces > .face:nth-child(2) { animation-delay: 60ms; }
+.faces > .face:nth-child(3) { animation-delay: 120ms; }
+.faces > .face:nth-child(4) { animation-delay: 180ms; }
+.faces > .face:nth-child(5) { animation-delay: 240ms; }
+@keyframes faceHop {
+  0%, 100% { translate: 0 0; }
+  45% { translate: 0 -5px; }
+}
+html[data-motion="reduce"] .faces > .face { transition: none; animation: none !important; }
+
+/* Hero countdown slot: collapses while the ring sits in the corner, so the
+   CTA re-centres; the negative margin takes back the row's gap. */
+[data-countdown-slot] { transition: width 0.5s var(--ease-spring), margin-left 0.5s var(--ease-spring); }
+html[data-ring-raised] #top [data-countdown-slot] { width: 0; margin-left: -1rem; }
+@media (min-width: 40rem) {
+  html[data-ring-raised] #top [data-countdown-slot] { margin-left: -1.5rem; }
+}

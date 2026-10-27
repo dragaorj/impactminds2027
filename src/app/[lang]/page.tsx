@@ -35,7 +35,7 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
       <Preloader caption={`${t.hero.eyebrow} · ${t.hero.dates}`} />
       <Nav lang={lang} nav={t.nav} controls={t.controls} />
       <main id="conteudo" tabIndex={-1} className="w-full max-w-full overflow-x-clip outline-none">
-        <Hero t={t.hero} videoSrc={localVideo("header.mp4")} />
+        <Hero t={t.hero} videoSrc={localVideo("header.mp4")} agendaLink={t.agenda.title} />
         <Numbers t={t.numbers} locale={locale} />
         <About t={t.about} videoSrc={localVideo("about.mp4")} />
         <Survey t={t.survey} locale={locale} />

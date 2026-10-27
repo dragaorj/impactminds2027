@@ -34,6 +34,13 @@ const pt = {
     title: "Impact Minds",
     subtitle: "Connecting Us",
     typed: ["Connecting Us", "Obrigado por tudo em 2026", "Nos vemos em Cartagena em 2027"],
+    speakersPill: "220+ palestrantes do mais alto nível",
+    facts: [
+      { value: "Cartagena", label: "Colômbia" },
+      { value: "24–27", label: "agosto de 2027" },
+      { value: "580", label: "participantes em 2026" },
+      { value: "33", label: "países representados" },
+    ],
     dates: "24 a 27 de agosto de 2027",
     launch: "Lançamento oficial em março de 2027",
     countdown: "Contagem regressiva para o Impact Minds 2027",
