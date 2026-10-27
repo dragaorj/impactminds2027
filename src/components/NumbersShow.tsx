@@ -212,9 +212,9 @@ export default function NumbersShow({ t }: { t: T }) {
         [
           [photos.numbersHero, "68rem"],
           ["/photos/editions/2026/08.jpg", "100vw"],
-          [photos.gallery[0], "(min-width:1024px) 22rem, 33vw"],
-          [photos.gallery[2], "(min-width:1024px) 22rem, 33vw"],
-          [photos.visits[0], "(min-width:1024px) 22rem, 33vw"],
+          [photos.gallery[0], "(min-width:1024px) 22rem, (min-width:640px) 33vw, 100vw"],
+          [photos.gallery[2], "(min-width:1024px) 22rem, (min-width:640px) 33vw, 100vw"],
+          [photos.visits[0], "(min-width:1024px) 22rem, (min-width:640px) 33vw, 100vw"],
         ].map(([src, sizes]) => <Image key={src} src={src} alt="" width={16} height={16} sizes={sizes} loading="eager" />)}
     </span>
   );
@@ -268,7 +268,7 @@ export default function NumbersShow({ t }: { t: T }) {
       <div className="show-scene show-1 absolute inset-0 flex flex-col items-center p-6 pt-[13dvh]">
         <Image src={photos.numbersHero} alt="" fill sizes="68rem" className="show-kb par-far object-cover object-[50%_40%] show-bgphoto [--o:0.45]" />
         <span aria-hidden className="absolute inset-0 show-wash-1" />
-        <Art name="skyline" className="show-art par-mid pointer-events-none absolute inset-x-0 bottom-[9dvh] mx-auto w-[min(56rem,82%)] !opacity-35 [color:var(--sun)]" />
+        <Art name="skyline" className="show-art par-mid pointer-events-none absolute inset-x-0 bottom-[9.5rem] mx-auto sm:bottom-[max(9dvh,7rem)] w-[min(56rem,82%)] !opacity-35 [color:var(--sun)]" />
         <div className="relative text-center">
           <p className="show-rise mx-auto w-max rounded-full show-chip px-4 py-1.5 text-sm">{t.place}</p>
           <p className="show-rise show-580 show-hot par-near mt-4 font-display text-[clamp(6rem,17vw,14rem)] leading-none show-fig tabular-nums">0</p>
@@ -303,23 +303,24 @@ export default function NumbersShow({ t }: { t: T }) {
         <Art name="palm" className="show-art2 pointer-events-none absolute bottom-0 right-[3%] hidden h-[34%] -scale-x-100 !opacity-25 [color:var(--sun)] xl:block" />
         {/* Three tall photo cards in the bento's language: photo under a purple
             wash, gold icon chip, the figure counting up and a tick meter sized
-            against the largest figure (65 sessions = full). */}
-        <div className="relative grid w-[min(64rem,100%)] grid-cols-3 gap-3 sm:gap-5">
+            against the largest figure (65 sessions = full). On phones they
+            stack as three wide, landscape cards instead of narrow columns. */}
+        <div className="relative grid w-[min(64rem,100%)] grid-cols-1 gap-3 pb-24 sm:grid-cols-3 sm:gap-5 sm:pb-0">
           {bars.map((b) => {
             const Icon = b.icon;
             const on = Math.round(b.h * CARD_TICKS);
             return (
               <div
                 key={b.cls}
-                className="show-card relative h-[min(30rem,62dvh)] [perspective:900px]"
+                className="show-card relative h-[min(10.5rem,21dvh)] [perspective:900px] sm:h-[min(30rem,62dvh)]"
                 onPointerMove={onCardMove}
                 onPointerLeave={onCardLeave}
               >
-                <div className="show-card-in relative flex size-full flex-col justify-between overflow-hidden rounded-[1.5rem] p-4 show-card-line sm:rounded-[2rem] sm:p-7">
-                <Image src={b.photo} alt="" fill sizes="(min-width:1024px) 22rem, 33vw" className="show-card-img object-cover" />
+                <div className="show-card-in relative flex size-full flex-col justify-end overflow-hidden sm:justify-between rounded-[1.5rem] p-4 show-card-line sm:rounded-[2rem] sm:p-7">
+                <Image src={b.photo} alt="" fill sizes="(min-width:1024px) 22rem, (min-width:640px) 33vw, 100vw" className="show-card-img object-cover" />
                 <span aria-hidden className="show-spot pointer-events-none absolute inset-0 z-[1]" />
                 <span aria-hidden className="absolute inset-0 show-card-wash" />
-                <span className="relative z-[2] grid size-10 place-items-center rounded-full show-chip show-fig sm:size-12">
+                <span className="absolute right-4 top-4 z-[2] grid size-10 place-items-center rounded-full show-chip show-fig sm:relative sm:right-auto sm:top-auto sm:size-12">
                   <Icon size="1.25rem" weight="light" />
                 </span>
                 <div className="relative z-[2]">

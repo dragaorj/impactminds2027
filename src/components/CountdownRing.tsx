@@ -73,7 +73,7 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
       );
       if (!raised && slot) {
         const r = slot.getBoundingClientRect();
-        setBox({ top: r.top, left: r.left, size: r.height });
+        put(r.top, r.left, r.height);
         return;
       }
       const sm = window.innerWidth >= 640;
@@ -81,33 +81,55 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
       const axisRight = sm ? 60 : 44; // centre of the back-to-top button from the right edge
       const above = sm ? 100 : 80; // its top edge plus a 12px gap, from the bottom
       const w = document.documentElement.clientWidth;
-      setBox({ top: window.innerHeight - above - size, left: w - axisRight - size / 2, size });
+      put(window.innerHeight - above - size, w - axisRight - size / 2, size);
     };
-    const schedule = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(measure);
+    // Only re-render when the box actually moved.
+    const put = (top: number, left: number, size: number) =>
+      setBox((b) =>
+        b && Math.abs(b.top - top) < 0.5 && Math.abs(b.left - left) < 0.5 && b.size === size ? b : { top, left, size },
+      );
+    // While the hero is still moving (its entrance slides the CTA row up, web
+    // fonts swap in and change the CTA's width) a single measurement lands in
+    // the wrong place, so follow the slot every frame until it has settled.
+    let until = 0;
+    const tick = () => {
+      measure();
+      frame = performance.now() < until ? requestAnimationFrame(tick) : 0;
     };
+    const follow = (ms = 2600) => {
+      if (dead) return;
+      until = Math.max(until, performance.now() + ms);
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+    const schedule = () => follow(0);
+    let dead = false;
+    let unswap = 0;
     let swap = 0;
     if (firstPlace.current) {
       firstPlace.current = false;
-      schedule();
+      follow(4000);
     } else {
       setSwapping(true);
       setOpen(false);
       swap = window.setTimeout(() => {
         measure();
-        frame = requestAnimationFrame(() => setSwapping(false));
+        unswap = requestAnimationFrame(() => setSwapping(false));
       }, SWAP_MS);
     }
-    // The hero settles after the intro (its entrance moves the slot), so measure again then.
-    window.addEventListener("im:ready", schedule);
+    // The hero slides in after the intro and the fonts may still swap: follow the slot then too.
+    const onReady = () => follow();
+    const onFonts = () => follow(600);
+    window.addEventListener("im:ready", onReady);
     window.addEventListener("resize", schedule);
+    document.fonts?.ready.then(onFonts);
     const late = window.setTimeout(schedule, 1600);
     return () => {
+      dead = true;
       cancelAnimationFrame(frame);
+      cancelAnimationFrame(unswap);
       window.clearTimeout(swap);
       window.clearTimeout(late);
-      window.removeEventListener("im:ready", schedule);
+      window.removeEventListener("im:ready", onReady);
       window.removeEventListener("resize", schedule);
     };
   }, [raised]);

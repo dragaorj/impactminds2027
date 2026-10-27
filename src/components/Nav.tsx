@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Minus, Moon, PersonArmsSpread, Plus, Sun } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { locales, type Locale } from "@/lib/i18n";
+import { links } from "@/lib/site";
 import { usePrefs } from "./prefs";
 
 type Props = { lang: Locale; nav: Dict["nav"]; controls: Dict["controls"] };
@@ -170,7 +171,13 @@ export default function Nav({ lang, nav, controls }: Props) {
               : "max-w-full bg-transparent shadow-none ring-1 ring-transparent backdrop-blur-0"
           }`}
         >
-          <a href="#top" className="relative block h-7 w-[7.6rem] shrink-0 sm:h-8 sm:w-[8.7rem]" aria-label="Latimpacto">
+          <a
+            href={links.latimpacto}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative block h-7 w-[7.6rem] shrink-0 sm:h-8 sm:w-[8.7rem]"
+            aria-label="Latimpacto"
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/brand/latimpacto-white.svg"
