@@ -38,15 +38,16 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
   const [swapping, setSwapping] = useState(false);
   const firstPlace = useRef(true);
   const [open, setOpen] = useState(false);
-
-  // While the panel is open the page behind wears the same blurred veil as
-  // the bar's menus (html[data-countdown-open], body::after in globals.css).
+  // While the corner panel is open (not the hero bar view) the page behind
+  // wears the same blurred veil as the bar's menus (html[data-countdown-open], body::after in globals.css).
   useEffect(() => {
     const d = document.documentElement;
-    if (open) d.setAttribute("data-countdown-open", "");
+    if (open && raised) d.setAttribute("data-countdown-open", "");
     else d.removeAttribute("data-countdown-open");
     return () => d.removeAttribute("data-countdown-open");
-  }, [open]);  const [state, setState] = useState<State | null>(null);
+  }, [open, raised]);
+
+  const [state, setState] = useState<State | null>(null);
 
   // In the hero the ring doesn't open a popup: its details replace the
   // content of the hero's frosted info bar (Hero listens). In the corner the
