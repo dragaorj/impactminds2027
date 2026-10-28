@@ -222,8 +222,43 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
         </div>
       </div>
 
+      {/* Phones: three rows of small faces (no names), drifting right, left,
+          right; a tap opens the speaker. Larger screens keep the cards below. */}
       <div
-        className="speaker-loop no-scrollbar mt-14 [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)]"
+        className="speaker-loop mt-10 space-y-3 md:hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]"
+        data-paused={paused || open !== null || undefined}
+        data-reveal
+      >
+        {[0, 1, 2].map((row) => {
+          const faces = list.map((s, i) => ({ s, i })).filter(({ i }) => i % 3 === row);
+          return (
+            <div key={row} className={`speaker-track flex w-max ${row === 1 ? "" : "speaker-track-rev"}`} style={{ animationDuration: `${faces.length * 6}s` }}>
+              {[0, 1].map((copy) => (
+                <ul key={copy} className={`flex gap-3 pr-3 ${copy ? "speaker-copy" : ""}`} aria-hidden={copy ? true : undefined}>
+                  {faces.map(({ s, i }) => (
+                    <li key={s.name} className="size-20 shrink-0" inert={copy ? true : undefined}>
+                      <button
+                        type="button"
+                        onClick={() => setOpen(i)}
+                        aria-label={`${t.open} ${s.name}`}
+                        className="speaker-card group block size-full rounded-full bg-ink/[0.04] p-1 ring-1 ring-line"
+                      >
+                        <span className="relative block">
+                          <Portrait s={s} i={i} sizes="5rem" />
+                          <span aria-hidden className="speaker-wash pointer-events-none absolute inset-0 rounded-full" />
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+
+      <div
+        className="speaker-loop no-scrollbar mt-14 hidden md:block [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)]"
         data-paused={paused || open !== null || undefined}
         data-reveal
       >

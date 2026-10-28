@@ -315,33 +315,6 @@ html[data-motion="reduce"] .icon-sun,
 html[data-motion="reduce"] .icon-moon,
 html[data-motion="reduce"] .icon-person { animation: none; }
 
-/* Desktop nav links: on hover a gold pill border draws itself around the
-   label (from the top-left, all the way round) over a faint gold tint. */
-.nav-link { transition: color 0.3s ease, background-color 0.4s ease; }
-.nav-link:hover, .nav-link:focus-visible { background-color: rgb(217 184 101 / 0.1); }
-.nav-link-border {
-  width: calc(100% - 1.5px);
-  height: calc(100% - 1.5px);
-  fill: none;
-  stroke: var(--sun);
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  stroke-dasharray: 100 101;
-  stroke-dashoffset: 100;
-  /* Hidden at rest: some browsers paint the round cap of the empty dash (or
-     ignore pathLength on <rect>) as a dot. It shows the moment the hover
-     starts and hides only once the border has finished undrawing. */
-  opacity: 0;
-  transition: stroke-dashoffset 0.7s cubic-bezier(0.65, 0, 0.35, 1), opacity 0s linear 0.7s;
-}
-.nav-link:hover .nav-link-border,
-.nav-link:focus-visible .nav-link-border {
-  stroke-dashoffset: 0;
-  opacity: 1;
-  transition: stroke-dashoffset 0.7s cubic-bezier(0.65, 0, 0.35, 1), opacity 0s;
-}
-html[data-motion="reduce"] .nav-link-border { transition: none; }
-
 /* Hero typewriter caret. */
 .type-caret { animation: caretBlink 1s steps(1) infinite; }
 @keyframes caretBlink { 50% { opacity: 0; } }
@@ -401,6 +374,10 @@ html.js:not([data-motion="reduce"]) [data-hero] {
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
+/* Lightbox paging: the new photo slides in from the side it came from. */
+@keyframes lightboxNext { from { opacity: 0; transform: translateX(4rem); } }
+@keyframes lightboxPrev { from { opacity: 0; transform: translateX(-4rem); } }
+
 @keyframes menuIn {
   from { opacity: 0; transform: translateY(3rem); }
   to { opacity: 1; transform: translateY(0); }
@@ -440,35 +417,6 @@ html.js:not([data-motion="reduce"]) [data-hero] {
   html { scrollbar-width: thin; scrollbar-color: color-mix(in oklab, var(--brand) 55%, transparent) transparent; }
 }
 
-/* Field visits: the active item's border fills like a timer; when it closes
-   the carousel moves on (animationend in Visits.tsx). */
-.visit-track,
-.visit-timer {
-  width: calc(100% - 1.5px);
-  height: calc(100% - 1.5px);
-  fill: none;
-  stroke-width: 1.5;
-}
-.visit-track { stroke: color-mix(in oklab, var(--sun) 30%, transparent); }
-.visit-timer {
-  stroke: var(--sun);
-  stroke-linecap: round;
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation-name: visitTimer;
-  animation-timing-function: linear;
-  animation-fill-mode: forwards;
-}
-@keyframes visitTimer { to { stroke-dashoffset: 0; } }
-@keyframes visitCaption {
-  0%, 25% { opacity: 0; transform: translateY(0.75rem); filter: blur(4px); }
-  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
-}
-html[data-motion="reduce"] .visit-timer { animation: none; stroke-dashoffset: 100; }
-/* Phones/tablets: the active visit chip's timer line. */
-.visit-chip-timer { animation-name: visitChip; animation-timing-function: linear; animation-fill-mode: both; }
-@keyframes visitChip { from { scale: 0 1; } to { scale: 1 1; } }
-html[data-motion="reduce"] .visit-chip-timer { animation: none; scale: 0 1; }
 
 /* Editions bento. Phones: two columns, a few tiles span both. From md: twelve
    named areas on 6 columns x 4 rows; Editions.tsx swaps --cols/--rows and the
@@ -594,6 +542,8 @@ html[data-motion="reduce"] .chart-runner { display: none; }
 
 /* Speakers conveyor: two identical lists, the track slides by one list width. */
 .speaker-track { animation: marquee 80s linear infinite; }
+/* Phones' face rows: the 1st and 3rd drift right (the loop played backwards). */
+.speaker-track-rev { animation-direction: reverse; }
 
 /* Speaker portraits: soft light-lilac duotone at rest; colour and a slow zoom on
    hover or keyboard focus. The lightbox portrait keeps full colour. */
@@ -611,6 +561,36 @@ html[data-motion="reduce"] .chart-runner { display: none; }
 }
 .speaker-card:hover .speaker-wash,
 .speaker-card:focus-visible .speaker-wash { opacity: 0; }
+/* Field visits: the card in focus shows its colours; the rest wear the
+   speakers' lilac wash until hovered. Its timer line fills, then the next.
+   On desktop the card in focus opens wide (half the content column) and the
+   rest share the remainder, all at one height; the width eases on the same
+   curve and time as the rail's glide (Visits.tsx, MOVE_MS). --c is the page's
+   content column (90vw, or 132rem less the gutters on very wide screens). */
+.visit-card img {
+  filter: grayscale(1) brightness(1.18) contrast(0.86);
+  transition: scale 1.4s var(--ease-out-expo), filter 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.visit-wash { background: #cdb8ec; mix-blend-mode: color; opacity: 0.9; transition: opacity 1.2s cubic-bezier(0.65, 0, 0.35, 1); }
+.visit-rail > [data-on] .visit-card img,
+.visit-card:is(:hover, :focus-visible) img { filter: none; }
+.visit-rail > [data-on] .visit-wash,
+.visit-card:is(:hover, :focus-visible) .visit-wash { opacity: 0; }
+@media (min-width: 1024px) {
+  .visit-rail {
+    --c: min(90vw, 132rem - 10vw);
+    --small: calc((var(--c) * 0.5 - 2.5rem) / 2.15);
+  }
+  .visit-rail > li { width: var(--small); transition: width 1.2s cubic-bezier(0.65, 0, 0.35, 1); }
+  .visit-rail > li[data-on] { width: calc(var(--c) * 0.5); }
+  .visit-rail .visit-card { aspect-ratio: auto; height: calc(var(--small) * 1.25); }
+}
+.visit-rail[data-jump] > li,
+.visit-rail[data-jump] .visit-card img,
+.visit-rail[data-jump] .visit-wash { transition: none; }
+.visit-timer { animation-name: visitTimer; animation-timing-function: linear; animation-fill-mode: both; }
+@keyframes visitTimer { from { scale: 0 1; } to { scale: 1 1; } }
+html[data-motion="reduce"] .visit-timer { animation: none; scale: 1 1; }
 .speaker-loop:hover .speaker-track,
 .speaker-loop:focus-within .speaker-track,
 .speaker-loop[data-paused] .speaker-track { animation-play-state: paused; }

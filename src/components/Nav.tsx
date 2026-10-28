@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Minus, Moon, PersonArmsSpread, Plus, Sun } from "@phosphor-icons/react";
+import { ArrowRight, Check, GlobeSimple, Minus, Moon, PersonArmsSpread, Plus, Sun } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { locales, type Locale } from "@/lib/i18n";
 import { links } from "@/lib/site";
@@ -16,52 +16,110 @@ const iconBtn =
 const iconBtnOnVideo =
   "grid size-10 place-items-center rounded-full text-white transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-[0.96]";
 
-// Language switch. It is a real page load on purpose: client-side switching
-// kept hidden copies of every visited language in the DOM (same ids, stale
+// Language switch: a compact button with the current language that opens a
+// small menu of the three (on hover with a mouse, on tap or Enter otherwise).
+// Picking one is a real page load on purpose: client-side switching kept
+// hidden copies of every visited language in the DOM (same ids, stale
 // animations), which made things vanish. To keep it instant, the other
-// languages are prefetched, the pill moves on click, and the scroll position
-// is handed over (sessionStorage "im-switch"): the new page restores it and
-// skips the intro and all entrance animations (html[data-switch]).
+// languages are prefetched and the scroll position is handed over
+// (sessionStorage "im-switch"): the new page restores it and skips the intro
+// and all entrance animations (html[data-switch]).
+const LANG_NAMES: Record<Locale, string> = { pt: "Português", es: "Español", en: "English" };
+
 function LangSwitch({ lang, label, onVideo = false }: { lang: Locale; label: string; onVideo?: boolean }) {
-  const [picked, setPicked] = useState<Locale | null>(null);
-  const current = picked ?? lang;
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const leave = useRef(0);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: PointerEvent) => {
+      if (!root.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
   return (
     <div
-      role="group"
-      aria-label={label}
-      className={`flex w-max rounded-full p-1 transition-colors duration-500 ${onVideo ? "bg-white/12" : "bg-ink/6"}`}
+      ref={root}
+      className="relative"
+      onPointerEnter={(e) => {
+        if (e.pointerType !== "mouse") return;
+        window.clearTimeout(leave.current);
+        setOpen(true);
+      }}
+      onPointerLeave={(e) => {
+        if (e.pointerType !== "mouse") return;
+        leave.current = window.setTimeout(() => setOpen(false), 180);
+      }}
     >
-      {locales.map((l) => (
-        <a
-          key={l}
-          href={`/${l}`}
-          hrefLang={l}
-          lang={l}
-          aria-current={l === current ? "true" : undefined}
-          onClick={(e) => {
-            if (l === lang) {
-              e.preventDefault();
-              return;
-            }
-            setPicked(l);
-            try {
-              sessionStorage.setItem("im-switch", String(Math.round(window.scrollY)));
-            } catch {}
-            document.cookie = `im-lang=${l};path=/;max-age=31536000;samesite=lax`;
-          }}
-          className={`rounded-full px-2.5 py-1 text-xs font-medium uppercase tracking-wide transition-colors duration-300 ${
-            l === current
-              ? onVideo
-                ? "bg-white text-block"
-                : "bg-brand text-brand-ink"
-              : onVideo
-                ? "text-white/80 hover:bg-sun/25 hover:text-white"
-                : "text-ink-2 hover:bg-sun/15 hover:text-gold"
-          }`}
-        >
-          {l}
-        </a>
-      ))}
+      <button
+        type="button"
+        aria-label={`${label}: ${LANG_NAMES[lang]}`}
+        aria-haspopup="true"
+        aria-expanded={open}
+        onClick={(e) => {
+          // A mouse already opened it on hover: a click keeps it open.
+          const mouse = (e.nativeEvent as PointerEvent).pointerType === "mouse";
+          setOpen((v) => (mouse ? true : !v));
+        }}
+        className={`flex h-10 items-center gap-1.5 rounded-full pl-2.5 pr-3 text-[0.9375rem] font-medium uppercase leading-none tracking-[0.06em] transition-[background-color,color] duration-500 ease-[var(--ease-spring)] ${
+          open ? "bg-sun text-sun-ink" : onVideo ? "text-white hover:bg-sun hover:text-sun-ink" : "text-ink hover:bg-sun hover:text-sun-ink"
+        }`}
+      >
+        <GlobeSimple aria-hidden size="1.1875rem" weight="light" className="shrink-0" />
+        <span className="translate-y-[0.5px]">{lang}</span>
+      </button>
+
+      {open && (
+        // pt-2 bridges the gap so the pointer can travel from the button to the menu.
+        <div className="absolute right-0 top-full z-50 pt-2">
+          <ul
+            aria-label={label}
+            className="w-48 origin-top-right animate-[menuDrop_0.45s_var(--ease-out-expo)_both] rounded-[1.5rem] bg-surface/85 p-1.5 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150"
+          >
+            {locales.map((l) => {
+              const on = l === lang;
+              return (
+                <li key={l}>
+                  <a
+                    href={`/${l}`}
+                    hrefLang={l}
+                    lang={l}
+                    aria-current={on ? "true" : undefined}
+                    onClick={(e) => {
+                      if (on) {
+                        e.preventDefault();
+                        setOpen(false);
+                        return;
+                      }
+                      try {
+                        sessionStorage.setItem("im-switch", String(Math.round(window.scrollY)));
+                      } catch {}
+                      document.cookie = `im-lang=${l};path=/;max-age=31536000;samesite=lax`;
+                    }}
+                    className={`group flex items-center gap-3 rounded-[1.125rem] px-3 py-2.5 text-sm transition-colors duration-300 hover:bg-sun/12 focus-visible:bg-sun/12 ${
+                      on ? "text-gold" : "text-ink"
+                    }`}
+                  >
+                    <span className="w-6 text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-sun">{l}</span>
+                    <span className="flex-1 font-display text-base leading-none group-hover:text-gold">{LANG_NAMES[l]}</span>
+                    {on && <Check aria-hidden size="0.95rem" weight="bold" className="text-gold" />}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
       {locales
         .filter((l) => l !== lang)
         .map((l) => (
@@ -128,10 +186,7 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
       className="flex w-full items-center justify-between gap-4 rounded-2xl px-3 py-2.5 text-left text-sm text-ink hover:bg-sun/10"
     >
       {label}
-      <span
-        aria-hidden
-        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-300 ${checked ? "bg-brand" : "bg-ink/20"}`}
-      >
+      <span aria-hidden className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-300 ${checked ? "bg-brand" : "bg-ink/20"}`}>
         <span
           className={`absolute top-1 size-4 rounded-full bg-surface transition-transform duration-500 ease-[var(--ease-spring)] ${
             checked ? "translate-x-6" : "translate-x-1"
@@ -191,7 +246,7 @@ export default function Nav({ lang, nav, controls }: Props) {
   }, []);
 
   const isDark = prefs.theme === "dark";
-  const onVideo = !scrolled && !menuOpen;
+  const onVideo = !scrolled;
   const btn = onVideo ? iconBtnOnVideo : iconBtn;
 
   return (
@@ -213,9 +268,11 @@ export default function Nav({ lang, nav, controls }: Props) {
       >
         <div
           className={`mx-auto flex h-16 items-center justify-between gap-3 rounded-full py-2 pl-5 pr-2 transition-[max-width,background-color,box-shadow,backdrop-filter] duration-700 ease-[var(--ease-out-expo)] ${
-            scrolled || menuOpen
-              ? "max-w-[30rem] xl:max-w-[66rem] bg-surface/60 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150"
-              : "max-w-full bg-transparent shadow-none ring-1 ring-transparent backdrop-blur-0"
+            scrolled ? "max-w-[30rem]" : "max-w-full"
+          } ${
+            scrolled
+              ? "bg-surface/60 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150"
+              : "bg-transparent shadow-none ring-1 ring-transparent backdrop-blur-0"
           }`}
         >
           <a
@@ -239,34 +296,12 @@ export default function Nav({ lang, nav, controls }: Props) {
             />
           </a>
 
-          <nav aria-label={nav.primary} className="hidden xl:block">
-            <ul className="flex items-center gap-1">
-              {items.map((item) => (
-                <li key={item.label}>
-                  <a
-                    href={item.href}
-                    className={`nav-link group relative block whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors duration-300 ${
-                      onVideo ? "text-white/85 hover:text-sun" : "text-ink-2 hover:text-gold focus-visible:text-gold"
-                    }`}
-                  >
-                    {item.label}
-                    {/* A gold pill border draws itself around the label on hover / focus. */}
-                    <svg aria-hidden className="pointer-events-none absolute inset-0 size-full overflow-visible">
-                      <rect x="0.75" y="0.75" rx="17" pathLength={100} className="nav-link-border" />
-                    </svg>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
           <div className="flex items-center gap-1">
-            <div className="hidden sm:block">
-              <LangSwitch lang={lang} label={controls.language} onVideo={onVideo} />
-            </div>
+            <LangSwitch lang={lang} label={controls.language} onVideo={onVideo} />
+            {/* Phones keep just the language and the menu; these two live in the menu there. */}
             <button
               type="button"
-              className={btn}
+              className={btn + " max-sm:hidden"}
               onClick={() => setTheme(isDark ? "light" : "dark")}
               aria-label={isDark ? controls.themeToLight : controls.themeToDark}
             >
@@ -277,7 +312,7 @@ export default function Nav({ lang, nav, controls }: Props) {
               <button
                 ref={panelBtnRef}
                 type="button"
-                className={btn}
+                className={btn + " max-sm:hidden"}
                 aria-label={controls.a11yOpen}
                 aria-expanded={panelOpen}
                 aria-controls="a11y-panel"
@@ -372,74 +407,114 @@ export default function Nav({ lang, nav, controls }: Props) {
 
             <button
               type="button"
-              className={btn + " relative xl:hidden"}
+              className={btn + " relative"}
               aria-label={menuOpen ? nav.closeMenu : nav.openMenu}
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
               onClick={() => setMenuOpen((v) => !v)}
             >
-              <span
-                className={`absolute h-[1.5px] w-5 bg-current transition-transform duration-500 ease-[var(--ease-spring)] ${
-                  menuOpen ? "rotate-45" : "-translate-y-[4px]"
-                }`}
-              />
-              <span
-                className={`absolute h-[1.5px] w-5 bg-current transition-transform duration-500 ease-[var(--ease-spring)] ${
-                  menuOpen ? "-rotate-45" : "translate-y-[4px]"
-                }`}
-              />
+              {/* Three equal rounded lines; open, the outer two fold into an X. */}
+              <span aria-hidden className="relative flex h-3.5 w-[1.375rem] flex-col justify-between">
+                <span
+                  className={`h-0.5 w-[1.375rem] rounded-full bg-current transition-[translate,rotate] duration-500 ease-[var(--ease-spring)] ${
+                    menuOpen ? "translate-y-1.5 rotate-45" : ""
+                  }`}
+                />
+                <span
+                  className={`h-0.5 w-[1.375rem] rounded-full bg-current transition-[opacity,scale] delay-75 duration-500 ease-[var(--ease-spring)] ${
+                    menuOpen ? "scale-x-0 opacity-0" : ""
+                  }`}
+                />
+                <span
+                  className={`h-0.5 w-[1.375rem] rounded-full bg-current transition-[translate,rotate] delay-100 duration-500 ease-[var(--ease-spring)] ${
+                    menuOpen ? "-translate-y-1.5 -rotate-45" : ""
+                  }`}
+                />
+              </span>
             </button>
           </div>
         </div>
+        {menuOpen && (
+          <div className={`mx-auto mt-2 flex justify-end ${scrolled ? "max-w-[30rem]" : "max-w-full"}`}>
+            {/* Double-bezel glass card that drops under the bar, same material,
+                with a faint gold glow in its corner. */}
+            <div
+              id="mobile-menu"
+              className="w-full origin-top-right animate-[menuDrop_0.55s_var(--ease-out-expo)_both] rounded-[2rem] bg-surface/70 p-1.5 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:max-w-[30rem]"
+            >
+              <div className="relative isolate overflow-hidden rounded-[calc(2rem-6px)] bg-ink/[0.03] px-2 pb-2 pt-5 shadow-[inset_0_1px_1px_rgb(255_255_255/0.08)]">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -right-16 -top-20 -z-10 size-56 rounded-full bg-[radial-gradient(closest-side,rgb(217_184_101/0.22),transparent)]"
+                />
+                <p className="flex items-center gap-3 px-4 text-[0.6875rem] font-medium uppercase tracking-[0.22em] text-muted">
+                  {nav.primary}
+                  <span aria-hidden className="h-px flex-1 bg-[linear-gradient(90deg,var(--sun),transparent)] opacity-60" />
+                </p>
+                <nav aria-label={nav.primary} className="mt-2">
+                  <ul className="flex flex-col">
+                    {items.map((item, i) => (
+                      <li key={item.label} className="animate-[menuItem_0.6s_var(--ease-out-expo)_both]" style={{ animationDelay: `${80 + i * 60}ms` }}>
+                        <a
+                          href={item.href}
+                          onClick={() => setMenuOpen(false)}
+                          className="group flex items-center gap-4 rounded-[1.5rem] px-4 py-3.5 text-ink transition-colors duration-500 hover:bg-sun/10 focus-visible:bg-sun/10 active:bg-sun/10"
+                        >
+                          <span className="self-start pt-1 font-display text-sm tabular-nums text-sun">{String(i + 1).padStart(2, "0")}</span>
+                          <span className="flex-1 font-display text-[1.625rem] leading-tight transition-[translate,color] duration-500 ease-[var(--ease-spring)] group-hover:translate-x-1 group-hover:text-gold group-focus-visible:text-gold">
+                            {item.label}
+                          </span>
+                          <span
+                            aria-hidden
+                            className="grid size-10 shrink-0 place-items-center rounded-full text-ink-2 ring-1 ring-line transition-[background-color,color,box-shadow] duration-500 group-hover:bg-sun group-hover:text-sun-ink group-hover:ring-sun"
+                          >
+                            <ArrowRight size="1rem" className="transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-rotate-45" />
+                          </span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+                {/* Phones only: theme and accessibility (the bar shows them from sm up). */}
+                <div
+                  className="mt-2 grid animate-[menuItem_0.6s_var(--ease-out-expo)_both] grid-cols-2 gap-2 sm:hidden"
+                  style={{ animationDelay: `${80 + items.length * 60}ms` }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setTheme(isDark ? "light" : "dark")}
+                    aria-label={isDark ? controls.themeToLight : controls.themeToDark}
+                    className="flex items-center gap-2.5 rounded-[1.25rem] bg-ink/5 px-4 py-3.5 text-left text-sm text-ink transition-colors duration-300 hover:bg-sun/12 active:bg-sun/12"
+                  >
+                    {isDark ? <Sun aria-hidden size="1.125rem" weight="light" className="shrink-0 text-gold" /> : <Moon aria-hidden size="1.125rem" weight="light" className="shrink-0 text-gold" />}
+                    {isDark ? controls.light : controls.dark}
+                  </button>
+                  <button
+                    type="button"
+                    aria-controls="a11y-panel"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setPanelOpen(true);
+                    }}
+                    className="flex items-center gap-2.5 rounded-[1.25rem] bg-ink/5 px-4 py-3.5 text-left text-sm text-ink transition-colors duration-300 hover:bg-sun/12 active:bg-sun/12"
+                  >
+                    <PersonArmsSpread aria-hidden size="1.125rem" weight="light" className="shrink-0 text-gold" />
+                    {controls.a11yTitle}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {menuOpen && (
-        <>
-          {/* Soft veil over the page; tapping it closes the menu. */}
-          <div
-            aria-hidden
-            onClick={() => setMenuOpen(false)}
-            className="fixed inset-0 z-30 animate-[fadeIn_0.4s_ease-out_both] bg-block/30 backdrop-blur-[6px] xl:hidden"
-          />
-          {/* Glass card that drops from the pill, same material as the bar. */}
-          <div
-            id="mobile-menu"
-            className="fixed inset-x-3 top-[5.25rem] z-40 mx-auto max-w-[30rem] origin-top animate-[menuDrop_0.55s_var(--ease-out-expo)_both] rounded-[2rem] bg-surface/70 p-2 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:inset-x-8 sm:top-[5.75rem] xl:hidden"
-          >
-            <nav aria-label={nav.primary}>
-              <ul className="flex flex-col">
-                {items.map((item, i) => (
-                  <li
-                    key={item.label}
-                    className="animate-[menuItem_0.6s_var(--ease-out-expo)_both] [&+li]:border-t [&+li]:border-line"
-                    style={{ animationDelay: `${60 + i * 50}ms` }}
-                  >
-                    <a
-                      href={item.href}
-                      onClick={() => setMenuOpen(false)}
-                      className="group flex items-center gap-4 rounded-[1.5rem] px-4 py-4 text-ink transition-colors duration-300 hover:bg-sun/12 hover:text-gold focus-visible:bg-sun/12 focus-visible:text-gold active:bg-sun/12"
-                    >
-                      <span className="w-6 text-xs font-medium tabular-nums text-sun">{String(i + 1).padStart(2, "0")}</span>
-                      <span className="flex-1 font-display text-[1.375rem] leading-tight">{item.label}</span>
-                      <ArrowRight
-                        aria-hidden
-                        size="1.125rem"
-                        className="shrink-0 text-ink-2 transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-x-1 group-hover:text-gold"
-                      />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-            <div
-              className="mt-1 flex animate-[menuItem_0.6s_var(--ease-out-expo)_both] items-center justify-between gap-3 rounded-[1.5rem] bg-ink/5 py-2 pl-4 pr-2"
-              style={{ animationDelay: `${60 + items.length * 50}ms` }}
-            >
-              <span className="text-xs text-ink-2">{controls.language}</span>
-              <LangSwitch lang={lang} label={controls.language} />
-            </div>
-          </div>
-        </>
+        /* Soft veil over the page; tapping it closes the menu. */
+        <div
+          aria-hidden
+          onClick={() => setMenuOpen(false)}
+          className="fixed inset-0 z-30 animate-[fadeIn_0.4s_ease-out_both] bg-block/30 backdrop-blur-[6px]"
+        />
       )}
     </>
   );

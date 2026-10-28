@@ -4,12 +4,13 @@ import { type RefObject, useEffect } from "react";
 
 // Image viewers (the photo lightbox, the speaker profile) close the way people
 // expect: a click anywhere outside the content (anything not inside a button,
-// a link or [data-keep]) or a scroll gesture (a wheel turn, a vertical swipe).
+// a link or [data-keep]) or a scroll gesture (a wheel turn, a vertical swipe;
+// sideways swipes are left to the viewer, which pages through the photos).
 export function useDialogDismiss(ref: RefObject<HTMLDialogElement | null>, open: boolean, close: () => void) {
   useEffect(() => {
     const d = ref.current;
     if (!d || !open) return;
-    let startY: number | null = null;
+    let start: { x: number; y: number } | null = null;
 
     const onClick = (e: MouseEvent) => {
       if (!(e.target as Element).closest("button, a, [data-keep]")) close();
@@ -19,12 +20,17 @@ export function useDialogDismiss(ref: RefObject<HTMLDialogElement | null>, open:
       if (Math.abs(e.deltaY) > 4 && Math.abs(e.deltaY) >= Math.abs(e.deltaX)) close();
     };
     const onTouchStart = (e: TouchEvent) => {
-      startY = e.touches[0]?.clientY ?? null;
+      const t = e.touches[0];
+      start = t ? { x: t.clientX, y: t.clientY } : null;
     };
     const onTouchMove = (e: TouchEvent) => {
-      const y = e.touches[0]?.clientY;
-      if (startY === null || y === undefined || Math.abs(y - startY) < 40) return;
-      startY = null;
+      const t = e.touches[0];
+      if (!start || !t) return;
+      const dx = Math.abs(t.clientX - start.x);
+      const dy = Math.abs(t.clientY - start.y);
+      if (dx > 12 && dx > dy) start = null; // a sideways swipe: not a dismiss
+      if (!start || dy < 40) return;
+      start = null;
       close();
     };
 
