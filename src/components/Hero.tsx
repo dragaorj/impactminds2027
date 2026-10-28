@@ -209,7 +209,7 @@ export default function Hero({
           {/* The countdown ring parks in the slot beside the CTA (same height)
               while the page is at the top; CountdownRing measures it. */}
           <div className="hero-out-down w-full sm:w-auto">
-            <div data-hero className="mt-7 flex w-full items-center justify-center gap-2 sm:mt-9 sm:w-auto sm:gap-6">
+            <div data-hero className="mt-7 flex w-full items-center justify-center gap-2 sm:mt-9 sm:w-auto sm:gap-4">
               {cta("h-[3.25rem] min-w-0 flex-1 justify-between whitespace-nowrap pl-3.5 pr-1.5 text-[0.8125rem] sm:h-16 sm:flex-none sm:pl-7 sm:pr-2.5 sm:text-base")}
               <span data-countdown-slot aria-hidden className="size-[3.25rem] shrink-0 sm:size-16 lg:size-20" />
             {/* The music player's slot, beside the ring (MusicPlayer measures it). */}

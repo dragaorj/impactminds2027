@@ -465,6 +465,10 @@ html.js:not([data-motion="reduce"]) [data-hero] {
   100% { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 html[data-motion="reduce"] .visit-timer { animation: none; stroke-dashoffset: 100; }
+/* Phones/tablets: the active visit chip's timer line. */
+.visit-chip-timer { animation-name: visitChip; animation-timing-function: linear; animation-fill-mode: both; }
+@keyframes visitChip { from { scale: 0 1; } to { scale: 1 1; } }
+html[data-motion="reduce"] .visit-chip-timer { animation: none; scale: 0 1; }
 
 /* Editions bento. Phones: two columns, a few tiles span both. From md: twelve
    named areas on 6 columns x 4 rows; Editions.tsx swaps --cols/--rows and the
@@ -777,7 +781,7 @@ html[data-motion="reduce"] .faces > .face { transition: none; animation: none !i
 /* The music player's slot beside it collapses too. */
 html[data-ring-raised] #top :is([data-countdown-slot], [data-music-slot]) { width: 0; margin-left: -0.5rem; }
 @media (min-width: 40rem) {
-  html[data-ring-raised] #top :is([data-countdown-slot], [data-music-slot]) { margin-left: -1.5rem; }
+  html[data-ring-raised] #top :is([data-countdown-slot], [data-music-slot]) { margin-left: -1rem; }
 }
 
 /* A field inside a pill that shows focus itself (focus-within ring): no

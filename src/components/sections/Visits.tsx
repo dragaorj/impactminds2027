@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight, ArrowsOut, Pause, Play } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
@@ -19,6 +19,9 @@ const ctrlBtn =
 // timer and the next visit starts when it closes (the CSS animation drives
 // the timing, so pausing freezes the border exactly where it is). Picking an
 // item jumps to it; the photo opens the lightbox with every caption.
+// Below desktop the long list gives way to a rail of numbered chips right
+// under the photo, so photo and visits share one screen; the active chip
+// carries the timer as a gold line and the rail keeps it centred.
 export default function Visits({ t }: { t: Dict["visits"] }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -27,6 +30,18 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
   const total = photos.visits.length;
   const go = (i: number) => setActive((i + total) % total);
   const halted = paused || hovering || viewing !== null;
+  const rail = useRef<HTMLDivElement>(null);
+
+  // Keep the active chip centred in the rail (scrolling the rail only).
+  useEffect(() => {
+    const r = rail.current;
+    const chip = r?.children[active] as HTMLElement | undefined;
+    if (!r || !chip || r.offsetParent === null) return;
+    r.scrollTo({
+      left: chip.offsetLeft - r.clientWidth / 2 + chip.offsetWidth / 2,
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
+  }, [active]);
 
   // The first photo starts its zoom one frame after mount, so the transition runs.
   const [ready, setReady] = useState(false);
@@ -43,8 +58,8 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
           <h2 id="visitas-title" className="font-display text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.02] text-ink">
             {t.title}
           </h2>
-          <p className="mt-5 max-w-[46ch] text-xl leading-relaxed text-ink-2">{t.lead}</p>
-          <ol className="-mx-3 mt-10 grid grid-cols-1 gap-x-3 gap-y-1.5 sm:grid-cols-2">
+          <p className="mt-4 max-w-[46ch] text-lg leading-relaxed text-ink-2 sm:mt-5 sm:text-xl">{t.lead}</p>
+          <ol className="-mx-3 mt-10 hidden grid-cols-2 gap-x-3 gap-y-1.5 xl:grid">
             {t.list.map((v, i) => {
               const on = i === active;
               return (
@@ -93,7 +108,7 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
         </div>
 
         <div
-          className="xl:col-span-6"
+          className="min-w-0 xl:col-span-6"
           data-reveal
           onMouseEnter={() => setHovering(true)}
           onMouseLeave={() => setHovering(false)}
@@ -101,7 +116,7 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
           onBlur={() => setHovering(false)}
         >
           <div
-            className="relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] bg-block ring-1 ring-line sm:aspect-[4/3] xl:aspect-auto xl:h-[min(78dvh,48rem)]"
+            className="relative aspect-[5/4] w-full overflow-hidden rounded-[2rem] bg-block ring-1 ring-line sm:aspect-[16/10] xl:aspect-auto xl:h-[min(78dvh,48rem)]"
             role="group"
             aria-roledescription="carousel"
             aria-label={t.title}
@@ -175,6 +190,40 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
                 </button>
               </div>
             </div>
+          </div>
+
+          {/* Phones and tablets: the visits as a rail of chips under the photo. */}
+          <div
+            ref={rail}
+            className="-mx-5 mt-4 flex snap-x gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:-mx-8 sm:px-8 lg:-mx-[5vw] lg:px-[5vw] xl:hidden [&::-webkit-scrollbar]:hidden"
+          >
+            {t.list.map((v, i) => {
+              const on = i === active;
+              return (
+                <button
+                  key={v.name}
+                  type="button"
+                  onClick={() => go(i)}
+                  aria-current={on ? "true" : undefined}
+                  className={`relative flex shrink-0 snap-center items-center gap-2 overflow-hidden rounded-full py-2 pl-3 pr-4 text-sm ring-1 transition-colors duration-300 ${
+                    on ? "bg-sun/15 text-gold ring-sun/50" : "bg-surface/60 text-ink-2 ring-line"
+                  }`}
+                >
+                  <span className="font-display tabular-nums text-gold">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="whitespace-nowrap font-medium">{v.name}</span>
+                  {/* The slide's timer: a gold line filling along the chip. */}
+                  {on && (
+                    <span
+                      key={active}
+                      aria-hidden
+                      className="visit-chip-timer absolute inset-x-3 bottom-0 h-0.5 origin-left rounded-full bg-sun"
+                      style={{ animationDuration: `${SLIDE_MS}ms`, animationPlayState: halted ? "paused" : "running" }}
+                      onAnimationEnd={() => go(active + 1)}
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

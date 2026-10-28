@@ -164,7 +164,8 @@ export default function Numbers({ t, locale }: { t: Dict["numbers"]; locale: str
             </div>
           </Bezel>
 
-          <Bezel className={`lg:col-span-3 ${card}`}>
+          {/* Full row below desktop, so it never sits beside an empty cell. */}
+          <Bezel className={`col-span-2 lg:col-span-3 ${card}`}>
             <div data-reveal className="flex h-full flex-col justify-between gap-6 p-6">
               <Chip icon={ChatsCircle} />
               <div>
