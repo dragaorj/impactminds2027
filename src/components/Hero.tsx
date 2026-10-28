@@ -185,12 +185,12 @@ export default function Hero({
           typed gold line and the CTA with the countdown ring beside it; the
           event's key facts sit in a frosted bar at the bottom. On phones the
           block sits low so the video's upper half stays clear. */}
-      <div className="mx-auto flex min-h-[100svh] w-full max-w-[132rem] flex-col px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-24 sm:px-8 md:pb-10 lg:min-h-[100dvh] lg:px-[5vw]">
+      <div className="mx-auto flex min-h-[100dvh] w-full max-w-[132rem] flex-col px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-24 sm:px-8 md:pb-10 lg:px-[5vw]">
         <div className="flex flex-1 flex-col items-center justify-end text-center lg:justify-center lg:pt-[14vh]">
           <div className="hero-out-up">
             <p
               data-hero
-              className="faces-pill inline-flex items-center gap-3 rounded-full bg-white/10 py-1.5 pl-1.5 pr-4 text-xs ring-1 ring-white/20 backdrop-blur-md sm:text-sm"
+              className="faces-pill inline-flex items-center gap-3 rounded-full bg-[rgb(34_14_52/0.5)] py-1.5 pl-1.5 pr-4 text-xs ring-1 ring-white/20 sm:text-sm"
             >
               <SpeakerFaces label={speakerLabel} />
               {t.speakersPill}
@@ -224,7 +224,7 @@ export default function Hero({
           <div
             data-hero
             data-countdown-bar
-            className="relative mx-auto mt-6 w-full max-w-3xl rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur-xl backdrop-saturate-150 sm:mt-10"
+            className="relative mx-auto mt-6 w-full max-w-3xl rounded-full bg-[rgb(42_18_64/0.6)] ring-1 ring-white/20 sm:mt-10"
           >
             <dl
               aria-hidden={view !== "facts"}

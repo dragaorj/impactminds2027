@@ -56,6 +56,7 @@ export default function Waveform({
   valueText,
   onSeek,
   tone = "light",
+  active = true,
   className = "",
 }: {
   src: string;
@@ -68,6 +69,8 @@ export default function Waveform({
   valueText: string;
   onSeek: (seconds: number) => void;
   tone?: "light" | "theme";
+  // Only decode while shown: fetching a whole MP3 competes with the videos.
+  active?: boolean;
   className?: string;
 }) {
   const root = useRef<HTMLDivElement>(null);
@@ -79,7 +82,7 @@ export default function Waveform({
     const id = requestAnimationFrame(() => setPeaks(cache.get(`${src}#${bars}`) ?? placeholder(bars, seed)));
     // Only when it's actually on screen layout-wise (not display:none), so a
     // hidden copy (the phone layout) doesn't download the track twice.
-    if (root.current?.offsetParent)
+    if (active && root.current?.offsetParent)
       decodePeaks(src, bars)
         .then((p) => alive && setPeaks(p))
         .catch(() => {});
@@ -87,7 +90,7 @@ export default function Waveform({
       alive = false;
       cancelAnimationFrame(id);
     };
-  }, [src, bars, seed]);
+  }, [src, bars, seed, active]);
 
   const seekAt = (clientX: number) => {
     const el = root.current;

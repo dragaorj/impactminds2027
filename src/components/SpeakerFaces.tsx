@@ -111,7 +111,7 @@ export default function SpeakerFaces({ label }: { label: string }) {
           {/* Name tooltip, above the circle. */}
           <span
             aria-hidden
-            className="pointer-events-none absolute bottom-[calc(100%+0.65rem)] left-1/2 z-10 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-full bg-[#1c0c2c]/90 px-3 py-1 text-xs font-medium text-white opacity-0 ring-1 ring-white/15 backdrop-blur-md transition-[opacity,translate] duration-300 ease-out group-hover/face:translate-y-0 group-hover/face:opacity-100 group-focus-visible/face:translate-y-0 group-focus-visible/face:opacity-100"
+            className="pointer-events-none absolute bottom-[calc(100%+0.65rem)] left-1/2 z-10 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-full bg-[#1c0c2c]/95 px-3 py-1 text-xs font-medium text-white opacity-0 ring-1 ring-white/15 transition-[opacity,translate] duration-300 ease-out group-hover/face:translate-y-0 group-hover/face:opacity-100 group-focus-visible/face:translate-y-0 group-focus-visible/face:opacity-100"
           >
             {f.name}
           </span>

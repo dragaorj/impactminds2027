@@ -21,7 +21,7 @@ import Waveform from "./Waveform";
 const R = 47;
 const C = 2 * Math.PI * R;
 const SWAP_MS = 280;
-const DEFAULT_VOLUME = 0.15;
+const DEFAULT_VOLUME = 0.3;
 
 type Labels = {
   label: string;
@@ -56,7 +56,7 @@ const pick = (not: number) => {
 // record turns while a track plays and a gold line around it fills as the
 // track advances; when it ends the next one starts (or a random one, with
 // shuffle on). Every visit starts on a random track, not the one the visitor
-// started on last time. Volume starts at 15% and is remembered once changed.
+// started on last time. Volume starts at 30% and is remembered once changed.
 // Placement follows the countdown ring: in the hero it sits in its slot
 // beside the ring ([data-music-slot]) and a click turns the hero's info bar
 // into the player (rendered into #hero-music, like the countdown's details);
@@ -74,6 +74,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
   const [time, setTime] = useState({ cur: 0, dur: 0 });
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
   const [muted, setMuted] = useState(false);
+  const mutedRef = useRef(false);
   const [shuffle, setShuffle] = useState(false);
   // Corner panel / hero bar.
   const [open, setOpen] = useState(false);
@@ -93,6 +94,8 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
   const resumeAfterDuck = useRef(false);
   const fadeFrame = useRef(0);
   const volumeRef = useRef(DEFAULT_VOLUME);
+  // Playing silently because the browser refused sound before a gesture.
+  const autoMuted = useRef(false);
 
   const track = playlist[index];
   const total = playlist.length;
@@ -159,7 +162,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     let stored = NaN;
     try {
       last = Number(localStorage.getItem("im-track") ?? -1);
-      stored = Number(localStorage.getItem("im-volume-v5"));
+      stored = Number(localStorage.getItem("im-volume-v6"));
     } catch {}
     const first = pick(last);
     try {
@@ -173,11 +176,12 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
   }, []);
   useEffect(() => {
     volumeRef.current = volume;
+    mutedRef.current = muted;
     const a = audio.current;
     if (!a) return;
     // While ducked or fading, the fade owns the element's volume.
     if (!ducks.current.size && !fadeFrame.current) a.volume = volume;
-    a.muted = muted;
+    a.muted = muted || autoMuted.current;
   }, [volume, muted]);
 
   // Duck: fade out and pause while something else has sound; fade back in
@@ -219,7 +223,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     setVolume(v);
     setMuted(false);
     try {
-      localStorage.setItem("im-volume-v5", String(v));
+      localStorage.setItem("im-volume-v6", String(v));
     } catch {}
   };
 
@@ -235,25 +239,48 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
   // the first click / tap / key press starts it.
   useEffect(() => {
     let armed = false;
+    // First click / tap / key: the sound comes in (fading up), or playback
+    // starts if even muted autoplay was refused.
     const onGesture = () => {
       disarm();
-      if (!userHalted.current && audio.current?.paused) play();
+      const a = audio.current;
+      if (!a || userHalted.current) return;
+      if (autoMuted.current) {
+        autoMuted.current = false;
+        a.volume = 0;
+        a.muted = mutedRef.current;
+        if (a.paused) a.play().catch(() => {});
+        fadeTo(volumeRef.current, 900);
+      } else if (a.paused) play();
     };
     const disarm = () => {
       if (!armed) return;
       armed = false;
       window.removeEventListener("pointerdown", onGesture, true);
       window.removeEventListener("keydown", onGesture, true);
+      window.removeEventListener("touchend", onGesture, true);
     };
     const start = () => {
       window.removeEventListener("im:ready", start);
       window.clearTimeout(fallback);
       if (userHalted.current) return;
       wantPlay.current = true;
-      audio.current?.play().catch(() => {
+      const a = audio.current;
+      if (!a) return;
+      const arm = () => {
         armed = true;
         window.addEventListener("pointerdown", onGesture, true);
         window.addEventListener("keydown", onGesture, true);
+        window.addEventListener("touchend", onGesture, true);
+      };
+      // Sound if the browser allows it; otherwise start muted (always allowed)
+      // so the record turns from the start, and bring the sound in on the
+      // visitor's first gesture.
+      a.play().catch(() => {
+        autoMuted.current = true;
+        a.muted = true;
+        a.play().catch(() => {});
+        arm();
       });
     };
     window.addEventListener("im:ready", start);
@@ -263,7 +290,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       window.clearTimeout(fallback);
       disarm();
     };
-  }, [play]);
+  }, [play, fadeTo]);
 
   // System media controls (lock screen, keyboard media keys).
   useEffect(() => {
@@ -448,7 +475,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     </>
   );
   // Seek bar as the track's waveform (Waveform decodes the real peaks).
-  const seek = (bars: number, cls: string, tone: "light" | "theme") => (
+  const seek = (bars: number, cls: string, tone: "light" | "theme", active = true) => (
     <Waveform
       src={track.src}
       seed={index}
@@ -463,6 +490,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
         if (el) el.currentTime = sec;
       }}
       tone={tone}
+      active={active}
       className={cls}
     />
   );
@@ -536,7 +564,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       </div>
       <div className="hidden min-w-0 flex-1 items-center gap-3 text-[0.6875rem] tabular-nums text-white/70 md:flex">
         <span className="shrink-0">{fmt(time.cur)}</span>
-        {seek(28, "h-7 min-w-0 flex-1 gap-[1.5px]", "light")}
+        {seek(28, "h-7 min-w-0 flex-1 gap-[1.5px]", "light", barOpen)}
         <span className="shrink-0">{fmt(time.dur)}</span>
       </div>
       <div className="hidden shrink-0 lg:block">{volumeCtl("hover:bg-white/10", "music-range-light w-16 min-w-0")}</div>
@@ -607,8 +635,8 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
           aria-expanded={raised ? open : barOpen}
           aria-controls={raised ? "music-panel" : "hero-music"}
           onClick={() => (raised ? setOpen((v) => !v) : setBarOpen((v) => !v))}
-          className={`group relative grid size-full place-items-center rounded-full shadow-[var(--shadow)] ring-1 backdrop-blur-xl backdrop-saturate-150 transition-[transform,background-color,box-shadow] duration-500 ease-[var(--ease-spring)] hover:scale-105 active:scale-95 ${
-            raised ? "bg-surface/60 ring-line" : "bg-[rgb(34_14_52/0.35)] ring-white/15"
+          className={`group relative grid size-full place-items-center rounded-full shadow-[var(--shadow)] ring-1 transition-[transform,background-color,box-shadow] duration-500 ease-[var(--ease-spring)] hover:scale-105 active:scale-95 ${
+            raised ? "bg-surface/60 ring-line backdrop-blur-xl backdrop-saturate-150" : "bg-[rgb(34_14_52/0.55)] ring-white/15"
           }`}
         >
           <span aria-hidden className={`fab-tip ${raised ? "fab-tip-side" : ""}`}>
@@ -641,7 +669,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
           </svg>
           {/* Paused: a play mark over the label. */}
           {!playing && (
-            <span aria-hidden className="absolute grid size-[34%] place-items-center rounded-full bg-[rgb(28_11_44/0.6)] text-white ring-1 ring-white/30 backdrop-blur-sm">
+            <span aria-hidden className="absolute grid size-[34%] place-items-center rounded-full bg-[rgb(28_11_44/0.7)] text-white ring-1 ring-white/30">
               <Play size="50%" weight="fill" className="translate-x-[2%]" />
             </span>
           )}
