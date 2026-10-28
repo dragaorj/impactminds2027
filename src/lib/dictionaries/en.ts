@@ -399,6 +399,7 @@ const en: Dict = {
     prev: "Previous track",
     next: "Next track",
     shuffle: "Shuffle",
+    repeat: "Repeat track",
     volume: "Volume",
     mute: "Mute",
     unmute: "Unmute",

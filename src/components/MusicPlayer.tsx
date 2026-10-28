@@ -12,7 +12,7 @@ import {
   SpeakerHigh,
   SpeakerLow,
   SpeakerSlash,
-  Stop,
+  Repeat,
 } from "@phosphor-icons/react";
 import { playlist } from "@/lib/site";
 import Waveform from "./Waveform";
@@ -32,6 +32,7 @@ type Labels = {
   prev: string;
   next: string;
   shuffle: string;
+  repeat: string;
   volume: string;
   mute: string;
   unmute: string;
@@ -76,6 +77,8 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
   const [muted, setMuted] = useState(false);
   const mutedRef = useRef(false);
   const [shuffle, setShuffle] = useState(false);
+  // Repeat the current track instead of moving on.
+  const [repeat, setRepeat] = useState(false);
   // Corner panel / hero bar.
   const [open, setOpen] = useState(false);
   const [barOpen, setBarOpen] = useState(false);
@@ -292,6 +295,40 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     };
   }, [play, fadeTo]);
 
+  // Screen locked, browser minimised or another tab/app in front: stop at
+  // once (no fade: frames don't run in a hidden page); back in view, the
+  // music picks up again with a fade, unless the visitor had paused it.
+  useEffect(() => {
+    let hiddenPaused = false;
+    const onHide = () => {
+      const a = audio.current;
+      if (!a || a.paused) return;
+      hiddenPaused = true;
+      cancelAnimationFrame(fadeFrame.current);
+      fadeFrame.current = 0;
+      a.pause();
+    };
+    const onShow = () => {
+      const a = audio.current;
+      if (!hiddenPaused || !a) return;
+      hiddenPaused = false;
+      if (userHalted.current || ducks.current.size) return;
+      a.volume = 0;
+      a.play()
+        .then(() => fadeTo(volumeRef.current, 700))
+        .catch(() => {
+          a.volume = volumeRef.current;
+        });
+    };
+    const onVisibility = () => (document.hidden ? onHide() : onShow());
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("pagehide", onHide);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("pagehide", onHide);
+    };
+  }, [fadeTo]);
+
   // System media controls (lock screen, keyboard media keys).
   useEffect(() => {
     if (!("mediaSession" in navigator)) return;
@@ -444,33 +481,40 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       <i />
     </span>
   );
-  const controls = (hover: string, big: string) => (
+  // Shuffle · previous · play/pause · next · repeat (toggles turn gold when on).
+  const controls = (hover: string, big: string, icon: string, on: string) => (
     <>
       <button
         type="button"
-        onClick={() => setShuffle((s) => !s)}
+        onClick={() => setShuffle((v) => !v)}
         aria-label={labels.shuffle}
         aria-pressed={shuffle}
-        className={`${iconBtn} ${hover} ${shuffle ? "text-gold" : ""}`}
+        className={`${iconBtn} ${hover} ${shuffle ? on : ""}`}
       >
-        <Shuffle size="1.05rem" weight={shuffle ? "bold" : "regular"} />
+        <Shuffle size={icon} weight={shuffle ? "bold" : "regular"} />
       </button>
       <button type="button" onClick={prev} aria-label={labels.prev} className={`${iconBtn} ${hover}`}>
-        <SkipBack size="1.05rem" weight="fill" />
-      </button>
-      <button type="button" onClick={stop} aria-label={labels.stop} className={`${iconBtn} ${hover}`}>
-        <Stop size="1.05rem" weight="fill" />
+        <SkipBack size={icon} weight="fill" />
       </button>
       <button
         type="button"
         onClick={playing ? pause : play}
         aria-label={playing ? labels.pause : labels.play}
-        className={`grid shrink-0 place-items-center rounded-full bg-sun text-sun-ink shadow-[0_8px_24px_rgb(217_184_101/0.35)] transition-transform duration-300 ease-[var(--ease-spring)] hover:scale-105 active:scale-95 ${big}`}
+        className={`mx-0.5 grid shrink-0 place-items-center rounded-full bg-sun text-sun-ink shadow-[0_8px_24px_rgb(217_184_101/0.35)] transition-transform duration-300 ease-[var(--ease-spring)] hover:scale-105 active:scale-95 ${big}`}
       >
-        {playing ? <Pause size="1.15rem" weight="fill" /> : <Play size="1.15rem" weight="fill" className="translate-x-[2%]" />}
+        {playing ? <Pause size={icon} weight="fill" /> : <Play size={icon} weight="fill" className="translate-x-[2%]" />}
       </button>
       <button type="button" onClick={next} aria-label={labels.next} className={`${iconBtn} ${hover}`}>
-        <SkipForward size="1.05rem" weight="fill" />
+        <SkipForward size={icon} weight="fill" />
+      </button>
+      <button
+        type="button"
+        onClick={() => setRepeat((v) => !v)}
+        aria-label={labels.repeat}
+        aria-pressed={repeat}
+        className={`${iconBtn} ${hover} ${repeat ? on : ""}`}
+      >
+        <Repeat size={icon} weight={repeat ? "bold" : "regular"} />
       </button>
     </>
   );
@@ -524,8 +568,8 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
   // volume); on phones the track and the main controls, with the seek line
   // along the bottom edge.
   const bar = (
-    <div className="relative flex h-full items-center gap-3 px-4 text-white sm:gap-4 sm:px-6">
-      {cover("size-10 sm:size-11")}
+    <div className="relative flex h-full items-center gap-2 px-3.5 text-white sm:gap-4 sm:px-6">
+      {cover("size-9 sm:size-11")}
       <div className="min-w-0 flex-1 sm:w-36 sm:flex-none">
         <p className="flex items-center gap-1.5 whitespace-nowrap text-[0.625rem] font-medium uppercase tracking-[0.14em] text-[#D9B865]">
           {eq}
@@ -534,33 +578,9 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
         <p className="truncate font-display text-base leading-tight sm:text-lg">{track.title}</p>
         <p className="truncate text-xs text-white/70">{track.artist}</p>
       </div>
-      <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
-        <span className="hidden sm:contents">{controls("hover:bg-white/10", "size-10")}</span>
-        <span className="contents sm:hidden">
-          <button type="button" onClick={prev} aria-label={labels.prev} className={`${iconBtn} hover:bg-white/10`}>
-            <SkipBack size="1rem" weight="fill" />
-          </button>
-          <button
-            type="button"
-            onClick={playing ? pause : play}
-            aria-label={playing ? labels.pause : labels.play}
-            className="grid size-9 place-items-center rounded-full bg-sun text-sun-ink"
-          >
-            {playing ? <Pause size="1rem" weight="fill" /> : <Play size="1rem" weight="fill" className="translate-x-[2%]" />}
-          </button>
-          <button type="button" onClick={next} aria-label={labels.next} className={`${iconBtn} hover:bg-white/10`}>
-            <SkipForward size="1rem" weight="fill" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setShuffle((s) => !s)}
-            aria-label={labels.shuffle}
-            aria-pressed={shuffle}
-            className={`${iconBtn} hover:bg-white/10 ${shuffle ? "text-[#D9B865]" : ""}`}
-          >
-            <Shuffle size="1rem" weight={shuffle ? "bold" : "regular"} />
-          </button>
-        </span>
+      <div className="flex shrink-0 items-center gap-0 sm:gap-1">
+        <span className="hidden sm:contents">{controls("hover:bg-white/10", "size-10", "1.05rem", "text-[#D9B865]")}</span>
+        <span className="contents sm:hidden">{controls("size-8! hover:bg-white/10", "size-8", "0.95rem", "text-[#D9B865]")}</span>
       </div>
       <div className="hidden min-w-0 flex-1 items-center gap-3 text-[0.6875rem] tabular-nums text-white/70 md:flex">
         <span className="shrink-0">{fmt(time.cur)}</span>
@@ -594,9 +614,12 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
           onPause={() => setPlaying(false)}
           onTimeUpdate={(e) => setTime({ cur: e.currentTarget.currentTime, dur: e.currentTarget.duration || 0 })}
           onLoadedMetadata={(e) => setTime({ cur: 0, dur: e.currentTarget.duration || 0 })}
-          onEnded={() => {
+          onEnded={(e) => {
             wantPlay.current = true;
-            next();
+            if (repeat) {
+              e.currentTarget.currentTime = 0;
+              e.currentTarget.play().catch(() => {});
+            } else next();
           }}
         />
 
@@ -624,7 +647,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
               <span>{fmt(time.cur)}</span>
               <span>{fmt(time.dur)}</span>
             </div>
-            <div className="mt-2 flex items-center justify-center gap-1">{controls("text-ink hover:bg-ink/8", "mx-1 size-12")}</div>
+            <div className="mt-2 flex items-center justify-center gap-1">{controls("text-ink hover:bg-ink/8", "mx-1 size-12", "1.1rem", "text-gold")}</div>
             <div className="mt-2 px-1 [&_input]:flex-1 [&>div]:flex">{volumeCtl("text-ink hover:bg-ink/8", "flex-1")}</div>
           </div>
         )}

@@ -397,6 +397,7 @@ const pt = {
     prev: "Faixa anterior",
     next: "Próxima faixa",
     shuffle: "Ordem aleatória",
+    repeat: "Repetir faixa",
     volume: "Volume",
     mute: "Silenciar",
     unmute: "Ativar som",
