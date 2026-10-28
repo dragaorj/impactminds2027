@@ -313,6 +313,9 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     if (!raised) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- the hint belongs to the corner only
       setHint(false);
+      // Cut short by a return to the top: it has had its moment, so the X
+      // must be there next time the buttons reach the corner.
+      if (hintShown.current) setHintDone(true);
       return;
     }
     if (hintShown.current) return;
@@ -612,11 +615,11 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       />
     </div>
   );
-  // The hint square (96px) centred over the button, but kept 8px clear of
+  // The hint square (112px) centred over the button, but kept 8px clear of
   // the screen's right edge.
   const hintReach =
     box && typeof window !== "undefined"
-      ? Math.max(0, Math.min((96 - box.size) / 2, document.documentElement.clientWidth - (box.left + box.size) - 8))
+      ? Math.max(0, Math.min((112 - box.size) / 2, document.documentElement.clientWidth - (box.left + box.size) - 8))
       : 0;
   const counter = `${String(index + 1).padStart(2, "0")}/${String(total).padStart(2, "0")}`;
 
@@ -686,7 +689,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
             role="status"
             aria-hidden={!hint}
             style={{ right: -hintReach }}
-            className={`pointer-events-none absolute bottom-[calc(100%+0.9rem)] flex min-h-24 w-24 flex-col items-center justify-center gap-1.5 rounded-2xl bg-surface p-2.5 text-center text-[0.6875rem] font-medium leading-snug text-ink shadow-[var(--shadow)] ring-1 ring-line transition-[opacity,translate] duration-500 ease-[var(--ease-out-expo)] ${
+            className={`pointer-events-none absolute bottom-[calc(100%+0.9rem)] flex min-h-28 w-28 flex-col items-center justify-center gap-1.5 rounded-2xl bg-surface p-2.5 text-center text-[0.6875rem] font-medium leading-snug text-ink shadow-[var(--shadow)] ring-1 ring-line transition-[opacity,translate] duration-500 ease-[var(--ease-out-expo)] ${
               hint ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0"
             }`}
           >

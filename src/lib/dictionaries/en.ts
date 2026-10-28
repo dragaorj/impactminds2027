@@ -405,7 +405,7 @@ const en: Dict = {
     next: "Next track",
     shuffle: "Shuffle",
     repeat: "Repeat track",
-    hint: "Music and the countdown live here",
+    hint: "Music, the countdown and back to top live here",
     hideControls: "Hide controls",
     showControls: "Show controls",
     volume: "Volume",

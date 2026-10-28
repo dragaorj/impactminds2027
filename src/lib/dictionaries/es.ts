@@ -405,7 +405,7 @@ const es: Dict = {
     next: "Siguiente pista",
     shuffle: "Orden aleatorio",
     repeat: "Repetir pista",
-    hint: "La música y la cuenta regresiva quedan aquí",
+    hint: "La música, la cuenta regresiva y volver arriba quedan aquí",
     hideControls: "Ocultar controles",
     showControls: "Mostrar controles",
     volume: "Volumen",

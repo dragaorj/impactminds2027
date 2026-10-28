@@ -61,6 +61,10 @@ export default function BackToTop({ label }: { label: string }) {
           visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
         }`}
       >
+        {/* Tooltip, to the left like the countdown and music buttons'. */}
+        <span aria-hidden className="fab-tip fab-tip-side">
+          {label}
+        </span>
         <svg viewBox="0 0 100 100" aria-hidden className="absolute inset-0 size-full -rotate-90">
           {Array.from({ length: TICKS }, (_, i) => (
             <line

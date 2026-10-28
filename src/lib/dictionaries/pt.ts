@@ -403,7 +403,7 @@ const pt = {
     next: "Próxima faixa",
     shuffle: "Ordem aleatória",
     repeat: "Repetir faixa",
-    hint: "Música e contagem regressiva ficam aqui",
+    hint: "Música, contagem regressiva e voltar ao topo ficam aqui",
     hideControls: "Recolher controles",
     showControls: "Mostrar controles",
     volume: "Volume",
