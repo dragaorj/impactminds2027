@@ -222,23 +222,26 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
         </div>
       </div>
 
-      {/* Phones: three rows of small faces (no names), drifting right, left,
-          right; a tap opens the speaker. Larger screens keep the cards below. */}
+      {/* Phones: two rows of small faces (no names), drifting right then left;
+          a tap on any face opens the speaker. Larger screens keep the cards below. */}
       <div
         className="speaker-loop mt-10 space-y-3 md:hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]"
         data-paused={paused || open !== null || undefined}
         data-reveal
       >
-        {[0, 1, 2].map((row) => {
-          const faces = list.map((s, i) => ({ s, i })).filter(({ i }) => i % 3 === row);
+        {[0, 1].map((row) => {
+          const faces = list.map((s, i) => ({ s, i })).filter(({ i }) => i % 2 === row);
           return (
-            <div key={row} className={`speaker-track flex w-max ${row === 1 ? "" : "speaker-track-rev"}`} style={{ animationDuration: `${faces.length * 6}s` }}>
+            <div key={row} className={`speaker-track flex w-max ${row === 0 ? "speaker-track-rev" : ""}`} style={{ animationDuration: `${faces.length * 6}s` }}>
               {[0, 1].map((copy) => (
                 <ul key={copy} className={`flex gap-3 pr-3 ${copy ? "speaker-copy" : ""}`} aria-hidden={copy ? true : undefined}>
                   {faces.map(({ s, i }) => (
-                    <li key={s.name} className="size-20 shrink-0" inert={copy ? true : undefined}>
+                    <li key={s.name} className="size-20 shrink-0">
+                      {/* The copy keeps the loop seamless and is tappable too (half the
+                          time it is the one on screen); only the first is in the tab order. */}
                       <button
                         type="button"
+                        tabIndex={copy ? -1 : undefined}
                         onClick={() => setOpen(i)}
                         aria-label={`${t.open} ${s.name}`}
                         className="speaker-card group block size-full rounded-full bg-ink/[0.04] p-1 ring-1 ring-line"

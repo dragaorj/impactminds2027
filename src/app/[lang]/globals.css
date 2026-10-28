@@ -166,6 +166,9 @@ body {
   outline: 3px solid var(--sun);
   outline-offset: 3px;
 }
+/* Focus targets that are not controls (main, the skip link's target, takes
+   focus with tabindex -1): no ring, or a gold line shows along its edge. */
+[tabindex="-1"]:focus-visible { outline: none; }
 
 html[data-links="on"] main a,
 html[data-links="on"] footer a {

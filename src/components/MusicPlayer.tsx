@@ -25,16 +25,18 @@ const C = 2 * Math.PI * R;
 const SWAP_MS = 280;
 const DEFAULT_VOLUME = 0.3;
 
-// iOS keeps every media element at full volume (setting it does nothing):
-// probed once with a throwaway element.
-let fixedVolume: boolean | undefined;
-const volumeIsFixed = () => {
-  if (fixedVolume === undefined) {
+// Phones and tablets: iOS keeps every media element at full volume (setting
+// it does nothing, and some versions even read the new value back), so on any
+// touch device the level goes through Web Audio. Elsewhere the element's own
+// volume works and is used; the probe still catches other fixed-volume cases.
+let gainNeeded: boolean | undefined;
+const needsGain = () => {
+  if (gainNeeded === undefined) {
     const probe = document.createElement("audio");
     probe.volume = 0.5;
-    fixedVolume = probe.volume !== 0.5;
+    gainNeeded = probe.volume !== 0.5 || window.matchMedia("(pointer: coarse)").matches;
   }
-  return fixedVolume;
+  return gainNeeded;
 };
 
 type Labels = {
@@ -149,14 +151,15 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     if (graph.current) graph.current.gain.gain.value = v;
     else a.volume = v;
   }, []);
-  // Call from a gesture: builds the gain path where the element's volume is fixed.
+  // Call from a gesture: builds the gain path where the element's volume can't
+  // be set, or wakes it if the system suspended it.
   const unlock = useCallback(() => {
     const a = audio.current;
     if (graph.current) {
       if (graph.current.ctx.state !== "running") graph.current.ctx.resume().catch(() => {});
       return;
     }
-    if (!a || !volumeIsFixed()) return;
+    if (!a || !needsGain()) return;
     const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!Ctx) return;
     try {
@@ -166,8 +169,24 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       ctx.createMediaElementSource(a).connect(gain).connect(ctx.destination);
       ctx.resume().catch(() => {});
       graph.current = { ctx, gain };
+      // From now on the gain alone sets the level (where the element's
+      // volume does work, as on Android, the two would multiply).
+      a.volume = 1;
     } catch {}
   }, []);
+
+  // iOS only lets audio start on some events (the end of a tap, a click), not
+  // on a touch's pointerdown: every one of those makes sure the path runs, so
+  // a path built on the wrong event is woken by the next tap.
+  useEffect(() => {
+    const wake = () => unlock();
+    document.addEventListener("touchend", wake, { capture: true, passive: true });
+    document.addEventListener("click", wake, true);
+    return () => {
+      document.removeEventListener("touchend", wake, true);
+      document.removeEventListener("click", wake, true);
+    };
+  }, [unlock]);
 
   // Glide the heard level to `to` (the volume setting itself is untouched).
   const fadeTo = useCallback((to: number, ms: number, done?: () => void) => {
