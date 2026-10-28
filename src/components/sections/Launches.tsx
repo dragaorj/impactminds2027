@@ -37,11 +37,11 @@ export default function Launches({ t, locale }: { t: Dict["launches"]; locale: s
                         sizes="(min-width:1024px) 58vw, 100vw"
                         className="-z-10 object-cover object-[50%_58%]"
                       />
-                      {/* Purple wash: deep behind the title and the figure, lighter in
-                          the middle so the forest and the people read. */}
+                      {/* Purple wash: deep behind the title, the story and the figure,
+                          lighter only further down so the people still read. */}
                       <span
                         aria-hidden
-                        className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgb(34_14_52/0.92)_0%,rgb(34_14_52/0.55)_38%,rgb(34_14_52/0.35)_58%,rgb(34_14_52/0.95)_100%)]"
+                        className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgb(34_14_52/0.94)_0%,rgb(34_14_52/0.84)_40%,rgb(34_14_52/0.55)_62%,rgb(34_14_52/0.45)_74%,rgb(34_14_52/0.95)_100%)]"
                       />
                     </>
                   )}
@@ -56,7 +56,13 @@ export default function Launches({ t, locale }: { t: Dict["launches"]; locale: s
                     <h3 className={`mt-5 font-display leading-[1.08] ${lead ? "text-[clamp(2rem,3.6vw,3rem)]" : "text-2xl md:text-3xl"}`}>
                       {item.title}
                     </h3>
-                    <p className={`mt-4 max-w-[46ch] text-base leading-relaxed ${lead ? "text-block-muted" : "text-ink-2"}`}>{item.text}</p>
+                    <p
+                      className={`mt-4 max-w-[46ch] text-base leading-relaxed ${
+                        lead ? "text-white/90 [text-shadow:0_1px_14px_rgb(34_14_52/0.7)]" : "text-ink-2"
+                      }`}
+                    >
+                      {item.text}
+                    </p>
                   </div>
                   {/* Stat row: the figure and what it measures share one baseline,
                       ruled off from the story above. */}
@@ -75,7 +81,7 @@ export default function Launches({ t, locale }: { t: Dict["launches"]; locale: s
                       </span>
                     </span>
                     <span
-                      className={`max-w-[12ch] pb-1 text-right text-xs font-medium uppercase leading-snug tracking-[0.14em] md:text-[0.8125rem] ${lead ? "text-block-muted" : "text-ink-2"}`}
+                      className={`max-w-[12ch] pb-1 text-right text-xs font-medium uppercase leading-snug tracking-[0.14em] md:text-[0.8125rem] ${lead ? "text-white/85 [text-shadow:0_1px_10px_rgb(34_14_52/0.7)]" : "text-ink-2"}`}
                     >
                       {item.figureLabel}
                     </span>
