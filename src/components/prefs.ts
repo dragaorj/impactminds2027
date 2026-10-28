@@ -7,11 +7,21 @@ import { useCallback, useSyncExternalStore } from "react";
 // MutationObserver so every control stays in sync.
 
 // quiet: never start the background music on its own.
-export type A11y = { text: 1 | 2 | 3; contrast: boolean; motion: boolean; links: boolean; quiet: boolean };
+// scrollbar: show the scrollbars (hidden across the site by default).
+// facts: show the hero's bar of event facts (hidden by default).
+export type A11y = {
+  text: 1 | 2 | 3;
+  contrast: boolean;
+  motion: boolean;
+  links: boolean;
+  quiet: boolean;
+  scrollbar: boolean;
+  facts: boolean;
+};
 export type Prefs = { theme: "light" | "dark"; a11y: A11y };
 
-const DEFAULT_A11Y: A11y = { text: 1, contrast: false, motion: false, links: false, quiet: false };
-const SERVER_SNAPSHOT = "light|1|0|0|0|0";
+const DEFAULT_A11Y: A11y = { text: 1, contrast: false, motion: false, links: false, quiet: false, scrollbar: false, facts: false };
+const SERVER_SNAPSHOT = "light|1|0|0|0|0|0|0";
 
 function readSnapshot() {
   const d = document.documentElement.dataset;
@@ -23,6 +33,8 @@ function readSnapshot() {
     stored.motion ? 1 : 0,
     d.links === "on" ? 1 : 0,
     stored.quiet ? 1 : 0,
+    d.scrollbar === "on" ? 1 : 0,
+    d.facts === "on" ? 1 : 0,
   ].join("|");
 }
 
@@ -51,6 +63,10 @@ export function applyA11y(a11y: A11y) {
   // Mirrored on <html> so the menu (MutationObserver) sees the change.
   if (a11y.quiet) d.quiet = "on";
   else delete d.quiet;
+  if (a11y.scrollbar) d.scrollbar = "on";
+  else delete d.scrollbar;
+  if (a11y.facts) d.facts = "on";
+  else delete d.facts;
   const systemReduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (a11y.motion || systemReduce) d.motion = "reduce";
   else delete d.motion;
@@ -78,7 +94,7 @@ export function restorePrefs() {
 
 export function usePrefs() {
   const snap = useSyncExternalStore(subscribe, readSnapshot, () => SERVER_SNAPSHOT);
-  const [theme, text, contrast, motion, links, quiet] = snap.split("|");
+  const [theme, text, contrast, motion, links, quiet, scrollbar, facts] = snap.split("|");
   const prefs: Prefs = {
     theme: theme as Prefs["theme"],
     a11y: {
@@ -87,6 +103,8 @@ export function usePrefs() {
       motion: motion === "1",
       links: links === "1",
       quiet: quiet === "1",
+      scrollbar: scrollbar === "1",
+      facts: facts === "1",
     },
   };
 

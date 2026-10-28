@@ -421,6 +421,22 @@ html.js:not([data-motion="reduce"]) [data-hero] {
 @supports (-moz-appearance: none) {
   html { scrollbar-width: thin; scrollbar-color: color-mix(in oklab, var(--brand) 55%, transparent) transparent; }
 }
+/* Hero bar: the event-facts view is hidden unless turned on in the
+   accessibility menu (html[data-facts="on"]). The box keeps its size so the
+   page doesn't move; its glass fades with the same timing as the views. */
+[data-countdown-bar] { transition: background-color 0.5s ease-out, box-shadow 0.5s ease-out; }
+html:not([data-facts="on"]) [data-countdown-bar][data-view="facts"] { background-color: transparent; box-shadow: none; }
+html:not([data-facts="on"]) [data-countdown-bar][data-view="facts"] > dl { opacity: 0; visibility: hidden; }
+[data-countdown-bar] > dl { transition: opacity 0.5s ease-out, filter 0.5s ease-out, translate 0.5s ease-out, visibility 0s linear 0.5s; }
+[data-countdown-bar][data-view="facts"] > dl { transition-delay: 0s; }
+
+/* Hidden across the site (page and inner panels) unless the visitor turns
+   them on in the accessibility menu (html[data-scrollbar="on"], prefs.ts).
+   Scrolling itself is untouched. */
+html:not([data-scrollbar="on"]),
+html:not([data-scrollbar="on"]) * { scrollbar-width: none; }
+html:not([data-scrollbar="on"])::-webkit-scrollbar,
+html:not([data-scrollbar="on"]) *::-webkit-scrollbar { display: none; }
 
 
 /* Editions bento. Phones: two columns, a few tiles span both. From md: twelve

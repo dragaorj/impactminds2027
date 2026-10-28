@@ -261,7 +261,9 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
             className="absolute bottom-[calc(100%+0.75rem)] right-0 w-[min(22rem,calc(100vw-1.5rem))] origin-bottom-right animate-[menuDrop_0.5s_var(--ease-out-expo)_both] overflow-y-auto rounded-[1.75rem] bg-surface/90 p-5 text-ink shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:bottom-0 sm:right-[calc(100%+0.75rem)] sm:w-[22rem] sm:p-6"
           >
             <p className="text-xs text-ink-2 sm:text-sm">{labels.countdown}</p>
-            <p className="mb-4 mt-1 text-xs font-medium text-gold sm:text-sm">{labels.dates}</p>
+            <p className="mb-4 mt-1 text-xs font-medium text-gold sm:text-sm">
+              {labels.eyebrow} · {labels.dates}
+            </p>
             <Countdown start={EVENT_START} end={EVENT_END} labels={labels} compact />
             <a
               href="#agenda-2027"

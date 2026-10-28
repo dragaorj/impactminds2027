@@ -17,6 +17,8 @@ const pt = {
   },
   controls: {
     language: "Idioma",
+    scrollbar: "Mostrar barra de rolagem",
+    facts: "Mostrar barra de informações do evento",
     languages: { pt: "Português", es: "Espanhol", en: "Inglês" },
     themeToLight: "Ativar modo claro",
     themeToDark: "Ativar modo escuro",
@@ -49,6 +51,7 @@ const pt = {
       { value: "33", label: "países representados" },
     ],
     dates: "24 a 27 de agosto de 2027",
+    agendaCta: "Agenda 2027",
     launch: "Lançamento oficial em março de 2027",
     countdown: "Contagem regressiva para o Impact Minds 2027",
     live: "O Impact Minds 2027 está acontecendo agora em Cartagena",

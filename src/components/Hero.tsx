@@ -219,11 +219,15 @@ export default function Hero({
         </div>
 
         {/* Frosted bar with the event's key facts. Clicking the countdown ring
-            cross-fades it to the countdown's details (same box, same size). */}
+            cross-fades it to the countdown's details (same box, same size).
+            The facts view is hidden unless turned on in the accessibility menu
+            (data-view + html[data-facts], globals.css): the box keeps its room,
+            so nothing moves, and only the countdown and music views show. */}
         <div className="hero-out-down w-full">
           <div
             data-hero
             data-countdown-bar
+            data-view={view}
             className="relative mx-auto mt-6 w-full max-w-3xl rounded-full bg-[rgb(42_18_64/0.6)] ring-1 ring-white/20 sm:mt-10"
           >
             <dl
@@ -247,13 +251,14 @@ export default function Hero({
               }`}
             >
               {/* Phones: just the four units, laid out like the facts they replace
-                  (four centred columns with dividers); a short title and the dates
-                  from sm, so the units keep room to breathe. */}
+                  (four centred columns with dividers); the venue and the dates from
+                  sm, with the units grouped in the middle, each label centred
+                  under its number. */}
               <div className="hidden sm:block sm:shrink-0">
-                <p className="text-[0.8125rem] text-white/75">{t.title} 2027</p>
+                <p className="text-[0.8125rem] text-white/75">{t.eyebrow}</p>
                 <p className="mt-0.5 text-[0.8125rem] font-medium text-[#D9B865]">{t.dates}</p>
               </div>
-              <div className="w-full [&_dd]:text-xl [&_dt]:mt-1 max-sm:[&_dl]:gap-0 max-sm:[&_dl>div]:items-center max-sm:[&_dl>div+div]:border-l max-sm:[&_dl>div+div]:border-white/15 max-sm:[&_dt]:text-[0.625rem] sm:w-auto sm:flex-1 sm:[&_dl]:flex sm:[&_dl]:justify-between sm:[&_dl]:gap-5 sm:[&_dd]:text-[1.65rem] sm:[&_dt]:text-xs">
+              <div className="w-full [&_dd]:text-xl [&_dt]:mt-1 max-sm:[&_dl]:gap-0 max-sm:[&_dl>div]:items-center max-sm:[&_dl>div+div]:border-l max-sm:[&_dl>div+div]:border-white/15 max-sm:[&_dt]:text-[0.625rem] sm:w-auto sm:flex-1 sm:[&_dl]:flex sm:[&_dl]:justify-center sm:[&_dl]:gap-7 sm:[&_dl>div]:min-w-[3.25rem] sm:[&_dl>div]:items-center sm:[&_dd]:text-[1.65rem] sm:[&_dt]:text-xs">
                 <Countdown start={EVENT_START} end={EVENT_END} labels={t} compact />
               </div>
               <a

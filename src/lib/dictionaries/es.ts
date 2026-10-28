@@ -19,6 +19,8 @@ const es: Dict = {
   },
   controls: {
     language: "Idioma",
+    scrollbar: "Mostrar barra de desplazamiento",
+    facts: "Mostrar barra de información del evento",
     languages: { pt: "Portugués", es: "Español", en: "Inglés" },
     themeToLight: "Activar modo claro",
     themeToDark: "Activar modo oscuro",
@@ -51,6 +53,7 @@ const es: Dict = {
       { value: "33", label: "países representados" },
     ],
     dates: "24 al 27 de agosto de 2027",
+    agendaCta: "Agenda 2027",
     launch: "Lanzamiento oficial en marzo de 2027",
     countdown: "Cuenta regresiva para Impact Minds 2027",
     live: "Impact Minds 2027 está sucediendo ahora en Cartagena",

@@ -37,7 +37,7 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
       <Preloader />
       <Nav lang={lang} nav={t.nav} controls={t.controls} />
       <main id="conteudo" tabIndex={-1} className="w-full max-w-full overflow-x-clip outline-none">
-        <Hero t={t.hero} videoSrc={localVideo("header.mp4")} agendaLink={t.agenda.title} speakerLabel={t.speakers.open} />
+        <Hero t={t.hero} videoSrc={localVideo("header.mp4")} agendaLink={t.hero.agendaCta} speakerLabel={t.speakers.open} />
         <Numbers t={t.numbers} locale={locale} />
         <About t={t.about} videoSrc={localVideo("about.mp4")} />
         <Survey t={t.survey} locale={locale} />
@@ -54,7 +54,7 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
         <Editions t={t.editions} />
       </main>
       <Footer t={t.footer} hero={t.hero} nav={t.nav} />
-      <CountdownRing labels={{ ...t.hero, agendaLink: t.agenda.title }} />
+      <CountdownRing labels={{ ...t.hero, agendaLink: t.hero.agendaCta }} />
       <MusicPlayer labels={t.music} />
       <BackToTop label={t.footer.backToTop} />
       <DockToggle label={t.music.showControls} />
