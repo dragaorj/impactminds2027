@@ -39,6 +39,9 @@ export default function Hero({
   // to their details (one at a time); otherwise it shows the event facts.
   const [view, setView] = useState<"facts" | "countdown" | "music">("facts");
   const countdown = view === "countdown";
+  useEffect(() => {
+    window.dispatchEvent(new Event("im:hero-shift"));
+  }, [view]);
   const music = view === "music";
 
   // Scrolling away flies through the title: "Impact Minds" grows towards the
@@ -221,9 +224,13 @@ export default function Hero({
         {/* Frosted bar with the event's key facts. Clicking the countdown ring
             cross-fades it to the countdown's details (same box, same size).
             The facts view is hidden unless turned on in the accessibility menu
-            (data-view + html[data-facts], globals.css): the box keeps its room,
-            so nothing moves, and only the countdown and music views show. */}
-        <div className="hero-out-down w-full">
+            (data-view + html[data-facts], globals.css). On phones and tablets, with no bar on show its
+            room folds away (.hero-bar-slot), so the block sits near the bottom
+            edge, and it opens again, lifting the block, for the countdown, the
+            music or the facts; "im:hero-shift" tells the floating buttons to
+            follow their slots while it moves. */}
+        <div className="hero-out-down hero-bar-slot w-full">
+          <div className="p-px">
           <div
             data-hero
             data-countdown-bar
@@ -279,6 +286,7 @@ export default function Hero({
                 music ? "opacity-100 delay-150" : "pointer-events-none translate-y-1 opacity-0 blur-[2px]"
               }`}
             />
+          </div>
           </div>
         </div>
       </div>

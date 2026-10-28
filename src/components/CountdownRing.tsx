@@ -161,6 +161,9 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
     const onFonts = () => follow(600);
     window.addEventListener("im:ready", onReady);
     window.addEventListener("resize", schedule);
+    // The hero bar opening or folding moves the slot (Hero.tsx): follow it.
+    const onShift = () => follow(1000);
+    window.addEventListener("im:hero-shift", onShift);
     document.fonts?.ready.then(onFonts);
     const late = window.setTimeout(schedule, 1600);
     return () => {
@@ -171,6 +174,7 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
       window.clearTimeout(late);
       window.removeEventListener("im:ready", onReady);
       window.removeEventListener("resize", schedule);
+      window.removeEventListener("im:hero-shift", onShift);
     };
   }, [raised]);
 

@@ -563,6 +563,9 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     const onReady = () => follow();
     window.addEventListener("im:ready", onReady);
     window.addEventListener("resize", schedule);
+    // The hero bar opening or folding moves the slot (Hero.tsx): follow it.
+    const onShift = () => follow(1000);
+    window.addEventListener("im:hero-shift", onShift);
     document.fonts?.ready.then(() => follow(600));
     return () => {
       dead = true;
@@ -571,6 +574,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       window.clearTimeout(swap);
       window.removeEventListener("im:ready", onReady);
       window.removeEventListener("resize", schedule);
+      window.removeEventListener("im:hero-shift", onShift);
     };
   }, [raised]);
 

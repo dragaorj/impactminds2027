@@ -424,6 +424,15 @@ html.js:not([data-motion="reduce"]) [data-hero] {
 /* Hero bar: the event-facts view is hidden unless turned on in the
    accessibility menu (html[data-facts="on"]). The box keeps its size so the
    page doesn't move; its glass fades with the same timing as the views. */
+/* Phones and tablets (where the hero block sits at the bottom): with no bar
+   on show, its room folds away so the block sits near the bottom edge; it
+   opens again (lifting the block) for the countdown, the music or the facts.
+   On desktop the block is centred and the room stays. */
+.hero-bar-slot { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 0.7s cubic-bezier(0.65, 0, 0.35, 1); }
+.hero-bar-slot > * { min-height: 0; overflow: hidden; }
+@media (max-width: 1023.98px) {
+  html:not([data-facts="on"]) .hero-bar-slot:has([data-view="facts"]) { grid-template-rows: 0fr; }
+}
 [data-countdown-bar] { transition: background-color 0.5s ease-out, box-shadow 0.5s ease-out; }
 html:not([data-facts="on"]) [data-countdown-bar][data-view="facts"] { background-color: transparent; box-shadow: none; }
 html:not([data-facts="on"]) [data-countdown-bar][data-view="facts"] > dl { opacity: 0; visibility: hidden; }

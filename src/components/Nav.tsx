@@ -369,7 +369,15 @@ export default function Nav({ lang, nav, controls }: Props) {
       <Toggle label={controls.motion} checked={prefs.a11y.motion} onChange={(v) => setA11y({ motion: v })} />
       <Toggle label={controls.links} checked={prefs.a11y.links} onChange={(v) => setA11y({ links: v })} />
       <Toggle label={controls.scrollbar} checked={prefs.a11y.scrollbar} onChange={(v) => setA11y({ scrollbar: v })} />
-      <Toggle label={controls.facts} checked={prefs.a11y.facts} onChange={(v) => setA11y({ facts: v })} />
+      <Toggle
+        label={controls.facts}
+        checked={prefs.a11y.facts}
+        onChange={(v) => {
+          setA11y({ facts: v });
+          // The hero bar opens or folds: the floating buttons follow their slots.
+          window.dispatchEvent(new Event("im:hero-shift"));
+        }}
+      />
       <Toggle
         label={controls.noMusic}
         checked={prefs.a11y.quiet}
