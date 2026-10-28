@@ -13,6 +13,7 @@ import {
   SpeakerLow,
   SpeakerSlash,
   Repeat,
+  X,
 } from "@phosphor-icons/react";
 import { playlist } from "@/lib/site";
 import Waveform from "./Waveform";
@@ -33,6 +34,8 @@ type Labels = {
   next: string;
   shuffle: string;
   repeat: string;
+  hint: string;
+  hideControls: string;
   volume: string;
   mute: string;
   unmute: string;
@@ -84,6 +87,12 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
   const [barOpen, setBarOpen] = useState(false);
   const [barEl, setBarEl] = useState<HTMLElement | null>(null);
   const [raised, setRaised] = useState(false);
+  // A one-time hint, the first time the buttons land in the corner.
+  const [hint, setHint] = useState(false);
+  const hintShown = useRef(false);
+  // Once the hint has had its moment, a round X sits atop the corner stack so
+  // the visitor can tuck the buttons away (DockToggle).
+  const [hintDone, setHintDone] = useState(false);
   const [box, setBox] = useState<{ top: number; left: number; size: number } | null>(null);
   const [swapping, setSwapping] = useState(false);
   const firstPlace = useRef(true);
@@ -294,6 +303,37 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       disarm();
     };
   }, [play, fadeTo]);
+
+  // First arrival in the corner after each page load: point the buttons out
+  // for a few seconds; any click dismisses it.
+  useEffect(() => {
+    if (!raised) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- the hint belongs to the corner only
+      setHint(false);
+      return;
+    }
+    if (hintShown.current) return;
+    // Marked only when it actually shows (an effect torn down early, as in
+    // development's double run, must not use it up).
+    const show = window.setTimeout(() => {
+      hintShown.current = true;
+      setHint(true);
+    }, SWAP_MS + 450);
+    const end = () => {
+      setHint(false);
+      setHintDone(true);
+    };
+    const hide = window.setTimeout(end, SWAP_MS + 5500);
+    const dismiss = () => {
+      if (hintShown.current) end();
+    };
+    window.addEventListener("pointerdown", dismiss, { once: true });
+    return () => {
+      window.clearTimeout(show);
+      window.clearTimeout(hide);
+      window.removeEventListener("pointerdown", dismiss);
+    };
+  }, [raised]);
 
   // Screen locked, browser minimised or another tab/app in front: stop at
   // once (no fade: frames don't run in a hidden page); back in view, the
@@ -562,6 +602,12 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       />
     </div>
   );
+  // The hint square (96px) centred over the button, but kept 8px clear of
+  // the screen's right edge.
+  const hintReach =
+    box && typeof window !== "undefined"
+      ? Math.max(0, Math.min((96 - box.size) / 2, document.documentElement.clientWidth - (box.left + box.size) - 8))
+      : 0;
   const counter = `${String(index + 1).padStart(2, "0")}/${String(total).padStart(2, "0")}`;
 
   // The hero bar's player: one line on desktop (cover, track, controls, seek,
@@ -600,6 +646,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       {barEl && createPortal(bar, barEl)}
       <div
         ref={wrap}
+        data-dock="1"
         className={`fixed z-[36] transition-opacity ease-out ${box && !swapping ? "opacity-100" : "pointer-events-none opacity-0"}`}
         style={{
           transitionDuration: `${SWAP_MS}ms`,
@@ -622,6 +669,53 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
             } else next();
           }}
         />
+
+        {/* Hint above the corner stack (music on top, countdown below it). */}
+        {raised && (
+          <p
+            role="status"
+            aria-hidden={!hint}
+            style={{ right: -hintReach }}
+            className={`pointer-events-none absolute bottom-[calc(100%+0.9rem)] flex min-h-24 w-24 flex-col items-center justify-center gap-1.5 rounded-2xl bg-surface p-2.5 text-center text-[0.6875rem] font-medium leading-snug text-ink shadow-[var(--shadow)] ring-1 ring-line transition-[opacity,translate] duration-500 ease-[var(--ease-out-expo)] ${
+              hint ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0"
+            }`}
+          >
+            <svg aria-hidden viewBox="0 0 24 24" className="size-3.5 shrink-0 fill-gold">
+              <path d="M12 0c.9 6.4 5 10.6 12 12-7 1.4-11.1 5.6-12 12-.9-6.4-5-10.6-12-12C7 10.6 11.1 6.4 12 0Z" />
+            </svg>
+            {labels.hint}
+            {/* Pointer down at the music button's centre: a solid triangle that
+                covers the box's outline where they meet and carries it only
+                along its two outer edges, so there's no seam. */}
+            <svg
+              aria-hidden
+              viewBox="0 0 14 8"
+              className="absolute -bottom-[7px] h-2 w-3.5 overflow-visible"
+              style={{ right: hintReach + (box?.size ?? 56) / 2 - 7 }}
+            >
+              <path d="M-0.5 -1 H14.5 L7 7 Z" className="fill-surface" />
+              <path d="M0 0 L7 7 L14 0" fill="none" strokeWidth="1" className="stroke-line" />
+            </svg>
+          </p>
+        )}
+
+        {/* After the hint: a round X above the stack tucks the buttons away. */}
+        {raised && (
+          <button
+            type="button"
+            aria-label={labels.hideControls}
+            tabIndex={hintDone && !hint ? 0 : -1}
+            onClick={() => {
+              setOpen(false);
+              window.dispatchEvent(new Event("im:dock-hide"));
+            }}
+            className={`absolute bottom-[calc(100%+0.6rem)] left-1/2 grid size-7 -translate-x-1/2 place-items-center rounded-full text-muted ring-1 ring-line transition-[opacity,scale,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-surface/80 hover:text-ink hover:opacity-100 active:scale-90 ${
+              hintDone && !hint ? "scale-100 opacity-60" : "pointer-events-none scale-50 opacity-0"
+            }`}
+          >
+            <X size="0.75rem" weight="bold" />
+          </button>
+        )}
 
         {/* Corner panel (after scrolling). */}
         {open && raised && (

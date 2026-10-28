@@ -5,6 +5,7 @@ import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import Preloader from "@/components/Preloader";
 import MusicPlayer from "@/components/MusicPlayer";
+import DockToggle from "@/components/DockToggle";
 import ScrollFx from "@/components/ScrollFx";
 import MotionGate from "@/components/MotionGate";
 import BackToTop from "@/components/BackToTop";
@@ -56,6 +57,7 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
       <CountdownRing labels={{ ...t.hero, agendaLink: t.agenda.title }} />
       <MusicPlayer labels={t.music} />
       <BackToTop label={t.footer.backToTop} />
+      <DockToggle label={t.music.showControls} />
       <ScrollFx />
       <MotionGate />
     </>

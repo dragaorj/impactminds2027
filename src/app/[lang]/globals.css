@@ -888,3 +888,27 @@ html[data-motion="reduce"] :is(.music-disc, .music-eq i) { animation: none; }
   background: linear-gradient(90deg, #d9b865 var(--p, 0%), rgb(255 255 255 / 0.2) var(--p, 0%));
 }
 .music-range-light::-moz-range-track { background: rgb(255 255 255 / 0.2); }
+
+/* The floating corner buttons tuck off the right edge (DockToggle): a soft,
+   staggered slide, top to bottom, each easing out while it shrinks a touch;
+   they come back the same way. The fade keeps its own quick 280ms (the move
+   between hero and corner relies on it). !important: the buttons set an
+   inline duration for that fade. */
+[data-dock] {
+  transition-property: translate, scale, opacity !important;
+  transition-duration: 0.8s, 0.8s, 280ms !important;
+  transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1), cubic-bezier(0.65, 0, 0.35, 1), ease-out !important;
+}
+[data-dock="2"] { transition-delay: 70ms, 70ms, 0s !important; }
+[data-dock="3"] { transition-delay: 140ms, 140ms, 0s !important; }
+html[data-dock-hidden] [data-dock] { translate: calc(100% + 2.5rem) 0; scale: 0.85; pointer-events: none; }
+html[data-motion="reduce"] [data-dock] { transition-duration: 0.01s, 0.01s, 280ms !important; }
+/* The tab's caret nudges left now and then: "there's something here". */
+.dock-nudge { animation: dockNudge 2.6s var(--ease-spring) infinite; }
+@keyframes dockNudge {
+  0%, 55%, 100% { translate: 0 0; }
+  65% { translate: -5px 0; }
+  75% { translate: 0 0; }
+  85% { translate: -3px 0; }
+}
+html[data-motion="reduce"] .dock-nudge { animation: none; }

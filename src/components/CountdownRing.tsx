@@ -234,6 +234,7 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
       <div ref={sentinel} aria-hidden className="pointer-events-none absolute left-0 top-0 h-px w-px" />
       <div
         ref={wrap}
+        data-dock="2"
         className={`fixed z-[35] transition-opacity ease-out ${
           box && !swapping ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
