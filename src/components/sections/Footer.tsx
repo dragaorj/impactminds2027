@@ -112,7 +112,7 @@ export default function Footer({ t, hero, nav }: { t: Dict["footer"]; hero: Dict
         {/* data-nosplit: at the very bottom of the page a scroll-triggered line
             reveal may never fire, so the credits are always shown as is. */}
         <div data-nosplit className="mt-10 flex flex-col items-center gap-2 border-t border-line pt-8 text-center text-sm text-muted">
-          <p>© 2026 Impact&nbsp;Minds: Standing Together. Latimpacto. All rights reserved.</p>
+          <p>© 2026 Impact&nbsp;Minds: Standing Together. Latimpacto. {t.rights}</p>
           <p>
             {t.madeBy}{" "}
             <a

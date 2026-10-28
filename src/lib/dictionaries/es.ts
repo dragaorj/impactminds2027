@@ -19,6 +19,7 @@ const es: Dict = {
   },
   controls: {
     language: "Idioma",
+    languages: { pt: "Portugués", es: "Español", en: "Inglés" },
     themeToLight: "Activar modo claro",
     themeToDark: "Activar modo oscuro",
     a11yOpen: "Opciones de accesibilidad",

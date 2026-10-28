@@ -24,16 +24,31 @@ const iconBtnOnVideo =
 // languages are prefetched and the scroll position is handed over
 // (sessionStorage "im-switch"): the new page restores it and skips the intro
 // and all entrance animations (html[data-switch]).
-const LANG_NAMES: Record<Locale, string> = { pt: "Português", es: "Español", en: "English" };
+// Each language in its own words, shown small under its name in the page's
+// language, so a visitor can find theirs whatever the page is in.
+const NATIVE: Record<Locale, string> = { pt: "Português", es: "Español", en: "English" };
 
-function LangSwitch({ lang, label, onVideo = false }: { lang: Locale; label: string; onVideo?: boolean }) {
+function LangSwitch({
+  lang,
+  label,
+  names,
+  onVideo = false,
+  onOpenChange,
+}: {
+  lang: Locale;
+  label: string;
+  names: Record<Locale, string>;
+  onVideo?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
   const [open, setOpen] = useState(false);
 
   // Only one of the bar's popovers at a time (menu, accessibility, language):
   // each says "im:popover" when it opens, and the others close.
   useEffect(() => {
     if (open) window.dispatchEvent(new CustomEvent("im:popover", { detail: "lang" }));
-  }, [open]);
+    onOpenChange?.(open);
+  }, [open, onOpenChange]);
   useEffect(() => {
     const onOther = (e: Event) => {
       if ((e as CustomEvent).detail !== "lang") setOpen(false);
@@ -66,22 +81,25 @@ function LangSwitch({ lang, label, onVideo = false }: { lang: Locale; label: str
     >
       <button
         type="button"
-        aria-label={`${label}: ${LANG_NAMES[lang]}`}
+        aria-label={`${label}: ${names[lang]}`}
         aria-haspopup="true"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className={`flex h-10 items-center gap-1.5 rounded-full pl-2.5 pr-3 text-[0.9375rem] font-medium uppercase leading-none tracking-[0.06em] transition-[background-color,color] duration-500 ease-[var(--ease-spring)] ${
+        className={`group relative flex h-10 items-center gap-1.5 rounded-full pl-2.5 pr-3 text-[0.9375rem] font-medium uppercase leading-none tracking-[0.06em] transition-[background-color,color] duration-500 ease-[var(--ease-spring)] ${
           open ? "bg-sun text-sun-ink" : onVideo ? "text-white hover:bg-sun hover:text-sun-ink" : "text-ink hover:bg-sun hover:text-sun-ink"
         }`}
       >
         <GlobeSimple aria-hidden size="1.1875rem" weight="light" className="shrink-0" />
         <span className="translate-y-[0.5px]">{lang}</span>
+        <span aria-hidden className="fab-tip fab-tip-below normal-case tracking-normal">
+          {label}
+        </span>
       </button>
 
       {open && (
         <div className="absolute right-0 top-full z-50 pt-2">
           {/* Same double-bezel glass card as the menu and the accessibility panel. */}
-          <div className="w-64 origin-top-right animate-[menuDrop_0.5s_var(--ease-out-expo)_both] rounded-[2rem] bg-surface/70 p-1.5 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150">
+          <div className="w-64 origin-top-right animate-[menuDrop_0.5s_var(--ease-out-expo)_both] rounded-[2rem] bg-surface/95 p-1.5 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150">
             <div className="relative isolate overflow-hidden rounded-[calc(2rem-6px)] bg-ink/[0.03] px-1.5 pb-1.5 pt-4 shadow-[inset_0_1px_1px_rgb(255_255_255/0.08)]">
               <span
                 aria-hidden
@@ -114,13 +132,18 @@ function LangSwitch({ lang, label, onVideo = false }: { lang: Locale; label: str
                         }}
                         className="group flex items-center gap-3 rounded-[1.25rem] px-3 py-2.5 transition-colors duration-500 hover:bg-sun/10 focus-visible:bg-sun/10 active:bg-sun/10"
                       >
-                        <span className="w-6 text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-sun">{l}</span>
+                        <span className="w-6 text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-gold">{l}</span>
                         <span
                           className={`flex-1 font-display text-[1.3125rem] leading-tight transition-[translate,color] duration-500 ease-[var(--ease-spring)] group-hover:translate-x-1 group-hover:text-gold ${
                             on ? "text-gold" : "text-ink"
                           }`}
                         >
-                          {LANG_NAMES[l]}
+                          {names[l]}
+                          {names[l] !== NATIVE[l] && (
+                            <span lang={l} className="mt-1 block font-sans text-[0.6875rem] font-normal leading-none text-muted">
+                              {NATIVE[l]}
+                            </span>
+                          )}
                         </span>
                         <span
                           aria-hidden
@@ -228,6 +251,28 @@ export default function Nav({ lang, nav, controls }: Props) {
   // Phones: the menu has two tabs, the site's sections and accessibility.
   const [menuTab, setMenuTab] = useState<"nav" | "a11y">("nav");
   const [panelOpen, setPanelOpen] = useState(false);
+  // Tooltips (.fab-tip, here and on the corner buttons) go away the moment
+  // their button is pressed and stay away until the pointer leaves it.
+  useEffect(() => {
+    const onDown = (e: PointerEvent) => {
+      const host = (e.target as Element).closest?.(".group");
+      if (host?.querySelector(":scope > .fab-tip")) host.setAttribute("data-tip-off", "");
+    };
+    const onOut = (e: PointerEvent) => {
+      // Touch fires pointerout right after the tap while :hover can stick
+      // (iOS): there the tooltip simply stays away.
+      if (e.pointerType !== "mouse") return;
+      const host = (e.target as Element).closest?.("[data-tip-off]");
+      if (host && !host.contains(e.relatedTarget as Node | null)) host.removeAttribute("data-tip-off");
+    };
+    document.addEventListener("pointerdown", onDown, true);
+    document.addEventListener("pointerout", onOut, true);
+    return () => {
+      document.removeEventListener("pointerdown", onDown, true);
+      document.removeEventListener("pointerout", onOut, true);
+    };
+  }, []);
+  const [langOpen, setLangOpen] = useState(false);
   // One popover at a time: the menu and the accessibility panel shut each
   // other, and both answer the language menu ("im:popover", see LangSwitch).
   useEffect(() => {
@@ -416,22 +461,25 @@ export default function Nav({ lang, nav, controls }: Props) {
           </a>
 
           <div className="flex items-center gap-1">
-            <LangSwitch lang={lang} label={controls.language} onVideo={onVideo} />
+            <LangSwitch lang={lang} label={controls.language} names={controls.languages} onVideo={onVideo} onOpenChange={setLangOpen} />
             {/* Phones keep just the language and the menu; these two live in the menu there. */}
             <button
               type="button"
-              className={btn + " max-sm:hidden"}
+              className={btn + " group relative max-sm:hidden"}
               onClick={() => setTheme(isDark ? "light" : "dark")}
               aria-label={isDark ? controls.themeToLight : controls.themeToDark}
             >
               {isDark ? <Sun size="1.25rem" weight="light" className="icon-sun" /> : <Moon size="1.25rem" weight="light" className="icon-moon" />}
+              <span aria-hidden className="fab-tip fab-tip-below">
+                {isDark ? controls.themeToLight : controls.themeToDark}
+              </span>
             </button>
 
             <div className="relative">
               <button
                 ref={panelBtnRef}
                 type="button"
-                className={btn + " max-sm:hidden"}
+                className={btn + " group relative max-sm:hidden"}
                 aria-label={controls.a11yOpen}
                 aria-expanded={panelOpen}
                 aria-controls="a11y-panel"
@@ -441,6 +489,9 @@ export default function Nav({ lang, nav, controls }: Props) {
                 }}
               >
                 <PersonArmsSpread size="1.3125rem" weight="light" className="icon-person" />
+                <span aria-hidden className="fab-tip fab-tip-below">
+                  {controls.a11yTitle}
+                </span>
               </button>
               {panelOpen && (
                 <div
@@ -448,7 +499,7 @@ export default function Nav({ lang, nav, controls }: Props) {
                   id="a11y-panel"
                   role="dialog"
                   aria-label={controls.a11yTitle}
-                  className="fixed inset-x-3 top-[5.25rem] origin-top-right animate-[menuDrop_0.55s_var(--ease-out-expo)_both] rounded-[2rem] bg-surface/70 p-1.5 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:absolute sm:inset-x-auto sm:right-0 sm:top-[calc(100%+12px)] sm:w-[22rem]"
+                  className="fixed inset-x-3 top-[5.25rem] origin-top-right animate-[menuDrop_0.55s_var(--ease-out-expo)_both] rounded-[2rem] bg-surface/95 p-1.5 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:absolute sm:inset-x-auto sm:right-0 sm:top-[calc(100%+12px)] sm:w-[22rem]"
                 >
                   {/* Same double-bezel glass card as the menu, gold glow included. */}
                   <div className="relative isolate overflow-hidden rounded-[calc(2rem-6px)] bg-ink/[0.03] px-2 pb-2 pt-5 shadow-[inset_0_1px_1px_rgb(255_255_255/0.08)]">
@@ -468,7 +519,7 @@ export default function Nav({ lang, nav, controls }: Props) {
 
             <button
               type="button"
-              className={btn + " relative"}
+              className={btn + " group relative"}
               aria-label={menuOpen ? nav.closeMenu : nav.openMenu}
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
@@ -478,6 +529,9 @@ export default function Nav({ lang, nav, controls }: Props) {
                 setMenuOpen((v) => !v);
               }}
             >
+              <span aria-hidden className="fab-tip fab-tip-below">
+                {nav.openMenu}
+              </span>
               {/* Three equal rounded lines; open, the outer two fold into an X. */}
               <span aria-hidden className="relative flex h-3.5 w-[1.375rem] flex-col justify-between">
                 <span
@@ -505,7 +559,7 @@ export default function Nav({ lang, nav, controls }: Props) {
                 with a faint gold glow in its corner. */}
             <div
               id="mobile-menu"
-              className="w-full origin-top-right animate-[menuDrop_0.55s_var(--ease-out-expo)_both] rounded-[2rem] bg-surface/70 p-1.5 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:max-w-[30rem]"
+              className="w-full origin-top-right animate-[menuDrop_0.55s_var(--ease-out-expo)_both] rounded-[2rem] bg-surface/90 p-1.5 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:max-w-[30rem]"
             >
               <div className="relative isolate overflow-hidden rounded-[calc(2rem-6px)] bg-ink/[0.03] px-2 pb-2 pt-5 shadow-[inset_0_1px_1px_rgb(255_255_255/0.08)]">
                 <span
@@ -548,7 +602,7 @@ export default function Nav({ lang, nav, controls }: Props) {
                             onClick={() => setMenuOpen(false)}
                             className="group flex items-center gap-4 rounded-[1.5rem] px-4 py-3.5 text-ink transition-colors duration-500 hover:bg-sun/10 focus-visible:bg-sun/10 active:bg-sun/10"
                           >
-                            <span className="self-start pt-1 font-display text-sm tabular-nums text-sun">{String(i + 1).padStart(2, "0")}</span>
+                            <span className="self-start pt-1 font-display text-sm tabular-nums text-gold">{String(i + 1).padStart(2, "0")}</span>
                             <span className="flex-1 font-display text-[1.625rem] leading-tight transition-[translate,color] duration-500 ease-[var(--ease-spring)] group-hover:translate-x-1 group-hover:text-gold group-focus-visible:text-gold">
                               {item.label}
                             </span>
@@ -595,12 +649,18 @@ export default function Nav({ lang, nav, controls }: Props) {
         )}
       </header>
 
-      {menuOpen && (
+      {(menuOpen || panelOpen || langOpen) && (
         /* Soft veil over the page, the floating buttons included (they sit at
-           z 35-40, under the veil at 41 and the bar at 42); tapping it closes the menu. */
+           z 35-40, under the veil at 41 and the bar at 42); shown under the menu, the accessibility panel and the language menu;
+           tapping it closes whichever is open. */
         <div
           aria-hidden
-          onClick={() => setMenuOpen(false)}
+          onClick={() => {
+            setMenuOpen(false);
+            setPanelOpen(false);
+            // The language menu closes on any other popover's signal.
+            window.dispatchEvent(new CustomEvent("im:popover", { detail: "veil" }));
+          }}
           className="fixed inset-0 z-[41] animate-[fadeIn_0.4s_ease-out_both] bg-block/30 backdrop-blur-[6px]"
         />
       )}

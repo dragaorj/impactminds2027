@@ -97,7 +97,15 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
   const [repeat, setRepeat] = useState(false);
   // Corner panel / hero bar.
   const [open, setOpen] = useState(false);
-  const [barOpen, setBarOpen] = useState(false);
+
+  // While the panel is open the page behind wears the same blurred veil as
+  // the bar's menus (html[data-music-open], body::after in globals.css).
+  useEffect(() => {
+    const d = document.documentElement;
+    if (open) d.setAttribute("data-music-open", "");
+    else d.removeAttribute("data-music-open");
+    return () => d.removeAttribute("data-music-open");
+  }, [open]);  const [barOpen, setBarOpen] = useState(false);
   const [barEl, setBarEl] = useState<HTMLElement | null>(null);
   const [raised, setRaised] = useState(false);
   // A one-time hint, the first time the buttons land in the corner.

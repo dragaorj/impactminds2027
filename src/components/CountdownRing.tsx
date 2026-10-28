@@ -38,7 +38,15 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
   const [swapping, setSwapping] = useState(false);
   const firstPlace = useRef(true);
   const [open, setOpen] = useState(false);
-  const [state, setState] = useState<State | null>(null);
+
+  // While the panel is open the page behind wears the same blurred veil as
+  // the bar's menus (html[data-countdown-open], body::after in globals.css).
+  useEffect(() => {
+    const d = document.documentElement;
+    if (open) d.setAttribute("data-countdown-open", "");
+    else d.removeAttribute("data-countdown-open");
+    return () => d.removeAttribute("data-countdown-open");
+  }, [open]);  const [state, setState] = useState<State | null>(null);
 
   // In the hero the ring doesn't open a popup: its details replace the
   // content of the hero's frosted info bar (Hero listens). In the corner the
@@ -249,7 +257,7 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
             role="dialog"
             aria-label={labels.countdown}
             style={maxH ? { maxHeight: maxH } : undefined}
-            className="absolute bottom-[calc(100%+0.75rem)] right-0 w-[min(22rem,calc(100vw-1.5rem))] origin-bottom-right animate-[menuDrop_0.5s_var(--ease-out-expo)_both] overflow-y-auto rounded-[1.75rem] bg-surface/75 p-5 text-ink shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:bottom-0 sm:right-[calc(100%+0.75rem)] sm:w-[22rem] sm:p-6"
+            className="absolute bottom-[calc(100%+0.75rem)] right-0 w-[min(22rem,calc(100vw-1.5rem))] origin-bottom-right animate-[menuDrop_0.5s_var(--ease-out-expo)_both] overflow-y-auto rounded-[1.75rem] bg-surface/90 p-5 text-ink shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:bottom-0 sm:right-[calc(100%+0.75rem)] sm:w-[22rem] sm:p-6"
           >
             <p className="text-xs text-ink-2 sm:text-sm">{labels.countdown}</p>
             <p className="mb-4 mt-1 text-xs font-medium text-gold sm:text-sm">{labels.dates}</p>

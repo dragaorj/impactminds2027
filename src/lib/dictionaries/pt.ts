@@ -17,6 +17,7 @@ const pt = {
   },
   controls: {
     language: "Idioma",
+    languages: { pt: "Português", es: "Espanhol", en: "Inglês" },
     themeToLight: "Ativar modo claro",
     themeToDark: "Ativar modo escuro",
     a11yOpen: "Opções de acessibilidade",

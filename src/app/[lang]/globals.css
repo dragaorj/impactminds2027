@@ -40,7 +40,9 @@
   --terra: #8e63c6;
   --terra-ink: #1e0b33;
   --lavender: #c9b5e6;
-  --gold: #b8913c;
+  /* Gold as text on the light page: deep enough for 4.5:1 on the surface
+     (the decorative --sun fill stays bright). */
+  --gold: #8a6619;
   --art: #b8913c;
   --art-opacity: 0.55;
   --shadow: 0 30px 80px -40px rgb(62 26 94 / 0.35);
@@ -850,8 +852,11 @@ html[data-motion="reduce"] :is(.music-disc, .music-eq i) { animation: none; }
 .music-range:focus-visible { outline: none; }
 .music-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgb(217 184 101 / 0.6); }
 
-/* Tooltip on the round floating buttons (countdown, music): above them in
-   the hero, to their left in the corner stack. */
+/* Tooltip on the round floating buttons (countdown, music, back to top) and
+   the bar's buttons: above them in the hero, to their left in the corner
+   stack, below them in the bar. It shows on hover or keyboard focus; a click
+   puts it away at once (data-tip-off, set in Nav.tsx until the pointer
+   leaves), and it stays away while the button's own panel is open. */
 .fab-tip {
   position: absolute;
   bottom: calc(100% + 0.6rem);
@@ -872,8 +877,10 @@ html[data-motion="reduce"] :is(.music-disc, .music-eq i) { animation: none; }
   transition: opacity 0.25s ease, translate 0.3s ease;
 }
 .fab-tip-side { bottom: auto; left: auto; top: 50%; right: calc(100% + 0.6rem); translate: 4px -50%; }
-.group:is(:hover, :focus-visible) > .fab-tip { opacity: 1; translate: -50% 0; }
-.group:is(:hover, :focus-visible) > .fab-tip-side { translate: 0 -50%; }
+.fab-tip-below { bottom: auto; top: calc(100% + 0.6rem); translate: -50% -4px; }
+.group:is(:hover, :focus-visible):not([data-tip-off], [aria-expanded="true"]) > .fab-tip { opacity: 1; translate: -50% 0; }
+.group:is(:hover, :focus-visible):not([data-tip-off], [aria-expanded="true"]) > .fab-tip-side { translate: 0 -50%; }
+.group:is([data-tip-off], [aria-expanded="true"]) > .fab-tip { opacity: 0; transition: none; }
 /* Seek / volume on the hero bar (always over the dark video). */
 .music-range-light::-webkit-slider-runnable-track {
   background: linear-gradient(90deg, #d9b865 var(--p, 0%), rgb(255 255 255 / 0.2) var(--p, 0%));
@@ -885,6 +892,26 @@ html[data-motion="reduce"] :is(.music-disc, .music-eq i) { animation: none; }
    they come back the same way. The fade keeps its own quick 280ms (the move
    between hero and corner relies on it). !important: the buttons set an
    inline duration for that fade. */
+/* Veil behind the corner panels (countdown, music): the same tint and blur
+   as the menu's veil (Nav.tsx), under the corner buttons (z 35-40). Purely
+   visual: a click on it lands on the page, which already closes the panel. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 34;
+  pointer-events: none;
+  background: color-mix(in oklab, var(--block) 30%, transparent);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease-out, visibility 0s linear 0.4s;
+}
+html:is([data-countdown-open], [data-music-open]) body::after {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.4s ease-out, visibility 0s;
+}
 [data-dock] {
   transition-property: translate, scale, opacity !important;
   transition-duration: 0.8s, 0.8s, 280ms !important;
