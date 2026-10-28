@@ -13,6 +13,7 @@ const pt = {
     openMenu: "Abrir menu",
     closeMenu: "Fechar menu",
     primary: "Navegação principal",
+    navTab: "Navegação",
   },
   controls: {
     language: "Idioma",

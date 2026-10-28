@@ -15,6 +15,7 @@ const en: Dict = {
     openMenu: "Open menu",
     closeMenu: "Close menu",
     primary: "Main navigation",
+    navTab: "Navigation",
   },
   controls: {
     language: "Language",

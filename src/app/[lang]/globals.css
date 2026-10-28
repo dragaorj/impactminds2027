@@ -567,15 +567,22 @@ html[data-motion="reduce"] .chart-runner { display: none; }
    rest share the remainder, all at one height; the width eases on the same
    curve and time as the rail's glide (Visits.tsx, MOVE_MS). --c is the page's
    content column (90vw, or 132rem less the gutters on very wide screens). */
+/* The card taking the focus turns to colour first (fast) and the one leaving
+   only fades to lilac after a beat, so one card is always in full colour. */
 .visit-card img {
   filter: grayscale(1) brightness(1.18) contrast(0.86);
-  transition: scale 1.4s var(--ease-out-expo), filter 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: scale 1.4s var(--ease-out-expo), filter 0.9s ease 0.35s;
 }
-.visit-wash { background: #cdb8ec; mix-blend-mode: color; opacity: 0.9; transition: opacity 1.2s cubic-bezier(0.65, 0, 0.35, 1); }
+.visit-wash { background: #cdb8ec; mix-blend-mode: color; opacity: 0.9; transition: opacity 0.9s ease 0.35s; }
+.visit-card { transition: box-shadow 0.8s ease; }
+.visit-rail > [data-on] .visit-card {
+  /* Kept within the rail's bottom padding (Visits.tsx), so it never shows a cut. */
+  box-shadow: 0 0 0 1px rgb(217 184 101 / 0.45), 0 1rem 2.5rem -1rem rgb(217 184 101 / 0.28);
+}
 .visit-rail > [data-on] .visit-card img,
-.visit-card:is(:hover, :focus-visible) img { filter: none; }
+.visit-card:is(:hover, :focus-visible) img { filter: none; transition: scale 1.4s var(--ease-out-expo), filter 0.5s ease-out; }
 .visit-rail > [data-on] .visit-wash,
-.visit-card:is(:hover, :focus-visible) .visit-wash { opacity: 0; }
+.visit-card:is(:hover, :focus-visible) .visit-wash { opacity: 0; transition: opacity 0.5s ease-out; }
 @media (min-width: 1024px) {
   .visit-rail {
     --c: min(90vw, 132rem - 10vw);

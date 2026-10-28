@@ -25,6 +25,18 @@ const C = 2 * Math.PI * R;
 const SWAP_MS = 280;
 const DEFAULT_VOLUME = 0.3;
 
+// iOS keeps every media element at full volume (setting it does nothing):
+// probed once with a throwaway element.
+let fixedVolume: boolean | undefined;
+const volumeIsFixed = () => {
+  if (fixedVolume === undefined) {
+    const probe = document.createElement("audio");
+    probe.volume = 0.5;
+    fixedVolume = probe.volume !== 0.5;
+  }
+  return fixedVolume;
+};
+
 type Labels = {
   label: string;
   nowPlaying: string;
@@ -114,18 +126,52 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
   const total = playlist.length;
   const progress = time.dur > 0 ? Math.min(1, time.cur / time.dur) : 0;
 
-  // Glide the element's volume to `to` (the volume setting itself is untouched).
+  // The level the visitor hears. iPhone and iPad ignore an audio element's
+  // volume (it stays at 1, only the hardware buttons change loudness), so on
+  // those the sound goes through a Web Audio gain node instead. The node is
+  // built on the visitor's first gesture (iOS starts audio contexts only
+  // then); until that moment the element plays at full level as before.
+  const graph = useRef<{ ctx: AudioContext; gain: GainNode } | null>(null);
+  const levelRef = useRef(1);
+  const level = useCallback((v: number) => {
+    const a = audio.current;
+    levelRef.current = v;
+    if (!a) return;
+    if (graph.current) graph.current.gain.gain.value = v;
+    else a.volume = v;
+  }, []);
+  // Call from a gesture: builds the gain path where the element's volume is fixed.
+  const unlock = useCallback(() => {
+    const a = audio.current;
+    if (graph.current) {
+      if (graph.current.ctx.state !== "running") graph.current.ctx.resume().catch(() => {});
+      return;
+    }
+    if (!a || !volumeIsFixed()) return;
+    const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!Ctx) return;
+    try {
+      const ctx = new Ctx();
+      const gain = ctx.createGain();
+      gain.gain.value = levelRef.current;
+      ctx.createMediaElementSource(a).connect(gain).connect(ctx.destination);
+      ctx.resume().catch(() => {});
+      graph.current = { ctx, gain };
+    } catch {}
+  }, []);
+
+  // Glide the heard level to `to` (the volume setting itself is untouched).
   const fadeTo = useCallback((to: number, ms: number, done?: () => void) => {
     const a = audio.current;
     cancelAnimationFrame(fadeFrame.current);
     if (!a) return;
-    const from = a.volume;
+    const from = levelRef.current;
     const t0 = performance.now();
     const step = (now: number) => {
       // A frame's timestamp can precede t0: clamp, or the first step could ask
       // for a negative volume (which throws and stalls the fade).
       const k = Math.min(1, Math.max(0, (now - t0) / ms));
-      a.volume = Math.min(1, Math.max(0, from + (to - from) * (1 - Math.pow(1 - k, 2))));
+      level(Math.min(1, Math.max(0, from + (to - from) * (1 - Math.pow(1 - k, 2)))));
       if (k < 1) fadeFrame.current = requestAnimationFrame(step);
       else {
         fadeFrame.current = 0;
@@ -133,20 +179,21 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       }
     };
     fadeFrame.current = requestAnimationFrame(step);
-  }, []);
+  }, [level]);
 
   const play = useCallback(() => {
     const a = audio.current;
     if (!a) return;
+    unlock();
     wantPlay.current = true;
     userHalted.current = false;
     // Pressing play is the visitor's call: it overrides any ducking.
     ducks.current.clear();
     cancelAnimationFrame(fadeFrame.current);
     fadeFrame.current = 0;
-    a.volume = volumeRef.current;
+    level(volumeRef.current);
     a.play().catch(() => {});
-  }, []);
+  }, [level, unlock]);
   const pause = useCallback(() => {
     wantPlay.current = false;
     userHalted.current = true;
@@ -193,9 +240,9 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     const a = audio.current;
     if (!a) return;
     // While ducked or fading, the fade owns the element's volume.
-    if (!ducks.current.size && !fadeFrame.current) a.volume = volume;
+    if (!ducks.current.size && !fadeFrame.current) level(volume);
     a.muted = muted || autoMuted.current;
-  }, [volume, muted]);
+  }, [volume, muted, level]);
 
   // Duck: fade out and pause while something else has sound; fade back in
   // once everything has let go (only if it was playing before).
@@ -217,12 +264,12 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       if (!a || !resume || userHalted.current) return;
       cancelAnimationFrame(fadeFrame.current);
       fadeFrame.current = 0;
-      a.volume = 0;
+      level(0);
       wantPlay.current = true;
       a.play()
         .then(() => fadeTo(volumeRef.current, 900))
         .catch(() => {
-          a.volume = volumeRef.current;
+          level(volumeRef.current);
         });
     };
     window.addEventListener("im:music-duck", onDuck);
@@ -231,8 +278,9 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       window.removeEventListener("im:music-duck", onDuck);
       window.removeEventListener("im:music-unduck", onUnduck);
     };
-  }, [fadeTo]);
+  }, [fadeTo, level]);
   const changeVolume = (v: number) => {
+    unlock();
     setVolume(v);
     setMuted(false);
     try {
@@ -256,11 +304,12 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     // starts if even muted autoplay was refused.
     const onGesture = () => {
       disarm();
+      unlock();
       const a = audio.current;
       if (!a || userHalted.current) return;
       if (autoMuted.current) {
         autoMuted.current = false;
-        a.volume = 0;
+        level(0);
         a.muted = mutedRef.current;
         if (a.paused) a.play().catch(() => {});
         fadeTo(volumeRef.current, 900);
@@ -305,7 +354,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       window.clearTimeout(fallback);
       disarm();
     };
-  }, [play, fadeTo]);
+  }, [play, fadeTo, level, unlock]);
 
   // First arrival in the corner after each page load: point the buttons out
   // for a few seconds; any click dismisses it.
@@ -366,11 +415,12 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       if (!hiddenPaused || !a) return;
       hiddenPaused = false;
       if (userHalted.current || ducks.current.size) return;
-      a.volume = 0;
+      unlock();
+      level(0);
       a.play()
         .then(() => fadeTo(volumeRef.current, 700))
         .catch(() => {
-          a.volume = volumeRef.current;
+          level(volumeRef.current);
         });
     };
     const onVisibility = () => (document.hidden ? onHide() : onShow());
@@ -380,7 +430,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("pagehide", onHide);
     };
-  }, [fadeTo]);
+  }, [fadeTo, level, unlock]);
 
   // System media controls (lock screen, keyboard media keys).
   useEffect(() => {

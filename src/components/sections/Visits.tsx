@@ -26,9 +26,10 @@ const pad = (n: number) => String(n).padStart(2, "0");
 // of the screen. One card at a time is in focus, in full colour (on desktop
 // also wide, filling the left of the rail), with a gold line filling along
 // its foot; when it is full the rail glides on and the next card takes the
-// focus. The others wear the speakers' lilac wash. The line waits while the
-// pointer is over the rail, a photo is open or the rail is off screen, and
-// starts over whenever someone swipes, scrolls, drags or pages it.
+// focus. The others wear the speakers' lilac wash. The line fills without a
+// break, waiting only while the rail is dragged, a photo is open or the rail
+// is off screen. A swipe or scroll settles on the nearest card by itself (no
+// CSS snap, which fought the glide and nudged the rail by a few pixels).
 // The card in focus always sits at the rail's start, and every card before it
 // is narrow, so card k starts at k * step. The rail is the list three times
 // over: when it drifts into an outer copy it jumps back by one copy (same
@@ -38,13 +39,11 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
   const total = photos.visits.length;
   // Card in focus: its place on the rail (0..35); the visit is abs % total.
   const [abs, setAbs] = useState(total);
-  const [round, setRound] = useState(0); // bumped on every hand on the rail
-  const [hovering, setHovering] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [gliding, setGliding] = useState(false);
   const [jumping, setJumping] = useState(false);
   const [inView, setInView] = useState(false);
-  const running = inView && !hovering && !dragging && !gliding && viewing === null;
+  const running = inView && !dragging && !gliding && viewing === null;
   const rail = useRef<HTMLOListElement>(null);
   const loop = Array.from({ length: total * COPIES }, (_, k) => k % total);
 
@@ -63,9 +62,10 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
     const a = r?.children[0] as HTMLElement | undefined;
     const b = r?.children[1] as HTMLElement | undefined;
     if (!r || !a || !b) return null;
-    return { r, step: b.offsetLeft - a.offsetLeft, edge: parseFloat(getComputedStyle(r).paddingLeft) };
+    // Measured from the layout boxes, not offsetLeft: cards have fractional
+    // widths, and a rounded step drifts by pixels a dozen cards along.
+    return { r, step: b.getBoundingClientRect().left - a.getBoundingClientRect().left, edge: parseFloat(getComputedStyle(r).paddingLeft) };
   };
-  const touched = () => setRound((n) => n + 1);
   const glide = (on: boolean) => {
     glidingRef.current = on;
     setGliding(on);
@@ -87,10 +87,19 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
   }, [jumping]);
 
   // Glide card k to the rail's start, scrolling in step with the widths.
-  const go = (k: number) => {
+  const go = (target: number) => {
     const g = geo();
     if (!g) return;
     cancelAnimationFrame(frame.current);
+    // An interrupted glide can leave the rail at the end of the copies: step
+    // back a copy first, so the card asked for always exists (and is lit).
+    let k = target;
+    if (k < 1 || k > total * COPIES - 2) {
+      const shift = k < 1 ? total : -total;
+      setJumping(true);
+      g.r.scrollLeft += shift * g.step;
+      k += shift;
+    }
     setAbs(k);
     const from = g.r.scrollLeft;
     const to = k * g.step;
@@ -121,7 +130,7 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
     let best = 0;
     let gap = Infinity;
     Array.from(g.r.children).forEach((c, k) => {
-      const d = Math.abs((c as HTMLElement).offsetLeft - g.edge - x);
+      const d = Math.abs(c.getBoundingClientRect().left - g.r.getBoundingClientRect().left + g.r.scrollLeft - g.edge - x);
       if (d < gap) [gap, best] = [d, k];
     });
     return best;
@@ -146,7 +155,7 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
       if (drag.current || glidingRef.current) return;
       const g = geo();
       const k = nearest();
-      if (k !== absRef.current || (g && Math.abs(g.r.scrollLeft - k * g.step) > 2)) go(k);
+      if (k !== absRef.current || (g && Math.abs(g.r.scrollLeft - k * g.step) > 4)) go(k);
     }, 160);
   };
 
@@ -176,7 +185,6 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
       cancelAnimationFrame(frame.current);
       glide(false);
       setDragging(true);
-      touched();
       d.left = r.scrollLeft;
       d.x = e.clientX;
       r.setPointerCapture(e.pointerId);
@@ -189,7 +197,6 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
     drag.current = null;
     if (!d?.moved || !g) return;
     setDragging(false);
-    touched();
     swallowClick.current = true;
     window.setTimeout(() => (swallowClick.current = false));
     const moved = g.r.scrollLeft - d.left;
@@ -197,7 +204,6 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
   };
 
   const step = (by: number) => {
-    touched();
     go(absRef.current + by);
   };
 
@@ -223,7 +229,8 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
 
       {/* The rail spans the whole screen at any width; its side padding (--edge)
           lines the cards up with the page's content column, which stops at
-          132rem, and the vertical padding leaves room for focus rings. */}
+          132rem, and the vertical padding leaves room for focus rings and, below
+          (taken back by the negative margin), for the focus card's glow to fade out. */}
       <div className="relative z-[1] mt-7 lg:mt-11" data-reveal>
         <ol
           ref={rail}
@@ -232,10 +239,6 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
-          onPointerEnter={(e) => e.pointerType === "mouse" && setHovering(true)}
-          onPointerLeave={() => setHovering(false)}
-          onWheel={touched}
-          onTouchStart={touched}
           onClickCapture={(e) => {
             if (!swallowClick.current) return;
             e.preventDefault();
@@ -243,9 +246,9 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
           }}
           data-jump={jumping || undefined}
           aria-label={t.title}
-          className={`visit-rail flex cursor-grab select-none gap-3 overflow-x-auto px-[var(--edge)] py-3 [--edge:1.25rem] [scroll-padding-inline:var(--edge)] [scrollbar-width:none] sm:[--edge:2rem] lg:gap-5 lg:[--edge:max(5vw,calc((100%-132rem)/2+5vw))] [&::-webkit-scrollbar]:hidden ${
+          className={`visit-rail flex cursor-grab select-none gap-3 overflow-x-auto px-[var(--edge)] pb-14 pt-3 -mb-11 [--edge:1.25rem] [scroll-padding-inline:var(--edge)] [scrollbar-width:none] sm:[--edge:2rem] lg:gap-5 lg:[--edge:max(5vw,calc((100%-132rem)/2+5vw))] [&::-webkit-scrollbar]:hidden ${
             dragging ? "cursor-grabbing" : ""
-          } ${dragging || gliding ? "" : "snap-x snap-mandatory"}`}
+          }`}
         >
           {loop.map((i, k) => {
             const v = t.list[i];
@@ -256,7 +259,7 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
                 key={k}
                 aria-hidden={copy || undefined}
                 data-on={on || undefined}
-                className="w-[80%] shrink-0 snap-start sm:w-[46%]"
+                className="w-[80%] shrink-0 sm:w-[46%]"
               >
                 <button
                   type="button"
@@ -275,7 +278,10 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
                   />
                   <span aria-hidden className="visit-wash pointer-events-none absolute inset-0" />
                   <span aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,rgb(34_14_52/0.35),rgb(34_14_52/0)_30%,rgb(34_14_52/0)_45%,rgb(34_14_52/0.9))]" />
-                  <span className="absolute left-5 top-5 font-display text-lg tabular-nums text-[#E2C985] lg:left-6 lg:top-6">{pad(i + 1)}</span>
+                  <span className="absolute left-5 top-5 flex items-center gap-3 font-display text-lg tabular-nums text-[#E2C985] lg:left-6 lg:top-6">
+                    {pad(i + 1)}
+                    <span aria-hidden className="h-px w-8 bg-[linear-gradient(90deg,#E2C985,transparent)] opacity-70" />
+                  </span>
                   <span
                     aria-hidden
                     className="absolute right-4 top-4 grid size-9 place-items-center rounded-full bg-[rgb(34_14_52/0.45)] text-white ring-1 ring-white/25 transition-[background-color,color,scale] duration-500 ease-[var(--ease-spring)] group-hover:scale-110 group-hover:bg-sun group-hover:text-sun-ink lg:right-5 lg:top-5 lg:size-10"
@@ -289,7 +295,6 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
                     {on && (
                       <span aria-hidden className="mt-4 block h-0.5 overflow-hidden rounded-full bg-white/20 lg:mt-5">
                         <span
-                          key={round}
                           className="visit-timer block h-full origin-left rounded-full bg-sun"
                           style={{ animationDuration: `${FOCUS_MS}ms`, animationPlayState: running ? "running" : "paused" }}
                           onAnimationEnd={() => go(abs + 1)}
