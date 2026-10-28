@@ -4,6 +4,7 @@ import { localVideo } from "@/lib/media";
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import Preloader from "@/components/Preloader";
+import MusicPlayer from "@/components/MusicPlayer";
 import ScrollFx from "@/components/ScrollFx";
 import MotionGate from "@/components/MotionGate";
 import BackToTop from "@/components/BackToTop";
@@ -53,6 +54,7 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
       </main>
       <Footer t={t.footer} hero={t.hero} nav={t.nav} />
       <CountdownRing labels={{ ...t.hero, agendaLink: t.agenda.title }} />
+      <MusicPlayer labels={t.music} />
       <BackToTop label={t.footer.backToTop} />
       <ScrollFx />
       <MotionGate />

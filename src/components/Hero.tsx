@@ -35,8 +35,11 @@ export default function Hero({
   const player = useRef<YTPlayer | null>(null);
   const [started, setStarted] = useState(false);
   const root = useRef<HTMLElement>(null);
-  // The countdown ring beside the CTA swaps the info bar to its details.
-  const [countdown, setCountdown] = useState(false);
+  // The countdown ring and the music button beside the CTA swap the info bar
+  // to their details (one at a time); otherwise it shows the event facts.
+  const [view, setView] = useState<"facts" | "countdown" | "music">("facts");
+  const countdown = view === "countdown";
+  const music = view === "music";
 
   // Scrolling away flies through the title: "Impact Minds" grows towards the
   // viewer, blurs and dissolves, while the rest of the hero parts (pill and
@@ -60,9 +63,18 @@ export default function Hero({
   );
 
   useEffect(() => {
-    const on = (e: Event) => setCountdown((e as CustomEvent<boolean>).detail);
-    window.addEventListener("im:countdown-bar", on);
-    return () => window.removeEventListener("im:countdown-bar", on);
+    const sync = (which: "countdown" | "music") => (e: Event) => {
+      const show = (e as CustomEvent<boolean>).detail;
+      setView((v) => (show ? which : v === which ? "facts" : v));
+    };
+    const onCountdown = sync("countdown");
+    const onMusic = sync("music");
+    window.addEventListener("im:countdown-bar", onCountdown);
+    window.addEventListener("im:music-bar", onMusic);
+    return () => {
+      window.removeEventListener("im:countdown-bar", onCountdown);
+      window.removeEventListener("im:music-bar", onMusic);
+    };
   }, []);
 
   const cta = (size: string) => (
@@ -75,10 +87,10 @@ export default function Hero({
         if (!prefersReducedMotion()) e.preventDefault();
         window.dispatchEvent(new Event("im:numbers-show"));
       }}
-      className={`shimmer group flex items-center gap-3 rounded-full bg-white font-medium text-[#2A1240] transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:bg-[#D9B865] active:scale-[0.98] ${size}`}
+      className={`shimmer group flex items-center gap-2 rounded-full sm:gap-3 bg-white font-medium text-[#2A1240] transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:bg-[#D9B865] active:scale-[0.98] ${size}`}
     >
       {t.cta}
-      <span className="grid size-11 place-items-center rounded-full bg-[#2A1240] text-white transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-y-0.5 group-hover:scale-105">
+      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#2A1240] sm:size-11 text-white transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-y-0.5 group-hover:scale-105">
         <ArrowDown size="1rem" />
       </span>
     </a>
@@ -168,6 +180,7 @@ export default function Hero({
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_50%_at_50%_52%,rgb(34_14_52/0.6),transparent_75%)]" />
       </div>
 
+
       {/* Centred, in the first screen: the speakers pill, the title with the
           typed gold line and the CTA with the countdown ring beside it; the
           event's key facts sit in a frosted bar at the bottom. On phones the
@@ -196,9 +209,11 @@ export default function Hero({
           {/* The countdown ring parks in the slot beside the CTA (same height)
               while the page is at the top; CountdownRing measures it. */}
           <div className="hero-out-down w-full sm:w-auto">
-            <div data-hero className="mt-7 flex w-full items-center justify-center gap-4 sm:mt-9 sm:w-auto sm:gap-6">
-              {cta("h-16 min-w-0 flex-1 justify-between whitespace-nowrap pl-5 pr-2.5 text-[0.95rem] sm:flex-none sm:pl-7 sm:text-base")}
-              <span data-countdown-slot aria-hidden className="size-16 shrink-0 lg:size-20" />
+            <div data-hero className="mt-7 flex w-full items-center justify-center gap-2 sm:mt-9 sm:w-auto sm:gap-6">
+              {cta("h-[3.25rem] min-w-0 flex-1 justify-between whitespace-nowrap pl-3.5 pr-1.5 text-[0.8125rem] sm:h-16 sm:flex-none sm:pl-7 sm:pr-2.5 sm:text-base")}
+              <span data-countdown-slot aria-hidden className="size-[3.25rem] shrink-0 sm:size-16 lg:size-20" />
+            {/* The music player's slot, beside the ring (MusicPlayer measures it). */}
+            <span data-music-slot aria-hidden className="size-[3.25rem] shrink-0 sm:size-16 lg:size-20" />
             </div>
           </div>
         </div>
@@ -212,9 +227,9 @@ export default function Hero({
             className="relative mx-auto mt-6 w-full max-w-3xl rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur-xl backdrop-saturate-150 sm:mt-10"
           >
             <dl
-              aria-hidden={countdown}
+              aria-hidden={view !== "facts"}
               className={`grid grid-cols-4 px-3 py-3 text-center transition-[opacity,filter,translate] duration-500 ease-out sm:px-5 sm:py-3.5 ${
-                countdown ? "pointer-events-none -translate-y-1 opacity-0 blur-[2px]" : "opacity-100"
+                view !== "facts" ? "pointer-events-none -translate-y-1 opacity-0 blur-[2px]" : "opacity-100"
               }`}
             >
               {t.facts.map((f, i) => (
@@ -250,6 +265,15 @@ export default function Hero({
                 <ArrowRight size="1rem" className="transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-x-0.5" />
               </a>
             </div>
+            {/* Music: MusicPlayer renders its controls in here (portal). */}
+            <div
+              id="hero-music"
+              aria-hidden={!music}
+              inert={!music}
+              className={`absolute inset-0 transition-[opacity,filter,translate] duration-500 ease-out ${
+                music ? "opacity-100 delay-150" : "pointer-events-none translate-y-1 opacity-0 blur-[2px]"
+              }`}
+            />
           </div>
         </div>
       </div>

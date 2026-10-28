@@ -53,6 +53,7 @@ const es: Dict = {
     minutes: "min",
     seconds: "seg",
     cta: "Ver resultados 2026",
+    countdownTip: "Cuenta regresiva",
     watch: "Ver el video con sonido",
     close: "Cerrar video",
     videoLabel: "Video de Impact Minds 2026",
@@ -388,6 +389,20 @@ const es: Dict = {
       }
     ],
     "intl": "Presencia internacional en Pioneers Post, Alliance Magazine e ImpactAlpha."
+  },
+  music: {
+    label: "Música",
+    nowPlaying: "Sonando ahora",
+    play: "Reproducir",
+    pause: "Pausar",
+    stop: "Detener",
+    prev: "Pista anterior",
+    next: "Siguiente pista",
+    shuffle: "Orden aleatorio",
+    volume: "Volumen",
+    mute: "Silenciar",
+    unmute: "Activar sonido",
+    seek: "Posición en la pista",
   },
   footer: {
     closing: "Nos vemos en Cartagena",

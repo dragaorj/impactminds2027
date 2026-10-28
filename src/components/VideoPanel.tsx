@@ -6,6 +6,7 @@ import { ArrowsOut, SpeakerHigh, SpeakerSlash } from "@phosphor-icons/react";
 import FullVideo from "./FullVideo";
 import NativeLoop, { type NativeLoopHandle } from "./NativeLoop";
 import { prefersReducedMotion } from "./prefs";
+import { duckMusic, unduckMusic } from "./musicDuck";
 import { keepLooping, keepPlaying, loadYouTube, loopVars, type YTPlayer } from "./youtube";
 
 type Labels = {
@@ -128,7 +129,20 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
     setMuted(!muted);
   };
 
+  // The background music steps aside while this video plays with sound.
+  useEffect(() => {
+    if (muted) unduckMusic("video");
+    else duckMusic("video");
+  }, [muted]);
+  useEffect(
+    () => () => {
+      unduckMusic("video");
+    },
+    [],
+  );
+
   const openFull = () => {
+    duckMusic("full");
     lightboxOpen.current = true;
     native.current?.pause();
     player.current?.pauseVideo();
@@ -136,6 +150,7 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
   };
 
   const onClosed = () => {
+    unduckMusic("full");
     lightboxOpen.current = false;
     setOpen(false);
     if (prefersReducedMotion()) return;

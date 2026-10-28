@@ -213,3 +213,16 @@ export const participantsByYear = [
   { year: 2024, value: 695 },
   { year: 2025, value: 789 },
 ];
+
+// Background music: the site's playlist, in order (files in public/music).
+export type Track = { title: string; artist: string; src: string; cover: string };
+export const playlist: Track[] = [
+  { title: "Cha Cha Chango", artist: "Quincas Moreira", src: "/music/01-cha-cha-chango.mp3", cover: "/music/covers/1.svg" },
+  { title: "Estrella", artist: "House of the Gipsies", src: "/music/02-estrella.mp3", cover: "/music/covers/2.svg" },
+  { title: "Cumbia No Frills Faster", artist: "Kevin MacLeod", src: "/music/03-cumbia-no-frills-faster.mp3", cover: "/music/covers/3.svg" },
+  { title: "Sneaky Bass Latina", artist: "Jimmy Fontanez", src: "/music/04-sneaky-bass-latina.mp3", cover: "/music/covers/4.svg" },
+  { title: "Salgre", artist: "Jimmy Fontanez", src: "/music/05-salgre.mp3", cover: "/music/covers/1.svg" },
+  { title: "Mama", artist: "Emmit Fenn", src: "/music/06-mama.mp3", cover: "/music/covers/2.svg" },
+  { title: "Malandragem", artist: "Quincas Moreira", src: "/music/07-malandragem.mp3", cover: "/music/covers/3.svg" },
+  { title: "Amor Chiquito", artist: "Quincas Moreira", src: "/music/08-amor-chiquito.mp3", cover: "/music/covers/4.svg" },
+];

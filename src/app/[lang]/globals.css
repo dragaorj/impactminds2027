@@ -774,9 +774,10 @@ html[data-motion="reduce"] .faces > .face { transition: none; animation: none !i
 /* Hero countdown slot: collapses while the ring sits in the corner, so the
    CTA re-centres; the negative margin takes back the row's gap. */
 [data-countdown-slot] { transition: width 0.5s var(--ease-spring), margin-left 0.5s var(--ease-spring); }
-html[data-ring-raised] #top [data-countdown-slot] { width: 0; margin-left: -1rem; }
+/* The music player's slot beside it collapses too. */
+html[data-ring-raised] #top :is([data-countdown-slot], [data-music-slot]) { width: 0; margin-left: -0.5rem; }
 @media (min-width: 40rem) {
-  html[data-ring-raised] #top [data-countdown-slot] { margin-left: -1.5rem; }
+  html[data-ring-raised] #top :is([data-countdown-slot], [data-music-slot]) { margin-left: -1.5rem; }
 }
 
 /* A field inside a pill that shows focus itself (focus-within ring): no
@@ -790,3 +791,100 @@ html[data-ring-raised] #top [data-countdown-slot] { width: 0; margin-left: -1rem
   caret-color: var(--ink);
   transition: background-color 600000s 0s;
 }
+
+/* Music player: a vinyl record (fine grooves on near-black) with the cover
+   as its label, turning while a track plays; a fixed sheen sells the gloss. */
+.vinyl {
+  background:
+    radial-gradient(circle, transparent 30%, rgb(0 0 0 / 0.35) 31%, transparent 33%),
+    repeating-radial-gradient(circle, #141016 0 1px, #1d1820 1px 2.4px),
+    #141016;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06), 0 6px 16px rgb(0 0 0 / 0.35);
+}
+.vinyl-sheen {
+  background: conic-gradient(from 20deg, transparent 0 8%, rgb(255 255 255 / 0.16) 13%, transparent 20% 50%, rgb(255 255 255 / 0.12) 58%, transparent 66%);
+  mask: radial-gradient(circle, transparent 29%, #000 30%);
+  -webkit-mask: radial-gradient(circle, transparent 29%, #000 30%);
+}
+/* The record turns while a track plays. */
+.music-disc { animation: musicSpin 5s linear infinite; }
+.music-disc.is-paused { animation-play-state: paused; }
+@keyframes musicSpin { to { rotate: 360deg; } }
+/* Three small bars dancing beside "now playing". */
+.music-eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 10px; }
+.music-eq i { display: block; width: 2px; height: 100%; border-radius: 2px; background: currentColor; transform-origin: 50% 100%; animation: musicEq 0.9s ease-in-out infinite; }
+.music-eq i:nth-child(2) { animation-delay: -0.3s; animation-duration: 0.75s; }
+.music-eq i:nth-child(3) { animation-delay: -0.55s; animation-duration: 1.05s; }
+.music-eq.is-paused i { animation-play-state: paused; transform: scaleY(0.35); }
+@keyframes musicEq { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
+html[data-motion="reduce"] :is(.music-disc, .music-eq i) { animation: none; }
+/* Seek and volume sliders: a thin rounded track filled gold up to --p. */
+.music-range {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 16px;
+  background: transparent;
+  cursor: pointer;
+}
+.music-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--sun) var(--p, 0%), rgb(42 18 64 / 0.14) var(--p, 0%));
+}
+[data-theme="dark"] .music-range::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, var(--sun) var(--p, 0%), rgb(255 255 255 / 0.16) var(--p, 0%));
+}
+.music-range::-moz-range-track { height: 4px; border-radius: 999px; background: rgb(42 18 64 / 0.14); }
+[data-theme="dark"] .music-range::-moz-range-track { background: rgb(255 255 255 / 0.16); }
+.music-range::-moz-range-progress { height: 4px; border-radius: 999px; background: var(--sun); }
+.music-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  margin-top: -4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--sun);
+  box-shadow: 0 0 0 3px rgb(217 184 101 / 0.25);
+  transition: transform 0.2s ease;
+}
+.music-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--sun);
+  box-shadow: 0 0 0 3px rgb(217 184 101 / 0.25);
+}
+.music-range:hover::-webkit-slider-thumb { transform: scale(1.25); }
+.music-range:focus-visible { outline: none; }
+.music-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgb(217 184 101 / 0.6); }
+
+/* Tooltip on the round floating buttons (countdown, music): above them in
+   the hero, to their left in the corner stack. */
+.fab-tip {
+  position: absolute;
+  bottom: calc(100% + 0.6rem);
+  left: 50%;
+  z-index: 2;
+  translate: -50% 4px;
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #fff;
+  background: rgb(28 12 44 / 0.9);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, translate 0.3s ease;
+}
+.fab-tip-side { bottom: auto; left: auto; top: 50%; right: calc(100% + 0.6rem); translate: 4px -50%; }
+.group:is(:hover, :focus-visible) > .fab-tip { opacity: 1; translate: -50% 0; }
+.group:is(:hover, :focus-visible) > .fab-tip-side { translate: 0 -50%; }
+/* Seek / volume on the hero bar (always over the dark video). */
+.music-range-light::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, #d9b865 var(--p, 0%), rgb(255 255 255 / 0.2) var(--p, 0%));
+}
+.music-range-light::-moz-range-track { background: rgb(255 255 255 / 0.2); }

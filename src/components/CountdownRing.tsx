@@ -46,6 +46,14 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("im:countdown-bar", { detail: open && !raised }));
   }, [open, raised]);
+  // The music player taking the hero bar closes the countdown's details.
+  useEffect(() => {
+    const onMusic = (e: Event) => {
+      if ((e as CustomEvent<boolean>).detail && !raised) setOpen(false);
+    };
+    window.addEventListener("im:music-bar", onMusic);
+    return () => window.removeEventListener("im:music-bar", onMusic);
+  }, [raised]);
 
   // While the ring is in the corner, its hero slot collapses (CSS) so the CTA
   // sits centred on its own.
@@ -266,6 +274,9 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
             raised ? "bg-surface/60 text-ink ring-line" : "bg-[rgb(34_14_52/0.45)] text-white ring-white/20"
           }`}
         >
+          <span aria-hidden className={`fab-tip ${raised ? "fab-tip-side" : ""}`}>
+            {labels.countdownTip}
+          </span>
           <svg viewBox="0 0 100 100" aria-hidden className="absolute inset-0 size-full -rotate-90 overflow-visible">
             {Array.from({ length: TICKS }, (_, i) => {
               const on = i < filled;
@@ -289,18 +300,20 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
               <circle cx="100" cy="50" r="2.6" className="fill-sun" />
             </g>
           </svg>
-          <span className="relative flex h-[56%] w-[56%] flex-col items-center justify-center overflow-hidden leading-none">
+          {/* Text sized to the ring itself (container units), so number and label
+              keep clear of the ticks at every ring size. */}
+          <span className="relative flex h-[66%] w-[66%] flex-col items-center justify-center overflow-hidden leading-none [container-type:inline-size]">
             {state?.phase === "before" || state === null ? (
               <span key={unit} className="ring-unit flex flex-col items-center">
-                <span className={`font-display tabular-nums ${raised ? "text-lg sm:text-[1.375rem]" : "text-[1.3rem]"}`}>
+                <span className="font-display text-[40cqw] tabular-nums">
                   {state?.phase === "before" ? String(units[unit].value).padStart(unit === 0 ? 1 : 2, "0") : "--"}
                 </span>
-                <span className={`mt-0.5 uppercase tracking-[0.14em] ${raised ? "text-[0.5rem] text-ink-2 sm:text-[0.5625rem]" : "text-[0.5rem] text-white/75"}`}>
+                <span className={`mt-[3cqw] text-[20cqw] uppercase tracking-[0.04em] ${raised ? "text-ink-2" : "text-white/75"}`}>
                   {units[unit].label}
                 </span>
               </span>
             ) : (
-              <span className="font-display text-base sm:text-lg">2027</span>
+              <span className="font-display text-[30cqw]">2027</span>
             )}
           </span>
         </button>

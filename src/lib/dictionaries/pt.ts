@@ -51,6 +51,7 @@ const pt = {
     minutes: "min",
     seconds: "seg",
     cta: "Ver resultados de 2026",
+    countdownTip: "Contagem regressiva",
     watch: "Assistir ao vídeo com som",
     close: "Fechar vídeo",
     videoLabel: "Vídeo do Impact Minds 2026",
@@ -386,6 +387,20 @@ const pt = {
       }
     ],
     "intl": "Presença internacional no Pioneers Post, Alliance Magazine e ImpactAlpha."
+  },
+  music: {
+    label: "Música",
+    nowPlaying: "Tocando agora",
+    play: "Tocar",
+    pause: "Pausar",
+    stop: "Parar",
+    prev: "Faixa anterior",
+    next: "Próxima faixa",
+    shuffle: "Ordem aleatória",
+    volume: "Volume",
+    mute: "Silenciar",
+    unmute: "Ativar som",
+    seek: "Posição na faixa",
   },
   footer: {
     closing: "Nos vemos em Cartagena",

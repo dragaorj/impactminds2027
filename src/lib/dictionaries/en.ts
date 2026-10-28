@@ -53,6 +53,7 @@ const en: Dict = {
     minutes: "min",
     seconds: "sec",
     cta: "See 2026 results",
+    countdownTip: "Countdown",
     watch: "Watch the video with sound",
     close: "Close video",
     videoLabel: "Impact Minds 2026 video",
@@ -388,6 +389,20 @@ const en: Dict = {
       }
     ],
     "intl": "International coverage in Pioneers Post, Alliance Magazine, and ImpactAlpha."
+  },
+  music: {
+    label: "Music",
+    nowPlaying: "Now playing",
+    play: "Play",
+    pause: "Pause",
+    stop: "Stop",
+    prev: "Previous track",
+    next: "Next track",
+    shuffle: "Shuffle",
+    volume: "Volume",
+    mute: "Mute",
+    unmute: "Unmute",
+    seek: "Track position",
   },
   footer: {
     closing: "See you in Cartagena",
