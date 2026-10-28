@@ -17,6 +17,7 @@ import {
 } from "@phosphor-icons/react";
 import { playlist } from "@/lib/site";
 import Waveform from "./Waveform";
+import { prefersQuiet } from "./prefs";
 
 // Progress ring around the record (viewBox units).
 const R = 47;
@@ -276,6 +277,8 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       window.removeEventListener("im:ready", start);
       window.clearTimeout(fallback);
       if (userHalted.current) return;
+      // The visitor chose to start without music (accessibility menu).
+      if (prefersQuiet()) return;
       wantPlay.current = true;
       const a = audio.current;
       if (!a) return;
@@ -334,6 +337,13 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       window.removeEventListener("pointerdown", dismiss);
     };
   }, [raised]);
+
+  // "Start without music" switched on in the accessibility menu: stop now.
+  useEffect(() => {
+    const onQuiet = () => pause();
+    window.addEventListener("im:music-quiet", onQuiet);
+    return () => window.removeEventListener("im:music-quiet", onQuiet);
+  }, [pause]);
 
   // Screen locked, browser minimised or another tab/app in front: stop at
   // once (no fade: frames don't run in a hidden page); back in view, the

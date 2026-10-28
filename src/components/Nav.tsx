@@ -71,6 +71,53 @@ function LangSwitch({ lang, label, onVideo = false }: { lang: Locale; label: str
   );
 }
 
+// A small two/three-way choice in the accessibility menu (theme, language).
+function Choice<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: { value: T; label: string; href?: string; lang?: string }[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm text-ink">
+      <span>{label}</span>
+      <div role="radiogroup" aria-label={label} className="flex rounded-full bg-ink/6 p-1">
+        {options.map((o) => {
+          const on = o.value === value;
+          const cls = `rounded-full px-2.5 py-1 text-xs font-medium transition-colors duration-300 ${
+            on ? "bg-brand text-brand-ink" : "text-ink-2 hover:bg-sun/15 hover:text-gold"
+          }`;
+          return o.href ? (
+            <a
+              key={o.value}
+              href={o.href}
+              hrefLang={o.lang}
+              role="radio"
+              aria-checked={on}
+              onClick={(e) => {
+                if (on) e.preventDefault();
+                else onChange(o.value);
+              }}
+              className={cls}
+            >
+              {o.label}
+            </a>
+          ) : (
+            <button key={o.value} type="button" role="radio" aria-checked={on} onClick={() => onChange(o.value)} className={cls}>
+              {o.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <button
@@ -277,6 +324,40 @@ export default function Nav({ lang, nav, controls }: Props) {
                     <Toggle label={controls.contrast} checked={prefs.a11y.contrast} onChange={(v) => setA11y({ contrast: v })} />
                     <Toggle label={controls.motion} checked={prefs.a11y.motion} onChange={(v) => setA11y({ motion: v })} />
                     <Toggle label={controls.links} checked={prefs.a11y.links} onChange={(v) => setA11y({ links: v })} />
+                    <Toggle
+                      label={controls.noMusic}
+                      checked={prefs.a11y.quiet}
+                      onChange={(v) => {
+                        setA11y({ quiet: v });
+                        // Turned on: the music stops now too.
+                        if (v) window.dispatchEvent(new Event("im:music-quiet"));
+                      }}
+                    />
+                    {/* Saved defaults, per visitor: theme (localStorage) and
+                        language (cookie read on arrival); picking a language
+                        also switches the page now. */}
+                    <div className="mt-1 border-t border-line pt-1">
+                      <Choice
+                        label={controls.defaultTheme}
+                        value={prefs.theme}
+                        onChange={setTheme}
+                        options={[
+                          { value: "dark", label: controls.dark },
+                          { value: "light", label: controls.light },
+                        ]}
+                      />
+                      <Choice
+                        label={controls.defaultLanguage}
+                        value={lang}
+                        onChange={(l) => {
+                          try {
+                            sessionStorage.setItem("im-switch", String(Math.round(window.scrollY)));
+                          } catch {}
+                          document.cookie = `im-lang=${l};path=/;max-age=31536000;samesite=lax`;
+                        }}
+                        options={locales.map((l) => ({ value: l, label: l.toUpperCase(), href: `/${l}`, lang: l }))}
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={resetA11y}

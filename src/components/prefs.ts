@@ -6,11 +6,12 @@ import { useCallback, useSyncExternalStore } from "react";
 // script) and are mirrored to localStorage. React reads them back through a
 // MutationObserver so every control stays in sync.
 
-export type A11y = { text: 1 | 2 | 3; contrast: boolean; motion: boolean; links: boolean };
+// quiet: never start the background music on its own.
+export type A11y = { text: 1 | 2 | 3; contrast: boolean; motion: boolean; links: boolean; quiet: boolean };
 export type Prefs = { theme: "light" | "dark"; a11y: A11y };
 
-const DEFAULT_A11Y: A11y = { text: 1, contrast: false, motion: false, links: false };
-const SERVER_SNAPSHOT = "light|1|0|0|0";
+const DEFAULT_A11Y: A11y = { text: 1, contrast: false, motion: false, links: false, quiet: false };
+const SERVER_SNAPSHOT = "light|1|0|0|0|0";
 
 function readSnapshot() {
   const d = document.documentElement.dataset;
@@ -21,6 +22,7 @@ function readSnapshot() {
     d.contrast === "high" ? 1 : 0,
     stored.motion ? 1 : 0,
     d.links === "on" ? 1 : 0,
+    stored.quiet ? 1 : 0,
   ].join("|");
 }
 
@@ -46,6 +48,9 @@ export function applyA11y(a11y: A11y) {
   else delete d.contrast;
   if (a11y.links) d.links = "on";
   else delete d.links;
+  // Mirrored on <html> so the menu (MutationObserver) sees the change.
+  if (a11y.quiet) d.quiet = "on";
+  else delete d.quiet;
   const systemReduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (a11y.motion || systemReduce) d.motion = "reduce";
   else delete d.motion;
@@ -73,7 +78,7 @@ export function restorePrefs() {
 
 export function usePrefs() {
   const snap = useSyncExternalStore(subscribe, readSnapshot, () => SERVER_SNAPSHOT);
-  const [theme, text, contrast, motion, links] = snap.split("|");
+  const [theme, text, contrast, motion, links, quiet] = snap.split("|");
   const prefs: Prefs = {
     theme: theme as Prefs["theme"],
     a11y: {
@@ -81,6 +86,7 @@ export function usePrefs() {
       contrast: contrast === "1",
       motion: motion === "1",
       links: links === "1",
+      quiet: quiet === "1",
     },
   };
 
@@ -98,6 +104,11 @@ export function usePrefs() {
   const resetA11y = useCallback(() => applyA11y(DEFAULT_A11Y), []);
 
   return { prefs, setTheme, setA11y, resetA11y };
+}
+
+// The visitor asked never to start the music on its own.
+export function prefersQuiet() {
+  return readStoredA11y().quiet;
 }
 
 export function prefersReducedMotion() {
