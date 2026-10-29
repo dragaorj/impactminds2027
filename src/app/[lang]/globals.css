@@ -732,6 +732,10 @@ html[data-motion="reduce"] .shimmer::after { opacity: 0; }
 
 /* The full-video lightbox shows the whole frame (no overscan). */
 .yt-full iframe { transform: translate(-50%, -50%); }
+/* The About panel fills its box edge to edge: a light overscan crops any thin
+   dark band at the video's edges (letterboxing, or a sub-pixel gap at some
+   sizes). The full-screen player keeps the whole picture. */
+.yt-panel iframe { transform: translate(-50%, -50%) scale(1.04); }
 
 /* Static line art (the mosaic): always visible, outlines only, never animated. */
 .art[data-still] { visibility: visible !important; }

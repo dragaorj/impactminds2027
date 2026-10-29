@@ -170,9 +170,9 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
             className={`z-10 object-cover transition-opacity ${started || src ? "opacity-0 duration-1000" : "opacity-100 duration-150"}`}
           />
           {src ? (
-            <NativeLoop ref={native} src={src} poster={`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`} className="!object-contain" />
+            <NativeLoop ambient ref={native} src={src} poster={`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`} />
           ) : (
-            <div ref={holder} className="yt-cover yt-full absolute inset-0 overflow-hidden" aria-hidden />
+            <div ref={holder} className="yt-cover yt-full yt-panel absolute inset-0 overflow-hidden" aria-hidden />
           )}
         </div>
       </div>
