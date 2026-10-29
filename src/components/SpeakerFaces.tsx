@@ -34,11 +34,54 @@ type Faces = { row: typeof POOL; queue: typeof POOL };
 // each circle shows the speaker's name on hover and, clicked, opens that
 // speaker's profile in the speakers section (Speakers listens for
 // "im:open-speaker").
+// On touch screens a passing tap must not jump away: the first tap only opens
+// the pill (data-open: the circles fan out with a gold ring and the conveyor
+// holds still), and a second tap on a face picks that speaker. A tap
+// elsewhere, or a few idle seconds, closes it again.
 export default function SpeakerFaces({ label }: { label: string }) {
   const root = useRef<HTMLSpanElement>(null);
   // Server and first client render agree on the first five; the shuffle
   // happens right after mount.
   const [{ row, queue }, setFaces] = useState<Faces>({ row: POOL.slice(0, COUNT), queue: POOL.slice(COUNT) });
+  const [open, setOpen] = useState(false);
+  const openRef = useRef(false);
+
+  useEffect(() => {
+    openRef.current = open;
+    const pill = root.current?.closest(".faces-pill");
+    if (open) pill?.setAttribute("data-open", "");
+    else pill?.removeAttribute("data-open");
+    if (!open) return;
+    const idle = window.setTimeout(() => setOpen(false), 6000);
+    return () => window.clearTimeout(idle);
+  }, [open]);
+
+  // Touch: the first tap anywhere on the pill only opens it.
+  useEffect(() => {
+    const pill = root.current?.closest<HTMLElement>(".faces-pill");
+    if (!pill) return;
+    let pointer = "mouse";
+    const onDown = (e: PointerEvent) => {
+      pointer = e.pointerType;
+    };
+    const onClick = (e: MouseEvent) => {
+      if (pointer === "mouse" || openRef.current) return;
+      e.preventDefault();
+      e.stopPropagation();
+      setOpen(true);
+    };
+    const onOutside = (e: PointerEvent) => {
+      if (openRef.current && !pill.contains(e.target as Node)) setOpen(false);
+    };
+    pill.addEventListener("pointerdown", onDown, true);
+    pill.addEventListener("click", onClick, true);
+    document.addEventListener("pointerdown", onOutside, true);
+    return () => {
+      pill.removeEventListener("pointerdown", onDown, true);
+      pill.removeEventListener("click", onClick, true);
+      document.removeEventListener("pointerdown", onOutside, true);
+    };
+  }, []);
 
   useEffect(() => {
     const order = shuffle(POOL);
@@ -52,7 +95,7 @@ export default function SpeakerFaces({ label }: { label: string }) {
     if (prefersReducedMotion() || POOL.length <= COUNT) return;
     const id = window.setInterval(() => {
       // Paused while the tab is hidden or the hero is scrolled away.
-      if (document.hidden || window.scrollY > window.innerHeight) return;
+      if (document.hidden || openRef.current || window.scrollY > window.innerHeight) return;
       setFaces((f) => (f.row.length > COUNT || !f.queue.length ? f : { row: [...f.row, f.queue[0]], queue: f.queue.slice(1) }));
     }, STEP_MS);
     return () => window.clearInterval(id);
@@ -102,7 +145,10 @@ export default function SpeakerFaces({ label }: { label: string }) {
           key={f.name}
           type="button"
           aria-label={`${label} ${f.name}`}
-          onClick={() => window.dispatchEvent(new CustomEvent("im:open-speaker", { detail: f.name }))}
+          onClick={() => {
+            setOpen(false);
+            window.dispatchEvent(new CustomEvent("im:open-speaker", { detail: f.name }));
+          }}
           className="face group/face relative size-7 shrink-0 cursor-pointer rounded-full sm:size-8"
         >
           <span className="face-in absolute inset-0 overflow-hidden rounded-full bg-[#2a1240] ring-2 ring-[#2a1240]">

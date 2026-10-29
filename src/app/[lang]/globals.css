@@ -780,6 +780,11 @@ html[data-motion="reduce"] .wave-b::after { animation: none; }
 .faces > .face:first-child { transition: scale 0.4s var(--ease-spring), box-shadow 0.4s ease; }
 .faces-pill:hover .faces > .face { animation: faceHop 0.7s var(--ease-spring) both; }
 .faces-pill .faces > .face:hover { scale: 1.18; z-index: 1; }
+/* Touch: the pill opened by a first tap (SpeakerFaces): fanned out, with a
+   gold ring on every face to show they can now be picked. */
+.faces-pill[data-open] .faces > .face + .face { margin-left: 0.35rem; }
+.faces-pill[data-open] .faces > .face { animation: faceHop 0.7s var(--ease-spring) both; }
+.faces-pill[data-open] .faces .face-in { box-shadow: 0 0 0 2px #d9b865; }
 .faces .face-in { transition: box-shadow 0.4s ease; }
 .faces-pill .faces > .face:is(:hover, :focus-visible) .face-in { box-shadow: 0 0 0 2px #d9b865; }
 .faces > .face:nth-child(2) { animation-delay: 60ms; }
