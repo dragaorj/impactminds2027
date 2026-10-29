@@ -9,7 +9,7 @@ import { links, speakers, type Speaker } from "@/lib/site";
 import Art from "../Art";
 import { H2, container, section } from "../ui";
 import { useDialogDismiss } from "../useDialogDismiss";
-import { prefersReducedMotion } from "../prefs";
+import { scrollToTarget } from "../scrollTarget";
 
 const initials = (name: string) =>
   name
@@ -184,17 +184,7 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
       if (i < 0) return;
       const section = document.getElementById("palestrantes");
       if (!section) return;
-      let done = false;
-      const openIt = () => {
-        if (done) return;
-        done = true;
-        window.removeEventListener("scrollend", openIt);
-        setOpen(i);
-      };
-      window.addEventListener("scrollend", openIt, { once: true });
-      // Fallback for browsers without scrollend, or when no scroll happens.
-      window.setTimeout(openIt, 1200);
-      section.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+      scrollToTarget(section, { onComplete: () => setOpen(i) });
     };
     window.addEventListener("im:open-speaker", onPick);
     return () => window.removeEventListener("im:open-speaker", onPick);

@@ -8,6 +8,7 @@ import type { Dict } from "@/lib/dictionaries/pt";
 import Image from "next/image";
 import { photos } from "@/lib/site";
 import Art from "./Art";
+import { scrollToTarget } from "./scrollTarget";
 import { prefersReducedMotion } from "./prefs";
 
 type T = Dict["numbers"];
@@ -95,7 +96,8 @@ export default function NumbersShow({ t }: { t: T }) {
 
     const finish = () => {
       // Always land on the section, whatever happened to the scroll meanwhile.
-      document.getElementById("numeros")?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+      const numbers = document.getElementById("numeros");
+      if (numbers) scrollToTarget(numbers);
       gsap.to(panel, { y: -20, duration: 0.6, ease: "power2.in" });
       gsap.to(el, { autoAlpha: 0, duration: 0.6, ease: "power2.in", onComplete: () => setActive(false) });
       gsap.fromTo(

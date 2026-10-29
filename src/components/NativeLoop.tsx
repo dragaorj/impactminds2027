@@ -28,21 +28,30 @@ const NativeLoop = forwardRef<NativeLoopHandle, { src: string; poster?: string; 
   // the visitor) is also restarted whenever it may have been left still: data
   // arriving after a refused or aborted first play (as on a language switch, a
   // full page load), the page restored from the back/forward cache, or the tab
-  // coming back into view.
+  // coming back into view. It also rests while scrolled out of sight:
+  // decoding a large video nobody sees is the heaviest thing a page can do.
   useEffect(() => {
     const v = video.current;
     if (!v) return;
     v.muted = true;
+    let onScreen = true;
     const resume = () => {
-      if (v.paused && !prefersReducedMotion() && !document.hidden) void v.play().catch(() => {});
+      if (v.paused && onScreen && !prefersReducedMotion() && !document.hidden) void v.play().catch(() => {});
     };
     resume();
     if (!ambient) return;
     const onVisible = () => !document.hidden && resume();
+    const io = new IntersectionObserver(([e]) => {
+      onScreen = e.isIntersecting;
+      if (onScreen) resume();
+      else v.pause();
+    });
+    io.observe(v);
     v.addEventListener("canplay", resume);
     window.addEventListener("pageshow", resume);
     document.addEventListener("visibilitychange", onVisible);
     return () => {
+      io.disconnect();
       v.removeEventListener("canplay", resume);
       window.removeEventListener("pageshow", resume);
       document.removeEventListener("visibilitychange", onVisible);

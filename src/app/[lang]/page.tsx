@@ -24,6 +24,8 @@ import Agenda from "@/components/sections/Agenda";
 import Sponsor from "@/components/sections/Sponsor";
 import Carbon from "@/components/sections/Carbon";
 import Editions from "@/components/sections/Editions";
+import SmoothScroll from "@/components/SmoothScroll";
+import OffscreenPause from "@/components/OffscreenPause";
 import Footer from "@/components/sections/Footer";
 
 export default async function Page({ params }: PageProps<"/[lang]">) {
@@ -37,7 +39,7 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
       <Preloader />
       <Nav lang={lang} nav={t.nav} controls={t.controls} />
       <main id="conteudo" tabIndex={-1} className="w-full max-w-full overflow-x-clip outline-none">
-        <Hero t={t.hero} videoSrc={localVideo("header.mp4")} agendaLink={t.hero.agendaCta} speakerLabel={t.speakers.open} />
+        <Hero t={t.hero} videoSrc={localVideo("header-2.mp4")} agendaLink={t.hero.agendaCta} speakerLabel={t.speakers.open} />
         <Numbers t={t.numbers} locale={locale} />
         <About t={t.about} videoSrc={localVideo("about.mp4")} />
         <Survey t={t.survey} locale={locale} />
@@ -59,6 +61,8 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
       <BackToTop label={t.footer.backToTop} />
       <DockToggle label={t.music.showControls} />
       <ScrollFx />
+      <SmoothScroll />
+      <OffscreenPause />
       <MotionGate />
     </>
   );

@@ -125,7 +125,8 @@ export default function ScrollFx() {
         const items = group.querySelectorAll("[data-stagger-item]");
         const dots = group.querySelectorAll("[data-stagger-dot]");
         const line = group.querySelectorAll("[data-stagger-line]");
-        gsap.set(items, { opacity: 0, y: 56, scale: 0.97, filter: "blur(8px)" });
+        // (No blur on the way in: animating a filter on every card is heavy.)
+        gsap.set(items, { opacity: 0, y: 56, scale: 0.97 });
         gsap.set(dots, { scale: 0, opacity: 0 });
         gsap
           .timeline({ scrollTrigger: { trigger: group, start: "top 85%", toggleActions: "play none none none" } })
@@ -136,7 +137,6 @@ export default function ScrollFx() {
               opacity: 1,
               y: 0,
               scale: 1,
-              filter: "blur(0px)",
               duration: 1.5,
               stagger: 0.18,
               ease: "power3.out",

@@ -855,7 +855,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
           aria-controls={raised ? "music-panel" : "hero-music"}
           onClick={() => (raised ? setOpen((v) => !v) : setBarOpen((v) => !v))}
           className={`group relative grid size-full place-items-center rounded-full shadow-[var(--shadow)] ring-1 transition-[transform,background-color,box-shadow] duration-500 ease-[var(--ease-spring)] hover:scale-105 active:scale-95 ${
-            raised ? "bg-surface/60 ring-line backdrop-blur-xl backdrop-saturate-150" : "bg-[rgb(34_14_52/0.55)] ring-white/15"
+            raised ? "bg-surface/75 ring-line backdrop-blur-md" : "bg-[rgb(34_14_52/0.55)] ring-white/15"
           }`}
         >
           <span aria-hidden className={`fab-tip ${raised ? "fab-tip-side" : ""}`}>

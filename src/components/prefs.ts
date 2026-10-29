@@ -89,6 +89,9 @@ export function restorePrefs() {
   // Dark is the site's default; light only when the visitor picked it.
   if (theme !== "light") theme = "dark";
   d.dataset.theme = theme;
+  // Lite mode on modest hardware (also set before paint by the layout script).
+  const n = navigator as Navigator & { deviceMemory?: number };
+  if ((n.hardwareConcurrency || 8) <= 4 || (n.deviceMemory && n.deviceMemory <= 4)) d.dataset.lite = "1";
   applyA11y(readStoredA11y());
 }
 

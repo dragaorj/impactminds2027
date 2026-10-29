@@ -35,8 +35,8 @@ type Faces = { row: typeof POOL; queue: typeof POOL };
 // speaker's profile in the speakers section (Speakers listens for
 // "im:open-speaker").
 // On touch screens a passing tap must not jump away: the first tap only opens
-// the pill (data-open: the circles fan out with a gold ring and the conveyor
-// holds still), and a second tap on a face picks that speaker. A tap
+// the pill (data-open: the circles fan out and the conveyor holds still; the
+// face being picked takes a gold ring), and a second tap on a face picks that speaker. A tap
 // elsewhere, or a few idle seconds, closes it again.
 export default function SpeakerFaces({ label }: { label: string }) {
   const root = useRef<HTMLSpanElement>(null);

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowUp } from "@phosphor-icons/react";
-import { prefersReducedMotion } from "./prefs";
+import { scrollToTarget } from "./scrollTarget";
 
 const TICKS = 40;
 
@@ -53,11 +53,11 @@ export default function BackToTop({ label }: { label: string }) {
         onClick={() => {
           // Rewinds the stat counters so they count up again on the way down.
           window.dispatchEvent(new Event("im:replay"));
-          window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+          scrollToTarget(0);
           document.getElementById("conteudo")?.focus({ preventScroll: true });
         }}
         data-dock="3"
-        className={`group fixed bottom-5 right-5 z-40 grid size-12 place-items-center rounded-full bg-surface/60 text-ink shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 transition-[opacity,transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:-translate-y-1 hover:bg-sun hover:text-sun-ink active:scale-95 sm:bottom-8 sm:right-8 sm:size-14 ${
+        className={`group fixed bottom-5 right-5 z-40 grid size-12 place-items-center rounded-full bg-surface/75 text-ink shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-md transition-[opacity,transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:-translate-y-1 hover:bg-sun hover:text-sun-ink active:scale-95 sm:bottom-8 sm:right-8 sm:size-14 ${
           visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
         }`}
       >

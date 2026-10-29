@@ -445,7 +445,7 @@ export default function Nav({ lang, nav, controls }: Props) {
             scrolled ? "max-w-[30rem]" : "max-w-full"
           } ${
             scrolled
-              ? "bg-surface/60 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150"
+              ? "bg-surface/75 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-md"
               : "bg-transparent shadow-none ring-1 ring-transparent backdrop-blur-0"
           }`}
         >
@@ -665,6 +665,7 @@ export default function Nav({ lang, nav, controls }: Props) {
            tapping it closes whichever is open. */
         <div
           aria-hidden
+          data-veil
           onClick={() => {
             setMenuOpen(false);
             setPanelOpen(false);

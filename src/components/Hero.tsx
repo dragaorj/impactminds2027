@@ -56,9 +56,13 @@ export default function Hero({
         defaults: { ease: "power1.in" },
         scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: 0.6 },
       });
+      // The title dissolves into a blur as it grows (the signature move). On
+      // modest hardware (html[data-lite]) the blur is left out: it is the
+      // costliest effect to run per frame, and a fade still carries the move.
+      const lite = "lite" in document.documentElement.dataset;
       tl.to(".hero-media", { scale: 1.14, ease: "none", duration: 1 }, 0)
-        .to(".hero-title", { scale: 3.4, y: () => window.innerHeight * 0.3, filter: "blur(22px)", opacity: 0, duration: 0.75 }, 0)
-        .to(".hero-typed", { y: -50, filter: "blur(8px)", opacity: 0, duration: 0.45 }, 0)
+        .to(".hero-title", { scale: 3.4, y: () => window.innerHeight * 0.3, ...(lite ? {} : { filter: "blur(22px)" }), opacity: 0, duration: lite ? 0.6 : 0.75 }, 0)
+        .to(".hero-typed", { y: -50, ...(lite ? {} : { filter: "blur(8px)" }), opacity: 0, duration: lite ? 0.4 : 0.45 }, 0)
         .to(".hero-out-up", { y: -70, opacity: 0, duration: 0.4 }, 0)
         .to(".hero-out-down", { y: 80, opacity: 0, duration: 0.45, stagger: 0.05 }, 0);
     },

@@ -293,7 +293,7 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
           aria-controls="countdown-panel"
           onClick={() => setOpen((v) => !v)}
           className={`group relative grid size-full place-items-center rounded-full shadow-[var(--shadow)] ring-1 transition-[transform,background-color,color,box-shadow] duration-500 ease-[var(--ease-spring)] hover:scale-105 active:scale-95 ${
-            raised ? "bg-surface/60 text-ink ring-line backdrop-blur-xl backdrop-saturate-150" : "bg-[rgb(34_14_52/0.6)] text-white ring-white/20"
+            raised ? "bg-surface/75 text-ink ring-line backdrop-blur-md" : "bg-[rgb(34_14_52/0.6)] text-white ring-white/20"
           }`}
         >
           <span aria-hidden className={`fab-tip ${raised ? "fab-tip-side" : ""}`}>
