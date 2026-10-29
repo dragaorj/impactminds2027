@@ -609,9 +609,10 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     "grid size-9 shrink-0 place-items-center rounded-full transition-[background-color,color,transform] duration-300 hover:text-gold active:scale-90";
   const VolumeIcon = muted || volume === 0 ? SpeakerSlash : volume < 0.5 ? SpeakerLow : SpeakerHigh;
 
-  // Shared pieces of the corner panel and the hero bar.
+  // Shared pieces of the corner panel and the hero bar. The cover is round,
+  // like the record on the music button.
   const cover = (size: string) => (
-    <div className={`relative shrink-0 overflow-hidden rounded-xl ring-1 ring-white/15 ${size}`}>
+    <div className={`relative shrink-0 overflow-hidden rounded-full ring-1 ring-white/15 ${size}`}>
       <Image src={track.cover} alt="" fill unoptimized className="object-cover" />
     </div>
   );
@@ -827,7 +828,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
             className="absolute bottom-[calc(100%+0.75rem)] right-0 w-[min(19rem,calc(100vw-1.5rem))] origin-bottom-right animate-[menuDrop_0.5s_var(--ease-out-expo)_both] rounded-[1.75rem] bg-surface/80 p-4 text-ink shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:bottom-0 sm:right-[calc(100%+0.75rem)] sm:origin-bottom-right"
           >
             <div className="flex items-center gap-3.5">
-              {cover("size-16 rounded-2xl")}
+              {cover("size-16")}
               <div className="min-w-0">
                 <p className="flex items-center gap-2 text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-gold">
                   {eq}
