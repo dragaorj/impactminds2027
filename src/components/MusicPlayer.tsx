@@ -22,7 +22,7 @@ import { prefersQuiet } from "./prefs";
 // Progress ring around the record (viewBox units).
 const R = 47;
 const C = 2 * Math.PI * R;
-const SWAP_MS = 280;
+const SWAP_MS = 160;
 const DEFAULT_VOLUME = 0.3;
 
 // Phones and tablets: iOS keeps every media element at full volume (setting

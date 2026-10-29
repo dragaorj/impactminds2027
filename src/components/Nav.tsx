@@ -320,15 +320,15 @@ export default function Nav({ lang, nav, controls }: Props) {
     document.body.style.overflow = menuOpen ? "hidden" : "";
   }, [menuOpen]);
 
-  // The bar only materialises once the page leaves the top of the hero.
-  const sentinelRef = useRef<HTMLDivElement>(null);
+  // The bar only materialises once the page leaves the top of the hero (96px),
+  // read from the scroll position (Safari reports it during momentum scrolling,
+  // while observer callbacks there can arrive late).
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => setScrolled(!e.isIntersecting));
-    io.observe(el);
-    return () => io.disconnect();
+    const read = () => setScrolled(window.scrollY > 96);
+    read();
+    window.addEventListener("scroll", read, { passive: true });
+    return () => window.removeEventListener("scroll", read);
   }, []);
 
   const isDark = prefs.theme === "dark";
@@ -432,7 +432,6 @@ export default function Nav({ lang, nav, controls }: Props) {
         {nav.skip}
       </a>
 
-      <div ref={sentinelRef} aria-hidden className="pointer-events-none absolute left-0 top-0 h-24 w-px" />
 
       <header
         className={`fixed inset-x-0 z-[42] mx-auto max-w-[132rem] px-3 transition-[top] duration-700 ease-[var(--ease-out-expo)] sm:px-8 lg:px-[5vw] ${

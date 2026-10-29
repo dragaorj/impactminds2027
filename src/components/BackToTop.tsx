@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowUp } from "@phosphor-icons/react";
 import { scrollToTarget } from "./scrollTarget";
 
@@ -9,18 +9,17 @@ const TICKS = 40;
 // Floating "back to top", in the same language as the countdown ring above
 // it: a glass disc ringed with fine ticks that light up gold as the page is
 // read (scroll progress), the arrow in the middle. It shows as soon as the
-// page leaves the very top (1px sentinel); hover fills it gold.
+// page leaves the very top (read from the scroll position, which Safari
+// reports during momentum scrolling too); hover fills it gold.
 export default function BackToTop({ label }: { label: string }) {
-  const sentinel = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [lit, setLit] = useState(0);
 
   useEffect(() => {
-    const el = sentinel.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([entry]) => setVisible(!entry.isIntersecting));
-    io.observe(el);
-    return () => io.disconnect();
+    const read = () => setVisible(window.scrollY > 1);
+    read();
+    window.addEventListener("scroll", read, { passive: true });
+    return () => window.removeEventListener("scroll", read);
   }, []);
 
   // Reading progress, at most once per frame and only when the lit count changes.
@@ -45,7 +44,6 @@ export default function BackToTop({ label }: { label: string }) {
 
   return (
     <>
-      <div ref={sentinel} aria-hidden className="pointer-events-none absolute left-0 top-0 h-px w-px" />
       <button
         type="button"
         aria-label={label}

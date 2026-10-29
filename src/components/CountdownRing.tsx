@@ -10,7 +10,7 @@ import { prefersReducedMotion } from "./prefs";
 type Labels = Dict["hero"] & { agendaLink: string };
 
 const TICKS = 60;
-const SWAP_MS = 280;
+const SWAP_MS = 160;
 
 type State =
   | { phase: "before"; days: number; hours: number; minutes: number; seconds: number; progress: number }
@@ -23,7 +23,6 @@ type State =
 // ([data-countdown-slot]); as soon as the page scrolls it fades out and fades
 // back in at its corner on the back-to-top button's vertical axis, above that button.
 export default function CountdownRing({ labels }: { labels: Labels }) {
-  const sentinel = useRef<HTMLDivElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const btn = useRef<HTMLButtonElement>(null);
   // The corner popup's height cap: the room above the ring (phones) or up to
@@ -93,12 +92,15 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
     };
   }, [open]);
 
+  // In the hero only while the page is at the very top. Read straight from
+  // the scroll position on every scroll event: Safari delivers observer
+  // callbacks late during momentum scrolling, which left the buttons in the
+  // corner for a moment after coming back to the top.
   useEffect(() => {
-    const el = sentinel.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([entry]) => setRaised(!entry.isIntersecting));
-    io.observe(el);
-    return () => io.disconnect();
+    const read = () => setRaised(window.scrollY > 1);
+    read();
+    window.addEventListener("scroll", read, { passive: true });
+    return () => window.removeEventListener("scroll", read);
   }, []);
 
   // Where the ring sits: the visible hero slot while at the top, otherwise the
@@ -250,7 +252,6 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
 
   return (
     <>
-      <div ref={sentinel} aria-hidden className="pointer-events-none absolute left-0 top-0 h-px w-px" />
       <div
         ref={wrap}
         data-dock="2"

@@ -24,7 +24,6 @@ import Agenda from "@/components/sections/Agenda";
 import Sponsor from "@/components/sections/Sponsor";
 import Carbon from "@/components/sections/Carbon";
 import Editions from "@/components/sections/Editions";
-import SmoothScroll from "@/components/SmoothScroll";
 import OffscreenPause from "@/components/OffscreenPause";
 import Footer from "@/components/sections/Footer";
 
@@ -61,7 +60,6 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
       <BackToTop label={t.footer.backToTop} />
       <DockToggle label={t.music.showControls} />
       <ScrollFx />
-      <SmoothScroll />
       <OffscreenPause />
       <MotionGate />
     </>
