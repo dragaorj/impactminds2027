@@ -202,7 +202,7 @@ export default function Hero({
               <span className="max-sm:hidden">{t.speakersPill}</span>
             </p>
           </div>
-          <h1 data-hero className="mt-5 font-display leading-[0.92] sm:mt-7">
+          <h1 data-hero className="-mt-3 font-display leading-[0.92] sm:mt-7">
             {/* Phones: one word per line, set much larger; from sm on one line. */}
             <span className="hero-title block text-[clamp(3.25rem,11vw,9.5rem)] will-change-[transform,filter] max-sm:text-[24vw] max-sm:leading-[1.14]">
               {/* The title joins its words with a non-breaking space: split on any space. */}
@@ -213,8 +213,9 @@ export default function Hero({
                 </span>
               ))}
             </span>
-            {/* Closing the 2026 edition while inviting to 2027: the gold line opens on
-                "Connecting Us", then types a thank-you and the invitation, on a loop.
+            {/* Closing the 2026 edition while inviting to 2027: the line opens on
+                "Connecting Us" in white, already written; it fades and the gold
+                thank-you and invitation type themselves in, taking turns.
                 A fixed min-height keeps the layout still while the text changes length. */}
             <TypeLine
               phrases={t.typed}

@@ -7,13 +7,16 @@ const TYPE_MS = 60;
 const HOLD_MS = 3000;
 const FADE_MS = 450;
 
-// The first phrase is on screen from the start (it is also the server-rendered
-// text). After a pause it fades out and the next phrase types itself in,
-// letter by letter, with a blinking caret; then the cycle repeats. Nothing is
-// ever deleted character by character. The cycle starts once the intro has
-// finished (im:ready); with reduced motion the first phrase simply stays.
+// The first phrase is the opening: on screen from the start, already written
+// and white, with no caret (it is also the server-rendered text). After a
+// pause it fades out and the next phrase types itself in, letter by letter, in
+// the line's own colour with a blinking caret; the typed phrases then take
+// turns (the opening is never typed). Nothing is ever deleted character by
+// character. The cycle starts once the intro has finished (im:ready); with
+// reduced motion the opening simply stays.
 export default function TypeLine({ phrases, className = "" }: { phrases: string[]; className?: string }) {
   const [text, setText] = useState(phrases[0]);
+  const [opening, setOpening] = useState(true);
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
@@ -29,7 +32,9 @@ export default function TypeLine({ phrases, className = "" }: { phrases: string[
         setFading(true);
         later(() => {
           setFading(false);
-          type((phrase + 1) % phrases.length, 1);
+          setOpening(false);
+          // After the last phrase, back to the first typed one (not the opening).
+          type(phrase + 1 < phrases.length ? phrase + 1 : Math.min(1, phrases.length - 1), 1);
         }, FADE_MS);
       }, HOLD_MS);
 
@@ -62,11 +67,11 @@ export default function TypeLine({ phrases, className = "" }: { phrases: string[
       <span className="sr-only">{phrases.join(". ")}</span>
       <span
         aria-hidden
-        className={`whitespace-nowrap transition-opacity ease-out ${fading ? "opacity-0" : "opacity-100"}`}
+        className={`whitespace-nowrap transition-opacity ease-out ${fading ? "opacity-0" : "opacity-100"} ${opening ? "text-white" : ""}`}
         style={{ transitionDuration: `${FADE_MS}ms` }}
       >
         {text}
-        <span className="type-caret ml-[0.06em] inline-block h-[0.85em] w-[0.06em] translate-y-[0.08em] bg-current" />
+        {!opening && <span className="type-caret ml-[0.06em] inline-block h-[0.85em] w-[0.06em] translate-y-[0.08em] bg-current" />}
       </span>
     </span>
   );
