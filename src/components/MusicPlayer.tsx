@@ -545,7 +545,9 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       until = Math.max(until, performance.now() + ms);
       if (!frame) frame = requestAnimationFrame(tick);
     };
-    const schedule = () => follow(0);
+    // A resize settles over a few frames (the scroll effects recompute after a
+    // short debounce, sizes switch at breakpoints): follow the slot until it has.
+    const schedule = () => follow(1200);
     if (firstPlace.current) {
       firstPlace.current = false;
       follow(4000);
@@ -560,6 +562,10 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
         if (!raised) follow(700);
       }, SWAP_MS);
     }
+    // In the hero the slot can move at any time (window resized or dragged,
+    // the bar opening, fonts, scroll effects settling): follow it on every
+    // frame for as long as the button sits there. Only a moved box re-renders.
+    if (!raised) follow(Infinity);
     const onReady = () => follow();
     window.addEventListener("im:ready", onReady);
     window.addEventListener("resize", schedule);

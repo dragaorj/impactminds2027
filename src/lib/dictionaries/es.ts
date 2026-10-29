@@ -46,6 +46,7 @@ const es: Dict = {
     subtitle: "Connecting Us",
     typed: ["Connecting Us", "Gracias por todo en 2026", "Nos vemos en Cartagena en 2027"],
     speakersPill: "220+ ponentes del más alto nivel",
+    speakersPillShort: "220+ ponentes",
     facts: [
       { value: "Cartagena", label: "Colombia" },
       { value: "24–27", label: "agosto de 2027" },

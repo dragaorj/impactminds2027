@@ -139,7 +139,9 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
       until = Math.max(until, performance.now() + ms);
       if (!frame) frame = requestAnimationFrame(tick);
     };
-    const schedule = () => follow(0);
+    // A resize settles over a few frames (the scroll effects recompute after a
+    // short debounce, sizes switch at breakpoints): follow the slot until it has.
+    const schedule = () => follow(1200);
     let dead = false;
     let unswap = 0;
     let swap = 0;
@@ -157,6 +159,10 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
       }, SWAP_MS);
     }
     // The hero slides in after the intro and the fonts may still swap: follow the slot then too.
+    // In the hero the slot can move at any time (window resized or dragged,
+    // the bar opening, fonts, scroll effects settling): follow it on every
+    // frame for as long as the button sits there. Only a moved box re-renders.
+    if (!raised) follow(Infinity);
     const onReady = () => follow();
     const onFonts = () => follow(600);
     window.addEventListener("im:ready", onReady);

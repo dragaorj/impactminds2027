@@ -92,7 +92,8 @@ export default function Hero({
       }}
       className={`shimmer group flex items-center gap-2 rounded-full sm:gap-3 bg-white font-medium text-[#2A1240] transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:bg-[#D9B865] active:scale-[0.98] ${size}`}
     >
-      {t.cta}
+      {/* Phones: the label centred in the room left of the arrow. */}
+      <span className="max-sm:flex-1 max-sm:text-center">{t.cta}</span>
       <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#2A1240] sm:size-11 text-white transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-y-0.5 group-hover:scale-105">
         <ArrowDown size="1rem" />
       </span>
@@ -171,7 +172,7 @@ export default function Hero({
           className={`object-cover transition-opacity ${started || videoSrc ? "opacity-0 duration-1000" : "opacity-100 duration-150"}`}
         />
         {videoSrc ? (
-          <NativeLoop src={videoSrc} poster={`https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`} />
+          <NativeLoop ambient src={videoSrc} poster={`https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`} />
         ) : (
           <div ref={holder} className="yt-cover absolute inset-0 overflow-hidden" aria-hidden />
         )}
@@ -188,7 +189,7 @@ export default function Hero({
           typed gold line and the CTA with the countdown ring beside it; the
           event's key facts sit in a frosted bar at the bottom. On phones the
           block sits low so the video's upper half stays clear. */}
-      <div className="mx-auto flex min-h-[100dvh] w-full max-w-[132rem] flex-col px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-24 sm:px-8 md:pb-10 lg:px-[5vw]">
+      <div className="mx-auto flex min-h-[100dvh] w-full max-w-[132rem] flex-col px-5 pb-[max(5.5rem,env(safe-area-inset-bottom))] pt-24 sm:px-8 sm:pb-14 lg:px-[5vw]">
         <div className="flex flex-1 flex-col items-center justify-end text-center lg:justify-center lg:pt-[14vh]">
           <div className="hero-out-up">
             <p
@@ -196,11 +197,22 @@ export default function Hero({
               className="faces-pill inline-flex items-center gap-3 rounded-full bg-[rgb(34_14_52/0.5)] py-1.5 pl-1.5 pr-4 text-xs ring-1 ring-white/20 sm:text-sm"
             >
               <SpeakerFaces label={speakerLabel} />
-              {t.speakersPill}
+              {/* Phones: the short label. */}
+              <span className="sm:hidden">{t.speakersPillShort}</span>
+              <span className="max-sm:hidden">{t.speakersPill}</span>
             </p>
           </div>
           <h1 data-hero className="mt-5 font-display leading-[0.92] sm:mt-7">
-            <span className="hero-title block text-[clamp(3.25rem,11vw,9.5rem)] will-change-[transform,filter]">{t.title}</span>
+            {/* Phones: one word per line, set much larger; from sm on one line. */}
+            <span className="hero-title block text-[clamp(3.25rem,11vw,9.5rem)] will-change-[transform,filter] max-sm:text-[24vw] max-sm:leading-[1.14]">
+              {/* The title joins its words with a non-breaking space: split on any space. */}
+              {t.title.split(/\s+/).map((word, i, all) => (
+                <span key={word} className="max-sm:block">
+                  {word}
+                  {i < all.length - 1 && " "}
+                </span>
+              ))}
+            </span>
             {/* Closing the 2026 edition while inviting to 2027: the gold line opens on
                 "Connecting Us", then types a thank-you and the invitation, on a loop.
                 A fixed min-height keeps the layout still while the text changes length. */}

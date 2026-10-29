@@ -8,8 +8,8 @@ export type NativeLoopHandle = { setMuted(m: boolean): void; pause(): void; play
 // Self-hosted background video: muted, looping, inline, with no controls of
 // any kind. Autoplay is skipped when the visitor asked for reduced motion
 // (the poster frame shows instead).
-const NativeLoop = forwardRef<NativeLoopHandle, { src: string; poster?: string; className?: string }>(function NativeLoop(
-  { src, poster, className = "" },
+const NativeLoop = forwardRef<NativeLoopHandle, { src: string; poster?: string; className?: string; ambient?: boolean }>(function NativeLoop(
+  { src, poster, className = "", ambient = false },
   ref,
 ) {
   const video = useRef<HTMLVideoElement>(null);
@@ -24,12 +24,30 @@ const NativeLoop = forwardRef<NativeLoopHandle, { src: string; poster?: string; 
     play: () => void video.current?.play(),
   }));
 
+  // Start the loop. An ambient loop (the hero's background, never paused by
+  // the visitor) is also restarted whenever it may have been left still: data
+  // arriving after a refused or aborted first play (as on a language switch, a
+  // full page load), the page restored from the back/forward cache, or the tab
+  // coming back into view.
   useEffect(() => {
     const v = video.current;
     if (!v) return;
     v.muted = true;
-    if (!prefersReducedMotion()) void v.play().catch(() => {});
-  }, [src]);
+    const resume = () => {
+      if (v.paused && !prefersReducedMotion() && !document.hidden) void v.play().catch(() => {});
+    };
+    resume();
+    if (!ambient) return;
+    const onVisible = () => !document.hidden && resume();
+    v.addEventListener("canplay", resume);
+    window.addEventListener("pageshow", resume);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      v.removeEventListener("canplay", resume);
+      window.removeEventListener("pageshow", resume);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [src, ambient]);
 
   return (
     <video

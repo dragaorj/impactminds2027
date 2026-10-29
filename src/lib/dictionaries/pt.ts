@@ -44,6 +44,7 @@ const pt = {
     subtitle: "Connecting Us",
     typed: ["Connecting Us", "Obrigado por tudo em 2026", "Nos vemos em Cartagena em 2027"],
     speakersPill: "220+ palestrantes do mais alto nível",
+    speakersPillShort: "220+ palestrantes",
     facts: [
       { value: "Cartagena", label: "Colômbia" },
       { value: "24–27", label: "agosto de 2027" },
