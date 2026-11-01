@@ -40,8 +40,26 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
   const wanted = useRef(false);
   const lightboxOpen = useRef(false);
 
+  // The YouTube player (its script, iframe and stream are heavy) is only set
+  // up once the panel is about a screen away; until then the poster shows.
+  const [near, setNear] = useState(false);
   useEffect(() => {
-    if (src) return;
+    const el = holder.current;
+    if (src || !el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        setNear(true);
+        io.disconnect();
+      },
+      { rootMargin: "100% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [src]);
+
+  useEffect(() => {
+    if (src || !near) return;
     let cancelled = false;
     let timer = 0;
     let revealed = false;
@@ -111,7 +129,7 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
       player.current = null;
       if (host) host.innerHTML = "";
     };
-  }, [videoId, src]);
+  }, [videoId, src, near]);
 
   const toggleSound = () => {
     if (src) {

@@ -5,44 +5,36 @@ import { useEffect, useRef, useState } from "react";
 // Seek bar drawn as the track's waveform: one bar per slice of the song, its
 // height the slice's loudness; bars already played are gold, the rest dim.
 // Click or drag anywhere to jump; arrow keys step 5 s (it's a slider for
-// assistive tech). The peaks come from decoding the MP3 in the browser (once
-// per track, kept in memory); until then a gentle placeholder shape shows.
+// assistive tech). The peaks are precomputed (scripts/waveform-peaks.mjs ->
+// public/music/peaks.json, a few KB for the whole playlist): the browser never
+// downloads and decodes a whole MP3 for them. Until the file arrives a gentle
+// placeholder shape shows.
 
 const cache = new Map<string, number[]>();
+let peaksFile: Promise<Record<string, number[]>> | null = null;
 
 function placeholder(n: number, seed: number) {
   return Array.from({ length: n }, (_, i) => 0.35 + 0.3 * Math.abs(Math.sin(i * 0.55 + seed)) * Math.abs(Math.cos(i * 0.21 + seed * 2)));
 }
 
-async function decodePeaks(src: string, n: number) {
+// The track's slices folded into n bars (each bar the RMS of its slices),
+// scaled to the loudest bar with a floor, as the player always drew them.
+async function loadPeaks(src: string, n: number) {
   const key = `${src}#${n}`;
   const hit = cache.get(key);
   if (hit) return hit;
-  const buf = await (await fetch(src)).arrayBuffer();
-  const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-  const ctx = new Ctx();
-  try {
-    const audio = await ctx.decodeAudioData(buf);
-    const data = audio.getChannelData(0);
-    const size = Math.floor(data.length / n);
-    const peaks: number[] = [];
-    for (let i = 0; i < n; i++) {
-      let sum = 0;
-      const start = i * size;
-      // Every 16th sample is plenty for a loudness estimate.
-      for (let j = 0; j < size; j += 16) {
-        const v = data[start + j];
-        sum += v * v;
-      }
-      peaks.push(Math.sqrt(sum / (size / 16)));
-    }
-    const max = Math.max(...peaks) || 1;
-    const out = peaks.map((p) => Math.max(0.12, p / max));
-    cache.set(key, out);
-    return out;
-  } finally {
-    ctx.close().catch(() => {});
-  }
+  peaksFile ??= fetch("/music/peaks.json").then((r) => r.json());
+  const slices = (await peaksFile)[src];
+  if (!slices?.length) throw new Error("no peaks");
+  const per = slices.length / n;
+  const peaks = Array.from({ length: n }, (_, i) => {
+    const part = slices.slice(Math.floor(i * per), Math.max(Math.floor((i + 1) * per), Math.floor(i * per) + 1));
+    return Math.sqrt(part.reduce((sum, v) => sum + v * v, 0) / part.length);
+  });
+  const max = Math.max(...peaks) || 1;
+  const out = peaks.map((p) => Math.max(0.12, p / max));
+  cache.set(key, out);
+  return out;
 }
 
 export default function Waveform({
@@ -69,7 +61,7 @@ export default function Waveform({
   valueText: string;
   onSeek: (seconds: number) => void;
   tone?: "light" | "theme";
-  // Only decode while shown: fetching a whole MP3 competes with the videos.
+  // Only load while shown.
   active?: boolean;
   className?: string;
 }) {
@@ -83,7 +75,7 @@ export default function Waveform({
     // Only when it's actually on screen layout-wise (not display:none), so a
     // hidden copy (the phone layout) doesn't download the track twice.
     if (active && root.current?.offsetParent)
-      decodePeaks(src, bars)
+      loadPeaks(src, bars)
         .then((p) => alive && setPeaks(p))
         .catch(() => {});
     return () => {

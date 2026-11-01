@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ArrowRight } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
@@ -191,6 +191,31 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
   ];
   const progress = state === null ? 0 : state.phase === "before" ? state.progress : 1;
   const filled = Math.round(progress * TICKS);
+  // The 60 ticks change only when another one lights up or the ring moves
+  // between hero and corner, not on every second's render.
+  const leading = state?.phase === "before";
+  const ticks = useMemo(
+    () =>
+      Array.from({ length: TICKS }, (_, i) => {
+              const on = i < filled;
+              const lead = i === filled - 1 && leading;
+              return (
+                <line
+                  key={i}
+                  x1="85"
+                  y1="50"
+                  x2={i % 5 === 0 ? "95" : "93"}
+                  y2="50"
+                  transform={`rotate(${(i * 360) / TICKS} 50 50)`}
+                  strokeWidth={i % 5 === 0 ? 2.4 : 1.8}
+                  strokeLinecap="round"
+                  className={`transition-[stroke] duration-500 ${on ? "stroke-sun" : raised ? "stroke-ink/15" : "stroke-white/25"} ${lead ? "animate-pulse" : ""}`}
+                  style={{ transitionDelay: `${i * 12}ms` }}
+                />
+              );
+            }),
+    [filled, raised, leading],
+  );
   useLayoutEffect(() => {
     if (!open || !raised) return;
     const gap = 12;
@@ -259,24 +284,7 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
             {labels.countdownTip}
           </span>
           <svg viewBox="0 0 100 100" aria-hidden className="absolute inset-0 size-full -rotate-90 overflow-visible">
-            {Array.from({ length: TICKS }, (_, i) => {
-              const on = i < filled;
-              const lead = i === filled - 1 && state?.phase === "before";
-              return (
-                <line
-                  key={i}
-                  x1="85"
-                  y1="50"
-                  x2={i % 5 === 0 ? "95" : "93"}
-                  y2="50"
-                  transform={`rotate(${(i * 360) / TICKS} 50 50)`}
-                  strokeWidth={i % 5 === 0 ? 2.4 : 1.8}
-                  strokeLinecap="round"
-                  className={`transition-[stroke] duration-500 ${on ? "stroke-sun" : raised ? "stroke-ink/15" : "stroke-white/25"} ${lead ? "animate-pulse" : ""}`}
-                  style={{ transitionDelay: `${i * 12}ms` }}
-                />
-              );
-            })}
+            {ticks}
             <g ref={orbit} className="ring-orbit">
               <circle cx="100" cy="50" r="2.6" className="fill-sun" />
             </g>

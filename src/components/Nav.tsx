@@ -21,7 +21,8 @@ const iconBtnOnVideo =
 // Picking one is a real page load on purpose: client-side switching kept
 // hidden copies of every visited language in the DOM (same ids, stale
 // animations), which made things vanish. To keep it instant, the other
-// languages are prefetched and the scroll position is handed over
+// languages are prefetched (once the visitor reaches for the button) and the
+// scroll position is handed over
 // (sessionStorage "im-switch"): the new page restores it and skips the intro
 // and all entrance animations (html[data-switch]).
 // Each language in its own words, shown small under its name in the page's
@@ -42,6 +43,9 @@ function LangSwitch({
   onOpenChange?: (open: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
+  // The other languages are prefetched only once the visitor shows interest
+  // (pointer over the button, focus, or the menu opened), not on every load.
+  const [warm, setWarm] = useState(false);
 
   // Only one of the bar's popovers at a time (menu, accessibility, language):
   // each says "im:popover" when it opens, and the others close.
@@ -85,6 +89,8 @@ function LangSwitch({
         aria-haspopup="true"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
+        onPointerEnter={() => setWarm(true)}
+        onFocus={() => setWarm(true)}
         className={`group relative flex h-10 items-center gap-1.5 rounded-full pl-2.5 pr-3 text-[0.9375rem] font-medium uppercase leading-none tracking-[0.06em] transition-[background-color,color] duration-500 ease-[var(--ease-spring)] ${
           open ? "bg-sun text-sun-ink" : onVideo ? "text-white hover:bg-sun hover:text-sun-ink" : "text-ink hover:bg-sun hover:text-sun-ink"
         }`}
@@ -168,11 +174,10 @@ function LangSwitch({
           </div>
         </div>
       )}
-      {locales
-        .filter((l) => l !== lang)
-        .map((l) => (
-          <link key={`pf-${l}`} rel="prefetch" href={`/${l}`} as="document" />
-        ))}
+      {(warm || open) &&
+        locales
+          .filter((l) => l !== lang)
+          .map((l) => <link key={`pf-${l}`} rel="prefetch" href={`/${l}`} as="document" />)}
     </div>
   );
 }
@@ -658,22 +663,24 @@ export default function Nav({ lang, nav, controls }: Props) {
         )}
       </header>
 
-      {(menuOpen || panelOpen || langOpen) && (
-        /* Soft veil over the page, the floating buttons included (they sit at
-           z 35-40, under the veil at 41 and the bar at 42); shown under the menu, the accessibility panel and the language menu;
-           tapping it closes whichever is open. */
-        <div
-          aria-hidden
-          data-veil
-          onClick={() => {
-            setMenuOpen(false);
-            setPanelOpen(false);
-            // The language menu closes on any other popover's signal.
-            window.dispatchEvent(new CustomEvent("im:popover", { detail: "veil" }));
-          }}
-          className="fixed inset-0 z-[41] animate-[fadeIn_0.4s_ease-out_both] bg-block/30 backdrop-blur-[6px]"
-        />
-      )}
+      {/* Soft veil over the page, the floating buttons included (they sit at
+          z 35-40, under the veil at 41 and the bar at 42); shown under the menu,
+          the accessibility panel and the language menu; tapping it closes
+          whichever is open. Always mounted, so it fades out as gently as it
+          fades in (hidden once faded, so it never catches a click). */}
+      <div
+        aria-hidden
+        data-veil
+        onClick={() => {
+          setMenuOpen(false);
+          setPanelOpen(false);
+          // The language menu closes on any other popover's signal.
+          window.dispatchEvent(new CustomEvent("im:popover", { detail: "veil" }));
+        }}
+        className={`fixed inset-0 z-[41] bg-block/30 backdrop-blur-[6px] transition-[opacity,visibility] duration-400 ease-out ${
+          menuOpen || panelOpen || langOpen ? "visible opacity-100" : "invisible opacity-0 delay-0"
+        }`}
+      />
     </>
   );
 }

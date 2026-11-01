@@ -540,7 +540,6 @@ html[data-motion="reduce"] .ring-orbit { animation: none; }
 .loop-float, .loop-sway, .loop-sway-soft, .loop-wave, .loop-bob, .loop-fly, .loop-drift,
 .geo-turn, .geo-breathe, .geo-mirror {
   transform-box: fill-box;
-  will-change: transform;
 }
 @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-6px) rotate(0.6deg); } }
 @keyframes sway { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
@@ -767,7 +766,6 @@ html[data-motion="reduce"] .shimmer::after { opacity: 0; }
   -webkit-mask-repeat: repeat-x;
   mask-size: var(--wave-tile) 100%;
   -webkit-mask-size: var(--wave-tile) 100%;
-  will-change: transform;
 }
 .wave-y::before {
   top: -1px;
@@ -966,9 +964,8 @@ html[data-motion="reduce"] :is(.music-disc, .music-eq i) { animation: none; }
   font-size: 0.75rem;
   font-weight: 500;
   color: #fff;
-  background: rgb(28 12 44 / 0.9);
+  background: rgb(28 12 44 / 0.94);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15);
-  backdrop-filter: blur(12px);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease, translate 0.3s ease;

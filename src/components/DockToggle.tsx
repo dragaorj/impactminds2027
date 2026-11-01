@@ -71,7 +71,7 @@ export default function DockToggle({ label }: { label: string }) {
       onClick={() => window.dispatchEvent(new Event("im:dock-show"))}
       className={`dock-tab fixed bottom-[8.5rem] right-0 z-40 grid h-14 w-7 place-items-center rounded-l-2xl bg-surface/90 text-gold shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-md transition-[translate,opacity] duration-500 ease-[var(--ease-out-expo)] sm:bottom-[10.5rem] sm:h-16 sm:w-8 ${
         // Glides in once the buttons have left; slips away at once on return.
-        hidden ? "translate-x-0 opacity-100 delay-500" : "pointer-events-none translate-x-full opacity-0"
+        hidden ? "translate-x-0 opacity-100 delay-500" : "pointer-events-none translate-x-full opacity-0 backdrop-blur-none!"
       }`}
     >
       <CaretLeft size="1rem" weight="bold" className="dock-nudge" />

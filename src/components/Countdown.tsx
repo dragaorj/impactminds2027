@@ -24,12 +24,15 @@ export default function Countdown({
   labels,
   compact = false,
   size = "md",
+  paused = false,
 }: {
   start: string;
   end: string;
   labels: Labels;
   compact?: boolean;
   size?: "md" | "lg";
+  // Not on show (e.g. the hero bar's hidden view): no ticking until shown.
+  paused?: boolean;
 }) {
   const [state, setState] = useState<State | null>(null);
 
@@ -43,9 +46,10 @@ export default function Countdown({
       else setState({ phase: "after" });
     };
     tick();
+    if (paused) return;
     const id = window.setInterval(tick, 1000);
     return () => window.clearInterval(id);
-  }, [start, end]);
+  }, [start, end, paused]);
 
   if (state && state.phase !== "before") {
     return (

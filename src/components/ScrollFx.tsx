@@ -148,7 +148,9 @@ export default function ScrollFx() {
       });
 
       // Every heading and text block outside the hero rises line by line from
-      // behind a mask as it enters view. SplitText re-splits on resize.
+      // behind a mask as it enters view. SplitText re-splits on resize until
+      // then; once a block has risen, the split is undone (the text is back to
+      // plain DOM: fewer nodes, and nothing to re-split on later resizes).
       const textSel = [
         "main h2",
         "main h3",
@@ -180,6 +182,7 @@ export default function ScrollFx() {
               stagger: heading ? 0.1 : 0.06,
               ease: "expo.out",
               scrollTrigger: { trigger: el, start: "top 90%", toggleActions: "play none none none" },
+              onComplete: () => self.revert(),
             });
           },
         });

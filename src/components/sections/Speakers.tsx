@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Pause, Play, X } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
@@ -10,6 +10,17 @@ import Art from "../Art";
 import { H2, container, section } from "../ui";
 import { useDialogDismiss } from "../useDialogDismiss";
 import { scrollToTarget } from "../scrollTarget";
+
+// Wide screens (md and up) show the cards marquee, phones the rows of faces.
+// The server (and the first paint) renders both and CSS picks one; once in
+// the browser only the layout in use stays in the page, so the hidden one's
+// portraits and nodes cost nothing (it comes back if the window crosses md).
+const WIDE = "(min-width: 768px)";
+const watchWide = (onChange: () => void) => {
+  const m = window.matchMedia(WIDE);
+  m.addEventListener("change", onChange);
+  return () => m.removeEventListener("change", onChange);
+};
 
 const initials = (name: string) =>
   name
@@ -169,6 +180,7 @@ function SpeakerBox({
 export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Locale }) {
   const [paused, setPaused] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
+  const wide = useSyncExternalStore(watchWide, () => window.matchMedia(WIDE).matches, () => null);
   // A fresh random order on every visit. The server renders the default order;
   // the shuffle happens right after mount, long before the section scrolls in.
   const [list, setList] = useState(speakers);
@@ -214,6 +226,7 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
 
       {/* Phones: two rows of small faces (no names), drifting right then left;
           a tap on any face opens the speaker. Larger screens keep the cards below. */}
+      {wide !== true && (
       <div
         className="speaker-loop mt-10 space-y-3 md:hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]"
         data-paused={paused || open !== null || undefined}
@@ -249,7 +262,9 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
           );
         })}
       </div>
+      )}
 
+      {wide !== false && (
       <div
         className="speaker-loop no-scrollbar mt-14 hidden md:block [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)]"
         data-paused={paused || open !== null || undefined}
@@ -272,6 +287,7 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
           </ul>
         </div>
       </div>
+      )}
 
       <div className={`${container} mt-14`} data-reveal>
         <a
@@ -287,11 +303,12 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
         </a>
       </div>
 
-      {/* Same warm-up as the photo lightbox: the large portraits load (lazily,
-          at the lightbox's own sizes) once this section nears the screen. */}
+      {/* Same warm-up as the photo lightbox: while a profile is open, the
+          portraits on either side load at its own sizes, so stepping through is
+          instant; nothing large loads before a profile is opened. */}
       <div aria-hidden className="pointer-events-none absolute left-0 top-0 size-px overflow-hidden opacity-0">
-        {speakers.map((s) =>
-          s.photo ? (
+        {(open === null ? [] : [list[(open - 1 + list.length) % list.length], list[(open + 1) % list.length]]).map((s) =>
+          s?.photo ? (
             <div key={s.name} className="relative size-px">
               <Image src={s.photo} alt="" fill sizes="(min-width:768px) 26rem, 70vw" loading="lazy" />
             </div>

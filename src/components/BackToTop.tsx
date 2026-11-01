@@ -56,7 +56,7 @@ export default function BackToTop({ label }: { label: string }) {
         }}
         data-dock="3"
         className={`group fixed bottom-5 right-5 z-40 grid size-12 place-items-center rounded-full bg-surface/75 text-ink shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-md transition-[opacity,transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:-translate-y-1 hover:bg-sun hover:text-sun-ink active:scale-95 sm:bottom-8 sm:right-8 sm:size-14 ${
-          visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
+          visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0 backdrop-blur-none!"
         }`}
       >
         {/* Tooltip, to the left like the countdown and music buttons'. */}

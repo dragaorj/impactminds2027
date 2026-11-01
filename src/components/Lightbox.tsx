@@ -99,11 +99,12 @@ export default function Lightbox({
 
   return (
     <>
-    {/* Warm the cache: every photo is fetched at the exact size the viewer asks
-        for (same sizes attribute) as soon as its section nears the screen
-        (lazy), so opening the lightbox is instant. */}
+    {/* Warm the cache while the viewer is open: the photos on either side are
+        fetched at the exact size it asks for (same sizes attribute), so the
+        next step is instant. Nothing is fetched before the visitor opens it:
+        a whole gallery of large photos is heavy on phones and slow networks. */}
     <div aria-hidden className="pointer-events-none absolute left-0 top-0 size-px overflow-hidden opacity-0">
-      {items.map((it) => (
+      {(index === null ? [] : [items[(index - 1 + total) % total], items[(index + 1) % total]]).map((it) => (
         <div key={it.src} className="relative size-px">
           <Image src={it.src} alt="" fill sizes={SIZES} loading="lazy" onLoad={(e) => remember(it.src, e.currentTarget)} />
         </div>
