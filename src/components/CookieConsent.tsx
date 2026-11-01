@@ -61,11 +61,11 @@ export default function CookieConsent({ t, privacyHref }: { t: PrivacyCopy["bann
   if (!mode) return null;
 
   const body = (
-    <div role="region" aria-label={t.label} className="flex h-full items-center gap-3 px-3 text-white sm:gap-4 sm:px-5">
+    <div role="region" aria-label={t.label} className="flex h-full items-center gap-3 px-3 text-white max-[380px]:gap-2 max-[380px]:px-2.5 sm:gap-4 sm:px-5">
       <span aria-hidden className="hidden size-8 shrink-0 place-items-center rounded-full bg-[#D9B865]/15 text-[#D9B865] ring-1 ring-[#D9B865]/40 sm:grid">
         <Cookie size="1rem" weight="light" />
       </span>
-      <p className="min-w-0 flex-1 text-[0.6875rem] leading-snug text-white/80 sm:text-[0.8125rem]">
+      <p className="min-w-0 flex-1 text-balance text-[0.6875rem] leading-snug max-[380px]:text-[0.625rem] text-white/80 sm:text-[0.8125rem]">
         <span className="sm:hidden">{t.textShort}</span>
         <span className="max-sm:hidden">{t.text}</span>{" "}
         <a href={privacyHref} className="font-medium text-white underline decoration-[#D9B865]/70 underline-offset-[3px] transition-colors hover:text-[#D9B865]">
@@ -73,11 +73,11 @@ export default function CookieConsent({ t, privacyHref }: { t: PrivacyCopy["bann
           <span className="max-sm:hidden">{t.link}</span>
         </a>
       </p>
-      <div className="flex shrink-0 gap-1.5 sm:gap-2">
+      <div className="flex shrink-0 gap-1.5 max-[380px]:gap-1 sm:gap-2">
         <button
           type="button"
           onClick={() => choose(false)}
-          className="h-8 whitespace-nowrap rounded-full px-3 text-[0.6875rem] font-medium ring-1 ring-white/25 transition-colors duration-300 hover:bg-white/10 sm:h-9 sm:px-4 sm:text-[0.8125rem]"
+          className="h-8 whitespace-nowrap rounded-full px-3 text-[0.6875rem] max-[380px]:px-2.5 font-medium ring-1 ring-white/25 transition-colors duration-300 hover:bg-white/10 sm:h-9 sm:px-4 sm:text-[0.8125rem]"
         >
           <span className="sm:hidden">{t.rejectShort}</span>
           <span className="max-sm:hidden">{t.reject}</span>
@@ -85,7 +85,7 @@ export default function CookieConsent({ t, privacyHref }: { t: PrivacyCopy["bann
         <button
           type="button"
           onClick={() => choose(true)}
-          className="h-8 whitespace-nowrap rounded-full bg-[#D9B865] px-3 text-[0.6875rem] font-medium text-[#2A1240] transition-colors duration-300 hover:bg-white sm:h-9 sm:px-4 sm:text-[0.8125rem]"
+          className="h-8 whitespace-nowrap rounded-full bg-[#D9B865] px-3 text-[0.6875rem] max-[380px]:px-2.5 font-medium text-[#2A1240] transition-colors duration-300 hover:bg-white sm:h-9 sm:px-4 sm:text-[0.8125rem]"
         >
           <span className="sm:hidden">{t.acceptShort}</span>
           <span className="max-sm:hidden">{t.accept}</span>

@@ -151,7 +151,7 @@ const es: PrivacyCopy = {
   banner: {
     label: "Aviso de privacidad y cookies",
     text: "Usamos cookies necesarias y, con tu autorización, opcionales para mejorar tu experiencia.",
-    textShort: "Cookies opcionales solo con tu autorización.",
+    textShort: "Cookies opcionales solo si autorizas.",
     link: "Política de Privacidad",
     linkShort: "Privacidad",
     reject: "Rechazar opcionales",
@@ -256,7 +256,7 @@ const en: PrivacyCopy = {
   banner: {
     label: "Privacy and cookie notice",
     text: "We use necessary cookies and, with your permission, optional ones to improve your experience.",
-    textShort: "Optional cookies only with your permission.",
+    textShort: "Optional cookies only if you agree.",
     link: "Privacy Policy",
     linkShort: "Privacy",
     reject: "Reject optional",

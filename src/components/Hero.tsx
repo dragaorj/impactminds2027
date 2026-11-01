@@ -105,8 +105,10 @@ export default function Hero({
       }}
       className={`shimmer group flex items-center gap-2 rounded-full sm:gap-3 bg-white font-medium text-[#2A1240] transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:bg-[#D9B865] active:scale-[0.98] ${size}`}
     >
-      {/* Phones: the label centred in the room left of the arrow. */}
-      <span className="max-sm:flex-1 max-sm:text-center">{t.cta}</span>
+      {/* Phones: the label centred in the room left of the arrow, its size
+          following the button's own width (cqi) so it never pushes the arrow
+          out; on the narrowest screens it wraps to two balanced lines. */}
+      <span className="max-sm:min-w-0 max-sm:flex-1 max-sm:text-balance max-sm:text-center max-sm:text-[clamp(0.6875rem,calc(9.2cqi_-_6px),0.8125rem)] max-sm:leading-[1.15]">{t.cta}</span>
       <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#2A1240] sm:size-11 text-white transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-y-0.5 group-hover:scale-105">
         <ArrowDown size="1rem" />
       </span>
@@ -250,7 +252,7 @@ export default function Hero({
               CountdownRing and MusicPlayer), so they move with the hero. */}
           <div className="hero-out-down w-full sm:w-auto">
             <div data-hero className="mt-7 flex w-full items-center justify-center gap-2 sm:mt-9 sm:w-auto sm:gap-4">
-              {cta("h-[3.25rem] min-w-0 flex-1 justify-between whitespace-nowrap pl-3.5 pr-1.5 text-[0.8125rem] sm:h-16 sm:flex-none sm:pl-7 sm:pr-2.5 sm:text-base")}
+              {cta("h-[3.25rem] min-w-0 flex-1 justify-between max-sm:[container-type:inline-size] sm:whitespace-nowrap pl-3.5 pr-1.5 text-[0.8125rem] sm:h-16 sm:flex-none sm:pl-7 sm:pr-2.5 sm:text-base")}
               <span data-countdown-slot className="relative size-[3.25rem] shrink-0 sm:size-16 lg:size-20" />
                         <span data-music-slot className="relative size-[3.25rem] shrink-0 sm:size-16 lg:size-20" />
             </div>
