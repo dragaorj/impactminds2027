@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowRight } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { COUNTDOWN_FROM, EVENT_END, EVENT_START } from "@/lib/site";
@@ -19,9 +20,18 @@ type State =
 
 // Floating countdown: a ring of ticks fills from COUNTDOWN_FROM to the first
 // day, with the days left in the middle; clicking it opens the full countdown.
-// At the top of the page it parks in the hero, in the slot beside the CTA
-// ([data-countdown-slot]); as soon as the page scrolls it fades out and fades
-// back in at its corner on the back-to-top button's vertical axis, above that button.
+// At the top of the page it lives in the hero, rendered inside the slot beside
+// the CTA ([data-countdown-slot], through a portal), so it moves with the hero
+// natively: nothing is measured, nothing lags (Safari included). As soon as the
+// page scrolls it fades out and fades back in at its corner (fixed by CSS) on
+// the back-to-top button's vertical axis, above that button.
+
+// The corner spot (px), matching the fixed classes on the wrapper below.
+const corner = () => {
+  const sm = window.innerWidth >= 640;
+  const size = sm ? 80 : 64;
+  return { top: window.innerHeight - (sm ? 100 : 80) - size, size };
+};
 export default function CountdownRing({ labels }: { labels: Labels }) {
   const wrap = useRef<HTMLDivElement>(null);
   const btn = useRef<HTMLButtonElement>(null);
@@ -29,9 +39,10 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
   // its bottom edge (larger screens), so it scrolls instead of being cut.
   const [maxH, setMaxH] = useState<number | null>(null);
   const [raised, setRaised] = useState(false);
-  // Fixed-position box (px). null until measured, so the ring never flashes
-  // in the wrong place.
-  const [box, setBox] = useState<{ top: number; left: number; size: number } | null>(null);
+  // Where it is rendered: in the hero slot or in the corner (switched while
+  // faded out), and the slot element once mounted.
+  const [where, setWhere] = useState<"hero" | "corner">("hero");
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
   // Moving between the hero and the corner is a fade, not a trip across the
   // page: fade out, jump while invisible, fade back in at the new spot.
   const [swapping, setSwapping] = useState(false);
@@ -103,86 +114,32 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
     return () => window.removeEventListener("scroll", read);
   }, []);
 
-  // Where the ring sits: the visible hero slot while at the top, otherwise the
-  // corner slot above back-to-top (centred on its axis, 12px above it).
+  useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the slot exists only once the page is mounted
+    setSlot(document.querySelector<HTMLElement>("[data-countdown-slot]"));
+  }, []);
+
+  // Hero or corner: a fade, not a trip. Fade out, switch while invisible, fade
+  // back in; a quick scroll back and forth cancels the pending switch, so the
+  // last one always wins.
   useEffect(() => {
-    let frame = 0;
-    const measure = () => {
-      const slot = [...document.querySelectorAll<HTMLElement>("[data-countdown-slot]")].find(
-        (el) => el.getBoundingClientRect().width > 0,
-      );
-      if (!raised && slot) {
-        const r = slot.getBoundingClientRect();
-        put(r.top, r.left, r.height);
-        return;
-      }
-      const sm = window.innerWidth >= 640;
-      const size = sm ? 80 : 64;
-      const axisRight = sm ? 60 : 44; // centre of the back-to-top button from the right edge
-      const above = sm ? 100 : 80; // its top edge plus a 12px gap, from the bottom
-      const w = document.documentElement.clientWidth;
-      put(window.innerHeight - above - size, w - axisRight - size / 2, size);
-    };
-    // Only re-render when the box actually moved.
-    const put = (top: number, left: number, size: number) =>
-      setBox((b) =>
-        b && Math.abs(b.top - top) < 0.5 && Math.abs(b.left - left) < 0.5 && b.size === size ? b : { top, left, size },
-      );
-    // While the hero is still moving (its entrance slides the CTA row up, web
-    // fonts swap in and change the CTA's width) a single measurement lands in
-    // the wrong place, so follow the slot every frame until it has settled.
-    let until = 0;
-    const tick = () => {
-      measure();
-      frame = performance.now() < until ? requestAnimationFrame(tick) : 0;
-    };
-    const follow = (ms = 2600) => {
-      if (dead) return;
-      until = Math.max(until, performance.now() + ms);
-      if (!frame) frame = requestAnimationFrame(tick);
-    };
-    // A resize settles over a few frames (the scroll effects recompute after a
-    // short debounce, sizes switch at breakpoints): follow the slot until it has.
-    const schedule = () => follow(1200);
-    let dead = false;
-    let unswap = 0;
-    let swap = 0;
+    const target = raised ? "corner" : "hero";
     if (firstPlace.current) {
       firstPlace.current = false;
-      follow(4000);
-    } else {
-      setSwapping(true);
-      setOpen(false);
-      swap = window.setTimeout(() => {
-        measure();
-        unswap = requestAnimationFrame(() => setSwapping(false));
-        // Back in the hero, the slot is still reopening: follow it.
-        if (!raised) follow(700);
-      }, SWAP_MS);
+      setWhere(target);
+      return;
     }
-    // The hero slides in after the intro and the fonts may still swap: follow the slot then too.
-    // In the hero the slot can move at any time (window resized or dragged,
-    // the bar opening, fonts, scroll effects settling): follow it on every
-    // frame for as long as the button sits there. Only a moved box re-renders.
-    if (!raised) follow(Infinity);
-    const onReady = () => follow();
-    const onFonts = () => follow(600);
-    window.addEventListener("im:ready", onReady);
-    window.addEventListener("resize", schedule);
-    // The hero bar opening or folding moves the slot (Hero.tsx): follow it.
-    const onShift = () => follow(1000);
-    window.addEventListener("im:hero-shift", onShift);
-    document.fonts?.ready.then(onFonts);
-    const late = window.setTimeout(schedule, 1600);
+    setSwapping(true);
+    setOpen(false);
+    let frame = 0;
+    const swap = window.setTimeout(() => {
+      setWhere(target);
+      // Two frames: the new element is laid out at opacity 0 before it fades in.
+      frame = requestAnimationFrame(() => (frame = requestAnimationFrame(() => setSwapping(false))));
+    }, SWAP_MS);
     return () => {
-      dead = true;
-      cancelAnimationFrame(frame);
-      cancelAnimationFrame(unswap);
       window.clearTimeout(swap);
-      window.clearTimeout(late);
-      window.removeEventListener("im:ready", onReady);
-      window.removeEventListener("resize", schedule);
-      window.removeEventListener("im:hero-shift", onShift);
+      cancelAnimationFrame(frame);
     };
   }, [raised]);
 
@@ -235,11 +192,12 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
   const progress = state === null ? 0 : state.phase === "before" ? state.progress : 1;
   const filled = Math.round(progress * TICKS);
   useLayoutEffect(() => {
-    if (!open || !raised || !box) return;
+    if (!open || !raised) return;
     const gap = 12;
+    const box = corner();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- layout measurement before paint
     setMaxH((window.innerWidth >= 640 ? box.top + box.size : box.top - gap) - gap);
-  }, [open, raised, box]);
+  }, [open, raised]);
 
   const label =
     state?.phase === "before"
@@ -250,18 +208,18 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
           ? labels.after
           : labels.countdown;
 
-  return (
-    <>
+  if (!slot && where === "hero") return null;
+  const inHero = where === "hero" && slot;
+  const ring = (
       <div
         ref={wrap}
         data-dock="2"
-        className={`fixed z-[35] transition-opacity ease-out ${
-          box && !swapping ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-        style={{
-          transitionDuration: `${SWAP_MS}ms`,
-          ...(box ? { top: box.top, left: box.left, width: box.size, height: box.size } : {}),
-        }}
+        className={`transition-opacity ease-out ${
+          inHero
+            ? "absolute left-0 top-0 z-[1] aspect-square h-full"
+            : "fixed bottom-20 right-3 z-[35] size-16 sm:bottom-[6.25rem] sm:right-5 sm:size-20"
+        } ${!swapping ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        style={{ transitionDuration: `${SWAP_MS}ms` }}
       >
         {open && raised && (
           <div
@@ -341,6 +299,6 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
           </span>
         </button>
       </div>
-    </>
   );
+  return createPortal(ring, inHero ? slot : document.body);
 }

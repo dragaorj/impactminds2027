@@ -430,8 +430,9 @@ html[data-lite] *::before,
 html[data-lite] *::after { backdrop-filter: none !important; }
 /* Only the site's own chrome (the bar and its menus, the corner buttons and
    their panels); glass over photos and video keeps its dark tint. */
-html[data-lite] :is(header, [data-dock]) [class*="backdrop-blur"]:not([data-veil]),
-html[data-lite] [data-dock][class*="backdrop-blur"],
+/* (backdrop-blur-0 is the bar's transparent state at the top: left alone.) */
+html[data-lite] :is(header, [data-dock]) [class*="backdrop-blur"]:not([data-veil], [class*="backdrop-blur-0"]),
+html[data-lite] [data-dock][class*="backdrop-blur"]:not([class*="backdrop-blur-0"]),
 html[data-lite] .dock-tab { background-color: color-mix(in oklab, var(--surface) 94%, transparent); }
 html[data-lite] [data-veil] { background-color: rgb(28 12 44 / 0.6); }
 html[data-lite]:is([data-countdown-open], [data-music-open]) body::after { background: rgb(28 12 44 / 0.6); }
@@ -793,11 +794,41 @@ html[data-motion="reduce"] .wave-b::after { animation: none; }
 
 /* Hero speakers pill: overlapping portraits that fan apart on hover, each
    hopping in turn; the one under the pointer grows a touch and comes forward. */
+/* The window the speakers pill's faces glide through (SpeakerFaces): exactly
+   five faces wide, so the conveyor never moves the text or resizes the pill.
+   Faces are 1.75rem (2rem from sm), overlapping by 0.625rem; fanned out on
+   hover or by a first tap (0.45rem apart), the window widens in step.
+   Its edges are soft, not a hard cut: a little room past the faces on each
+   side (taken back by negative margins, so nothing moves) fades out through
+   a mask, so the face gliding in on the right and the one leaving on the left
+   appear and vanish gradually, while the five at rest stay fully opaque. */
+.faces-clip {
+  box-sizing: content-box;
+  display: block;
+  padding-left: 6px;
+  margin-left: -6px;
+  padding-right: 22px;
+  margin-right: -22px;
+  overflow-x: clip;
+  overflow-y: visible;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 5px, #000 calc(100% - 22px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 5px, #000 calc(100% - 22px), transparent 100%);
+  width: calc(5 * 1.75rem - 4 * 0.625rem);
+  transition: width 0.5s var(--ease-spring);
+}
+.faces-pill[data-open] .faces-clip { width: calc(5 * 1.75rem + 4 * 0.45rem); }
+/* Fanned out (hover, or a first tap) the conveyor holds still with just the
+   five faces: the mask and the clipping step aside so the name tooltips (wider
+   than a face) and the hop show in full. */
+.faces-pill[data-open] .faces-clip { overflow: visible; -webkit-mask-image: none; mask-image: none; }
+@media (min-width: 640px) {
+  .faces-clip { width: calc(5 * 2rem - 4 * 0.625rem); }
+  .faces-pill[data-open] .faces-clip { width: calc(5 * 2rem + 4 * 0.45rem); }
+}
 .faces > .face + .face { margin-left: -0.625rem; }
 .faces > .face {
   transition: margin-left 0.5s var(--ease-spring), scale 0.4s var(--ease-spring), box-shadow 0.4s ease;
 }
-.faces-pill:hover .faces > .face + .face { margin-left: 0.2rem; }
 /* The circle that becomes first when the conveyor drops the leader loses its
    overlap margin: that change must be instant, or it slides out over the
    pill's edge and back. */
@@ -805,12 +836,17 @@ html[data-motion="reduce"] .wave-b::after { animation: none; }
 .faces-pill:hover .faces > .face { animation: faceHop 0.7s var(--ease-spring) both; }
 /* Hover only where there is a real pointer (a tap would leave it stuck). */
 @media (hover: hover) {
+  .faces-pill:hover .faces > .face + .face { margin-left: 0.45rem; }
+  .faces-pill:hover .faces-clip { width: calc(5 * 1.75rem + 4 * 0.45rem); overflow: visible; -webkit-mask-image: none; mask-image: none; }
   .faces-pill .faces > .face:hover { scale: 1.18; z-index: 1; }
   .faces-pill .faces > .face:hover .face-in { box-shadow: 0 0 0 2px #d9b865; }
 }
 /* Touch: the pill opened by a first tap (SpeakerFaces) fans out; only the
    face being picked takes the gold ring. */
-.faces-pill[data-open] .faces > .face + .face { margin-left: 0.35rem; }
+@media (hover: hover) and (min-width: 640px) {
+  .faces-pill:hover .faces-clip { width: calc(5 * 2rem + 4 * 0.45rem); }
+}
+.faces-pill[data-open] .faces > .face + .face { margin-left: 0.45rem; }
 .faces-pill[data-open] .faces > .face { animation: faceHop 0.7s var(--ease-spring) both; }
 .faces-pill[data-open] .faces > .face:active .face-in { box-shadow: 0 0 0 2px #d9b865; }
 .faces .face-in { transition: box-shadow 0.4s ease; }

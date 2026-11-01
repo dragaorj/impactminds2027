@@ -10,8 +10,6 @@ const COUNT = 5;
 const STEP_MS = 3200;
 const POOL = speakers.filter((s) => s.photo);
 const SIZES = "2rem";
-// Overlap between neighbouring circles (globals.css: .faces > .face + .face).
-const OVERLAP = 10;
 
 function shuffle<T>(items: readonly T[]): T[] {
   const a = [...items];
@@ -25,10 +23,11 @@ function shuffle<T>(items: readonly T[]): T[] {
 type Faces = { row: typeof POOL; queue: typeof POOL };
 
 // The overlapping portraits in the hero's speakers pill, as a little conveyor.
-// Every load draws a fresh random five; then, every few seconds, a new speaker
-// pops in at the end of the row with a springy bounce, pushing the others
-// along, while the first one shrinks away. Widths animate in step (the
-// newcomer opens as the leaver closes), so the row glides without a jump.
+// Every load draws a fresh random five; then, every few seconds, the row
+// glides one place to the left (a transform only): the first speaker fades
+// and shrinks away through the left edge as the next one fades in through the
+// right. The row sits in a window exactly five faces wide (.faces-clip), so
+// the pill and its text never move or change size.
 // The next portrait is fetched ahead in a hidden image, so nothing pops in
 // half-loaded. Hovering the pill fans the circles apart (globals.css, .faces);
 // each circle shows the speaker's name on hover and, clicked, opens that
@@ -45,6 +44,7 @@ export default function SpeakerFaces({ label }: { label: string }) {
   const [{ row, queue }, setFaces] = useState<Faces>({ row: POOL.slice(0, COUNT), queue: POOL.slice(COUNT) });
   const [open, setOpen] = useState(false);
   const openRef = useRef(false);
+  const hoverRef = useRef(false);
 
   useEffect(() => {
     openRef.current = open;
@@ -73,10 +73,21 @@ export default function SpeakerFaces({ label }: { label: string }) {
     const onOutside = (e: PointerEvent) => {
       if (openRef.current && !pill.contains(e.target as Node)) setOpen(false);
     };
+    // The conveyor holds still while a mouse is over the pill (it fans out).
+    const onEnter = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") hoverRef.current = true;
+    };
+    const onLeave = () => {
+      hoverRef.current = false;
+    };
+    pill.addEventListener("pointerenter", onEnter);
+    pill.addEventListener("pointerleave", onLeave);
     pill.addEventListener("pointerdown", onDown, true);
     pill.addEventListener("click", onClick, true);
     document.addEventListener("pointerdown", onOutside, true);
     return () => {
+      pill.removeEventListener("pointerenter", onEnter);
+      pill.removeEventListener("pointerleave", onLeave);
       pill.removeEventListener("pointerdown", onDown, true);
       pill.removeEventListener("click", onClick, true);
       document.removeEventListener("pointerdown", onOutside, true);
@@ -95,50 +106,38 @@ export default function SpeakerFaces({ label }: { label: string }) {
     if (prefersReducedMotion() || POOL.length <= COUNT) return;
     const id = window.setInterval(() => {
       // Paused while the tab is hidden or the hero is scrolled away.
-      if (document.hidden || openRef.current || window.scrollY > window.innerHeight) return;
+      if (document.hidden || openRef.current || hoverRef.current || window.scrollY > window.innerHeight) return;
       setFaces((f) => (f.row.length > COUNT || !f.queue.length ? f : { row: [...f.row, f.queue[0]], queue: f.queue.slice(1) }));
     }, STEP_MS);
     return () => window.clearInterval(id);
   }, []);
 
   useLayoutEffect(() => {
-    if (row.length <= COUNT || !root.current) return;
-    const faces = root.current.querySelectorAll<HTMLElement>(".face");
-    const first = faces[0];
-    const last = faces[faces.length - 1];
-    // GSAP moves only the slot's width on the button; the shrink, spin and
-    // bounce run on the inner circle. The hover hop and scale live on the
-    // button (CSS), so the two never fold into each other's transforms.
-    const firstIn = first.querySelector<HTMLElement>(".face-in");
-    const lastIn = last.querySelector<HTMLElement>(".face-in");
-    const size = first.offsetWidth;
-
+    const track = root.current;
+    if (!track) return;
+    // Back to five (the leader just dropped): the next one now sits where the
+    // slide left it, so the slide resets in the same frame, with no jump.
+    if (row.length <= COUNT) {
+      gsap.set(track, { x: 0 });
+      return;
+    }
+    const faces = track.querySelectorAll<HTMLElement>(".face");
+    const firstIn = faces[0].querySelector<HTMLElement>(".face-in");
+    const lastIn = faces[faces.length - 1].querySelector<HTMLElement>(".face-in");
+    const step = faces[1].offsetLeft - faces[0].offsetLeft;
     const tl = gsap.timeline({
-      onComplete: () => {
-        gsap.set(last, { clearProps: "width" });
-        gsap.set(lastIn, { clearProps: "all" });
-        // The leaver goes to the back of the queue.
-        setFaces((f) => ({ row: f.row.slice(1), queue: [...f.queue, f.row[0]] }));
-      },
+      onComplete: () => setFaces((f) => ({ row: f.row.slice(1), queue: [...f.queue, f.row[0]] })),
     });
-    // Newcomer: the slot opens while the circle springs in with a bounce.
-    tl.fromTo(last, { width: 0 }, { width: size, duration: 0.9, ease: "power2.inOut" }, 0)
-      .fromTo(
-        lastIn,
-        { scale: 0, opacity: 0, rotate: -18 },
-        { scale: 1, opacity: 1, rotate: 0, duration: 1.1, ease: "back.out(1.9)" },
-        0.15,
-      )
-      // Leaver: shrinks away as its slot closes; its right margin stands in
-      // for the overlap the next circle loses once it becomes first.
-      .to(firstIn, { scale: 0, opacity: 0, duration: 0.6, ease: "power2.in" }, 0)
-      .to(first, { width: 0, marginRight: OVERLAP, duration: 0.9, ease: "power2.inOut" }, 0);
+    tl.to(track, { x: -step, duration: 1.2, ease: "power2.inOut" }, 0)
+      .to(firstIn, { opacity: 0, scale: 0.6, duration: 0.8, ease: "power2.in" }, 0)
+      .fromTo(lastIn, { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 1, ease: "power2.out" }, 0.15);
     return () => {
       tl.kill();
     };
   }, [row]);
 
   return (
+    <span className="faces-clip">
     <span ref={root} className="faces flex">
       {row.map((f) => (
         <button
@@ -163,6 +162,7 @@ export default function SpeakerFaces({ label }: { label: string }) {
           </span>
         </button>
       ))}
+    </span>
       {/* Warm the cache for the next face in line. */}
       {queue[0] && (
         <span aria-hidden className="pointer-events-none absolute size-px overflow-hidden opacity-0">

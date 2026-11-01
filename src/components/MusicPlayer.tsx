@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import {
@@ -117,7 +117,10 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
   // Once the hint has had its moment, a round X sits atop the corner stack so
   // the visitor can tuck the buttons away (DockToggle).
   const [hintDone, setHintDone] = useState(false);
-  const [box, setBox] = useState<{ top: number; left: number; size: number } | null>(null);
+  // Where the button is rendered: inside the hero slot (it moves with the hero,
+  // nothing measured) or in the corner (fixed by CSS); switched while faded out.
+  const [where, setWhere] = useState<"hero" | "corner">("hero");
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
   const [swapping, setSwapping] = useState(false);
   const firstPlace = useRef(true);
   // Whether playback should carry on (on a track change, after autoplay).
@@ -388,7 +391,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
   // for a few seconds; any click dismisses it.
   useEffect(() => {
     if (!raised) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- the hint belongs to the corner only
+       
       setHint(false);
       // Cut short by a return to the top: it has had its moment, so the X
       // must be there next time the buttons reach the corner.
@@ -505,82 +508,31 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     return () => window.removeEventListener("im:countdown-bar", onCountdown);
   }, []);
 
-  // Where the button sits (fixed, px): the visible hero slot, or the corner
-  // just above the countdown ring (same axis, 12px gap).
+  useLayoutEffect(() => {
+     
+    setSlot(document.querySelector<HTMLElement>("[data-music-slot]"));
+  }, []);
+
+  // Hero or corner: a fade, not a trip. A quick scroll back and forth cancels
+  // the pending switch, so the last one always wins.
   useEffect(() => {
-    let frame = 0;
-    let until = 0;
-    let dead = false;
-    let unswap = 0;
-    let swap = 0;
-    const put = (top: number, left: number, size: number) =>
-      setBox((b) =>
-        b && Math.abs(b.top - top) < 0.5 && Math.abs(b.left - left) < 0.5 && b.size === size ? b : { top, left, size },
-      );
-    const measure = () => {
-      if (!raised) {
-        const slot = [...document.querySelectorAll<HTMLElement>("[data-music-slot]")].find(
-          (el) => el.getBoundingClientRect().width > 0,
-        );
-        if (slot) {
-          const r = slot.getBoundingClientRect();
-          put(r.top, r.left, r.height);
-          return;
-        }
-      }
-      const sm = window.innerWidth >= 640;
-      const ring = sm ? 80 : 64; // the countdown ring in the corner
-      const ringAbove = sm ? 100 : 80; // its bottom edge from the screen's bottom
-      const axisRight = sm ? 60 : 44; // the stack's centre from the right edge
-      const size = sm ? 60 : 52;
-      const w = document.documentElement.clientWidth;
-      put(window.innerHeight - ringAbove - ring - 12 - size, w - axisRight - size / 2, size);
-    };
-    const tick = () => {
-      measure();
-      frame = performance.now() < until ? requestAnimationFrame(tick) : 0;
-    };
-    const follow = (ms = 2600) => {
-      if (dead) return;
-      until = Math.max(until, performance.now() + ms);
-      if (!frame) frame = requestAnimationFrame(tick);
-    };
-    // A resize settles over a few frames (the scroll effects recompute after a
-    // short debounce, sizes switch at breakpoints): follow the slot until it has.
-    const schedule = () => follow(1200);
+    const target = raised ? "corner" : "hero";
     if (firstPlace.current) {
       firstPlace.current = false;
-      follow(4000);
-    } else {
-      // Moving between the hero and the corner is a fade, not a trip.
-      setSwapping(true);
-      setOpen(false);
-      setBarOpen(false);
-      swap = window.setTimeout(() => {
-        measure();
-        unswap = requestAnimationFrame(() => setSwapping(false));
-        if (!raised) follow(700);
-      }, SWAP_MS);
+      setWhere(target);
+      return;
     }
-    // In the hero the slot can move at any time (window resized or dragged,
-    // the bar opening, fonts, scroll effects settling): follow it on every
-    // frame for as long as the button sits there. Only a moved box re-renders.
-    if (!raised) follow(Infinity);
-    const onReady = () => follow();
-    window.addEventListener("im:ready", onReady);
-    window.addEventListener("resize", schedule);
-    // The hero bar opening or folding moves the slot (Hero.tsx): follow it.
-    const onShift = () => follow(1000);
-    window.addEventListener("im:hero-shift", onShift);
-    document.fonts?.ready.then(() => follow(600));
+    setSwapping(true);
+    setOpen(false);
+    setBarOpen(false);
+    let frame = 0;
+    const swap = window.setTimeout(() => {
+      setWhere(target);
+      frame = requestAnimationFrame(() => (frame = requestAnimationFrame(() => setSwapping(false))));
+    }, SWAP_MS);
     return () => {
-      dead = true;
-      cancelAnimationFrame(frame);
-      cancelAnimationFrame(unswap);
       window.clearTimeout(swap);
-      window.removeEventListener("im:ready", onReady);
-      window.removeEventListener("resize", schedule);
-      window.removeEventListener("im:hero-shift", onShift);
+      cancelAnimationFrame(frame);
     };
   }, [raised]);
 
@@ -704,12 +656,12 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       />
     </div>
   );
-  // The hint square (112px) centred over the button, but kept 8px clear of
-  // the screen's right edge.
-  const hintReach =
-    box && typeof window !== "undefined"
-      ? Math.max(0, Math.min((112 - box.size) / 2, document.documentElement.clientWidth - (box.left + box.size) - 8))
-      : 0;
+  // The corner spot, matching the fixed classes on the wrapper: 52px (60px from
+  // sm), 18px (30px) from the right edge. The hint square (112px) is centred
+  // over the button but kept 8px clear of the screen's right edge.
+  const cornerSize = typeof window !== "undefined" && window.innerWidth >= 640 ? 60 : 52;
+  const cornerRight = cornerSize === 60 ? 30 : 18;
+  const hintReach = Math.max(0, Math.min((112 - cornerSize) / 2, cornerRight - 8));
   const counter = `${String(index + 1).padStart(2, "0")}/${String(total).padStart(2, "0")}`;
 
   // The hero bar's player: one line on desktop (cover, track, controls, seek,
@@ -743,34 +695,18 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     </div>
   );
 
-  return (
-    <>
-      {barEl && createPortal(bar, barEl)}
+  const inHero = where === "hero" && slot;
+  const button = (
       <div
         ref={wrap}
         data-dock="1"
-        className={`fixed z-[36] transition-opacity ease-out ${box && !swapping ? "opacity-100" : "pointer-events-none opacity-0"}`}
-        style={{
-          transitionDuration: `${SWAP_MS}ms`,
-          ...(box ? { top: box.top, left: box.left, width: box.size, height: box.size } : {}),
-        }}
+        className={`transition-opacity ease-out ${
+          inHero
+            ? "absolute left-0 top-0 z-[1] aspect-square h-full"
+            : "fixed bottom-[156px] right-[18px] z-[36] size-[52px] sm:bottom-[192px] sm:right-[30px] sm:size-[60px]"
+        } ${!swapping ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        style={{ transitionDuration: `${SWAP_MS}ms` }}
       >
-        <audio
-          ref={audio}
-          src={track.src}
-          preload="metadata"
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
-          onTimeUpdate={(e) => setTime({ cur: e.currentTarget.currentTime, dur: e.currentTarget.duration || 0 })}
-          onLoadedMetadata={(e) => setTime({ cur: 0, dur: e.currentTarget.duration || 0 })}
-          onEnded={(e) => {
-            wantPlay.current = true;
-            if (repeat) {
-              e.currentTarget.currentTime = 0;
-              e.currentTarget.play().catch(() => {});
-            } else next();
-          }}
-        />
 
         {/* Hint above the corner stack (music on top, countdown below it). */}
         {raised && (
@@ -793,7 +729,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
               aria-hidden
               viewBox="0 0 14 8"
               className="absolute -bottom-[7px] h-2 w-3.5 overflow-visible"
-              style={{ right: hintReach + (box?.size ?? 56) / 2 - 7 }}
+              style={{ right: hintReach + cornerSize / 2 - 7 }}
             >
               <path d="M-0.5 -1 H14.5 L7 7 Z" className="fill-surface" />
               <path d="M0 0 L7 7 L14 0" fill="none" strokeWidth="1" className="stroke-line" />
@@ -894,6 +830,30 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
           )}
         </button>
       </div>
+  );
+
+  return (
+    <>
+      {barEl && createPortal(bar, barEl)}
+      {/* The audio stays out of the button, which moves between the hero slot
+          and the corner (a move re-creates it; the music must not stop). */}
+      <audio
+        ref={audio}
+        src={track.src}
+        preload="metadata"
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onTimeUpdate={(e) => setTime({ cur: e.currentTarget.currentTime, dur: e.currentTarget.duration || 0 })}
+        onLoadedMetadata={(e) => setTime({ cur: 0, dur: e.currentTarget.duration || 0 })}
+        onEnded={(e) => {
+          wantPlay.current = true;
+          if (repeat) {
+            e.currentTarget.currentTime = 0;
+            e.currentTarget.play().catch(() => {});
+          } else next();
+        }}
+      />
+      {slot && createPortal(button, inHero ? slot : document.body)}
     </>
   );
 }
