@@ -4,6 +4,7 @@ import { links } from "@/lib/site";
 import Image from "next/image";
 import TypeOnView from "../TypeOnView";
 import { Bezel, Button, container } from "../ui";
+import LatimpactoMark from "../LatimpactoMark";
 
 // Closing statement beside the Cartagena banner, then a glass card with the
 // Latimpacto signature: about, the page's own navigation and social links.
@@ -71,10 +72,7 @@ export default function Footer({
           className="mt-14 grid gap-10 rounded-[2rem] bg-surface/60 p-7 ring-1 ring-line backdrop-blur-xl md:p-10 lg:grid-cols-12 lg:gap-8"
         >
           <div className="lg:col-span-6">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/latimpacto.svg" alt="Latimpacto" className="h-9 w-auto dark:hidden" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/latimpacto-white.svg" alt="Latimpacto" className="hidden h-9 w-auto dark:block" />
+            <LatimpactoMark tone="brand" title="Latimpacto" className="aspect-[619/143] h-9 w-auto" />
             <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-ink-2">{t.about}</p>
             <div className="mt-8">
               <Button href={links.latimpacto} external>

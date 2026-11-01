@@ -5,6 +5,7 @@ import { ArrowCounterClockwise, ArrowRight, Check, GlobeSimple, Minus, Moon, Per
 import type { Dict } from "@/lib/dictionaries/pt";
 import { locales, type Locale } from "@/lib/i18n";
 import { links } from "@/lib/site";
+import LatimpactoMark from "./LatimpactoMark";
 import { usePrefs } from "./prefs";
 
 // sub: the page under the language ("" for the home page, "/privacy" ...). Off
@@ -476,18 +477,7 @@ export default function Nav({ lang, nav, controls, privacyLabel, sub = "" }: Pro
             className="relative block h-7 w-[7.6rem] shrink-0 sm:h-8 sm:w-[8.7rem]"
             aria-label={sub ? `Latimpacto · ${nav.home}` : "Latimpacto"}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/brand/latimpacto-white.svg"
-              alt=""
-              className={`absolute inset-0 size-full transition-opacity duration-500 ${onVideo ? "opacity-100" : "opacity-0 dark:opacity-100"}`}
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/brand/latimpacto.svg"
-              alt=""
-              className={`absolute inset-0 size-full transition-opacity duration-500 ${onVideo ? "opacity-0" : "opacity-100 dark:opacity-0"}`}
-            />
+            <LatimpactoMark tone={onVideo ? "white" : "brand"} className="absolute inset-0 size-full" />
           </a>
 
           <div className="flex items-center gap-1">

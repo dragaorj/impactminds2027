@@ -129,15 +129,15 @@
 html { --text-scale: 1; --screen-scale: 1; font-size: calc(100% * var(--text-scale) * var(--screen-scale)); scroll-behavior: smooth; }
 html[data-text="2"] { --text-scale: 1.125; }
 html[data-text="3"] { --text-scale: 1.25; }
-/* Scale up only when the screen is both wide and tall: ultrawides (wide but
-   short) keep near-desktop sizes so a whole section still fits the viewport. */
-@media (min-width: 1920px) and (min-height: 1000px) { html { --screen-scale: 1.1; } }
-@media (min-width: 2560px) and (min-height: 1350px) { html { --screen-scale: 1.25; } }
-@media (min-width: 3200px) and (min-height: 1700px) { html { --screen-scale: 1.5; } }
-/* Ultrawides (21:9 and wider) size like a QHD screen of the same height; the
-   content column is capped (ui.tsx container) and centred on the extra width. */
-@media (min-aspect-ratio: 2/1) { html { --screen-scale: 1; } }
-@media (min-aspect-ratio: 2/1) and (min-height: 1150px) { html { --screen-scale: 1.2; } }
+/* Desktops, laptops and landscape tablets: the whole layout is sized to the
+   screen, like a browser zoom, so a section (the numbers grid, about 68rem from
+   its title to its last row, with room for the menu) always fits the screen
+   in one view. The height sets it; the width caps it, so the content column
+   never outgrows a narrow window. Phones and portrait screens keep 16px:
+   their sections stack and scroll. */
+@media (min-width: 1024px) and (orientation: landscape) {
+  html { font-size: calc(var(--text-scale) * clamp(11px, min(100svh / 68, 100vw / 90), 24px)); }
+}
 html[data-motion="reduce"] { scroll-behavior: auto; }
 
 /* Tailwind v4 leaves buttons with the default arrow; every clickable control

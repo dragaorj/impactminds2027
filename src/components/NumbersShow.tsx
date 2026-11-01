@@ -24,27 +24,86 @@ const RING_TICKS = 60;
 
 // Faces for the "voices" wall and photos for the scattered prints.
 const FACES = speakers.flatMap((s) => (s.photo ? [s.photo] : [])).slice(0, 12);
-// In stacking order (later ones lie on top): the members' dinner, the
-// closing party, the forest visit, the talk, the opening cocktail.
-const PRINTS = [photos.events[0], photos.events[2], photos.visits[6], photos.visits[2], photos.events[1]];
-// Where each print lands (centre in %, turn in degrees), above the title: a
-// loose spread on wide screens, a zigzag cascade down the screen on phones.
-const PRINT_SPOTS = [
-  { x: 17, y: 28, r: -8 },
-  { x: 51, y: 18, r: 2 },
-  { x: 84.5, y: 59, r: 5 },
-  { x: 40, y: 63.5, r: 3 },
-  { x: 68, y: 31, r: -3 },
+// In dealing order (later ones lie on top): the members' dinner, the closing
+// party, the forest visit, the talk, the opening cocktail, then more field
+// visits for the screens with room to show them.
+const PRINTS = [
+  photos.events[0],
+  photos.events[2],
+  photos.visits[6],
+  photos.visits[2],
+  photos.events[1],
+  photos.visits[0],
+  photos.visits[3],
+  photos.visits[4],
+  photos.visits[7],
+  photos.visits[9],
+  photos.visits[10],
+  photos.visits[11],
 ];
-// (On phones the height comes from the cascade: evenly down the prints' box.)
-const PRINT_SPOTS_PHONE = [
-  { x: 35, r: -6 },
-  { x: 65, r: 5 },
-  { x: 36, r: -3 },
-  { x: 64, r: 4 },
-  { x: 40, r: -4 },
-];
-const isPhone = () => !window.matchMedia("(min-width: 640px)").matches;
+// Each print's small turn, in degrees, alternating so the rows feel dealt by hand.
+const PRINT_TURNS = [-5, 3, -3, 4, -2, 5, -4, 2, -3, 4, -5, 2];
+
+// Deals the prints in neat, centred rows that fill their box: a staggered
+// brick (3·2, 4·3, 2·1·2…) or, when the rows hold the same number, rows
+// nudged a quarter step apart. The bigger the screen, the more prints it
+// shows (by area, up to all of them), never smaller than a comfortable size.
+// Sets each print's centre and width in px and returns how many are shown.
+function dealPrints(box: HTMLElement, prints: HTMLElement[]) {
+  const W = box.clientWidth;
+  const H = box.clientHeight;
+  const wide = window.matchMedia("(min-width: 640px)").matches;
+  // The card's border adds this much to the photo's 4:3 height.
+  const frame = wide ? 24 : 18;
+  const m = 20;
+  const [minW, maxW, area] = wide ? [190, 380, 85000] : [118, 230, 30000];
+  const rowsOf = (n: number, R: number) => {
+    const base = Math.floor(n / R);
+    const extra = n % R;
+    const evens = Array.from({ length: R }, (_, j) => j).filter((j) => j % 2 === 0);
+    const odds = Array.from({ length: R }, (_, j) => j).filter((j) => j % 2 === 1);
+    const big = odds.length === extra ? odds : evens.slice(0, extra);
+    return Array.from({ length: R }, (_, j) => base + (big.includes(j) || (extra > evens.length && odds.includes(j)) ? 1 : 0));
+  };
+  const fit = (n: number) => {
+    let best = { w: 0, rows: [n], shift: false };
+    for (let R = 1; R <= Math.min(n, 4); R++) {
+      const rows = rowsOf(n, R);
+      const shift = R > 1 && rows.every((c) => c === rows[0]);
+      const C = Math.max(...rows);
+      const across = (W - m * 2) / (1 + 1.04 * (C - 1) + (shift ? 0.52 : 0));
+      const down = ((H - m * 2) / (1 + 0.84 * (R - 1)) - frame) / 0.75;
+      const w = Math.min(across, down);
+      if (w > best.w) best = { w, rows, shift };
+    }
+    return best;
+  };
+  let n = gsap.utils.clamp(3, prints.length, Math.round((W * H) / area));
+  let deal = fit(n);
+  while (n > 3 && deal.w < minW) deal = fit(--n);
+  const w = Math.min(deal.w, maxW);
+  const h = w * 0.75 + frame;
+  const stepX = w * 1.04;
+  const stepY = h * 0.84;
+  const top = H / 2 - ((deal.rows.length - 1) * stepY) / 2;
+  let k = 0;
+  deal.rows.forEach((count, j) => {
+    const nudge = deal.shift ? (j % 2 ? 1 : -1) * (stepX / 4) : 0;
+    for (let i = 0; i < count; i++, k++) {
+      // A touch of unevenness, the same every time.
+      const dx = (((k * 37) % 5) - 2) * w * 0.012;
+      const dy = (((k * 53) % 5) - 2) * h * 0.02;
+      Object.assign(prints[k].style, {
+        display: "",
+        width: `${w}px`,
+        left: `${W / 2 + (i - (count - 1) / 2) * stepX + nudge + dx}px`,
+        top: `${top + j * stepY + dy}px`,
+      });
+    }
+  });
+  for (; k < prints.length; k++) prints[k].style.display = "none";
+  return n;
+}
 
 // After the trailer is closed by a scroll, the rest of that gesture (a
 // trackpad's or a phone's momentum) would carry the page past the numbers;
@@ -183,6 +242,14 @@ export default function NumbersShow({ t, show, locale }: { t: T; show: ShowCopy;
     gsap.set(q(".show-tick"), { opacity: 0 });
     gsap.set(q(".show-word"), { yPercent: 110 });
 
+    // The prints are dealt for this screen before the timeline is built (its
+    // stagger depends on how many are shown) and again whenever their box resizes.
+    const printBox = q(".show-prints")[0] as HTMLElement;
+    const printEls = q(".show-drag") as HTMLElement[];
+    let shown = dealPrints(printBox, printEls);
+    const reDeal = new ResizeObserver(() => (shown = dealPrints(printBox, printEls)));
+    reDeal.observe(printBox);
+
     const t1 = gsap.timeline({ onComplete: finish });
     tl.current = t1;
     t1.fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: "power2.out" })
@@ -252,7 +319,16 @@ export default function NumbersShow({ t, show, locale }: { t: T; show: ShowCopy;
       .fromTo(
         q(".show-print"),
         { y: 120, rotate: 0, scale: 0.7, opacity: 0 },
-        { y: 0, rotate: (i: number) => (isPhone() ? PRINT_SPOTS_PHONE : PRINT_SPOTS)[i].r, scale: 1, opacity: 1, duration: 0.9, stagger: 0.18, ease: "back.out(1.4)" },
+        {
+          y: 0,
+          rotate: (i: number) => PRINT_TURNS[i],
+          scale: 1,
+          opacity: 1,
+          duration: 0.9,
+          // The whole deal takes about as long however many prints are shown.
+          stagger: (i: number) => Math.min(i, shown - 1) * Math.min(0.18, 1.1 / Math.max(1, shown - 1)),
+          ease: "back.out(1.4)",
+        },
         "<0.2",
       )
       .to(q(".show-print"), { y: -14, duration: 2.6, ease: "sine.inOut", stagger: 0.1 }, ">-0.2");
@@ -414,6 +490,7 @@ export default function NumbersShow({ t, show, locale }: { t: T; show: ShowCopy;
 
     return () => {
       t1.kill();
+      reDeal.disconnect();
       drags.forEach((d) => d.kill());
       panelEl.removeEventListener("wheel", tidyNow);
       faces?.removeEventListener("pointerenter", slow);
@@ -476,7 +553,7 @@ export default function NumbersShow({ t, show, locale }: { t: T; show: ShowCopy;
           [photos.numbersHero, "68rem"],
           [photos.gallery[2], "100vw"],
           ["/photos/editions/2026/08.jpg", "100vw"],
-          ...PRINTS.map((src) => [src, "(min-width:640px) 18rem, 40vw"]),
+          ...PRINTS.map((src) => [src, "(min-width:640px) 24rem, 60vw"]),
           ...FACES.map((src) => [src, "8rem"]),
         ].map(([src, sizes], i) => <Image key={`${src}-${i}`} src={src} alt="" width={16} height={16} sizes={sizes} loading="eager" />)}
     </span>
@@ -653,32 +730,19 @@ export default function NumbersShow({ t, show, locale }: { t: T; show: ShowCopy;
         </div>
       </div>
 
-      {/* 4 · Moments: prints dealt around the line. On phones the prints get
-          their own box above the line (a size container) and cascade down it;
-          on wide screens they keep the loose spread in that same box. Either
-          way they are sized to its height and kept inside it: never over the
+      {/* 4 · Moments: prints dealt in neat rows above the line, in their own
+          box, sized and counted for the screen (dealPrints): never over the
           buttons, never over the words. */}
       <div className={`${sceneBox} show-4`}>
         <div className="relative flex size-full flex-col">
-          <div className="relative min-h-0 flex-1 [container-type:size] [--w:min(50cqw,calc((32cqh-1.1rem)*4/3))] [--h:calc(var(--w)*0.75+1.1rem)] sm:[--ww:min(24cqw,calc((50cqh-1.5rem)*4/3))] sm:[--hw:calc(var(--ww)*0.75+1.5rem)]">
+          <div className="show-prints relative min-h-0 flex-1">
             {/* Each print sits in a wrapper that Draggable moves (x, y), while
                 the print inside keeps the timeline's own turn, scale and drift. */}
-            {PRINTS.map((src, i) => (
-              <div
-                key={src}
-                className="show-drag absolute left-[var(--px-phone)] top-[calc(var(--h)/2+1rem+(100cqh-var(--h)-2rem)*var(--k))] w-[var(--w)] touch-none select-none sm:left-[var(--px-wide)] sm:top-[clamp(calc(var(--hw)/2+1rem),var(--py-wide),calc(100cqh-var(--hw)/2-1rem))] sm:w-[var(--ww)]"
-                style={
-                  {
-                    "--px-wide": `${PRINT_SPOTS[i].x}%`,
-                    "--py-wide": `${PRINT_SPOTS[i].y}%`,
-                    "--px-phone": `${PRINT_SPOTS_PHONE[i].x}%`,
-                    "--k": i / (PRINTS.length - 1),
-                  } as React.CSSProperties
-                }
-              >
+            {PRINTS.map((src) => (
+              <div key={src} className="show-drag absolute left-1/2 top-1/2 w-60 touch-none select-none">
                 <div className="show-print rounded-[1.1rem] bg-[#fbfaf8] p-1.5 pb-5 shadow-[0_24px_60px_rgb(0_0_0/0.35)] sm:rounded-[1.4rem] sm:p-2 sm:pb-7">
                   <div className="pointer-events-none relative aspect-[4/3] overflow-hidden rounded-[0.8rem] sm:rounded-[1rem]">
-                    <Image src={src} alt="" fill draggable={false} sizes="(min-width:640px) 18rem, 40vw" className="object-cover" />
+                    <Image src={src} alt="" fill draggable={false} sizes="(min-width:640px) 24rem, 60vw" className="object-cover" />
                   </div>
                 </div>
               </div>

@@ -116,12 +116,14 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
         <p className="border-t border-line pt-5 text-sm text-muted">* {t.note}</p>
 
         <Bezel className="mt-16 md:mt-24" inner="bg-bg-2 text-ink dark:bg-block dark:text-block-ink">
-          <div className="relative grid gap-10 p-6 md:p-12 xl:grid-cols-12 xl:gap-12 [--art:var(--gold)] [--art-opacity:0.5]">
-            {/* Left: the title, the two headline figures in glass cards and a
-                networking photo that stretches to fill whatever height the list
-                on the right leaves, so the column never ends in empty space. */}
-            <div className="flex flex-col gap-6 xl:col-span-5">
-              <h3 className="font-display text-3xl leading-tight md:text-[2.75rem]">{t.connectionsTitle}</h3>
+          <div className="relative grid gap-6 p-6 md:p-12 xl:grid-cols-12 xl:grid-rows-[auto_1fr] xl:gap-x-12 xl:gap-y-8 [--art:var(--gold)] [--art-opacity:0.5]">
+            {/* Two rows on wide screens, so both columns line up: the title and
+                the list's label share the first row (on one baseline), and the
+                figures with the photo start and end level with the list. The
+                photo stretches to fill whatever height the list leaves, and the
+                list's cards grow if the left column is the taller one. */}
+            <h3 className="font-display text-3xl leading-tight md:text-[2.75rem] xl:col-span-5 xl:self-end">{t.connectionsTitle}</h3>
+            <div className="flex flex-col gap-6 xl:col-span-5 xl:row-start-2">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="flex flex-col items-start gap-5 rounded-[1.5rem] bg-surface/80 p-6 ring-1 ring-line dark:bg-white/[0.05] dark:ring-white/10">
                   <Network count={11} label={<span data-count={11} data-locale={locale}>11</span>} />
@@ -160,20 +162,19 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
             {/* Right: connection types ranked. Each meter has 100 fine ticks (1% each)
                 that light up gold one after another while the figure counts up and
                 turns gold; the leading type sits in a gold-tinted card. */}
-            <div className="xl:col-span-7">
-              <p className="flex items-center gap-3 text-xs font-medium uppercase tracking-[0.16em] text-gold md:text-sm dark:text-[#E2C985]" data-nosplit>
+            <p className="flex items-center gap-3 max-xl:mt-4 xl:col-span-7 xl:col-start-6 xl:row-start-1 xl:self-end xl:pb-2 text-xs font-medium uppercase tracking-[0.16em] text-gold md:text-sm dark:text-[#E2C985]" data-nosplit>
                 <svg aria-hidden viewBox="0 0 24 24" className="size-4 shrink-0 fill-current">
                   <path d="M12 0c.9 6.4 5 10.6 12 12-7 1.4-11.1 5.6-12 12-.9-6.4-5-10.6-12-12C7 10.6 11.1 6.4 12 0Z" />
                 </svg>
                 {t.typesTitle}
-              </p>
-              <ol className="mt-6 flex flex-col gap-2" data-ticks>
+            </p>
+            <ol className="flex flex-col gap-2 xl:col-span-7 xl:col-start-6 xl:row-start-2" data-ticks>
                 {t.types.map((type, i) => {
                   const lead = i === 0;
                   return (
                     <li
                       key={type.label}
-                      className={`rounded-[1.5rem] p-5 ring-1 md:px-6 ${lead ? "bg-sun/15 ring-sun/40 md:py-6 dark:bg-sun/10 dark:ring-sun/30" : "bg-surface/70 ring-line dark:bg-white/[0.03] dark:ring-white/[0.07]"}`}
+                      className={`flex flex-col justify-center rounded-[1.5rem] p-5 ring-1 md:px-6 xl:flex-1 ${lead ? "bg-sun/15 ring-sun/40 md:py-6 dark:bg-sun/10 dark:ring-sun/30" : "bg-surface/70 ring-line dark:bg-white/[0.03] dark:ring-white/[0.07]"}`}
                     >
                       <div className="flex items-baseline gap-4" data-nosplit>
                         <span className="w-7 shrink-0 font-display text-sm tabular-nums text-gold dark:text-[#E2C985]">{String(i + 1).padStart(2, "0")}</span>
@@ -194,8 +195,7 @@ export default function Survey({ t, locale }: { t: Dict["survey"]; locale: strin
                     </li>
                   );
                 })}
-              </ol>
-            </div>
+            </ol>
           </div>
         </Bezel>
       </div>

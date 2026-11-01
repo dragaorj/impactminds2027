@@ -23,7 +23,7 @@ import { prefersQuiet } from "./prefs";
 const R = 47;
 const C = 2 * Math.PI * R;
 const SWAP_MS = 160;
-const DEFAULT_VOLUME = 0.3;
+const DEFAULT_VOLUME = 0.15;
 
 // Phones and tablets: iOS keeps every media element at full volume (setting
 // it does nothing, and some versions even read the new value back), so on any
@@ -266,7 +266,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     let stored = NaN;
     try {
       last = Number(localStorage.getItem("im-track") ?? -1);
-      stored = Number(localStorage.getItem("im-volume-v6"));
+      stored = Number(localStorage.getItem("im-volume-v7"));
     } catch {}
     const first = pick(last);
     try {
@@ -328,7 +328,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     setVolume(v);
     setMuted(false);
     try {
-      localStorage.setItem("im-volume-v6", String(v));
+      localStorage.setItem("im-volume-v7", String(v));
     } catch {}
   };
 
