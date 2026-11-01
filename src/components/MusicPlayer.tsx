@@ -443,6 +443,19 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     return () => window.removeEventListener("im:music-quiet", onQuiet);
   }, [pause]);
 
+  // Other parts of the page (the numbers presentation) can pause or resume
+  // the music ("im:music-toggle") and follow its state ("im:music-state",
+  // also kept on window.__imMusicPlaying for whoever mounts later).
+  useEffect(() => {
+    (window as Window & { __imMusicPlaying?: boolean }).__imMusicPlaying = playing;
+    window.dispatchEvent(new CustomEvent("im:music-state", { detail: playing }));
+  }, [playing]);
+  useEffect(() => {
+    const onToggle = () => (audio.current && !audio.current.paused ? pause() : play());
+    window.addEventListener("im:music-toggle", onToggle);
+    return () => window.removeEventListener("im:music-toggle", onToggle);
+  }, [pause, play]);
+
   // Screen locked, browser minimised or another tab/app in front: stop at
   // once (no fade: frames don't run in a hidden page); back in view, the
   // music picks up again with a fade, unless the visitor had paused it.

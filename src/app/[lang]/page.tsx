@@ -40,7 +40,11 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
       <Nav lang={lang} nav={t.nav} controls={t.controls} privacyLabel={p.navLabel} />
       <main id="conteudo" tabIndex={-1} className="w-full max-w-full overflow-x-clip outline-none">
         <Hero t={t.hero} videoSrc={localVideo("header-2.mp4")} agendaLink={t.hero.agendaCta} speakerLabel={t.speakers.open} />
-        <Numbers t={t.numbers} locale={locale} />
+        <Numbers
+          t={t.numbers}
+          locale={locale}
+          show={{ survey: t.survey, connections: t.connections }}
+        />
         <About t={t.about} videoSrc={localVideo("about.mp4")} />
         <Survey t={t.survey} locale={locale} />
         <Testimonials t={t.testimonials} lang={lang} />

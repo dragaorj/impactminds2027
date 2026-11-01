@@ -12,7 +12,7 @@ import {
 import type { Dict } from "@/lib/dictionaries/pt";
 import { photos } from "@/lib/site";
 import Art from "../Art";
-import NumbersShow from "../NumbersShow";
+import NumbersShow, { type ShowCopy } from "../NumbersShow";
 import WatchShow from "../WatchShow";
 import { Bezel, container, section } from "../ui";
 
@@ -69,7 +69,7 @@ function MiniNetwork() {
 // Bento of the 2026 edition: the headline figure sits on a real photo of the
 // community, every card opens with a gold icon chip and lifts on hover. The
 // title breaks after the edition so "em números" gets its own gold line.
-export default function Numbers({ t, locale }: { t: Dict["numbers"]; locale: string }) {
+export default function Numbers({ t, locale, show }: { t: Dict["numbers"]; locale: string; show: ShowCopy }) {
   const label = "mt-3 max-w-[24ch] text-[0.9375rem] leading-snug";
   const card = "transition-[transform,box-shadow] duration-500 ease-[var(--ease-spring)] hover:-translate-y-1 hover:ring-sun/50";
   const [titleHead, titleTail] = t.title.split(/(?<=2026)\s/);
@@ -206,7 +206,7 @@ export default function Numbers({ t, locale }: { t: Dict["numbers"]; locale: str
           </Bezel>
 
           {/* Motion presentation played over the bento from the hero CTA. */}
-          <NumbersShow t={t} />
+          <NumbersShow t={t} show={show} locale={locale} />
         </div>
       </div>
     </section>
