@@ -27,7 +27,8 @@ const FACES = speakers.flatMap((s) => (s.photo ? [s.photo] : [])).slice(0, 12);
 // In stacking order (later ones lie on top): the members' dinner, the
 // closing party, the forest visit, the talk, the opening cocktail.
 const PRINTS = [photos.events[0], photos.events[2], photos.visits[6], photos.visits[2], photos.events[1]];
-// Where each print lands (centre in %, turn in degrees), above the title.
+// Where each print lands (centre in %, turn in degrees), above the title: a
+// loose spread on wide screens, a zigzag cascade down the screen on phones.
 const PRINT_SPOTS = [
   { x: 17, y: 28, r: -8 },
   { x: 51, y: 18, r: 2 },
@@ -35,6 +36,15 @@ const PRINT_SPOTS = [
   { x: 40, y: 63.5, r: 3 },
   { x: 68, y: 31, r: -3 },
 ];
+// (On phones the height comes from the cascade: evenly down the prints' box.)
+const PRINT_SPOTS_PHONE = [
+  { x: 35, r: -6 },
+  { x: 65, r: 5 },
+  { x: 36, r: -3 },
+  { x: 64, r: 4 },
+  { x: 40, r: -4 },
+];
+const isPhone = () => !window.matchMedia("(min-width: 640px)").matches;
 
 // After the trailer is closed by a scroll, the rest of that gesture (a
 // trackpad's or a phone's momentum) would carry the page past the numbers;
@@ -242,7 +252,7 @@ export default function NumbersShow({ t, show, locale }: { t: T; show: ShowCopy;
       .fromTo(
         q(".show-print"),
         { y: 120, rotate: 0, scale: 0.7, opacity: 0 },
-        { y: 0, rotate: (i: number) => PRINT_SPOTS[i].r, scale: 1, opacity: 1, duration: 0.9, stagger: 0.18, ease: "back.out(1.4)" },
+        { y: 0, rotate: (i: number) => (isPhone() ? PRINT_SPOTS_PHONE : PRINT_SPOTS)[i].r, scale: 1, opacity: 1, duration: 0.9, stagger: 0.18, ease: "back.out(1.4)" },
         "<0.2",
       )
       .to(q(".show-print"), { y: -14, duration: 2.6, ease: "sine.inOut", stagger: 0.1 }, ">-0.2");
@@ -287,6 +297,8 @@ export default function NumbersShow({ t, show, locale }: { t: T; show: ShowCopy;
       if (at !== current) {
         current = at;
         tidy(false);
+        // Confetti belongs to the last chapter only.
+        if (at !== t.chapters.length - 1) stopConfetti();
         // Past the faces, back to full speed (a hover may not have ended).
         if (at !== 1 && t1.timeScale() !== 1) {
           gsap.killTweensOf(t1);
@@ -313,11 +325,26 @@ export default function NumbersShow({ t, show, locale }: { t: T; show: ShowCopy;
     };
     // Bounds: the whole screen less a margin, so a tilted print and its
     // shadow stay fully in view (in the coordinates of the prints' box).
+    // ... and between the controls at the top and the words (or the timeline)
+    // below, so a print never lies over the buttons or the text.
     const screenBounds = (node: HTMLElement) => {
       const box = node.parentElement!.getBoundingClientRect();
       const pad = 28;
-      return { left: pad - box.left, top: pad - box.top, width: window.innerWidth - pad * 2, height: window.innerHeight - pad * 2 };
+      const top = (q(".show-controls")[0] as HTMLElement | undefined)?.getBoundingClientRect().bottom ?? 0;
+      const words = q(".show-words")[0] as HTMLElement | undefined;
+      const chapters = q(".show-chapters")[0] as HTMLElement | undefined;
+      const bottom = Math.min(words?.getBoundingClientRect().top ?? Infinity, chapters?.getBoundingClientRect().top ?? window.innerHeight);
+      return {
+        left: pad - box.left,
+        top: top + 16 - box.top,
+        width: window.innerWidth - pad * 2,
+        height: bottom - 16 - (top + 16),
+      };
     };
+    // Centred on their spot by GSAP itself (xPercent/yPercent), which keeps
+    // the centring through drags and resets; a CSS translate would be folded
+    // into the drag offset and lost.
+    gsap.set(q(".show-drag"), { xPercent: -50, yPercent: -50 });
     const drags = Draggable.create(q(".show-drag"), {
       type: "x,y",
       bounds: screenBounds(q(".show-drag")[0] as HTMLElement),
@@ -487,7 +514,7 @@ export default function NumbersShow({ t, show, locale }: { t: T; show: ShowCopy;
         <canvas ref={confetti} aria-hidden className="pointer-events-none absolute inset-0 z-[5] size-full" />
 
       {/* Top right, out of the scenes' way: pause or resume the music, and skip. */}
-      <div className="absolute right-4 top-4 z-10 flex items-center gap-2 sm:right-8 sm:top-8">
+      <div className="show-controls absolute right-4 top-4 z-10 flex items-center gap-2 sm:right-8 sm:top-8">
         {/* The music: a note with a small pause (or play) badge, so it never
             reads as pausing the presentation. */}
         <button
@@ -518,7 +545,7 @@ export default function NumbersShow({ t, show, locale }: { t: T; show: ShowCopy;
           segments that fill gold as each scene plays; any of them can be picked
           to jump there, forwards or back (also ← →). Below sm only the current
           chapter's name shows, above the line. */}
-      <nav aria-label={t.chaptersLabel} className="absolute inset-x-0 bottom-6 z-10 mx-auto w-[min(56rem,90vw)] sm:bottom-9">
+      <nav aria-label={t.chaptersLabel} className="show-chapters absolute inset-x-0 bottom-6 z-10 mx-auto w-[min(56rem,90vw)] sm:bottom-9">
         <p className="mb-3 text-center text-sm show-fig sm:hidden" aria-hidden>
           {t.chapters[chapter]}
         </p>
@@ -593,6 +620,8 @@ export default function NumbersShow({ t, show, locale }: { t: T; show: ShowCopy;
           <div className="show-faces mt-8 flex flex-col gap-3 [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)] sm:mt-12 sm:gap-4">
             {faceRow("show-faces-a", FACES)}
             {faceRow("show-faces-b", [...FACES.slice(6), ...FACES.slice(0, 6)])}
+            {/* Phones get a third row, so the wall fills the tall screen. */}
+            {faceRow("show-faces-a sm:hidden", [...FACES.slice(3), ...FACES.slice(0, 3)])}
           </div>
         </div>
       </div>
@@ -624,25 +653,38 @@ export default function NumbersShow({ t, show, locale }: { t: T; show: ShowCopy;
         </div>
       </div>
 
-      {/* 4 · Moments: prints dealt around the line. */}
+      {/* 4 · Moments: prints dealt around the line. On phones the prints get
+          their own box above the line (a size container) and cascade down it;
+          on wide screens they keep the loose spread in that same box. Either
+          way they are sized to its height and kept inside it: never over the
+          buttons, never over the words. */}
       <div className={`${sceneBox} show-4`}>
-        <div className="relative size-full">
-          {/* Each print sits in a wrapper that Draggable moves (x, y), while the
-              print inside keeps the timeline's own turn, scale and drift. */}
-          {PRINTS.map((src, i) => (
-            <div
-              key={src}
-              className="show-drag absolute w-[42%] -translate-x-1/2 -translate-y-1/2 touch-none select-none sm:w-[24%]"
-              style={{ left: `${PRINT_SPOTS[i].x}%`, top: `${PRINT_SPOTS[i].y}%` }}
-            >
-              <div className="show-print rounded-[1.1rem] bg-[#fbfaf8] p-1.5 pb-5 shadow-[0_24px_60px_rgb(0_0_0/0.35)] sm:rounded-[1.4rem] sm:p-2 sm:pb-7">
-                <div className="pointer-events-none relative aspect-[4/3] overflow-hidden rounded-[0.8rem] sm:rounded-[1rem]">
-                  <Image src={src} alt="" fill draggable={false} sizes="(min-width:640px) 18rem, 40vw" className="object-cover" />
+        <div className="relative flex size-full flex-col">
+          <div className="relative min-h-0 flex-1 [container-type:size] [--w:min(50cqw,calc((32cqh-1.1rem)*4/3))] [--h:calc(var(--w)*0.75+1.1rem)] sm:[--ww:min(24cqw,calc((50cqh-1.5rem)*4/3))] sm:[--hw:calc(var(--ww)*0.75+1.5rem)]">
+            {/* Each print sits in a wrapper that Draggable moves (x, y), while
+                the print inside keeps the timeline's own turn, scale and drift. */}
+            {PRINTS.map((src, i) => (
+              <div
+                key={src}
+                className="show-drag absolute left-[var(--px-phone)] top-[calc(var(--h)/2+1rem+(100cqh-var(--h)-2rem)*var(--k))] w-[var(--w)] touch-none select-none sm:left-[var(--px-wide)] sm:top-[clamp(calc(var(--hw)/2+1rem),var(--py-wide),calc(100cqh-var(--hw)/2-1rem))] sm:w-[var(--ww)]"
+                style={
+                  {
+                    "--px-wide": `${PRINT_SPOTS[i].x}%`,
+                    "--py-wide": `${PRINT_SPOTS[i].y}%`,
+                    "--px-phone": `${PRINT_SPOTS_PHONE[i].x}%`,
+                    "--k": i / (PRINTS.length - 1),
+                  } as React.CSSProperties
+                }
+              >
+                <div className="show-print rounded-[1.1rem] bg-[#fbfaf8] p-1.5 pb-5 shadow-[0_24px_60px_rgb(0_0_0/0.35)] sm:rounded-[1.4rem] sm:p-2 sm:pb-7">
+                  <div className="pointer-events-none relative aspect-[4/3] overflow-hidden rounded-[0.8rem] sm:rounded-[1rem]">
+                    <Image src={src} alt="" fill draggable={false} sizes="(min-width:640px) 18rem, 40vw" className="object-cover" />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] text-center">
+            ))}
+          </div>
+          <div className="show-words pointer-events-none relative z-[2] pt-5 text-center sm:pt-6">
             <p className="show-rise mx-auto max-w-[18ch] text-balance font-display text-[clamp(2.25rem,6vw,4.75rem)] leading-[1.02] [text-shadow:0_4px_30px_rgb(28_11_44/0.5)]">{t.teaser.moments}</p>
             <p className="show-rise mx-auto mt-3 max-w-[46ch] text-balance text-sm show-muted sm:text-lg">{t.teaser.momentsSub}</p>
           </div>

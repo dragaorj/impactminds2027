@@ -2,6 +2,7 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { prefersReducedMotion } from "./prefs";
+import InlineScript from "./InlineScript";
 
 export type NativeLoopHandle = { setMuted(m: boolean): void; pause(): void; play(): void };
 
@@ -10,28 +11,47 @@ export type NativeLoopHandle = { setMuted(m: boolean): void; pause(): void; play
 const WATCH_MS = 1500;
 const FROZEN_MS = 2000;
 
+// Starts the video just before it (deferLoad) right after the first frame,
+// muted, unless motion is reduced (html[data-motion], set by the prefs script).
+const START_SOON = `(function(){var v=document.currentScript.previousElementSibling;if(!v||document.documentElement.dataset.motion==="reduce")return;if(v.hasAttribute("data-hero-video"))v.addEventListener("playing",function(){window.__imHeroVideo=true;dispatchEvent(new Event("im:hero-video"))},{once:true});requestAnimationFrame(function(){requestAnimationFrame(function(){setTimeout(function(){v.preload="auto";v.muted=true;var p=v.play();if(p)p.catch(function(){})},0)})})})();`;
+
 // Self-hosted background video: muted, looping, inline, with no controls of
 // any kind. Autoplay is skipped when the visitor asked for reduced motion
 // (the poster frame shows instead).
 const NativeLoop = forwardRef<
   NativeLoopHandle,
-  { src: string; poster?: string; className?: string; ambient?: boolean; deferLoad?: boolean }
->(function NativeLoop({ src, poster, className = "", ambient = false, deferLoad = false }, ref) {
+  { src: string; poster?: string; className?: string; ambient?: boolean; deferLoad?: boolean; announce?: boolean }
+>(function NativeLoop({ src, poster, className = "", ambient = false, deferLoad = false, announce = false }, ref) {
   const video = useRef<HTMLVideoElement>(null);
-  // deferLoad: the file is only requested once the page itself has loaded, so
-  // a large video never competes with what has to appear first (the poster
-  // shows until then, behind the opening curtain).
+  // deferLoad: the file is requested just after the page's first frame (not
+  // in the same breath as what has to appear first), but without waiting for
+  // the whole page to load, so it is already playing when the opening curtain
+  // lifts, even on a phone.
   const [loadable, setLoadable] = useState(!deferLoad);
   useEffect(() => {
     if (!deferLoad) return;
-    const go = () => setLoadable(true);
-    if (document.readyState === "complete") {
-      const t = window.setTimeout(go, 0);
-      return () => window.clearTimeout(t);
-    }
-    window.addEventListener("load", go, { once: true });
-    return () => window.removeEventListener("load", go);
+    let t = 0;
+    const frame = requestAnimationFrame(() => (t = window.setTimeout(() => setLoadable(true), 0)));
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(t);
+    };
   }, [deferLoad]);
+  // announce: tell the page when the loop is really moving ("im:hero-video",
+  // and window.__imHeroVideo for late listeners); the opening curtain waits
+  // for it.
+  useEffect(() => {
+    const v = video.current;
+    if (!announce || !v) return;
+    const onPlaying = () => {
+      (window as Window & { __imHeroVideo?: boolean }).__imHeroVideo = true;
+      window.dispatchEvent(new Event("im:hero-video"));
+    };
+    // Already rolling (started by the inline script before this ran).
+    if (!v.paused && v.readyState >= 3) onPlaying();
+    v.addEventListener("playing", onPlaying);
+    return () => v.removeEventListener("playing", onPlaying);
+  }, [announce]);
   // Paused on purpose by the page (e.g. while the full video is open): the
   // loop's own recovery leaves it alone until play() is called again.
   const held = useRef(false);
@@ -123,21 +143,30 @@ const NativeLoop = forwardRef<
     };
   }, [src, ambient, loadable]);
 
+  // With deferLoad the file is named from the start but held back
+  // (preload="none"); the tiny script right after the element starts it just
+  // after the first frame, before the page's own code has even loaded. (On a
+  // client-side render the effect above does the same.)
   return (
-    <video
-      ref={video}
-      src={loadable ? src : undefined}
-      poster={poster}
-      muted
-      loop
-      playsInline
-      preload="auto"
-      disablePictureInPicture
-      disableRemotePlayback
-      controls={false}
-      aria-hidden
-      className={`absolute inset-0 size-full object-cover ${className}`}
-    />
+    <>
+      <video
+        ref={video}
+        src={src}
+        poster={poster}
+        muted
+        loop
+        playsInline
+        preload={loadable ? "auto" : "none"}
+        disablePictureInPicture
+        disableRemotePlayback
+        controls={false}
+        aria-hidden
+        data-hero-video={announce ? "" : undefined}
+        suppressHydrationWarning
+        className={`absolute inset-0 size-full object-cover ${className}`}
+      />
+      {deferLoad && <InlineScript html={START_SOON} />}
+    </>
   );
 });
 

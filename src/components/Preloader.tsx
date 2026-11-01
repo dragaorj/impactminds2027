@@ -10,6 +10,8 @@ import { prefersReducedMotion } from "./prefs";
 gsap.registerPlugin(useGSAP);
 
 const TICKS = 28;
+// Longest the curtain waits, bar full, for the header video to start.
+const HOLD_MS = 3500;
 
 // The intro is over. The flag is for widgets that mount after the event (they
 // load in their own chunk, see LazyWidgets).
@@ -83,11 +85,21 @@ export default function Preloader() {
         .to(parts, { y: 0, opacity: 1, duration: 1.1, stagger: 0.05, ease: "power3.out" }, 0.7)
         .to(".pl-bar", { opacity: 1, duration: 0.5, ease: "power2.out" }, 0.5)
         .to(".pl-fill", { opacity: 1, duration: 0.1, stagger: 1.5 / TICKS, ease: "none" }, 0.6)
-        // Bar full: if the page is still loading, hold here until it's done.
+        // Bar full: if the header video isn't moving yet, hold here until it
+        // is, so the home opens with it already playing (never a still frame);
+        // at most HOLD_MS, then the curtain lifts anyway.
         .add(() => {
-          if (document.readyState === "complete") return;
+          const playing = (window as Window & { __imHeroVideo?: boolean }).__imHeroVideo === true;
+          if (playing || !document.querySelector("[data-hero-video]")) return;
           tl.pause();
-          window.addEventListener("load", () => tl.play(), { once: true });
+          let cap = 0;
+          const go = () => {
+            window.clearTimeout(cap);
+            window.removeEventListener("im:hero-video", go);
+            tl.play();
+          };
+          window.addEventListener("im:hero-video", go, { once: true });
+          cap = window.setTimeout(go, HOLD_MS);
         }, 2.15)
         // Then the mark drifts forward softly and the curtain dissolves.
         .to(".pl-inner", { scale: 1.15, opacity: 0, filter: "blur(6px)", duration: 0.8, ease: "power2.inOut" }, 2.2)
@@ -101,7 +113,7 @@ export default function Preloader() {
       // the next run play it instead of skipping straight to the content.
       // Safety net: if frames stall (a background tab, a busy device), never
       // leave the site behind the curtain.
-      const guard = window.setTimeout(() => tl.progress(1), 6000);
+      const guard = window.setTimeout(() => tl.progress(1), 4000 + HOLD_MS);
       return () => {
         window.clearTimeout(guard);
         if (!finished) w.__imIntroDone = false;

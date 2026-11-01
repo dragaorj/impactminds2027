@@ -185,6 +185,7 @@ export default function Hero({
           <NativeLoop
             ambient
             deferLoad
+            announce
             src={videoSrc}
             poster={`/_next/image?url=${encodeURIComponent(`https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`)}&w=1080&q=75`}
           />
