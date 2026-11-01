@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { prefersReducedMotion } from "./prefs";
 
 export type NativeLoopHandle = { setMuted(m: boolean): void; pause(): void; play(): void };
@@ -13,11 +13,25 @@ const FROZEN_MS = 2000;
 // Self-hosted background video: muted, looping, inline, with no controls of
 // any kind. Autoplay is skipped when the visitor asked for reduced motion
 // (the poster frame shows instead).
-const NativeLoop = forwardRef<NativeLoopHandle, { src: string; poster?: string; className?: string; ambient?: boolean }>(function NativeLoop(
-  { src, poster, className = "", ambient = false },
-  ref,
-) {
+const NativeLoop = forwardRef<
+  NativeLoopHandle,
+  { src: string; poster?: string; className?: string; ambient?: boolean; deferLoad?: boolean }
+>(function NativeLoop({ src, poster, className = "", ambient = false, deferLoad = false }, ref) {
   const video = useRef<HTMLVideoElement>(null);
+  // deferLoad: the file is only requested once the page itself has loaded, so
+  // a large video never competes with what has to appear first (the poster
+  // shows until then, behind the opening curtain).
+  const [loadable, setLoadable] = useState(!deferLoad);
+  useEffect(() => {
+    if (!deferLoad) return;
+    const go = () => setLoadable(true);
+    if (document.readyState === "complete") {
+      const t = window.setTimeout(go, 0);
+      return () => window.clearTimeout(t);
+    }
+    window.addEventListener("load", go, { once: true });
+    return () => window.removeEventListener("load", go);
+  }, [deferLoad]);
   // Paused on purpose by the page (e.g. while the full video is open): the
   // loop's own recovery leaves it alone until play() is called again.
   const held = useRef(false);
@@ -107,12 +121,12 @@ const NativeLoop = forwardRef<NativeLoopHandle, { src: string; poster?: string; 
       window.removeEventListener("pageshow", resume);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [src, ambient]);
+  }, [src, ambient, loadable]);
 
   return (
     <video
       ref={video}
-      src={src}
+      src={loadable ? src : undefined}
       poster={poster}
       muted
       loop

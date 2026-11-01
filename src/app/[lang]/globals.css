@@ -357,9 +357,15 @@ html.js:not([data-motion="reduce"]) footer .art {
 /* Initial states for GSAP; skipped entirely when motion is reduced. */
 html.js:not([data-motion="reduce"]) [data-reveal],
 html.js:not([data-motion="reduce"]) [data-stagger-item],
-html.js:not([data-motion="reduce"]) [data-stagger-dot],
-html.js:not([data-motion="reduce"]) [data-hero] {
+html.js:not([data-motion="reduce"]) [data-stagger-dot] {
   opacity: 0;
+}
+/* The hero starts all but invisible rather than at zero: it is painted under
+   the opening curtain from the first frame (an element at opacity 0 is not
+   painted at all), so the page counts as shown as soon as it is, while the
+   intro still brings it in from nothing visible. Same value in Preloader.tsx. */
+html.js:not([data-motion="reduce"]) [data-hero] {
+  opacity: 0.001;
 }
 
 /* YouTube background sized like object-fit: cover. */
@@ -1024,3 +1030,7 @@ html[data-motion="reduce"] [data-dock] { transition-duration: 0.01s, 0.01s, 280m
   85% { translate: -3px 0; }
 }
 html[data-motion="reduce"] .dock-nudge { animation: none; }
+
+/* The cookie notice and its veil step aside (fading, same timing as their
+   own transitions) while one of the bar's menus is open (Nav.tsx). */
+html[data-menu-open] .consent-ui { opacity: 0; pointer-events: none; }

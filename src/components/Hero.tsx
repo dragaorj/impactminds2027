@@ -37,12 +37,23 @@ export default function Hero({
   const root = useRef<HTMLElement>(null);
   // The countdown ring and the music button beside the CTA swap the info bar
   // to their details (one at a time); otherwise it shows the event facts.
+  // The cookie notice (CookieConsent) also takes the bar while the visitor has
+  // not chosen yet, in place of the facts; the countdown and the music still
+  // win while open, and the notice comes back when they close.
   const [view, setView] = useState<"facts" | "countdown" | "music">("facts");
+  const [consentAsk, setConsentAsk] = useState(false);
+  const shown = view === "facts" && consentAsk ? "consent" : view;
   const countdown = view === "countdown";
   useEffect(() => {
     window.dispatchEvent(new Event("im:hero-shift"));
-  }, [view]);
+  }, [shown]);
   const music = view === "music";
+  const consent = shown === "consent";
+  useEffect(() => {
+    const onConsent = (e: Event) => setConsentAsk((e as CustomEvent<boolean>).detail);
+    window.addEventListener("im:consent-bar", onConsent);
+    return () => window.removeEventListener("im:consent-bar", onConsent);
+  }, []);
 
   // Scrolling away flies through the title: "Impact Minds" grows towards the
   // viewer, blurs and dissolves, while the rest of the hero parts (pill and
@@ -165,18 +176,28 @@ export default function Hero({
   return (
     <section ref={root} id="top" className="wave-b relative isolate min-h-[calc(100lvh+var(--wave))] overflow-hidden bg-[#1c0c2c] text-white">
       <div className="hero-media absolute inset-0 -z-10" aria-label={t.videoLabel} role="img">
-        <Image
-          src={`https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`}
-          alt=""
-          fill
-          priority={!videoSrc}
-          sizes="100vw"
-          className={`object-cover transition-opacity ${started || videoSrc ? "opacity-0 duration-1000" : "opacity-100 duration-150"}`}
-        />
+        {/* The self-hosted loop shows its own poster (the thumbnail through the
+            image optimiser, a fraction of the original's weight); the separate
+            image is only for the YouTube fallback. */}
         {videoSrc ? (
-          <NativeLoop ambient src={videoSrc} poster={`https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`} />
+          <NativeLoop
+            ambient
+            deferLoad
+            src={videoSrc}
+            poster={`/_next/image?url=${encodeURIComponent(`https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`)}&w=1080&q=75`}
+          />
         ) : (
-          <div ref={holder} className="yt-cover absolute inset-0 overflow-hidden" aria-hidden />
+          <>
+            <Image
+              src={`https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className={`object-cover transition-opacity ${started ? "opacity-0 duration-1000" : "opacity-100 duration-150"}`}
+            />
+            <div ref={holder} className="yt-cover absolute inset-0 overflow-hidden" aria-hidden />
+          </>
         )}
         {/* Dark purple film over the video so the centred text never competes
             with it: an even tint, a gradient deepening towards the nav and the
@@ -249,13 +270,13 @@ export default function Hero({
           <div
             data-hero
             data-countdown-bar
-            data-view={view}
+            data-view={shown}
             className="relative mx-auto mt-6 w-full max-w-3xl rounded-full bg-[rgb(42_18_64/0.6)] ring-1 ring-white/20 sm:mt-10"
           >
             <dl
-              aria-hidden={view !== "facts"}
+              aria-hidden={shown !== "facts"}
               className={`grid grid-cols-4 px-3 py-3 text-center transition-[opacity,filter,translate] duration-500 ease-out sm:px-5 sm:py-3.5 ${
-                view !== "facts" ? "pointer-events-none -translate-y-1 opacity-0 blur-[2px]" : "opacity-100"
+                shown !== "facts" ? "pointer-events-none -translate-y-1 opacity-0 blur-[2px]" : "opacity-100"
               }`}
             >
               {t.facts.map((f, i) => (
@@ -292,6 +313,15 @@ export default function Hero({
                 <ArrowRight size="1rem" className="transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-x-0.5" />
               </a>
             </div>
+            {/* Cookie notice: CookieConsent renders its choice in here (portal). */}
+            <div
+              id="hero-consent"
+              aria-hidden={!consent}
+              inert={!consent}
+              className={`absolute inset-0 transition-[opacity,filter,translate] duration-500 ease-out ${
+                consent ? "opacity-100 delay-150" : "pointer-events-none translate-y-1 opacity-0 blur-[2px]"
+              }`}
+            />
             {/* Music: MusicPlayer renders its controls in here (portal). */}
             <div
               id="hero-music"

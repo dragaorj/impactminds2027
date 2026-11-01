@@ -97,6 +97,19 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
   const [shuffle, setShuffle] = useState(false);
   // Repeat the current track instead of moving on.
   const [repeat, setRepeat] = useState(false);
+  // The track's details (its length) are only fetched once the page itself has
+  // loaded, so the audio never competes with what has to appear first.
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    const go = () => setLoaded(true);
+    if (document.readyState === "complete") {
+      const t = window.setTimeout(go, 0);
+      return () => window.clearTimeout(t);
+    }
+    window.addEventListener("load", go, { once: true });
+    return () => window.removeEventListener("load", go);
+  }, []);
+
   // Corner panel / hero bar.
   const [open, setOpen] = useState(false);
 
@@ -378,8 +391,10 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
         arm();
       });
     };
+    // This player loads in its own chunk, so the intro may already be over.
+    const ready = (window as Window & { __imReady?: boolean }).__imReady === true;
     window.addEventListener("im:ready", start);
-    const fallback = window.setTimeout(start, 4000);
+    const fallback = window.setTimeout(start, ready ? 0 : 4000);
     return () => {
       window.removeEventListener("im:ready", start);
       window.clearTimeout(fallback);
@@ -840,7 +855,7 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       <audio
         ref={audio}
         src={track.src}
-        preload="metadata"
+        preload={loaded ? "metadata" : "none"}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         onTimeUpdate={(e) => setTime({ cur: e.currentTarget.currentTime, dur: e.currentTarget.duration || 0 })}

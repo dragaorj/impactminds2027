@@ -5,10 +5,12 @@ import { notFound } from "next/navigation";
 import { getDictionary, hasLocale, htmlLang, locales } from "@/lib/i18n";
 import InlineScript from "@/components/InlineScript";
 import PrefsSync from "@/components/PrefsSync";
+import CookieConsent from "@/components/CookieConsent";
+import { privacyCopy, privacyPath } from "@/lib/privacy";
 import "./globals.css";
 
 const gloock = localFont({
-  src: "../fonts/Gloock-Regular.ttf",
+  src: "../fonts/Gloock-Regular.woff2",
   variable: "--font-gloock",
   display: "swap",
 });
@@ -68,6 +70,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
       <body className="min-h-[100dvh] overflow-x-clip">
         <PrefsSync lang={lang} />
         {children}
+        <CookieConsent t={privacyCopy[lang].banner} privacyHref={privacyPath(lang)} />
         {/* After a language switch, jump back to where the visitor was as soon
             as the content exists (before hydration), so the top never flashes. */}
         <InlineScript html={restoreScript} />

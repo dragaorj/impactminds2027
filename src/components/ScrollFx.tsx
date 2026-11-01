@@ -58,7 +58,7 @@ export default function ScrollFx() {
   }, []);
 
   useGSAP(
-    () => {
+    (_, contextSafe) => {
       if (reduce === null) return;
       // Right after a language switch the page shows its final state at once
       // (no entrances, line splits or counts to replay) at the scroll position
@@ -148,9 +148,12 @@ export default function ScrollFx() {
       });
 
       // Every heading and text block outside the hero rises line by line from
-      // behind a mask as it enters view. SplitText re-splits on resize until
-      // then; once a block has risen, the split is undone (the text is back to
-      // plain DOM: fewer nodes, and nothing to re-split on later resizes).
+      // behind a mask as it enters view. Splitting measures every line, so each
+      // block is only split once it comes within about a screen of the viewport
+      // (not all at once on load, which was the page's longest task). SplitText
+      // re-splits on resize until then; once a block has risen, the split is
+      // undone (the text is back to plain DOM: fewer nodes, and nothing to
+      // re-split on later resizes).
       const textSel = [
         "main h2",
         "main h3",
@@ -159,13 +162,7 @@ export default function ScrollFx() {
         "main li > span",
         "footer p",
       ].join(",");
-      gsap.utils.toArray<HTMLElement>(textSel).forEach((el) => {
-        if (
-          el.closest("#top, [data-words], [data-nosplit], a, button, [aria-hidden='true']") ||
-          el.querySelector("[data-count], svg, img") ||
-          !el.textContent?.trim()
-        )
-          return;
+      const split = contextSafe!((el: HTMLElement) => {
         const heading = /^H[23]$/.test(el.tagName) || el.classList.contains("font-display");
         keepTogether(el);
         SplitText.create(el, {
@@ -186,6 +183,25 @@ export default function ScrollFx() {
             });
           },
         });
+      });
+      const nearText = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            nearText.unobserve(e.target);
+            split(e.target as HTMLElement);
+          }
+        },
+        { rootMargin: "100% 0px" },
+      );
+      gsap.utils.toArray<HTMLElement>(textSel).forEach((el) => {
+        if (
+          el.closest("#top, [data-words], [data-nosplit], a, button, [aria-hidden='true']") ||
+          el.querySelector("[data-count], svg, img") ||
+          !el.textContent?.trim()
+        )
+          return;
+        nearText.observe(el);
       });
 
       // [data-ticks]: tick meters light up (CSS transitions, staggered per tick)
@@ -305,6 +321,7 @@ export default function ScrollFx() {
       ro.observe(document.body);
       const frame = requestAnimationFrame(refresh);
       return () => {
+        nearText.disconnect();
         ro.disconnect();
         clearTimeout(timer);
         cancelAnimationFrame(frame);

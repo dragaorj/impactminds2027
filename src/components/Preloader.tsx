@@ -11,6 +11,13 @@ gsap.registerPlugin(useGSAP);
 
 const TICKS = 28;
 
+// The intro is over. The flag is for widgets that mount after the event (they
+// load in their own chunk, see LazyWidgets).
+function markReady() {
+  (window as Window & { __imReady?: boolean }).__imReady = true;
+  window.dispatchEvent(new Event("im:ready"));
+}
+
 // Opening sequence, logo only: the Cartagena skyline draws itself in gold
 // line art, the Latimpacto wordmark rises in piece by piece beneath it, then
 // the mark drifts forward and dissolves and the hero settles in. Underneath,
@@ -28,7 +35,9 @@ export default function Preloader() {
       const revealHero = (delay = 0) =>
         gsap.fromTo(
           heroEls(),
-          { y: 36, opacity: 0 },
+          // 0.001, not 0: the hero is painted under the curtain from the start
+          // (globals.css), which is when the page counts as shown.
+          { y: 36, opacity: 0.001 },
           { y: 0, opacity: 1, duration: 1.2, stagger: 0.09, ease: "expo.out", delay, clearProps: "transform" },
         );
 
@@ -41,7 +50,7 @@ export default function Preloader() {
       if (softNav || prefersReducedMotion()) {
         if (root.current) root.current.style.display = "none";
         gsap.set(heroEls(), { opacity: 1 });
-        window.dispatchEvent(new Event("im:ready"));
+        markReady();
         return;
       }
 
@@ -65,7 +74,7 @@ export default function Preloader() {
             sessionStorage.setItem("im-intro", "1");
           } catch {}
           if (root.current) root.current.style.display = "none";
-          window.dispatchEvent(new Event("im:ready"));
+          markReady();
         },
       });
 

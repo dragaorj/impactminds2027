@@ -7,7 +7,10 @@ import { locales, type Locale } from "@/lib/i18n";
 import { links } from "@/lib/site";
 import { usePrefs } from "./prefs";
 
-type Props = { lang: Locale; nav: Dict["nav"]; controls: Dict["controls"] };
+// sub: the page under the language ("" for the home page, "/privacy" ...). Off
+// the home page the bar has no hero video under it and the section links point
+// back to the home page.
+type Props = { lang: Locale; nav: Dict["nav"]; controls: Dict["controls"]; privacyLabel: string; sub?: string };
 
 const iconBtn =
   "grid size-10 place-items-center rounded-full text-ink transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-[0.96]";
@@ -35,12 +38,14 @@ function LangSwitch({
   names,
   onVideo = false,
   onOpenChange,
+  sub = "",
 }: {
   lang: Locale;
   label: string;
   names: Record<Locale, string>;
   onVideo?: boolean;
   onOpenChange?: (open: boolean) => void;
+  sub?: string;
 }) {
   const [open, setOpen] = useState(false);
   // The other languages are prefetched only once the visitor shows interest
@@ -121,7 +126,7 @@ function LangSwitch({
                   return (
                     <li key={l} className="animate-[menuItem_0.5s_var(--ease-out-expo)_both]" style={{ animationDelay: `${60 + i * 50}ms` }}>
                       <a
-                        href={`/${l}`}
+                        href={`/${l}${sub}`}
                         hrefLang={l}
                         lang={l}
                         aria-current={on ? "true" : undefined}
@@ -177,7 +182,7 @@ function LangSwitch({
       {(warm || open) &&
         locales
           .filter((l) => l !== lang)
-          .map((l) => <link key={`pf-${l}`} rel="prefetch" href={`/${l}`} as="document" />)}
+          .map((l) => <link key={`pf-${l}`} rel="prefetch" href={`/${l}${sub}`} as="document" />)}
     </div>
   );
 }
@@ -250,7 +255,7 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   );
 }
 
-export default function Nav({ lang, nav, controls }: Props) {
+export default function Nav({ lang, nav, controls, privacyLabel, sub = "" }: Props) {
   const { prefs, setTheme, setA11y, resetA11y } = usePrefs();
   const [menuOpen, setMenuOpen] = useState(false);
   // Phones: the menu has two tabs, the site's sections and accessibility.
@@ -295,10 +300,13 @@ export default function Nav({ lang, nav, controls }: Props) {
   const panelRef = useRef<HTMLDivElement>(null);
   const panelBtnRef = useRef<HTMLButtonElement>(null);
 
+  // Off the home page the section links lead back to it.
+  const home = sub ? `/${lang}` : "";
   const items = [
-    { href: "#conexoes", label: nav.agenda2026 },
-    { href: "#palestrantes", label: nav.speakers2026 },
-    { href: "#edicoes", label: nav.editions },
+    { href: `${home}#conexoes`, label: nav.agenda2026 },
+    { href: `${home}#palestrantes`, label: nav.speakers2026 },
+    { href: `${home}#edicoes`, label: nav.editions },
+    { href: `/${lang}/privacy`, label: privacyLabel },
   ];
 
   useEffect(() => {
@@ -324,6 +332,13 @@ export default function Nav({ lang, nav, controls }: Props) {
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
   }, [menuOpen]);
+  // Any of the bar's menus open: the cookie notice steps aside (globals.css).
+  useEffect(() => {
+    const d = document.documentElement;
+    if (menuOpen || panelOpen || langOpen) d.setAttribute("data-menu-open", "");
+    else d.removeAttribute("data-menu-open");
+    return () => d.removeAttribute("data-menu-open");
+  }, [menuOpen, panelOpen, langOpen]);
 
   // The bar only materialises once the page leaves the top of the hero (96px),
   // read from the scroll position (Safari reports it during momentum scrolling,
@@ -337,7 +352,7 @@ export default function Nav({ lang, nav, controls }: Props) {
   }, []);
 
   const isDark = prefs.theme === "dark";
-  const onVideo = !scrolled;
+  const onVideo = !scrolled && !sub;
   const btn = onVideo ? iconBtnOnVideo : iconBtn;
 
   // The accessibility options: in the panel under the bar's button, and on
@@ -414,7 +429,7 @@ export default function Nav({ lang, nav, controls }: Props) {
             } catch {}
             document.cookie = `im-lang=${l};path=/;max-age=31536000;samesite=lax`;
           }}
-          options={locales.map((l) => ({ value: l, label: l.toUpperCase(), href: `/${l}`, lang: l }))}
+          options={locales.map((l) => ({ value: l, label: l.toUpperCase(), href: `/${l}${sub}`, lang: l }))}
         />
       </div>
       <button
@@ -442,7 +457,7 @@ export default function Nav({ lang, nav, controls }: Props) {
         className={`fixed inset-x-0 z-[42] mx-auto max-w-[132rem] px-3 transition-[top] duration-700 ease-[var(--ease-out-expo)] sm:px-8 lg:px-[5vw] ${
           scrolled ? "top-3 sm:top-4" : "top-3 sm:top-6"
         }`}
-        data-hero
+        data-hero={sub ? undefined : ""}
       >
         <div
           className={`mx-auto flex h-16 items-center justify-between gap-3 rounded-full py-2 pl-5 pr-2 transition-[max-width,background-color,box-shadow,backdrop-filter] duration-700 ease-[var(--ease-out-expo)] ${
@@ -453,12 +468,13 @@ export default function Nav({ lang, nav, controls }: Props) {
               : "bg-transparent shadow-none ring-1 ring-transparent backdrop-blur-0"
           }`}
         >
+          {/* Off the home page the logo leads back to it; on the home page it
+              opens Latimpacto's own site. */}
           <a
-            href={links.latimpacto}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={sub ? `/${lang}` : links.latimpacto}
+            {...(sub ? {} : { target: "_blank", rel: "noopener noreferrer" })}
             className="relative block h-7 w-[7.6rem] shrink-0 sm:h-8 sm:w-[8.7rem]"
-            aria-label="Latimpacto"
+            aria-label={sub ? `Latimpacto · ${nav.home}` : "Latimpacto"}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -475,7 +491,7 @@ export default function Nav({ lang, nav, controls }: Props) {
           </a>
 
           <div className="flex items-center gap-1">
-            <LangSwitch lang={lang} label={controls.language} names={controls.languages} onVideo={onVideo} onOpenChange={setLangOpen} />
+            <LangSwitch lang={lang} label={controls.language} names={controls.languages} onVideo={onVideo} onOpenChange={setLangOpen} sub={sub} />
             {/* Phones keep just the language and the menu; these two live in the menu there. */}
             <button
               type="button"
