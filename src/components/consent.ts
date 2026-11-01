@@ -28,5 +28,5 @@ export function saveConsent(analytics: boolean) {
 
 export const analyticsAllowed = () => readConsent()?.analytics === true;
 
-// Opens the banner again (footer and privacy page "Cookie preferences").
+// Opens the notice again (the privacy page's "Cookie preferences").
 export const openConsent = () => window.dispatchEvent(new Event("im:consent-open"));

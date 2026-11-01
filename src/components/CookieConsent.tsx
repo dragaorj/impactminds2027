@@ -13,7 +13,7 @@ const LEAVE_MS = 500;
 // as the countdown and music details (#hero-consent; Hero.tsx cross-fades to
 // it via "im:consent-bar"), once the intro curtain has lifted. Anywhere else,
 // or with the hero scrolled away, the same slim bar floats at the bottom. The
-// footer and the privacy page can bring it back (im:consent-open).
+// privacy page can bring it back (im:consent-open).
 export default function CookieConsent({ t, privacyHref }: { t: PrivacyCopy["banner"]; privacyHref: string }) {
   const [mode, setMode] = useState<"hero" | "float" | null>(null);
   const [slot, setSlot] = useState<HTMLElement | null>(null);

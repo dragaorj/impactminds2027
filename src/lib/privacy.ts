@@ -132,7 +132,7 @@ const pt: PrivacyCopy = {
     {
       title: "Como gerenciar cookies",
       paragraphs: [
-        "Você pode rever a sua escolha pelo botão “Preferências de cookies”, nesta página e no rodapé do site. Também é possível apagar ou bloquear cookies nas configurações do seu navegador; os cookies necessários, se bloqueados, podem fazer o site esquecer suas preferências.",
+        "Você pode rever a sua escolha pelo botão “Preferências de cookies”, aqui nesta página. Também é possível apagar ou bloquear cookies nas configurações do seu navegador; os cookies necessários, se bloqueados, podem fazer o site esquecer suas preferências.",
       ],
     },
     {
@@ -237,7 +237,7 @@ const es: PrivacyCopy = {
     {
       title: "Cómo gestionar las cookies",
       paragraphs: [
-        "Puedes revisar tu elección con el botón “Preferencias de cookies”, en esta página y en el pie del sitio. También puedes borrar o bloquear cookies en la configuración de tu navegador; si bloqueas las necesarias, el sitio puede olvidar tus preferencias.",
+        "Puedes revisar tu elección con el botón “Preferencias de cookies”, aquí en esta página. También puedes borrar o bloquear cookies en la configuración de tu navegador; si bloqueas las necesarias, el sitio puede olvidar tus preferencias.",
       ],
     },
     {
@@ -342,7 +342,7 @@ const en: PrivacyCopy = {
     {
       title: "Managing cookies",
       paragraphs: [
-        "You can review your choice with the “Cookie preferences” button, on this page and in the site footer. You can also clear or block cookies in your browser settings; if you block the necessary ones, the site may forget your preferences.",
+        "You can review your choice with the “Cookie preferences” button, right here on this page. You can also clear or block cookies in your browser settings; if you block the necessary ones, the site may forget your preferences.",
       ],
     },
     {

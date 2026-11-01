@@ -2,7 +2,6 @@ import { ArrowUpRight, InstagramLogo, LinkedinLogo, YoutubeLogo } from "@phospho
 import type { Dict } from "@/lib/dictionaries/pt";
 import { links } from "@/lib/site";
 import Image from "next/image";
-import ConsentButton from "../ConsentButton";
 import TypeOnView from "../TypeOnView";
 import { Bezel, Button, container } from "../ui";
 
@@ -19,7 +18,7 @@ export default function Footer({
   t: Dict["footer"];
   hero: Dict["hero"];
   nav: Dict["nav"];
-  privacy: { href: string; label: string; manage: string };
+  privacy: { href: string; label: string };
   home?: string;
 }) {
   const words = t.closing.split(" ");
@@ -128,13 +127,6 @@ export default function Footer({
             reveal may never fire, so the credits are always shown as is. */}
         <div data-nosplit className="mt-10 flex flex-col items-center gap-2 border-t border-line pt-8 text-center text-sm text-muted">
           <p>© 2026 Impact&nbsp;Minds: Standing Together. Latimpacto. {t.rights}</p>
-          <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-            <a href={privacy.href} className="transition-colors hover:text-gold">
-              {privacy.label}
-            </a>
-            <span aria-hidden className="h-3 w-px bg-line" />
-            <ConsentButton className="transition-colors hover:text-gold">{privacy.manage}</ConsentButton>
-          </p>
           <p>
             {t.madeBy}{" "}
             <a

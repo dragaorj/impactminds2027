@@ -55,7 +55,7 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
         <Digital t={t.digital} locale={locale} />
         <Editions t={t.editions} />
       </main>
-      <Footer t={t.footer} hero={t.hero} nav={t.nav} privacy={{ href: privacyPath(lang), label: p.navLabel, manage: p.manage }} />
+      <Footer t={t.footer} hero={t.hero} nav={t.nav} privacy={{ href: privacyPath(lang), label: p.navLabel }} />
       <CountdownRing labels={{ ...t.hero, agendaLink: t.hero.agendaCta }} />
       <MusicPlayer labels={t.music} />
       <BackToTop label={t.footer.backToTop} />
