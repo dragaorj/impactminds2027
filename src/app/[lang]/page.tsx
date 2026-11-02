@@ -39,7 +39,7 @@ export default async function Page({ params }: PageProps<"/[lang]">) {
       <Preloader />
       <Nav lang={lang} nav={t.nav} controls={t.controls} privacyLabel={p.navLabel} />
       <main id="conteudo" tabIndex={-1} className="w-full max-w-full overflow-x-clip outline-none">
-        <Hero t={t.hero} videoSrc={localVideo("header-2.mp4")} agendaLink={t.hero.agendaCta} speakerLabel={t.speakers.open} />
+        <Hero t={t.hero} videoSrc={localVideo("header-3.mp4")} agendaLink={t.hero.agendaCta} speakerLabel={t.speakers.open} />
         <Numbers
           t={t.numbers}
           locale={locale}
