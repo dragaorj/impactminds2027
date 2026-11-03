@@ -264,7 +264,7 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
       <div className={container}>
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between" data-reveal>
           <div>
-            <H2 id="palestrantes-title" className="max-w-[16ch]">
+            <H2 id="palestrantes-title" className="max-w-[26ch]">
               {t.title}
             </H2>
             <p className="mt-5 font-display text-2xl text-gold md:text-[1.75rem]">{t.count}</p>

@@ -19,7 +19,7 @@ export default function Sponsor({ t, locale }: { t: Dict["sponsor"]; locale: str
       <Art name="rings" className="absolute -bottom-36 left-[2vw] hidden w-72 xl:block" />
       <div className={`${container} grid grid-cols-1 gap-12 xl:grid-cols-12 xl:items-center xl:gap-12`}>
         <div className="xl:col-span-6" data-reveal>
-          <H2 id="patrocinio-title" className="!text-[clamp(2.1rem,4.4vw,3.5rem)]">
+          <H2 id="patrocinio-title" className="!text-[calc(clamp(min(1.75rem,6.9vw),4.4vw,3.5rem)-1px)]">
             {t.title}
           </H2>
           <p className="mt-5 max-w-[46ch] text-lg leading-relaxed text-ink-2">{t.text}</p>

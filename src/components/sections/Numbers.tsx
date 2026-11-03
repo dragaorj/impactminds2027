@@ -97,7 +97,7 @@ export default function Numbers({ t, locale, show }: { t: Dict["numbers"]; local
       <div className={container}>
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between" data-reveal>
           <div className="max-w-3xl">
-          <h2 id="numeros-title" className="font-display text-[clamp(2.25rem,5.2vw,4.25rem)] leading-[1.02] text-ink" data-nosplit>
+          <h2 id="numeros-title" className="font-display text-[calc(clamp(min(1.875rem,7.4vw),5.2vw,4.25rem)-1px)] leading-[1.02] text-ink" data-nosplit>
             <span className="block">{titleHead}</span>
             {titleTail && <span className="block text-gold">{titleTail}</span>}
           </h2>

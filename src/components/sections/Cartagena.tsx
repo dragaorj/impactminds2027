@@ -12,7 +12,7 @@ export default function Cartagena({ t }: { t: Dict["cartagena"] }) {
   return (
     <section id="cartagena" className={section} aria-labelledby="cartagena-title">
       <div className={`${container} grid gap-10 md:gap-14 xl:grid-cols-12 xl:gap-x-12`}>
-        <div className="xl:col-span-5 xl:self-center" data-reveal>
+        <div className="xl:col-span-6 xl:self-center" data-reveal>
           <p className="flex items-center gap-3 text-xs font-medium uppercase tracking-[0.16em] text-gold md:text-sm" data-nosplit>
             <svg aria-hidden viewBox="0 0 24 24" className="size-4 shrink-0 fill-current md:size-[1.125rem]">
               <path d="M12 0c.9 6.4 5 10.6 12 12-7 1.4-11.1 5.6-12 12-.9-6.4-5-10.6-12-12C7 10.6 11.1 6.4 12 0Z" />
@@ -52,7 +52,7 @@ export default function Cartagena({ t }: { t: Dict["cartagena"] }) {
 
         {/* One tall photo and two stacked beside it; on phones the large one
             on top and the other two side by side under it. */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:col-span-7 xl:self-center" data-stagger>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:col-span-6 xl:self-center" data-stagger>
           {PHOTOS.map((src, i) => (
             <figure
               key={src}

@@ -61,7 +61,7 @@ export function Button({
 
 export function H2({ children, className = "", id }: { children: ReactNode; className?: string; id?: string }) {
   return (
-    <h2 id={id} className={`font-display text-[clamp(2.25rem,5.2vw,4.25rem)] leading-[1.02] text-balance text-ink ${className}`}>
+    <h2 id={id} className={`font-display text-[calc(clamp(min(1.875rem,7.4vw),5.2vw,4.25rem)-1px)] leading-[1.02] text-balance text-ink ${className}`}>
       {children}
     </h2>
   );

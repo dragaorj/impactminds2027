@@ -70,6 +70,17 @@ Ocupou cargos de liderança sênior na África pelas Nações Unidas e pela Phil
 
 Ha ocupado cargos de liderazgo sénior en África con las Naciones Unidas y Philips, con más de 20 años de experiencia en innovación en salud y emprendimiento social. Es reconocido por construir alianzas y apoyar emprendimientos que escalan soluciones para comunidades desatendidas, generando impacto social y financiero.`,
   },
+  "Daniela Konietzko": {
+    es: `Profesional en Finanzas y Relaciones Internacionales de la Universidad Externado de Colombia. Cuenta con un posgrado en Alta Dirección y una Maestría en Cooperación Internacional de la Universidad Complutense de Madrid. Tiene más de 25 años de experiencia en empresas multinacionales y ONG, tanto en Colombia como en Europa.
+
+Lidera la presidencia de la Fundación WWB Colombia desde 2013 y forma parte de juntas directivas y consejos consultivos de entidades financieras y fundaciones. Además, es columnista invitada en temas de género, emprendimiento e inclusión financiera.`,
+    pt: `Formada em Finanças e Relações Internacionais pela Universidad Externado de Colombia, tem pós-graduação em Alta Direção e Mestrado em Cooperação Internacional pela Universidade Complutense de Madri. Tem mais de 25 anos de experiência em empresas multinacionais e ONGs, na Colômbia e na Europa.
+
+Preside a Fundação WWB Colômbia desde 2013 e integra conselhos de administração e conselhos consultivos de instituições financeiras e fundações. Também é colunista convidada sobre gênero, empreendedorismo e inclusão financeira.`,
+    en: `A Finance and International Relations graduate of the Universidad Externado de Colombia, she holds a postgraduate degree in Senior Management and a Master's in International Cooperation from the Complutense University of Madrid. She has more than 25 years of experience in multinational companies and NGOs in Colombia and Europe.
+
+She has led the WWB Colombia Foundation as President since 2013 and sits on the boards and advisory councils of financial institutions and foundations. She is also a guest columnist on gender, entrepreneurship and financial inclusion.`,
+  },
   "Patrícia Daros": {
     pt: `Assistente Social com Mestrado em Movimentos Sociais e Processos de Trabalho pela UFRJ. Desde 2003 trabalha com temas ligados à Sustentabilidade de Cidades e Territórios, com iniciativas implantadas em mais de 35 municípios do Brasil. Foi Gerente do Trabalho Social do Governo Federal nas comunidades da Rocinha, do Complexo do Alemão e do Complexo de Manguinhos (Rio de Janeiro), onde implantou metodologias de planejamento estratégico.
 

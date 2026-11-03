@@ -211,7 +211,7 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
     <section id="visitas" className={section} aria-labelledby="visitas-title">
       <div className={`${container} flex items-end justify-between gap-12`}>
         <div>
-          <h2 id="visitas-title" className="font-display text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.02] text-balance text-ink">
+          <h2 id="visitas-title" className="font-display text-[calc(clamp(min(1.875rem,7.4vw),5vw,4.5rem)-1px)] leading-[1.02] text-balance text-ink">
             {t.title}
           </h2>
           <p className="mt-4 max-w-[46ch] text-lg leading-relaxed text-ink-2 sm:mt-5 sm:text-xl">{t.lead}</p>

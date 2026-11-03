@@ -91,7 +91,7 @@ export const speakers: Speaker[] = [
     name: "Stefan Wilhelm",
     org: { pt: "Bayer Foundation", es: "Bayer Foundation", en: "Bayer Foundation" },
     role: { pt: "Diretor Associado de Impacto Social", es: "Director Asociado de Impacto Social", en: "Associate Director, Social Impact" },
-    photo: "/photos/speakers/stefan-wilhelm-v3.webp",
+    photo: "/photos/speakers/stefan-wilhelm-v4.webp",
   },
   {
     name: "Paraskevi Bessa",
@@ -127,7 +127,7 @@ export const speakers: Speaker[] = [
     name: "Caroline Flammer",
     org: { pt: "Universidade Columbia", es: "Universidad de Columbia", en: "Columbia University" },
     role: { pt: "Professora da Cátedra A. Barton Hepburn de Economia", es: "Profesora de la Cátedra A. Barton Hepburn de Economía", en: "A. Barton Hepburn Professor of Economics" },
-    photo: "/photos/speakers/caroline-flammer-v4.webp",
+    photo: "/photos/speakers/caroline-flammer-v5.webp",
   },
   {
     name: "James Burrows",
