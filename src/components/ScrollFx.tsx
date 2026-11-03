@@ -8,6 +8,9 @@ import { useGSAP } from "@gsap/react";
 import { prefersReducedMotion } from "./prefs";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
+// Effects are wired by selector for the whole page; a section without a given
+// effect (or one taken off the page) is fine, so no console noise for it.
+gsap.config({ nullTargetWarn: false });
 
 // One client island owns every scroll-driven effect on the page, wired by
 // data attributes so the sections themselves stay Server Components:
@@ -49,6 +52,38 @@ function keepTogether(el: HTMLElement) {
 
 export default function ScrollFx() {
   const [reduce, setReduce] = useState<boolean | null>(null);
+
+  // In-page links (#agenda-2027, #sobre…): a long smooth scroll aims at where
+  // the section was when it started, but images and reveals load on the way
+  // and shift it. On arrival the target is measured again and the page settles
+  // on it (a couple of passes), so it never ends up above or below.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const link = (e.target as Element | null)?.closest?.("a[href^=\"#\"]");
+      const id = link?.getAttribute("href")?.slice(1);
+      if (!link || !id) return;
+      const target = document.getElementById(decodeURIComponent(id));
+      if (!target) return;
+      e.preventDefault();
+      history.pushState(null, "", `#${id}`);
+      const offset = () => target.getBoundingClientRect().top - (parseFloat(getComputedStyle(target).scrollMarginTop) || 0);
+      let passes = 0;
+      const settle = () => {
+        window.removeEventListener("scrollend", settle);
+        if (Math.abs(offset()) > 2 && passes++ < 3) {
+          window.addEventListener("scrollend", settle, { once: true });
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+          window.setTimeout(settle, 900);
+        }
+      };
+      window.addEventListener("scrollend", settle, { once: true });
+      window.setTimeout(settle, 1500);
+      target.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
 
   useEffect(() => {
     const sync = () => setReduce(prefersReducedMotion());
@@ -310,19 +345,32 @@ export default function ScrollFx() {
       document.fonts?.ready.then(refresh);
       // After a language switch the intro is skipped and the new page streams
       // in under these triggers, so re-measure whenever the page height settles.
+      // A refresh jumps the page to the top and back to measure, which cuts a
+      // smooth scroll short (a link to a section lands above it): while the
+      // page is scrolling, wait until it has been still for a moment.
       let timer = 0;
+      let lastScroll = 0;
+      const onScroll = () => (lastScroll = performance.now());
+      window.addEventListener("scroll", onScroll, { passive: true });
+      const refreshWhenStill = () => {
+        clearTimeout(timer);
+        const wait = 250 - (performance.now() - lastScroll);
+        if (wait > 0) timer = window.setTimeout(refreshWhenStill, wait);
+        else refresh();
+      };
       let height = document.body.offsetHeight;
       const ro = new ResizeObserver(() => {
         if (document.body.offsetHeight === height) return;
         height = document.body.offsetHeight;
         clearTimeout(timer);
-        timer = window.setTimeout(refresh, 150);
+        timer = window.setTimeout(refreshWhenStill, 150);
       });
       ro.observe(document.body);
       const frame = requestAnimationFrame(refresh);
       return () => {
         nearText.disconnect();
         ro.disconnect();
+        window.removeEventListener("scroll", onScroll);
         clearTimeout(timer);
         cancelAnimationFrame(frame);
         window.removeEventListener("im:ready", refresh);

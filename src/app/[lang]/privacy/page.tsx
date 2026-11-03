@@ -139,6 +139,7 @@ export default async function PrivacyPage({ params }: PageProps<"/[lang]/privacy
       </main>
       <Footer
         t={t.footer}
+        contact={t.contact}
         hero={t.hero}
         nav={t.nav}
         home={`/${lang}`}

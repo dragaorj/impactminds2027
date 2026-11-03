@@ -1,143 +1,116 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import type { Locale } from "@/lib/i18n";
-import { testimonials, type Testimonial } from "@/lib/site";
+import { testimonials } from "@/lib/site";
 import Art from "../Art";
 import { H2, container, section } from "../ui";
 
-const initials = (name: string) =>
-  name
-    .split(" ")
-    .filter((w) => w.length > 2)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("");
+// The organisation, small above the quote: what follows the last comma of
+// the role ("CEO, Fundação Luksic" -> "Fundação Luksic").
+const org = (role: string) => role.slice(role.lastIndexOf(",") + 1).trim();
 
-function Avatar({ item, size = "size-12", ring = "ring-surface" }: { item: Testimonial; size?: string; ring?: string }) {
-  return (
-    <span
-      className={`relative grid ${size} shrink-0 place-items-center overflow-hidden rounded-full bg-brand font-display text-base text-brand-ink ring-4 ${ring}`}
-    >
-      {item.photo ? <Image src={item.photo} alt="" fill sizes="5rem" className="object-cover" /> : initials(item.name)}
-    </span>
-  );
-}
-
-const Quote = ({ className = "" }: { className?: string }) => (
-  <span aria-hidden className={`block font-display leading-none ${className}`}>
-    “
-  </span>
-);
-
-type CardProps = { item: Testimonial; lang: Locale };
-
-// Six card shapes after the reference wall, in the 2027 palette. Every card is
-// fully rounded; the quote text always stays in ink tokens for contrast.
-const cards: ((p: CardProps) => React.ReactNode)[] = [
-  // white card, person on a purple band at the foot (avatar overlapping it)
-  ({ item, lang }) => (
-    <figure className="overflow-hidden rounded-[1.75rem] bg-surface ring-1 ring-line">
-      <blockquote className="px-7 pb-12 pt-8 text-lg leading-relaxed text-ink">{item.quote[lang]}</blockquote>
-      <figcaption className="relative rounded-t-[1.75rem] bg-block px-7 pb-7 pt-10 text-center text-block-ink">
-        <span className="absolute -top-7 left-1/2 -translate-x-1/2">
-          <Avatar item={item} size="size-14" ring="ring-block" />
-        </span>
-        <span className="block font-display text-xl">{item.name}</span>
-        <span className="mt-1 block text-sm text-block-muted">{item.role[lang]}</span>
-      </figcaption>
-    </figure>
-  ),
-  // speech bubble with a tail, person beneath it
-  ({ item, lang }) => (
-    <figure>
-      <div className="relative rounded-[1.75rem] bg-surface p-7 ring-1 ring-line">
-        <Quote className="text-5xl text-sun" />
-        <blockquote className="mt-2 text-lg leading-relaxed text-ink">{item.quote[lang]}</blockquote>
-        <span aria-hidden className="absolute -bottom-2.5 left-10 size-5 rotate-45 rounded-[4px] bg-surface ring-1 ring-line [clip-path:polygon(100%_0,100%_100%,0_100%)]" />
-      </div>
-      <figcaption className="mt-5 flex items-center gap-3 pl-4">
-        <Avatar item={item} size="size-11" />
-        <span>
-          <span className="block font-display text-lg leading-tight text-ink">{item.name}</span>
-          <span className="block text-sm text-muted">{item.role[lang]}</span>
-        </span>
-      </figcaption>
-    </figure>
-  ),
-  // big gold quote mark, name in a purple pill
-  ({ item, lang }) => (
-    <figure className="rounded-[1.75rem] bg-surface p-7 ring-1 ring-line">
-      <Quote className="text-7xl text-sun" />
-      <blockquote className="-mt-4 font-display text-[1.45rem] leading-snug text-ink">{item.quote[lang]}</blockquote>
-      <figcaption className="mt-6 inline-flex max-w-full items-center gap-3 rounded-full bg-brand py-1.5 pl-1.5 pr-5 text-brand-ink">
-        <Avatar item={item} size="size-10" ring="ring-brand" />
-        <span className="min-w-0">
-          <span className="block truncate font-medium">{item.name}</span>
-          <span className="block truncate text-xs opacity-80">{item.role[lang]}</span>
-        </span>
-      </figcaption>
-    </figure>
-  ),
-  // deep purple card
-  ({ item, lang }) => (
-    <figure className="rounded-[1.75rem] bg-block p-7 text-block-ink">
-      <Quote className="text-6xl text-sun" />
-      <blockquote className="mt-1 text-lg leading-relaxed">{item.quote[lang]}</blockquote>
-      <figcaption className="mt-7 flex items-center gap-3 border-t border-white/15 pt-5">
-        <Avatar item={item} size="size-11" ring="ring-block" />
-        <span>
-          <span className="block font-display text-lg leading-tight">{item.name}</span>
-          <span className="block text-sm text-block-muted">{item.role[lang]}</span>
-        </span>
-      </figcaption>
-    </figure>
-  ),
-  // name chip on top
-  ({ item, lang }) => (
-    <figure className="rounded-[1.75rem] bg-surface p-7 ring-1 ring-line">
-      <figcaption className="flex items-center gap-3">
-        <Avatar item={item} size="size-10" />
-        <span className="rounded-full bg-brand-soft px-4 py-1.5 font-display text-lg leading-none text-ink">{item.name}</span>
-      </figcaption>
-      <blockquote className="mt-5 text-lg leading-relaxed text-ink">{item.quote[lang]}</blockquote>
-      <p className="mt-6 border-t border-line pt-4 text-sm text-muted">{item.role[lang]}</p>
-    </figure>
-  ),
-  // soft lilac card, avatar centred on top
-  ({ item, lang }) => (
-    <figure className="rounded-[1.75rem] bg-brand-soft px-7 pb-8 pt-7 text-center">
-      <span className="mx-auto block w-max">
-        <Avatar item={item} size="size-20" ring="ring-brand-soft" />
-      </span>
-      <blockquote className="mt-5 text-lg leading-relaxed text-ink">“{item.quote[lang]}”</blockquote>
-      <figcaption className="mt-5">
-        <span className="block font-display text-xl text-ink">{item.name}</span>
-        <span className="mt-1 block text-sm text-muted">{item.role[lang]}</span>
-      </figcaption>
-    </figure>
-  ),
-];
-
-// A wall of differently shaped cards in balanced columns (CSS columns), so
-// every testimonial is visible at once and the layout breathes at any width.
+// One row of plain cards that scrolls sideways (swipe, trackpad or the arrows),
+// each card: the organisation, the quote, then the person with a closing quote
+// mark. A counter and a thin progress line under the row show where you are.
 export default function Testimonials({ t, lang }: { t: Dict["testimonials"]; lang: Locale }) {
+  const track = useRef<HTMLUListElement>(null);
+  const [current, setCurrent] = useState(0);
+  const total = testimonials.length;
+
+  // The card nearest the row's left edge is the current one.
+  useEffect(() => {
+    const el = track.current;
+    if (!el) return;
+    const sync = () => {
+      const cards = Array.from(el.children) as HTMLElement[];
+      const at = (c: HTMLElement) => c.offsetLeft - cards[0].offsetLeft;
+      const start = el.scrollLeft;
+      let best = 0;
+      cards.forEach((c, i) => {
+        if (Math.abs(at(c) - start) < Math.abs(at(cards[best]) - start)) best = i;
+      });
+      // At the very end the last card counts as current, even if it never reaches the left edge.
+      if (start + el.clientWidth >= el.scrollWidth - 4) best = cards.length - 1;
+      setCurrent(best);
+    };
+    sync();
+    el.addEventListener("scroll", sync, { passive: true });
+    return () => el.removeEventListener("scroll", sync);
+  }, []);
+
+  const go = (step: number) => {
+    const el = track.current;
+    if (!el) return;
+    const cards = Array.from(el.children) as HTMLElement[];
+    const next = Math.max(0, Math.min(total - 1, current + step));
+    setCurrent(next);
+    el.scrollTo({ left: cards[next].offsetLeft - cards[0].offsetLeft, behavior: "smooth" });
+  };
+
+  const arrow =
+    "grid size-11 place-items-center rounded-full text-ink ring-1 ring-line transition-[background-color,color,opacity] duration-300 hover:bg-sun hover:text-sun-ink disabled:pointer-events-none disabled:opacity-35";
+
   return (
     <section id="depoimentos" className={`${section} overflow-hidden bg-bg-2 wave-y`} aria-labelledby="depoimentos-title">
       <Art name="mosaic" className="pointer-events-none absolute bottom-[calc(var(--wave)+0.5rem)] right-[1vw] hidden w-16 lg:block" />
       <div className={container}>
-        <H2 id="depoimentos-title" className="max-w-2xl">
+        <H2 id="depoimentos-title" className="max-w-2xl" data-reveal>
           {t.title}
         </H2>
-        <ul className="mt-14 columns-1 gap-5 md:mt-20 md:columns-2 xl:columns-3">
-          {testimonials.map((item, i) => {
-            const Card = cards[i % cards.length];
-            return (
-              <li key={item.name} data-reveal className="mb-5 break-inside-avoid">
-                <Card item={item} lang={lang} />
-              </li>
-            );
-          })}
+
+        <ul
+          ref={track}
+          aria-label={t.title}
+          className="-mx-5 mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] sm:-mx-8 sm:scroll-px-8 sm:px-8 md:mt-16 lg:-mx-[5vw] lg:scroll-px-[5vw] lg:px-[5vw] [&::-webkit-scrollbar]:hidden"
+          data-reveal
+        >
+          {testimonials.map((item) => (
+            <li key={item.name} className="w-[min(86vw,22rem)] shrink-0 snap-start md:w-[24rem]">
+              <figure className="flex h-full flex-col rounded-[1.75rem] bg-surface p-6 ring-1 ring-line md:p-7">
+                <p className="text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-muted">{org(item.role[lang])}</p>
+                <blockquote className="mt-4 flex-1 text-lg leading-relaxed text-ink">{item.quote[lang]}</blockquote>
+                <figcaption className="mt-8 flex items-end gap-3">
+                  <span className="relative size-12 shrink-0 overflow-hidden rounded-full bg-brand ring-1 ring-line">
+                    {item.photo && <Image src={item.photo} alt="" fill sizes="3rem" className="object-cover" />}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-display text-lg leading-tight text-ink">{item.name}</span>
+                    <span className="mt-0.5 block text-xs leading-snug text-muted">{item.role[lang]}</span>
+                  </span>
+                  <span aria-hidden className="-mb-3 font-display text-6xl leading-none text-gold">
+                    ”
+                  </span>
+                </figcaption>
+              </figure>
+            </li>
+          ))}
         </ul>
+
+        {/* Where you are: "2 / 6", a thin line filling up, and the arrows. */}
+        <div className="mt-8 flex items-center gap-5">
+          <p className="font-display text-lg tabular-nums text-ink" aria-live="polite" data-nosplit>
+            {current + 1}
+            <span className="text-muted"> / {total}</span>
+          </p>
+          <span aria-hidden className="h-px flex-1 overflow-hidden bg-line">
+            <span
+              className="block h-full bg-gold transition-[width] duration-500 ease-out"
+              style={{ width: `${((current + 1) / total) * 100}%` }}
+            />
+          </span>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => go(-1)} disabled={current === 0} aria-label={t.prev} className={arrow}>
+              <CaretLeft size="1rem" />
+            </button>
+            <button type="button" onClick={() => go(1)} disabled={current === total - 1} aria-label={t.next} className={arrow}>
+              <CaretRight size="1rem" />
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   );

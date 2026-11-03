@@ -9,13 +9,18 @@ export const COUNTDOWN_FROM = "2026-08-24T08:00:00-05:00";
 export const HERO_VIDEO_ID = "ZX4sEmQpA3s";
 export const ABOUT_VIDEO_ID = "6bCwTxkDT6k";
 
+// Where the footer contact form sends its messages.
+export const CONTACT_EMAIL = "conferencia@latimpacto.org";
+
 export const links = {
   latimpacto: "https://www.latimpacto.org",
   // Official 2026 agenda and speaker directory.
   agenda2026Page: "https://impactminds.app/",
-  speakers2026Page: "https://impactminds.app/",
-  // TODO: sponsorship deck for 2027 ("logo mais vem o conteudo de 2027").
-  sponsor2027: "",
+  speakers2026Page: "https://impactminds.app/palestrantes",
+  // Sponsorship brochure for the 2027 edition (Portuguese).
+  sponsorBrochure: "/docs/impact-minds-2027-patrocinio.pdf",
+  // Full report of the 2026 edition (Portuguese).
+  report2026: "/docs/impact-minds-2026-relatorio.pdf",
   // TODO: full photo album (Flickr, Drive, etc.).
   allPhotos: "#fotos",
   albums: {
@@ -53,90 +58,95 @@ export const editionGalleries: string[][] = [
 ];
 
 type Trilingual = { pt: string; es: string; en: string };
-export type Speaker = { name: string; org: string; role: Trilingual; photo?: string };
+// framed: the photo is already a full, centred portrait (not an oval cut-out), so it is not zoomed in.
+export type Speaker = { name: string; org: Trilingual; role: Trilingual; photo?: string; framed?: boolean };
 
-// Names, roles and photos come from the official 2026 agenda platform (impactminds.app).
-const sb = (file: string) =>
-  `https://yndnugzoqiyophwkzrcx.supabase.co/storage/v1/object/public/agenda/speakers/${file}.webp`;
-
+// A selection of the 2026 speakers shown in the carousel (photos in public/photos/speakers).
 export const speakers: Speaker[] = [
   {
-    name: "Rose Meire Barbosa Correa",
-    org: "Podáali, Fundo Indígena da Amazônia Brasileira",
-    role: { pt: "Vice-Diretora", es: "Vicedirectora", en: "Vice-Director" },
-    photo: sb("1783545051949-7u9uj7"),
+    name: "Marla Blow",
+    org: { pt: "Skoll Foundation", es: "Skoll Foundation", en: "Skoll Foundation" },
+    role: { pt: "CEO e Presidente", es: "CEO y Presidenta", en: "CEO and President" },
+    photo: "/photos/speakers/marla-blow.webp",
   },
   {
-    name: "Marcela Dávila",
-    org: "Fundación Promigas",
-    role: { pt: "Diretora-Executiva", es: "Directora Ejecutiva", en: "Executive Director" },
-    photo: sb("1783544269597-ry60y4"),
+    name: "Alice Damasceno",
+    org: { pt: "Lenovo", es: "Lenovo", en: "Lenovo" },
+    role: { pt: "Diretora de Responsabilidade Social Corporativa e Comunicações ESG", es: "Directora de Responsabilidad Social Corporativa y Comunicaciones ESG", en: "Director of Corporate Social Responsibility and ESG Communications" },
+    photo: "/photos/speakers/alice-damasceno.webp",
   },
   {
-    name: "Denis Minev",
-    org: "Bemol",
-    role: { pt: "Diretor-Presidente", es: "Director Presidente", en: "CEO" },
-    photo: sb("1783543010560-a6obpw"),
+    name: "Fabio Segura",
+    org: { pt: "Jacobs Foundation", es: "Jacobs Foundation", en: "Jacobs Foundation" },
+    role: { pt: "Co-CEO", es: "Co-CEO", en: "Co-CEO" },
+    photo: "/photos/speakers/fabio-segura.webp",
   },
   {
-    name: "Jack Manning Bancroft",
-    org: "AIME and IMAGI-NATION",
-    role: { pt: "CEO e Fundador", es: "CEO y Fundador", en: "CEO and Founder" },
-    photo: sb("1783542913111-638rbi"),
+    name: "Eddine Sarroukh",
+    org: { pt: "Philips Foundation", es: "Philips Foundation", en: "Philips Foundation" },
+    role: { pt: "Diretor", es: "Director", en: "Director" },
+    photo: "/photos/speakers/eddine-sarroukh.webp",
   },
   {
-    name: "Almir Narayamoga Surui",
-    org: "Povo indígena Paiter-Suruí",
-    role: { pt: "Cacique e líder político", es: "Cacique y líder político", en: "Chief and political leader" },
-    photo: sb("1786552424555-xjfnn1"),
+    name: "Stefan Wilhelm",
+    org: { pt: "Bayer Foundation", es: "Bayer Foundation", en: "Bayer Foundation" },
+    role: { pt: "Diretor Associado de Impacto Social", es: "Director Asociado de Impacto Social", en: "Associate Director, Social Impact" },
+    photo: "/photos/speakers/stefan-wilhelm-v2.webp",
+    framed: true,
   },
   {
-    name: "Tasso Azevedo",
-    org: "MapBiomas",
-    role: { pt: "Coordenador Geral", es: "Coordinador General", en: "General Coordinator" },
-    photo: sb("1788041144833-o4leqb"),
+    name: "Paraskevi Bessa",
+    org: { pt: "Banco Asiático de Investimento em Infraestrutura (AIIB)", es: "Banco Asiático de Inversión en Infraestructura (AIIB)", en: "Asian Infrastructure Investment Bank (AIIB)" },
+    role: { pt: "Oficial Sênior de Mobilização de Recursos", es: "Oficial Sénior de Movilización de Recursos", en: "Senior Resource Mobilization Officer" },
+    photo: "/photos/speakers/paraskevi-bessa.webp",
   },
   {
-    name: "Brigit Helms",
-    org: "Miller Center for Global Impact",
-    role: { pt: "Diretora Executiva", es: "Directora Ejecutiva", en: "Executive Director" },
-    photo: sb("1784744199056-dwkxhs"),
+    name: "Alejandro Botero",
+    org: { pt: "Bancolombia", es: "Bancolombia", en: "Bancolombia" },
+    role: { pt: "Vice-Presidente Corporativo", es: "Vicepresidente Corporativo", en: "Corporate Vice President" },
+    photo: "/photos/speakers/alejandro-botero.webp",
   },
   {
-    name: "Luana Génot",
-    org: "IDBR",
-    role: { pt: "CEO", es: "CEO", en: "CEO" },
-    photo: sb("1786495513717-lbk5xz"),
+    name: "Daniela Konietzko",
+    org: { pt: "Fundação WWB Colômbia", es: "Fundación WWB Colombia", en: "WWB Colombia Foundation" },
+    role: { pt: "Presidente", es: "Presidenta", en: "President" },
+    photo: "/photos/speakers/daniela-konietzko.webp",
   },
   {
-    name: "María Victoria Llorente",
-    org: "Fundación Ideas para la Paz",
-    role: { pt: "Diretora Executiva", es: "Directora Ejecutiva", en: "Executive Director" },
-    photo: sb("1785421056494-vel4be"),
+    name: "Patricia Daros",
+    org: { pt: "Fundo Vale", es: "Fundo Vale", en: "Fundo Vale" },
+    role: { pt: "Diretora", es: "Directora", en: "Director" },
+    photo: "/photos/speakers/patricia-daros.webp",
   },
   {
-    name: "Paula Fabiani",
-    org: "IDIS",
-    role: { pt: "CEO", es: "CEO", en: "CEO" },
-    photo: sb("1784082357193-hdc311"),
+    name: "Rose Meire Apurinã",
+    org: { pt: "Podáali – Fundo Indígena da Amazônia Brasileira", es: "Podáali – Fondo Indígena de la Amazonía Brasileña", en: "Podáali – Brazilian Amazon Indigenous Fund" },
+    role: { pt: "Diretora", es: "Directora", en: "Director" },
+    photo: "/photos/speakers/rose-meire-apurina.webp",
   },
   {
-    name: "Daniel Izzo",
-    org: "VOX Capital",
-    role: { pt: "CEO", es: "CEO", en: "CEO" },
-    photo: sb("1784904730160-f6mikm"),
+    name: "Caroline Flammer",
+    org: { pt: "Universidade Columbia", es: "Universidad de Columbia", en: "Columbia University" },
+    role: { pt: "Professora da Cátedra A. Barton Hepburn de Economia", es: "Profesora de la Cátedra A. Barton Hepburn de Economía", en: "A. Barton Hepburn Professor of Economics" },
+    photo: "/photos/speakers/caroline-flammer.webp",
   },
   {
-    name: "Veronica Melzi",
-    org: "Anglo American Foundation",
-    role: {
-      pt: "Diretora de Programas e Parcerias para a América Latina",
-      es: "Directora de Programas y Alianzas para América Latina",
-      en: "Director of Programs and Partnerships, Latin America",
-    },
-    photo: sb("1784465636235-qmj9gr"),
+    name: "James Burrows",
+    org: { pt: "Better Society Capital", es: "Better Society Capital", en: "Better Society Capital" },
+    role: { pt: "Diretor-Geral", es: "Director General", en: "Managing Director" },
+    photo: "/photos/speakers/james-burrows.webp",
+  },
+  {
+    name: "Natalia Guala",
+    org: { pt: "Grupo Social ONCE", es: "Grupo Social ONCE", en: "Grupo Social ONCE" },
+    role: { pt: "Diretora Técnica de Relações Internacionais", es: "Directora Técnica de Relaciones Internacionales", en: "Technical Director of International Relations" },
+    photo: "/photos/speakers/natalia-guala.webp",
   },
 ];
+
+// Photos hosted on the official 2026 agenda platform (impactminds.app).
+const sb = (file: string) =>
+  `https://yndnugzoqiyophwkzrcx.supabase.co/storage/v1/object/public/agenda/speakers/${file}.webp`;
 
 export type Testimonial = { quote: Trilingual; name: string; role: Trilingual; photo?: string };
 
@@ -144,6 +154,7 @@ export type Testimonial = { quote: Trilingual; name: string; role: Trilingual; p
 export const testimonials: Testimonial[] = [
   {
     name: "Marla Blow",
+    photo: "/photos/testimonials/marla-blow.jpg",
     role: { pt: "CEO e Presidente, Skoll Foundation", es: "CEO y Presidenta, Skoll Foundation", en: "CEO and President, Skoll Foundation" },
     quote: {
       pt: "Nossa experiência na Impact Minds foi incrível! Foi maravilhoso nos conectar com o ecossistema de impacto e uma ótima oportunidade para conhecer diferentes atores, investidores e organizações que fazem parte da comunidade da Latimpacto.",
@@ -153,6 +164,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     name: "Alice Damasceno",
+    photo: "/photos/testimonials/alice-damasceno.jpg",
     role: {
       pt: "Diretora de Cidadania Corporativa e Comunicações ESG para a América Latina, Lenovo",
       es: "Directora de Ciudadanía Corporativa y Comunicaciones ESG para América Latina, Lenovo",
@@ -166,6 +178,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     name: "Macarena Cea",
+    photo: "/photos/testimonials/macarena-cea.jpg",
     role: { pt: "CEO, Fundação Luksic", es: "CEO, Fundación Luksic", en: "CEO, Luksic Foundation" },
     quote: {
       pt: "Estamos de coração cheio, porque a Impact Minds proporcionou conversas muito enriquecedoras e úteis. As pessoas que estão aqui são extraordinárias e têm projetos e experiências incríveis.",
@@ -175,6 +188,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     name: "Daniela Konietzko",
+    photo: "/photos/testimonials/daniela-konietzko.jpg",
     role: { pt: "Presidente, Fundação WWB Colômbia", es: "Presidenta, Fundación WWB Colombia", en: "President, WWB Colombia Foundation" },
     quote: {
       pt: "O mais enriquecedor para mim na Impact Minds são as conversas sobre as tendências. Venho aqui para aprender, me reconectar com todos e conhecer o trabalho que estão realizando em seus territórios.",
@@ -184,6 +198,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     name: "Ana Cristina Rodrigues da Costa",
+    photo: "/photos/testimonials/ana-cristina-rodrigues-da-costa.jpg",
     role: {
       pt: "Superintendente da Área de Desenvolvimento Social e Gestão Pública, BNDES",
       es: "Superintendente del Área de Desarrollo Social y Gestión Pública, BNDES",
@@ -214,15 +229,3 @@ export const participantsByYear = [
   { year: 2025, value: 789 },
 ];
 
-// Background music: the site's playlist, in order (files in public/music).
-export type Track = { title: string; artist: string; src: string; cover: string };
-export const playlist: Track[] = [
-  { title: "Cha Cha Chango", artist: "Quincas Moreira", src: "/music/01-cha-cha-chango.mp3", cover: "/music/covers/1.svg" },
-  { title: "Estrella", artist: "House of the Gipsies", src: "/music/02-estrella.mp3", cover: "/music/covers/2.svg" },
-  { title: "Cumbia No Frills Faster", artist: "Kevin MacLeod", src: "/music/03-cumbia-no-frills-faster.mp3", cover: "/music/covers/3.svg" },
-  { title: "Sneaky Bass Latina", artist: "Jimmy Fontanez", src: "/music/04-sneaky-bass-latina.mp3", cover: "/music/covers/4.svg" },
-  { title: "Salgre", artist: "Jimmy Fontanez", src: "/music/05-salgre.mp3", cover: "/music/covers/1.svg" },
-  { title: "Mama", artist: "Emmit Fenn", src: "/music/06-mama.mp3", cover: "/music/covers/2.svg" },
-  { title: "Malandragem", artist: "Quincas Moreira", src: "/music/07-malandragem.mp3", cover: "/music/covers/3.svg" },
-  { title: "Amor Chiquito", artist: "Quincas Moreira", src: "/music/08-amor-chiquito.mp3", cover: "/music/covers/4.svg" },
-];

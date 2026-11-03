@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import gsap from "gsap";
 import { Draggable } from "gsap/Draggable";
 import { InertiaPlugin } from "gsap/InertiaPlugin";
-import { MusicNotes, Pause, Play, X } from "@phosphor-icons/react";
+import { X } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import Image from "next/image";
 import { photos, speakers } from "@/lib/site";
@@ -164,20 +164,6 @@ export default function NumbersShow({ t, show, locale }: { t: T; show: ShowCopy;
     window.addEventListener("im:numbers-show", onShow);
     return () => window.removeEventListener("im:numbers-show", onShow);
   }, []);
-
-  // The background music, paused or resumed from beside "Skip" (MusicPlayer
-  // listens for "im:music-toggle" and reports back with "im:music-state").
-  const [musicOn, setMusicOn] = useState(false);
-  useEffect(() => {
-    if (!active) return;
-    const sync = (e: Event) => setMusicOn((e as CustomEvent<boolean>).detail);
-    const id = window.setTimeout(() => setMusicOn((window as Window & { __imMusicPlaying?: boolean }).__imMusicPlaying === true), 0);
-    window.addEventListener("im:music-state", sync);
-    return () => {
-      window.clearTimeout(id);
-      window.removeEventListener("im:music-state", sync);
-    };
-  }, [active]);
 
   const back = show.survey.scores[0].value;
   const words = show.connections.items.map((c) => c.title);
@@ -590,22 +576,8 @@ export default function NumbersShow({ t, show, locale }: { t: T; show: ShowCopy;
         {/* The closing confetti, above the scenes and under the controls. */}
         <canvas ref={confetti} aria-hidden className="pointer-events-none absolute inset-0 z-[5] size-full" />
 
-      {/* Top right, out of the scenes' way: pause or resume the music, and skip. */}
+      {/* Top right, out of the scenes' way: skip. */}
       <div className="show-controls absolute right-4 top-4 z-10 flex items-center gap-2 sm:right-8 sm:top-8">
-        {/* The music: a note with a small pause (or play) badge, so it never
-            reads as pausing the presentation. */}
-        <button
-          type="button"
-          onClick={() => window.dispatchEvent(new Event("im:music-toggle"))}
-          aria-pressed={!musicOn}
-          className="group relative grid size-11 place-items-center rounded-full show-chip transition-colors hover:bg-sun hover:text-sun-ink"
-        >
-          <MusicNotes size="1.25rem" />
-          <span aria-hidden className="absolute -bottom-0.5 -right-0.5 grid size-[1.125rem] place-items-center rounded-full bg-sun text-sun-ink shadow-[0_2px_6px_rgb(0_0_0/0.3)]">
-            {musicOn ? <Pause size="0.5625rem" weight="fill" /> : <Play size="0.5625rem" weight="fill" />}
-          </span>
-          <span className="sr-only">{musicOn ? t.teaser.musicPause : t.teaser.musicPlay}</span>
-        </button>
         <button
           type="button"
           onClick={skip}

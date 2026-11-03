@@ -416,15 +416,6 @@ export default function Nav({ lang, nav, controls, privacyLabel, sub = "" }: Pro
           window.dispatchEvent(new Event("im:hero-shift"));
         }}
       />
-      <Toggle
-        label={controls.noMusic}
-        checked={prefs.a11y.quiet}
-        onChange={(v) => {
-          setA11y({ quiet: v });
-          // Turned on: the music stops now too.
-          if (v) window.dispatchEvent(new Event("im:music-quiet"));
-        }}
-      />
       {/* Saved defaults, per visitor: theme (localStorage) and
         language (cookie read on arrival); picking a language
         also switches the page now. */}

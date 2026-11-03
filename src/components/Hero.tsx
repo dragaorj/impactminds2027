@@ -5,10 +5,9 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import Image from "next/image";
-import { ArrowDown, ArrowRight } from "@phosphor-icons/react";
+import { ArrowDown } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
-import { EVENT_END, EVENT_START, HERO_VIDEO_ID } from "@/lib/site";
-import Countdown from "./Countdown";
+import { HERO_VIDEO_ID } from "@/lib/site";
 import SpeakerFaces from "./SpeakerFaces";
 import { prefersReducedMotion } from "./prefs";
 import { keepLooping, loadYouTube, loopVars, type YTPlayer } from "./youtube";
@@ -40,19 +39,14 @@ export default function Hero({
   const player = useRef<YTPlayer | null>(null);
   const [started, setStarted] = useState(false);
   const root = useRef<HTMLElement>(null);
-  // The countdown ring and the music button beside the CTA swap the info bar
-  // to their details (one at a time); otherwise it shows the event facts.
-  // The cookie notice (CookieConsent) also takes the bar while the visitor has
-  // not chosen yet, in place of the facts; the countdown and the music still
-  // win while open, and the notice comes back when they close.
-  const [view, setView] = useState<"facts" | "countdown" | "music">("facts");
+  // The info bar shows the event facts (only when turned on in the
+  // accessibility menu); the cookie notice (CookieConsent) takes it while the
+  // visitor has not chosen yet.
   const [consentAsk, setConsentAsk] = useState(false);
-  const shown = view === "facts" && consentAsk ? "consent" : view;
-  const countdown = view === "countdown";
+  const shown = consentAsk ? "consent" : "facts";
   useEffect(() => {
     window.dispatchEvent(new Event("im:hero-shift"));
   }, [shown]);
-  const music = view === "music";
   const consent = shown === "consent";
   useEffect(() => {
     const onConsent = (e: Event) => setConsentAsk((e as CustomEvent<boolean>).detail);
@@ -167,50 +161,10 @@ export default function Hero({
     };
   }, []);
 
-  useEffect(() => {
-    const sync = (which: "countdown" | "music") => (e: Event) => {
-      const show = (e as CustomEvent<boolean>).detail;
-      setView((v) => (show ? which : v === which ? "facts" : v));
-    };
-    const onCountdown = sync("countdown");
-    const onMusic = sync("music");
-    window.addEventListener("im:countdown-bar", onCountdown);
-    window.addEventListener("im:music-bar", onMusic);
-    return () => {
-      window.removeEventListener("im:countdown-bar", onCountdown);
-      window.removeEventListener("im:music-bar", onMusic);
-    };
-  }, []);
-
-  // The countdown's or the music's details close on their own (fading back)
-  // after 10 seconds without the mouse, keyboard or touch: "im:hero-idle"
-  // tells CountdownRing and MusicPlayer to close.
-  useEffect(() => {
-    if (view === "facts") return;
-    let timer = 0;
-    const arm = () => {
-      window.clearTimeout(timer);
-      timer = window.setTimeout(() => window.dispatchEvent(new Event("im:hero-idle")), 10000);
-    };
-    const events = ["pointermove", "pointerdown", "keydown", "wheel", "touchstart"] as const;
-    arm();
-    events.forEach((type) => window.addEventListener(type, arm, { passive: true }));
-    return () => {
-      window.clearTimeout(timer);
-      events.forEach((type) => window.removeEventListener(type, arm));
-    };
-  }, [view]);
-
   const cta = (size: string) => (
     <a
-      href="#numeros"
-      // Scrolls to the 2026 numbers and plays their short motion presentation.
-      onClick={(e) => {
-        // With motion, the presentation takes over (it jumps to the section
-        // itself); with reduced motion the link just scrolls there.
-        if (!prefersReducedMotion()) e.preventDefault();
-        window.dispatchEvent(new Event("im:numbers-show"));
-      }}
+      href="#sobre"
+      // Down to "What is Impact Minds", right under the hero.
       className={`shimmer group flex items-center gap-2 rounded-full sm:gap-3 bg-white font-medium text-[#2A1240] transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:bg-[#D9B865] active:scale-[0.98] ${size}`}
     >
       {/* Phones: the label centred in the room left of the arrow, its size
@@ -279,23 +233,20 @@ export default function Hero({
     };
   }, [videoSrc]);
 
-  // Shared by both layouts: the frosted bar with the facts / countdown / music / cookie notice.
+  // Shared by both layouts: the bar with the facts / cookie notice.
   const bar = (place = "") => (
     <>
         {/* The event's key facts, loose on the video (no box, a soft shadow
-            under the text keeps it legible). Clicking the countdown ring
-            cross-fades it to the countdown's details (same box, same size).
-            The facts view is hidden unless turned on in the accessibility menu
+            under the text keeps it legible). The facts view is hidden unless turned on in the accessibility menu
             (data-view + html[data-facts], globals.css). On phones and tablets, with no bar on show its
             room folds away (.hero-bar-slot), so the block sits near the bottom
-            edge, and it opens again, lifting the block, for the countdown, the
-            music or the facts; "im:hero-shift" tells the floating buttons to
-            follow their slots while it moves. */}
+            edge, and it opens again, lifting the block, for the cookie notice
+            or the facts. */}
         <div className={`hero-out-down hero-bar-slot w-full ${place}`}>
           <div className="p-px">
           <div
             data-hero
-            data-countdown-bar
+            data-hero-bar
             data-view={shown}
             className="@container/hbar relative mx-auto mt-6 w-full max-w-3xl [text-shadow:0_1px_14px_rgb(28_11_44/0.7)] sm:mt-10"
           >
@@ -312,35 +263,6 @@ export default function Hero({
                 </div>
               ))}
             </dl>
-            <div
-              id="hero-countdown"
-              aria-hidden={!countdown}
-              className={`absolute inset-0 flex flex-col justify-center px-3 text-left transition-[opacity,filter,translate] duration-500 ease-out @[36rem]/hbar:flex-row @[36rem]/hbar:items-center @[36rem]/hbar:justify-between @[36rem]/hbar:gap-5 @[36rem]/hbar:px-7 ${
-                countdown ? "opacity-100 delay-150" : "pointer-events-none translate-y-1 opacity-0 blur-[2px]"
-              }`}
-            >
-              {/* A narrow bar (phones, or the room between the buttons on small
-                  desktops): just the four units, laid out like the facts they
-                  replace (four centred columns with dividers); wider, the venue
-                  and the dates, with the units grouped in the middle, each label
-                  centred under its number, and the agenda link when it fits.
-                  It follows the bar's own width (@container hbar). */}
-              <div className="hidden @[36rem]/hbar:block @[36rem]/hbar:shrink-0">
-                <p className="text-[0.8125rem] text-white/75">{t.eyebrow}</p>
-                <p className="mt-0.5 text-[0.8125rem] font-medium text-[#D9B865]">{t.dates}</p>
-              </div>
-              <div className="w-full [&_dd]:text-xl [&_dt]:mt-1 @max-[36rem]/hbar:[&_dl]:gap-0 @max-[36rem]/hbar:[&_dl>div]:items-center @max-[36rem]/hbar:[&_dl>div+div]:border-l @max-[36rem]/hbar:[&_dl>div+div]:border-white/15 @max-[36rem]/hbar:[&_dt]:text-[0.625rem] @[36rem]/hbar:w-auto @[36rem]/hbar:flex-1 @[36rem]/hbar:[&_dl]:flex @[36rem]/hbar:[&_dl]:justify-center @[36rem]/hbar:[&_dl]:gap-7 @[36rem]/hbar:[&_dl>div]:min-w-[3.25rem] @[36rem]/hbar:[&_dl>div]:items-center @[36rem]/hbar:[&_dd]:text-[1.65rem] @[36rem]/hbar:[&_dt]:text-xs">
-                <Countdown start={EVENT_START} end={EVENT_END} labels={t} compact paused={!countdown} />
-              </div>
-              <a
-                href="#agenda-2027"
-                tabIndex={countdown ? 0 : -1}
-                className="group hidden shrink-0 items-center gap-2 rounded-full py-1.5 pl-3.5 pr-2 text-[0.8125rem] font-medium ring-1 ring-white/25 transition-colors hover:bg-[#D9B865] hover:text-[#2A1240] @[44rem]/hbar:flex"
-              >
-                {agendaLink}
-                <ArrowRight size="1rem" className="transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-x-0.5" />
-              </a>
-            </div>
             {/* Cookie notice: CookieConsent renders its choice in here (portal). */}
             <div
               id="hero-consent"
@@ -348,15 +270,6 @@ export default function Hero({
               inert={!consent}
               className={`absolute inset-0 transition-[opacity,filter,translate] duration-500 ease-out ${
                 consent ? "opacity-100 delay-150" : "pointer-events-none translate-y-1 opacity-0 blur-[2px]"
-              }`}
-            />
-            {/* Music: MusicPlayer renders its controls in here (portal). */}
-            <div
-              id="hero-music"
-              aria-hidden={!music}
-              inert={!music}
-              className={`absolute inset-0 transition-[opacity,filter,translate] duration-500 ease-out ${
-                music ? "opacity-100 delay-150" : "pointer-events-none translate-y-1 opacity-0 blur-[2px]"
               }`}
             />
           </div>
@@ -370,8 +283,7 @@ export default function Hero({
   // from the preview route (--font-ed-*), with the speakers pill under it and
   // two small captions in the corners (signature top left, dates bottom
   // right). From lg the controls part to the bottom corners: the CTA on
-  // the left, the countdown ring and the music on the right, the frosted bar
-  // between them. The type is sized to the smaller of the screen's width and
+  // the left, the agenda button on the right, the info bar between them. The type is sized to the smaller of the screen's width and
   // height, so the whole block always fits the first fold.
   // One headline line: sans words letter by letter (so they can wave on hover,
   // read whole by screen readers), serif words whole, in gold. Every line is
@@ -444,8 +356,8 @@ export default function Hero({
           <span className="hidden portrait:contents">{t.editorial.tall.map(edLine)}</span>
         </h1>
         {/* The speakers pill, set a size up (zoom keeps its fan-out maths).
-            Below lg it steps aside (.ed-pill, globals.css) while the countdown,
-            music or cookie details show in its place. */}
+            Below lg it steps aside (.ed-pill, globals.css) while the cookie
+            notice shows in its place. */}
         <div className="hero-typed mt-[min(4.5vw,3.6svh)] [@media(max-height:500px)]:mt-2!">
           <div className="ed-pill">
           <p
@@ -472,25 +384,29 @@ export default function Hero({
         </p>
       </div>
 
-      {/* Below lg: the CTA and the two round buttons share a row, the bar under them. */}
+      {/* Phones: the CTA and the agenda button side by side, the same width. */}
       {/* From lg the CTA and the round buttons keep their full width at the
           sides and the details bar takes only the room between them, so it
           never runs under either. */}
       {/* Below lg the details bar floats just above the buttons, over the
           pill's place, so opening it never moves or shrinks the headline. */}
-      <div className="relative mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-4 lg:mt-6 lg:grid lg:grid-cols-[minmax(max-content,1fr)_minmax(0,46rem)_minmax(max-content,1fr)] lg:gap-6">
+      <div className="relative mt-5 grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-4 lg:mt-6 lg:grid lg:grid-cols-[minmax(max-content,1fr)_minmax(0,46rem)_minmax(max-content,1fr)] lg:gap-6">
         <div className="hero-out-down flex min-w-0 flex-1 sm:flex-none lg:col-start-1 lg:row-start-1 lg:justify-self-start">
           <div data-hero className="flex w-full">
             {cta("h-[3.25rem] w-full min-w-0 justify-between max-sm:[container-type:inline-size] sm:w-auto sm:whitespace-nowrap pl-3.5 pr-1.5 text-[0.8125rem] sm:h-16 sm:pl-7 sm:pr-2.5 sm:text-base")}
           </div>
         </div>
-        <div className="hero-out-down shrink-0 lg:col-start-3 lg:row-start-1 lg:justify-self-end">
-          <div data-hero className="flex gap-2 sm:gap-4">
-            <span data-countdown-slot className="relative size-[3.25rem] shrink-0 sm:size-16 lg:size-20" />
-            <span data-music-slot className="relative size-[3.25rem] shrink-0 sm:size-16 lg:size-20" />
+        <div className="hero-out-down min-w-0 sm:shrink-0 lg:col-start-3 lg:row-start-1 lg:justify-self-end">
+          <div data-hero className="flex">
+            <a
+              href="#agenda-2027"
+              className="flex h-[3.25rem] w-full items-center justify-center whitespace-nowrap rounded-full bg-[rgb(34_14_52/0.35)] px-5 text-[0.8125rem] font-medium text-white ring-1 ring-white/30 backdrop-blur-sm transition-[background-color,color,box-shadow,transform] duration-500 ease-[var(--ease-spring)] hover:bg-[#D9B865] hover:text-[#2A1240] hover:ring-[#D9B865] active:scale-[0.98] sm:h-16 sm:w-auto sm:px-8 sm:text-base"
+            >
+              {agendaLink}
+            </a>
           </div>
         </div>
-        {bar("basis-full max-lg:absolute max-lg:inset-x-0 max-lg:bottom-full max-lg:mb-3 max-lg:[&_[data-countdown-bar]]:mt-0 lg:col-start-2 lg:row-start-1 lg:[&_[data-countdown-bar]]:mt-0")}
+        {bar("basis-full max-lg:absolute max-lg:inset-x-0 max-lg:bottom-full max-lg:mb-3 max-lg:[&_[data-hero-bar]]:mt-0 lg:col-start-2 lg:row-start-1 lg:[&_[data-hero-bar]]:mt-0")}
       </div>
       </div>
     </div>
@@ -537,7 +453,7 @@ export default function Hero({
 
 
       {/* Centred, in the first screen: the speakers pill, the title with the
-          typed gold line and the CTA with the countdown ring beside it; the
+          typed gold line and the CTA with the agenda button beside it; the
           event's key facts sit in a frosted bar at the bottom. On phones the
           block sits low so the video's upper half stays clear. */}
       {variant === "editorial" ? (
@@ -576,14 +492,15 @@ export default function Hero({
               className="hero-typed mt-[clamp(0.625rem,1.5vw,1.6rem)] block min-h-[1.15em] text-[clamp(1.35rem,3.6vw,3.25rem)] text-[#D9B865]"
             />
           </h1>
-          {/* The countdown ring and the music button live inside these slots
-              beside the CTA while the page is at the top (rendered into them by
-              CountdownRing and MusicPlayer), so they move with the hero. */}
           <div className="hero-out-down w-full sm:w-auto">
             <div data-hero className="mt-7 flex w-full items-center justify-center gap-2 sm:mt-9 sm:w-auto sm:gap-4">
               {cta("h-[3.25rem] min-w-0 flex-1 justify-between max-sm:[container-type:inline-size] sm:whitespace-nowrap pl-3.5 pr-1.5 text-[0.8125rem] sm:h-16 sm:flex-none sm:pl-7 sm:pr-2.5 sm:text-base")}
-              <span data-countdown-slot className="relative size-[3.25rem] shrink-0 sm:size-16 lg:size-20" />
-                        <span data-music-slot className="relative size-[3.25rem] shrink-0 sm:size-16 lg:size-20" />
+              <a
+              href="#agenda-2027"
+              className="flex h-[3.25rem] w-full items-center justify-center whitespace-nowrap rounded-full bg-[rgb(34_14_52/0.35)] px-5 text-[0.8125rem] font-medium text-white ring-1 ring-white/30 backdrop-blur-sm transition-[background-color,color,box-shadow,transform] duration-500 ease-[var(--ease-spring)] hover:bg-[#D9B865] hover:text-[#2A1240] hover:ring-[#D9B865] active:scale-[0.98] sm:h-16 sm:w-auto sm:px-8 sm:text-base"
+            >
+              {agendaLink}
+            </a>
             </div>
           </div>
         </div>

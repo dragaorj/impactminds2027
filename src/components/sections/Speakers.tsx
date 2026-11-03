@@ -43,11 +43,22 @@ function shuffle<T>(items: readonly T[]): T[] {
 }
 
 // The platform photos are oval cut-outs, so they are scaled up to fill the circle.
+// Our own photos are already small square WebPs: served as they are and loaded
+// up front, so the moving rows never wait on the image optimiser.
 function Portrait({ s, i, sizes }: { s: Speaker; i: number; sizes: string }) {
+  const local = s.photo?.startsWith("/");
   return (
     <div className="relative aspect-square overflow-hidden rounded-full bg-block">
       {s.photo ? (
-        <Image src={s.photo} alt="" fill sizes={sizes} className="portrait-img scale-[1.24] object-cover object-[50%_35%]" />
+        <Image
+          src={s.photo}
+          alt=""
+          fill
+          sizes={sizes}
+          unoptimized={local}
+          loading={local ? "eager" : undefined}
+          className={`portrait-img object-cover ${s.framed ? "portrait-framed" : "scale-[1.24] object-[50%_35%]"}`}
+        />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
           <Art name={placeholderArt[i % 4]} className="absolute bottom-0 h-[80%] !opacity-25 [color:var(--block-muted)]" />
@@ -74,7 +85,7 @@ function Card({ s, i, lang, label, onOpen }: { s: Speaker; i: number; lang: Loca
         {s.name}
       </span>
       <span className="mx-auto mt-2 block max-w-[26ch] text-center text-[0.9375rem] leading-snug text-muted">
-        {s.role[lang]}, {s.org}
+        {s.role[lang]}, {s.org[lang]}
       </span>
     </button>
   );
@@ -155,7 +166,7 @@ function SpeakerBox({
                 <p className="text-sm text-[#E2C985]">{labels.edition}</p>
                 <h3 className="mt-3 font-display text-[clamp(2.25rem,5vw,4rem)] leading-[1.02]">{s.name}</h3>
                 <p className="mt-5 text-lg text-white/85 sm:text-xl">{s.role[lang]}</p>
-                <p className="mt-1 text-lg font-medium sm:text-xl">{s.org}</p>
+                <p className="mt-1 text-lg font-medium sm:text-xl">{s.org[lang]}</p>
               </div>
             </div>
           </div>
@@ -207,9 +218,13 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
     <section id="palestrantes" className={`${section} scroll-mt-20 overflow-hidden`} aria-labelledby="palestrantes-title">
       <div className={container}>
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between" data-reveal>
-          <H2 id="palestrantes-title" className="max-w-[16ch]">
-            {t.title}
-          </H2>
+          <div>
+            <H2 id="palestrantes-title" className="max-w-[16ch]">
+              {t.title}
+            </H2>
+            <p className="mt-5 font-display text-2xl text-gold md:text-[1.75rem]">{t.count}</p>
+            <p className="mt-2 max-w-[52ch] text-lg leading-relaxed text-ink-2">{t.lead}</p>
+          </div>
           <button
             type="button"
             onClick={() => setPaused((p) => !p)}
@@ -310,7 +325,7 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
         {(open === null ? [] : [list[(open - 1 + list.length) % list.length], list[(open + 1) % list.length]]).map((s) =>
           s?.photo ? (
             <div key={s.name} className="relative size-px">
-              <Image src={s.photo} alt="" fill sizes="(min-width:768px) 26rem, 70vw" loading="lazy" />
+              <Image src={s.photo} alt="" fill sizes="(min-width:768px) 26rem, 70vw" unoptimized={s.photo.startsWith("/")} loading="lazy" />
             </div>
           ) : null,
         )}

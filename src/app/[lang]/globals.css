@@ -441,7 +441,6 @@ html[data-lite] :is(header, [data-dock]) [class*="backdrop-blur"]:not([data-veil
 html[data-lite] [data-dock][class*="backdrop-blur"]:not([class*="backdrop-blur-0"]),
 html[data-lite] .dock-tab { background-color: color-mix(in oklab, var(--surface) 94%, transparent); }
 html[data-lite] [data-veil] { background-color: rgb(28 12 44 / 0.6); }
-html[data-lite]:is([data-countdown-open], [data-music-open]) body::after { background: rgb(28 12 44 / 0.6); }
 
 /* Sections out of sight pause their CSS loops (OffscreenPause.tsx). */
 [data-offscreen] *,
@@ -468,16 +467,16 @@ html[data-lite]:is([data-countdown-open], [data-music-open]) body::after { backg
 .ed-pill { transition: opacity 0.5s ease-out, visibility 0s linear 0s; }
 @media (max-width: 1023.98px) {
   html[data-facts="on"] .ed-root .ed-pill,
-  .ed-root:has([data-countdown-bar]:not([data-view="facts"])) .ed-pill { opacity: 0; visibility: hidden; transition: opacity 0.4s ease-out, visibility 0s linear 0.4s; }
+  .ed-root:has([data-hero-bar]:not([data-view="facts"])) .ed-pill { opacity: 0; visibility: hidden; transition: opacity 0.4s ease-out, visibility 0s linear 0.4s; }
 }
 @media (max-width: 1023.98px) {
   html:not([data-facts="on"]) .hero-bar-slot:has([data-view="facts"]) { grid-template-rows: 0fr; }
 }
-[data-countdown-bar] { transition: background-color 0.5s ease-out, box-shadow 0.5s ease-out; }
-html:not([data-facts="on"]) [data-countdown-bar][data-view="facts"] { background-color: transparent; box-shadow: none; }
-html:not([data-facts="on"]) [data-countdown-bar][data-view="facts"] > dl { opacity: 0; visibility: hidden; }
-[data-countdown-bar] > dl { transition: opacity 0.5s ease-out, filter 0.5s ease-out, translate 0.5s ease-out, visibility 0s linear 0.5s; }
-[data-countdown-bar][data-view="facts"] > dl { transition-delay: 0s; }
+[data-hero-bar] { transition: background-color 0.5s ease-out, box-shadow 0.5s ease-out; }
+html:not([data-facts="on"]) [data-hero-bar][data-view="facts"] { background-color: transparent; box-shadow: none; }
+html:not([data-facts="on"]) [data-hero-bar][data-view="facts"] > dl { opacity: 0; visibility: hidden; }
+[data-hero-bar] > dl { transition: opacity 0.5s ease-out, filter 0.5s ease-out, translate 0.5s ease-out, visibility 0s linear 0.5s; }
+[data-hero-bar][data-view="facts"] > dl { transition-delay: 0s; }
 
 /* Hidden across the site (page and inner panels) unless the visitor turns
    them on in the accessibility menu (html[data-scrollbar="on"], prefs.ts).
@@ -592,23 +591,6 @@ html[data-motion="reduce"] :is(.loop-float, .loop-sway, .loop-sway-soft, .loop-w
   }
 }
 
-/* Participants chart: marching dashes and a light running along the rooftops. */
-@keyframes march { to { stroke-dashoffset: -16; } }
-@keyframes run {
-  0% { offset-distance: 0%; opacity: 0; }
-  8% { opacity: 1; }
-  92% { opacity: 1; }
-  100% { offset-distance: 100%; opacity: 0; }
-}
-.chart-march { animation: march 0.9s linear infinite; }
-.chart-runner { offset-rotate: 0deg; animation: run 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
-html[data-motion="reduce"] .chart-march { animation: none; }
-html[data-motion="reduce"] .chart-runner { display: none; }
-@media (prefers-reduced-motion: reduce) {
-  .chart-march { animation: none; }
-  .chart-runner { display: none; }
-}
-
 /* Speakers conveyor: two identical lists, the track slides by one list width. */
 .speaker-track { animation: marquee 80s linear infinite; }
 /* Phones' face rows: the 1st and 3rd drift right (the loop played backwards). */
@@ -622,6 +604,9 @@ html[data-motion="reduce"] .chart-runner { display: none; }
 }
 .speaker-card:hover .portrait-img,
 .speaker-card:focus-visible .portrait-img { filter: none; transform: scale(1.34); }
+/* A full portrait (not a cut-out) only leans in a little, so the head stays in. */
+.speaker-card:hover .portrait-framed,
+.speaker-card:focus-visible .portrait-framed { transform: scale(1.08); }
 .speaker-wash {
   background: #cdb8ec;
   mix-blend-mode: color;
@@ -878,15 +863,6 @@ html[data-motion="reduce"] .wave-b::after { animation: none; }
 }
 html[data-motion="reduce"] .faces > .face { transition: none; animation: none !important; }
 
-/* Hero countdown slot: collapses while the ring sits in the corner, so the
-   CTA re-centres; the negative margin takes back the row's gap. */
-[data-countdown-slot] { transition: width 0.5s var(--ease-spring), margin-left 0.5s var(--ease-spring); }
-/* The music player's slot beside it collapses too. */
-html[data-ring-raised] #top :is([data-countdown-slot], [data-music-slot]) { width: 0; margin-left: -0.5rem; }
-@media (min-width: 40rem) {
-  html[data-ring-raised] #top :is([data-countdown-slot], [data-music-slot]) { margin-left: -1rem; }
-}
-
 /* A field inside a pill that shows focus itself (focus-within ring): no
    second, rectangular outline around the bare input. */
 .field-bare:focus-visible { outline: none; }
@@ -899,74 +875,7 @@ html[data-ring-raised] #top :is([data-countdown-slot], [data-music-slot]) { widt
   transition: background-color 600000s 0s;
 }
 
-/* Music player: a vinyl record (fine grooves on near-black) with the cover
-   as its label, turning while a track plays; a fixed sheen sells the gloss. */
-.vinyl {
-  background:
-    radial-gradient(circle, transparent 30%, rgb(0 0 0 / 0.35) 31%, transparent 33%),
-    repeating-radial-gradient(circle, #141016 0 1px, #1d1820 1px 2.4px),
-    #141016;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06), 0 6px 16px rgb(0 0 0 / 0.35);
-}
-.vinyl-sheen {
-  background: conic-gradient(from 20deg, transparent 0 8%, rgb(255 255 255 / 0.16) 13%, transparent 20% 50%, rgb(255 255 255 / 0.12) 58%, transparent 66%);
-  mask: radial-gradient(circle, transparent 29%, #000 30%);
-  -webkit-mask: radial-gradient(circle, transparent 29%, #000 30%);
-}
-/* The record turns while a track plays. */
-.music-disc { animation: musicSpin 5s linear infinite; }
-.music-disc.is-paused { animation-play-state: paused; }
-@keyframes musicSpin { to { rotate: 360deg; } }
-/* Three small bars dancing beside "now playing". */
-.music-eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 10px; }
-.music-eq i { display: block; width: 2px; height: 100%; border-radius: 2px; background: currentColor; transform-origin: 50% 100%; animation: musicEq 0.9s ease-in-out infinite; }
-.music-eq i:nth-child(2) { animation-delay: -0.3s; animation-duration: 0.75s; }
-.music-eq i:nth-child(3) { animation-delay: -0.55s; animation-duration: 1.05s; }
-.music-eq.is-paused i { animation-play-state: paused; transform: scaleY(0.35); }
-@keyframes musicEq { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
-html[data-motion="reduce"] :is(.music-disc, .music-eq i) { animation: none; }
-/* Seek and volume sliders: a thin rounded track filled gold up to --p. */
-.music-range {
-  appearance: none;
-  -webkit-appearance: none;
-  height: 16px;
-  background: transparent;
-  cursor: pointer;
-}
-.music-range::-webkit-slider-runnable-track {
-  height: 4px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--sun) var(--p, 0%), rgb(42 18 64 / 0.14) var(--p, 0%));
-}
-[data-theme="dark"] .music-range::-webkit-slider-runnable-track {
-  background: linear-gradient(90deg, var(--sun) var(--p, 0%), rgb(255 255 255 / 0.16) var(--p, 0%));
-}
-.music-range::-moz-range-track { height: 4px; border-radius: 999px; background: rgb(42 18 64 / 0.14); }
-[data-theme="dark"] .music-range::-moz-range-track { background: rgb(255 255 255 / 0.16); }
-.music-range::-moz-range-progress { height: 4px; border-radius: 999px; background: var(--sun); }
-.music-range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  margin-top: -4px;
-  width: 12px;
-  height: 12px;
-  border-radius: 999px;
-  background: var(--sun);
-  box-shadow: 0 0 0 3px rgb(217 184 101 / 0.25);
-  transition: transform 0.2s ease;
-}
-.music-range::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--sun);
-  box-shadow: 0 0 0 3px rgb(217 184 101 / 0.25);
-}
-.music-range:hover::-webkit-slider-thumb { transform: scale(1.25); }
-.music-range:focus-visible { outline: none; }
-.music-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgb(217 184 101 / 0.6); }
-
-/* Tooltip on the round floating buttons (countdown, music, back to top) and
+/* Tooltip on the round floating button (back to top) and
    the bar's buttons: above them in the hero, to their left in the corner
    stack, below them in the bar. It shows on hover or keyboard focus; a click
    puts it away at once (data-tip-off, set in Nav.tsx until the pointer
@@ -1060,3 +969,84 @@ html[data-menu-open] .consent-ui { opacity: 0; pointer-events: none; }
   0%, 100% { opacity: 0.25; }
   50% { opacity: 1; }
 }
+
+/* Latin America network (LatamNetwork): a finely drawn map in the page's own
+   colours. Coast and borders trace themselves from --d once the map is in view
+   (data-on); places light up, a few arcs link them, small lights travel the
+   arcs. The active place (data-active) lights its country, its links and its
+   label; a hovered country lights up too. */
+.lm {
+  --lm-ink: #5b3fd0; --lm-gold: #a57d27;
+  --lm-fill: rgb(91 63 208 / 0.035); --lm-fill-lit: rgb(91 63 208 / 0.12);
+  --lm-coast: rgb(61 27 90 / 0.55); --lm-border: rgb(61 27 90 / 0.2);
+}
+[data-theme="dark"] .lm {
+  --lm-ink: #c3a1ee; --lm-gold: #e2b75a;
+  --lm-fill: rgb(195 161 238 / 0.035); --lm-fill-lit: rgb(195 161 238 / 0.13);
+  --lm-coast: rgb(216 200 240 / 0.55); --lm-border: rgb(216 200 240 / 0.18);
+}
+.lm [data-draw] { fill: none; stroke-dasharray: 1; stroke-dashoffset: 1; stroke-linecap: round; stroke-linejoin: round; transition: stroke-dashoffset 2s cubic-bezier(0.65, 0, 0.35, 1) var(--d, 0s); }
+.lm[data-on] [data-draw] { stroke-dashoffset: 0; }
+.lm .lm-coast { stroke: var(--lm-coast); stroke-width: 0.7; --d: 0s; transition-duration: 2.6s; }
+.lm .lm-border { stroke: var(--lm-border); stroke-width: 0.55; --d: 0.6s; }
+.lm .lm-country { fill: var(--lm-fill); opacity: 0; transition: fill 0.5s ease, opacity 1.2s ease 1s; }
+.lm[data-on] .lm-country { opacity: 1; }
+.lm .lm-country[data-lit] { fill: var(--lm-fill-lit); }
+.lm .lm-link path { stroke: var(--lm-ink); stroke-opacity: 0.32; stroke-width: 0.8; transition: stroke-dashoffset 1.6s cubic-bezier(0.65, 0, 0.35, 1) var(--d, 0s), stroke-opacity 0.5s ease, stroke 0.5s ease; }
+.lm .lm-link[data-hot] path { stroke: var(--lm-gold); stroke-opacity: 0.9; stroke-width: 1.1; }
+.lm .lm-packet { fill: var(--lm-ink); opacity: 0; offset-rotate: 0deg; }
+.lm .lm-link[data-hot] .lm-packet { fill: var(--lm-gold); }
+.lm[data-on] .lm-packet { animation: lmRun 5.5s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+@keyframes lmRun {
+  0% { offset-distance: 0%; opacity: 0; }
+  12% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+.lm .lm-place { cursor: pointer; }
+.lm .lm-hit { fill: transparent; }
+.lm .lm-dot { fill: var(--lm-ink); transform-box: fill-box; transform-origin: center; scale: 0; transition: scale 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0s), fill 0.4s ease; }
+.lm .lm-place[data-host] .lm-dot, .lm .lm-place[data-host] .lm-halo { fill: var(--lm-gold); }
+.lm[data-on] .lm-dot { scale: 1; }
+.lm .lm-place[data-active] .lm-dot { scale: 1.25; transition-delay: 0s; }
+.lm .lm-halo { fill: var(--lm-ink); opacity: 0; transform-box: fill-box; transform-origin: center; }
+.lm[data-on] .lm-halo { animation: lmPulse 3.2s ease-out infinite; animation-delay: var(--d, 0s); }
+@keyframes lmPulse { 0% { opacity: 0.4; scale: 1; } 100% { opacity: 0; scale: 3.6; } }
+.lm .lm-ring { fill: none; stroke: var(--lm-gold); stroke-width: 0.8; transition: r 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.lm .lm-label { opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
+.lm .lm-place[data-active] .lm-label { opacity: 1; }
+.lm .lm-name { fill: var(--ink); font-size: 14px; font-family: var(--font-display); letter-spacing: -0.01em; }
+.lm .lm-tag { fill: var(--lm-gold); font-size: 8.5px; letter-spacing: 0.18em; text-transform: uppercase; }
+.lm .lm-item { color: var(--muted); transition: color 0.4s ease, translate 0.4s ease; }
+.lm .lm-item[data-active] { color: var(--ink); }
+@media (min-width: 64rem) { .lm .lm-item[data-active] { translate: -0.35rem 0; } }
+/* Below lg the map is small on screen: larger points, labels and touch targets,
+   and the places become a row of chips. */
+@media (max-width: 63.999rem) {
+  .lm .lm-dot { r: 5.5px; }
+  .lm .lm-place[data-host] .lm-dot { r: 6.5px; }
+  .lm .lm-halo { r: 6px; }
+  .lm .lm-orbit { r: 20px; }
+  .lm .lm-place[data-active] .lm-ring { r: 12px; }
+  .lm .lm-hit { r: 26px; }
+  .lm .lm-name { font-size: 24px; }
+  .lm .lm-tag { font-size: 13px; }
+  .lm .lm-label { translate: 0 0; }
+  .lm .lm-link path { stroke-width: 1.3; }
+  .lm .lm-link[data-hot] path { stroke-width: 1.8; }
+  .lm .lm-coast { stroke-width: 1; }
+  .lm .lm-border { stroke-width: 0.8; }
+  .lm .lm-list { scrollbar-width: none; }
+  .lm .lm-item { padding: 0.45rem 1rem; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); font-size: 1rem; }
+  .lm .lm-item[data-active] { background: var(--lm-fill-lit); box-shadow: inset 0 0 0 1px var(--lm-gold); }
+}
+/* Active place: a slow dashed orbit around it. */
+.lm .lm-orbit { fill: none; stroke: var(--lm-gold); stroke-width: 0.7; stroke-dasharray: 3 5; opacity: 0; transform-box: fill-box; transform-origin: center; transition: opacity 0.4s ease; animation: lmSpin 14s linear infinite; }
+.lm .lm-place[data-active] .lm-orbit { opacity: 0.8; }
+@keyframes lmSpin { to { rotate: 360deg; } }
+.lm .lm-item:focus-visible { outline: 2px solid var(--lm-ink); outline-offset: 3px; border-radius: 4px; }
+html[data-motion="reduce"] .lm [data-draw] { stroke-dashoffset: 0; transition: none; }
+html[data-motion="reduce"] .lm .lm-country { opacity: 1; transition: none; }
+html[data-motion="reduce"] .lm .lm-dot { scale: 1; transition: none; }
+html[data-motion="reduce"] .lm :is(.lm-halo, .lm-packet) { display: none; }
+html[data-motion="reduce"] .lm .lm-orbit { animation: none; }

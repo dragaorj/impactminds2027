@@ -53,18 +53,18 @@ const pt: PrivacyCopy = {
   manage: "Preferências de cookies",
   meta: {
     title: "Política de Privacidade | Impact Minds 2027",
-    description: "Como o site do Impact Minds 2027 trata dados pessoais, cookies e armazenamento local, de acordo com a LGPD.",
+    description: "Como o site da Impact Minds 2027 trata dados pessoais, cookies e armazenamento local, de acordo com a LGPD.",
   },
   eyebrow: "LGPD · Lei nº 13.709/2018",
   title: "Política de Privacidade",
   updated: "Última atualização",
   intro:
-    "Esta política explica, de forma simples, quais dados o site do Impact Minds 2027 trata, por que trata, com quem compartilha e como você pode exercer os seus direitos previstos na Lei Geral de Proteção de Dados (LGPD).",
+    "Esta política explica, de forma simples, quais dados o site da Impact Minds 2027 trata, por que trata, com quem compartilha e como você pode exercer os seus direitos previstos na Lei Geral de Proteção de Dados (LGPD).",
   sections: [
     {
       title: "Quem somos",
       paragraphs: [
-        "O Impact Minds é a conferência anual da Latimpacto, rede latino-americana de investimento de impacto. A Latimpacto é a controladora dos dados pessoais tratados neste site.",
+        "A Impact Minds é a conferência anual da Latimpacto, rede latino-americana de investimento de impacto. A Latimpacto é a controladora dos dados pessoais tratados neste site.",
       ],
     },
     {

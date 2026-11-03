@@ -3,20 +3,23 @@ import type { Dict } from "@/lib/dictionaries/pt";
 import { links } from "@/lib/site";
 import Image from "next/image";
 import TypeOnView from "../TypeOnView";
-import { Bezel, Button, container } from "../ui";
+import { Bezel, container } from "../ui";
+import ContactForm from "../ContactForm";
 import LatimpactoMark from "../LatimpactoMark";
 
 // Closing statement beside the Cartagena banner, then a glass card with the
-// Latimpacto signature: about, the page's own navigation and social links.
+// Latimpacto signature and a contact form, the page's own navigation and social links.
 // home: "" on the home page itself, "/pt" etc. elsewhere (section links lead back).
 export default function Footer({
   t,
   hero,
   nav,
   privacy,
+  contact,
   home = "",
 }: {
   t: Dict["footer"];
+  contact: Dict["contact"];
   hero: Dict["hero"];
   nav: Dict["nav"];
   privacy: { href: string; label: string };
@@ -73,11 +76,8 @@ export default function Footer({
         >
           <div className="lg:col-span-6">
             <LatimpactoMark tone="brand" title="Latimpacto" className="aspect-[619/143] h-9 w-auto" />
-            <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-ink-2">{t.about}</p>
-            <div className="mt-8">
-              <Button href={links.latimpacto} external>
-                {t.visit}
-              </Button>
+            <div className="mt-8 max-w-xl">
+              <ContactForm t={contact} />
             </div>
           </div>
 

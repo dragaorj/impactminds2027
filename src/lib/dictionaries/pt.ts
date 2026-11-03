@@ -2,7 +2,7 @@ const pt = {
   meta: {
     title: "Impact Minds 2027 | Connecting Us | Cartagena",
     description:
-      "A conferência da Latimpacto chega a Cartagena em agosto de 2027. Veja os resultados do Impact Minds 2026 em Manaus e prepare-se para a próxima edição.",
+      "A conferência da Latimpacto chega a Cartagena em agosto de 2027. Veja os resultados da Impact Minds 2026 em Manaus e prepare-se para a próxima edição.",
   },
   nav: {
     skip: "Pular para o conteúdo",
@@ -30,7 +30,6 @@ const pt = {
     contrast: "Alto contraste",
     motion: "Reduzir animações",
     links: "Destacar links",
-    noMusic: "Iniciar sem música",
     defaultTheme: "Tema padrão",
     dark: "Escuro",
     light: "Claro",
@@ -61,18 +60,10 @@ const pt = {
     dates: "24 a 27 de agosto de 2027",
     agendaCta: "Agenda 2027",
     launch: "Lançamento oficial em março de 2027",
-    countdown: "Contagem regressiva para o Impact Minds 2027",
-    live: "O Impact Minds 2027 está acontecendo agora em Cartagena",
-    after: "Obrigado por fazer parte do Impact Minds 2027",
-    days: "dias",
-    hours: "horas",
-    minutes: "min",
-    seconds: "seg",
-    cta: "Ver resultados de 2026",
-    countdownTip: "Contagem regressiva",
+    cta: "Conheça a Impact Minds",
     watch: "Assistir ao vídeo com som",
     close: "Fechar vídeo",
-    videoLabel: "Vídeo do Impact Minds 2026",
+    videoLabel: "Vídeo da Impact Minds 2026",
   },
   numbers: {
     title: "Impact Minds 2026 em números",
@@ -87,12 +78,10 @@ const pt = {
       connect: "Conectamos",
       moments: "Do palco à floresta",
       momentsSub: "Encontros, celebrações e visitas que levaram as conversas ao território.",
-      back: "é a nota que os participantes deram para voltar ao Impact Minds",
+      back: "é a nota que os participantes deram para voltar à Impact Minds",
       explore: "Continue navegando e descubra tudo o que aconteceu",
-      musicPause: "Pausar música",
-      musicPlay: "Tocar música",
     },
-    thanks: "Obrigado por fazer parte do Impact Minds 2026",
+    thanks: "Obrigado por fazer parte da Impact Minds 2026",
     thanksSub: "Nos vemos em Cartagena em 2027",
     watch: "Ver apresentação",
     participants: "participantes",
@@ -100,17 +89,16 @@ const pt = {
     countries: "países presentes no evento",
     sessions: "sessões de conteúdo",
     panels: "painéis",
-    panelsBreakdown: [
-      { value: "15", label: "Sharing Collective" },
-      { value: "17", label: "Workshops" },
-      { value: "03", label: "Challenges" },
-    ],
     speakers: "palestrantes",
     fieldVisits: "visitas de campo realizadas",
     connections: "conexões, em média, feitas por cada organização presente",
+    reconnect: "a probabilidade de voltar a interagir com essas 13 organizações",
+    comeBack: "Probabilidade de participar novamente da Impact Minds",
+    footnote: "* Considerando uma escala de 0 a 10. Pesquisa realizada com os participantes da Conferência 2026.",
+    report: "Acesse o relatório completo da Impact Minds 2026",
   },
   about: {
-    title: "O que é o Impact Minds",
+    title: "O que é a Impact Minds",
     kicker: "A conferência da Latimpacto · desde 2022",
     pillars: [
       { title: "Capital", text: "Provedores de capital de todo o mundo com foco na região" },
@@ -123,9 +111,26 @@ const pt = {
     soundOff: "Desativar som",
     watch: "Assistir completo",
     close: "Fechar vídeo",
-    videoLabel: "Vídeo do Impact Minds 2026",
+    videoLabel: "Vídeo da Impact Minds 2026",
     p1: "A conferência da Latimpacto, Impact Minds, é mais do que um evento: é um ponto de encontro onde ideias, estratégia e capital se conectam para transformar realidades. O espaço reúne grandes provedores de capital de todo o mundo que compartilham uma visão de impacto para a América Latina e o Caribe.",
-    p2: "Desenhado para inspirar uma participação genuína, o Impact Minds convida cada participante a assumir um papel protagonista: conectar, aprender e cocriar soluções que mobilizem capital para o impacto social e ambiental que nossa região precisa.",
+    p2: "Desenhada para inspirar uma participação genuína, a Impact Minds convida cada participante a assumir um papel protagonista: conectar, aprender e cocriar soluções que mobilizem capital para o impacto social e ambiental que nossa região precisa.",
+  },
+  cartagena: {
+    kicker: "Impact Minds 2027",
+    place: "Cartagena, Colômbia",
+    dates: "24 – 27 de agosto",
+    title: "Onde o Impacto Conecta a América Latina",
+    paragraphs: [
+      "Cartagena é uma cidade onde convergem história, diversidade e uma profunda conexão com o Caribe, tornando-se um cenário estratégico para impulsionar conversas sobre impacto, desenvolvimento sustentável e inovação social na América Latina.",
+      "Sua riqueza cultural e sua posição como ponto de encontro entre diferentes territórios e comunidades oferecem um cenário único para a próxima edição da Impact Minds: conectar atores, experiências e soluções que reflitam o potencial da Colômbia e de toda a região.",
+      "A partir de Cartagena, a Impact Minds seguirá fortalecendo uma comunidade que acredita no poder das conexões e da ação coletiva para transformar a América Latina.",
+    ],
+    launch: "Lançamento oficial em março de 2027",
+    photos: [
+      "Rua do Centro Histórico de Cartagena com a Catedral de Santa Catalina ao fundo",
+      "Rua de Getsemaní com guarda-chuvas coloridos e arte urbana",
+      "Casarões coloniais com sacadas floridas no Centro Histórico de Cartagena",
+    ],
   },
   gallery: {
     title: "Acesse as fotos da nossa última edição",
@@ -137,7 +142,7 @@ const pt = {
     ],
     all: "Ver todas as fotos",
     alt: [
-      "Palco principal do Impact Minds 2026",
+      "Palco principal da Impact Minds 2026",
       "Participantes conversando no espaço de networking",
       "Público assistindo a um painel",
       "Jantar de membros da Latimpacto",
@@ -147,9 +152,9 @@ const pt = {
   },
   survey: {
     title: "O que dizem os participantes",
-    subtitle: "Pesquisa realizada com os participantes do Impact Minds 2026",
+    subtitle: "Pesquisa realizada com os participantes da Impact Minds 2026",
     scores: [
-      { value: 8.5, label: "Probabilidade de participar novamente do Impact Minds" },
+      { value: 8.5, label: "Probabilidade de participar novamente da Impact Minds" },
       { value: 7.3, label: "Conteúdos da agenda acadêmica" },
       { value: 8.8, label: "Logística e produção" },
     ],
@@ -177,7 +182,9 @@ const pt = {
   },
   speakers: {
     title: "Uma série de palestrantes do mais alto nível",
-    cta: "Conheça os palestrantes da última edição",
+    cta: "Conheça os palestrantes e a agenda da Impact Minds 2026",
+    count: "220 palestrantes de diferentes países!",
+    lead: "Conheça alguns dos que participaram da Impact Minds 2026",
     pause: "Pausar",
     play: "Retomar",
     open: "Ver perfil de",
@@ -188,7 +195,7 @@ const pt = {
   },
   connections: {
     title: "As Quatro Conexões-Chave",
-    p1: "Em 2026, o Impact Minds teve como fio condutor o Connecting Us, um convite para ir além da colaboração e fortalecer conexões com propósito.",
+    p1: "Em 2026, a Impact Minds teve como fio condutor o Connecting Us, um convite para ir além da colaboração e fortalecer conexões com propósito.",
     p2: "Ao longo da edição, conectamos intenções, capital, atores e sistemas, aproximando diferentes setores, instrumentos financeiros e estratégias para impulsionar ações capazes de gerar impacto sistêmico.",
     p3: "Mais do que reunir uma comunidade, o Connecting Us reforçou a importância de conectar melhor para transformar não apenas projetos, mas os sistemas que moldam nossas realidades.",
     proposals: "A agenda foi construída a partir de mais de 160 propostas enviadas pelos membros da Latimpacto.",
@@ -201,7 +208,7 @@ const pt = {
     ],
   },
   agenda: {
-    title: "Agenda da conferência 2027",
+    title: "Agenda 2027",
     lead: "Quatro dias em Cartagena para conectar capital, conhecimento e ação.",
     month: "agosto",
     days: [
@@ -211,26 +218,24 @@ const pt = {
       { day: "27", items: ["2º dia da Agenda Acadêmica", "Celebração de encerramento"] },
     ],
   },
+  // The tiers keep the names of the official 2026 sponsor board.
+  partners: {
+    "title": "Quem esteve conosco em 2026",
+    "tiers": {
+      "organizer": "Organized by",
+      "pioneers": "Pioneers",
+      "visionaries": "Visionaries",
+      "sponsor": "Sponsor",
+      "catalysts": "Catalysts",
+      "boosting": "Boosting",
+      "media": "Media Partner",
+      "partners": "Partner"
+    }
+  },
   sponsor: {
-    kicker: "A conferência é um evento em constante crescimento.",
     title: "Tem interesse em fazer parte da Impact Minds 2027?",
     text: "Descubra como a sua organização pode ser uma patrocinadora da Impact Minds em Cartagena.",
-    cta: "Seja patrocinador",
-    soon: "Em breve",
-    form: {
-      formTitle: "Seja patrocinador: deixe seu e-mail e a equipe entra em contato",
-      emailLabel: "Seu e-mail",
-      emailPlaceholder: "seu@email.com",
-      interest: "Tenho interesse",
-      invalid: "Digite um e-mail válido.",
-      opened: "Abrimos seu app de e-mail com a mensagem pronta, é só enviar. Se nada abriu, escreva para",
-      subject: "Interesse em patrocinar o Impact Minds 2027",
-      message: "Tenho interesse em patrocinar o evento Impact Minds 2027.",
-      contact: "E-mail para contato",
-    },
-    chartTitle: "Participantes por edição",
-    chartUnit: "participantes",
-    tableYear: "Ano",
+    cta: "Conheça as oportunidades de patrocínio",
     growthLabel: "mais participantes desde 2022",
     stats: [
       { value: "+240", label: "membros na rede Latimpacto" },
@@ -244,8 +249,8 @@ const pt = {
     ],
   },
   carbon: {
-    title: "Impact Minds é um evento Carbono Neutro",
-    text: "Adotamos medidas e compensamos nossa pegada de carbono para garantir uma experiência mais sustentável, graças ao nosso aliado estratégico The Carbon Sink.",
+    title: "A Impact Minds é um evento Carbono Neutro",
+    text: "Adotamos medidas e compensamos nossa pegada de carbono para garantir uma experiência mais sustentável, graças ao nosso parceiro estratégico The Carbon Sink.",
     label: "Toneladas de CO₂ compensadas na última conferência",
     value: "638,79",
   },
@@ -269,25 +274,35 @@ const pt = {
   launches: {
     "title": "Das conexões à ação",
     "lead": "Na Impact Minds 2026, a Latimpacto apresentou três iniciativas que transformam colaboração em mecanismos concretos para a região.",
+    "eligible": "Países elegíveis:",
+    "closing": "As três iniciativas refletem um mesmo compromisso: passar da conexão entre atores à construção de parcerias capazes de mobilizar conhecimento, capacidades e capital para soluções concretas para a região.",
     "items": [
       {
         "tag": "Fundo Cultura",
-        "title": "Chamada Cultura Latinoamérica, segunda turma",
-        "text": "Com a Fundação SURA, a edição 2026-2027 selecionará 10 projetos binacionais de oito países.",
+        "title": "Segunda turma",
+        "paragraphs": [
+          "Em parceria com a Fundação SURA, a Latimpacto prepara a segunda edição da Chamada Cultura Latinoamérica (2026–2027), que selecionará 10 projetos binacionais de oito países, com financiamento de até USD 100.000 por projeto. A nova turma dá continuidade à primeira edição, que apoiou 15 projetos binacionais em sete países, combinando financiamento e fortalecimento de capacidades."
+        ],
+        "countries": "Brasil, Chile, Colômbia, México, Panamá, Peru, República Dominicana e Uruguai.",
         "figure": "USD 100 mil",
         "figureLabel": "por projeto"
       },
       {
-        "tag": "Democracia e Cidadania",
-        "title": "#PensarConOtros, sexta edição",
-        "text": "Grupo SURA, Fundação SURA e Fundação Bolívar Davivienda financiam 10 iniciativas em 11 países.",
+        "tag": "Democracia e cidadania",
+        "title": "#PensarConOtros",
+        "paragraphs": [
+          "O Grupo SURA, a Fundação SURA e a Fundação Bolívar Davivienda, com o apoio da Latimpacto, lançaram a sexta edição de #PensarConOtros, que busca selecionar e financiar 10 iniciativas em 11 países da América Latina. A chamada, aberta até 22 de outubro de 2026, apoiará projetos voltados ao desenvolvimento de capacidades cidadãs para a participação em assuntos públicos e à participação das mulheres na democracia, com aportes de até USD 50.000 por iniciativa."
+        ],
+        "countries": "Colômbia, Chile, México, Panamá, Peru, Brasil, Uruguai, República Dominicana, El Salvador, Honduras e Costa Rica.",
         "figure": "USD 50 mil",
         "figureLabel": "por iniciativa"
       },
       {
-        "tag": "Bioeconomia",
+        "tag": "Bioeconomia a partir dos territórios",
         "title": "Entre Selvas: Territórios Vivos",
-        "text": "Três anos para fortalecer a sociobioeconomia no corredor Chocó-Amazônia, rumo a um Fundo Catalítico de Bioeconomia para a Colômbia.",
+        "paragraphs": [
+          "A Latimpacto avança com o Entre Selvas: Territórios Vivos, uma iniciativa de três anos para fortalecer a sociobioeconomia no corredor Chocó–Amazônia. O projeto busca fortalecer pelo menos 24 iniciativas, oferecer financiamento catalítico a pelo menos oito e conectar atores públicos, privados, filantrópicos e comunitários. A proposta de longo prazo é transformar o aprimoramento de capacidades e as conexões com o mercado em maior mobilização de capital, incluindo a estruturação de um Fundo Catalítico de Bioeconomia para a Colômbia."
+        ],
         "figure": "24",
         "figureLabel": "iniciativas fortalecidas"
       }
@@ -419,23 +434,28 @@ const pt = {
     ],
     "intl": "Presença internacional no Pioneers Post, Alliance Magazine e ImpactAlpha."
   },
-  music: {
-    label: "Música",
-    nowPlaying: "Tocando agora",
-    play: "Tocar",
-    pause: "Pausar",
-    stop: "Parar",
-    prev: "Faixa anterior",
-    next: "Próxima faixa",
-    shuffle: "Ordem aleatória",
-    repeat: "Repetir faixa",
-    hint: "Música, contagem regressiva e voltar ao topo ficam aqui",
-    hideControls: "Recolher controles",
-    showControls: "Mostrar controles",
-    volume: "Volume",
-    mute: "Silenciar",
-    unmute: "Ativar som",
-    seek: "Posição na faixa",
+  latimpacto: {
+    "title": "Sobre a Latimpacto",
+    "paragraphs": [
+      "A Latimpacto é a rede latino-americana com alcance global que busca maximizar a mobilização de capital destinado à geração de impacto na América Latina e no Caribe. Articula atores, conhecimento e capital ao longo do contínuo de capital, desde a filantropia de risco e o investimento de impacto até as finanças sustentáveis.",
+      "Reúne mais de 240 membros, entre famílias, family offices, empresas, fundações doadoras, organizações multilaterais, instituições acadêmicas e aceleradoras que investem na região com uma perspectiva de impacto."
+    ],
+    "cta": "Conheça a Latimpacto",
+    "mapAlt": "Mapa da América Latina e do Caribe com a rede da Latimpacto: as cidades conectadas a Cartagena, sede da Impact Minds 2027",
+    "places": "Onde a rede se encontra",
+    "host2027": "Sede 2027",
+    "host2026": "Sede 2026"
+  },
+  contact: {
+    "title": "Fale com a gente",
+    "name": "Nome",
+    "email": "E-mail",
+    "message": "Mensagem",
+    "send": "Enviar mensagem",
+    "sending": "Enviando…",
+    "sent": "Mensagem enviada! A equipe da conferência vai responder em breve.",
+    "error": "Não foi possível enviar agora. Tente de novo ou escreva para",
+    "invalid": "Preencha nome, um e-mail válido e a mensagem."
   },
   footer: {
     closing: "Nos vemos em Cartagena",

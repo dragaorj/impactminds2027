@@ -32,7 +32,6 @@ const en: Dict = {
     contrast: "High contrast",
     motion: "Reduce motion",
     links: "Highlight links",
-    noMusic: "Start without music",
     defaultTheme: "Default theme",
     dark: "Dark",
     light: "Light",
@@ -63,15 +62,7 @@ const en: Dict = {
     dates: "August 24 to 27, 2027",
     agendaCta: "2027 Agenda",
     launch: "Official launch in March 2027",
-    countdown: "Countdown to Impact Minds 2027",
-    live: "Impact Minds 2027 is happening now in Cartagena",
-    after: "Thank you for being part of Impact Minds 2027",
-    days: "days",
-    hours: "hours",
-    minutes: "min",
-    seconds: "sec",
-    cta: "See 2026 results",
-    countdownTip: "Countdown",
+    cta: "Discover Impact Minds",
     watch: "Watch the video with sound",
     close: "Close video",
     videoLabel: "Impact Minds 2026 video",
@@ -91,8 +82,6 @@ const en: Dict = {
       momentsSub: "Gatherings, celebrations and visits that took the conversation into the territory.",
       back: "is how attendees rate their wish to come back to Impact Minds",
       explore: "Keep scrolling to discover everything that happened",
-      musicPause: "Pause music",
-      musicPlay: "Play music",
     },
     thanks: "Thank you for being part of Impact Minds 2026",
     thanksSub: "See you in Cartagena in 2027",
@@ -102,14 +91,13 @@ const en: Dict = {
     countries: "countries represented",
     sessions: "content sessions",
     panels: "panels",
-    panelsBreakdown: [
-      { value: "15", label: "Sharing Collective" },
-      { value: "17", label: "Workshops" },
-      { value: "03", label: "Challenges" },
-    ],
     speakers: "speakers",
     fieldVisits: "field visits",
     connections: "connections, on average, made by each organization at the event",
+    reconnect: "likelihood of interacting again with these 13 organizations",
+    comeBack: "Likelihood of attending Impact Minds again",
+    footnote: "* On a scale of 0 to 10. Survey of participants at the 2026 Conference.",
+    report: "Read the full Impact Minds 2026 report",
   },
   about: {
     title: "What is Impact Minds",
@@ -128,6 +116,23 @@ const en: Dict = {
     videoLabel: "Impact Minds 2026 video",
     p1: "Latimpacto's conference, Impact Minds, is more than an event: it is a meeting point where ideas, strategy, and capital connect to transform realities. It brings together major capital providers from around the world who share a vision of impact for Latin America and the Caribbean.",
     p2: "Designed to inspire genuine participation, Impact Minds invites every participant to take a leading role: connect, learn, and co-create solutions that mobilize capital for the social and environmental impact our region needs.",
+  },
+  cartagena: {
+    kicker: "Impact Minds 2027",
+    place: "Cartagena, Colombia",
+    dates: "August 24–27",
+    title: "Where Impact Connects Latin America",
+    paragraphs: [
+      "Cartagena is a city where history, diversity and a deep connection with the Caribbean come together, making it a strategic setting to drive conversations on impact, sustainable development and social innovation in Latin America.",
+      "Its cultural richness and its place as a meeting point between territories and communities offer a unique stage for the next edition of Impact Minds: connecting people, experiences and solutions that reflect the potential of Colombia and the whole region.",
+      "From Cartagena, Impact Minds will keep strengthening a community that believes in the power of connections and collective action to transform Latin America.",
+    ],
+    launch: "Official launch in March 2027",
+    photos: [
+      "Street in Cartagena's Old City with the Santa Catalina Cathedral in the distance",
+      "Getsemaní street with colourful umbrellas and street art",
+      "Colonial houses with flowered balconies in Cartagena's Old City",
+    ],
   },
   gallery: {
     title: "View photos from our last edition",
@@ -179,7 +184,9 @@ const en: Dict = {
   },
   speakers: {
     title: "A lineup of top-level speakers",
-    cta: "Meet the speakers from the last edition",
+    cta: "Meet the speakers and the Impact Minds 2026 agenda",
+    count: "220 speakers from many countries!",
+    lead: "Meet some of those who took part in Impact Minds 2026",
     pause: "Pause",
     play: "Resume",
     open: "View profile of",
@@ -203,7 +210,7 @@ const en: Dict = {
     ],
   },
   agenda: {
-    title: "2027 Conference Agenda",
+    title: "2027 Agenda",
     lead: "Four days in Cartagena to connect capital, knowledge, and action.",
     month: "August",
     days: [
@@ -213,26 +220,24 @@ const en: Dict = {
       { day: "27", items: ["Day 2 of the Academic Program", "Closing celebration"] },
     ],
   },
+  // The tiers keep the names of the official 2026 sponsor board.
+  partners: {
+    "title": "Who joined us in 2026",
+    "tiers": {
+      "organizer": "Organized by",
+      "pioneers": "Pioneers",
+      "visionaries": "Visionaries",
+      "sponsor": "Sponsor",
+      "catalysts": "Catalysts",
+      "boosting": "Boosting",
+      "media": "Media Partner",
+      "partners": "Partner"
+    }
+  },
   sponsor: {
-    kicker: "The conference keeps growing every year.",
     title: "Interested in being part of Impact Minds 2027?",
     text: "Discover how your organization can become a sponsor of Impact Minds in Cartagena.",
-    cta: "Become a sponsor",
-    soon: "Coming soon",
-    form: {
-      formTitle: "Become a sponsor: leave your email and the team will get in touch",
-      emailLabel: "Your email",
-      emailPlaceholder: "you@email.com",
-      interest: "I'm interested",
-      invalid: "Enter a valid email.",
-      opened: "We opened your email app with the message ready, just send it. If nothing opened, write to",
-      subject: "Interest in sponsoring Impact Minds 2027",
-      message: "I am interested in sponsoring the Impact Minds 2027 event.",
-      contact: "Contact email",
-    },
-    chartTitle: "Participants per edition",
-    chartUnit: "participants",
-    tableYear: "Year",
+    cta: "Explore sponsorship opportunities",
     growthLabel: "more participants since 2022",
     stats: [
       { value: "240+", label: "members in the Latimpacto network" },
@@ -247,7 +252,7 @@ const en: Dict = {
   },
   carbon: {
     title: "Impact Minds is a Carbon Neutral event",
-    text: "We take action and offset our carbon footprint to ensure a more sustainable experience, thanks to our strategic ally The Carbon Sink.",
+    text: "We take action and offset our carbon footprint to ensure a more sustainable experience, thanks to our strategic partner The Carbon Sink.",
     label: "Tonnes of CO₂ offset at the last conference",
     value: "638.79",
   },
@@ -271,25 +276,35 @@ const en: Dict = {
   launches: {
     "title": "From connections to action",
     "lead": "At Impact Minds 2026, Latimpacto presented three initiatives that turn collaboration into concrete mechanisms for the region.",
+    "eligible": "Eligible countries:",
+    "closing": "All three initiatives share one commitment: moving from connecting actors to building partnerships that mobilize knowledge, capabilities and capital for concrete solutions for the region.",
     "items": [
       {
         "tag": "Culture Fund",
-        "title": "Cultura Latinoamérica Call, second cohort",
-        "text": "With Fundación SURA, the 2026-2027 edition will select 10 binational projects from eight countries.",
+        "title": "Second cohort",
+        "paragraphs": [
+          "In partnership with the SURA Foundation, Latimpacto is preparing the second edition of the Culture Latin America Call (2026–2027), which will select 10 binational projects from eight countries, with funding of up to USD 100,000 per project. The new cohort builds on the first edition, which supported 15 binational projects in seven countries, combining funding and capacity building."
+        ],
+        "countries": "Brazil, Chile, Colombia, Mexico, Panama, Peru, Dominican Republic and Uruguay.",
         "figure": "USD 100K",
         "figureLabel": "per project"
       },
       {
-        "tag": "Democracy and Citizenship",
-        "title": "#PensarConOtros, sixth edition",
-        "text": "Grupo SURA, Fundación SURA, and Fundación Bolívar Davivienda fund 10 initiatives across 11 countries.",
+        "tag": "Democracy and citizenship",
+        "title": "#PensarConOtros",
+        "paragraphs": [
+          "Grupo SURA, the SURA Foundation and the Bolívar Davivienda Foundation, with Latimpacto's support, launched the sixth edition of #PensarConOtros, which seeks to select and fund 10 initiatives in 11 Latin American countries. The call, open until October 22, 2026, will support projects that build citizens' capacities to take part in public affairs and women's participation in democracy, with grants of up to USD 50,000 per initiative."
+        ],
+        "countries": "Colombia, Chile, Mexico, Panama, Peru, Brazil, Uruguay, Dominican Republic, El Salvador, Honduras and Costa Rica.",
         "figure": "USD 50K",
         "figureLabel": "per initiative"
       },
       {
-        "tag": "Bioeconomy",
+        "tag": "Bioeconomy from the territories",
         "title": "Entre Selvas: Living Territories",
-        "text": "Three years to strengthen the socio-bioeconomy in the Chocó-Amazon corridor, toward a Catalytic Bioeconomy Fund for Colombia.",
+        "paragraphs": [
+          "Latimpacto moves forward with Entre Selvas: Living Territories, a three-year initiative to strengthen the socio-bioeconomy in the Chocó–Amazon corridor. The project aims to strengthen at least 24 initiatives, provide catalytic funding to at least eight and connect public, private, philanthropic and community actors. The long-term goal is to turn capacity building and market connections into greater capital mobilization, including structuring a Catalytic Bioeconomy Fund for Colombia."
+        ],
         "figure": "24",
         "figureLabel": "initiatives strengthened"
       }
@@ -421,23 +436,28 @@ const en: Dict = {
     ],
     "intl": "International coverage in Pioneers Post, Alliance Magazine, and ImpactAlpha."
   },
-  music: {
-    label: "Music",
-    nowPlaying: "Now playing",
-    play: "Play",
-    pause: "Pause",
-    stop: "Stop",
-    prev: "Previous track",
-    next: "Next track",
-    shuffle: "Shuffle",
-    repeat: "Repeat track",
-    hint: "Music, the countdown and back to top live here",
-    hideControls: "Hide controls",
-    showControls: "Show controls",
-    volume: "Volume",
-    mute: "Mute",
-    unmute: "Unmute",
-    seek: "Track position",
+  latimpacto: {
+    "title": "About Latimpacto",
+    "paragraphs": [
+      "Latimpacto is the Latin American network with global reach that seeks to maximize the mobilization of capital for impact in Latin America and the Caribbean. It brings together actors, knowledge and capital across the capital continuum, from venture philanthropy and impact investing to sustainable finance.",
+      "It gathers more than 240 members, including families, family offices, companies, grantmaking foundations, multilateral organizations, academic institutions and accelerators that invest in the region with an impact lens."
+    ],
+    "cta": "Discover Latimpacto",
+    "mapAlt": "Map of Latin America and the Caribbean with the Latimpacto network: cities connected to Cartagena, host of Impact Minds 2027",
+    "places": "Where the network meets",
+    "host2027": "2027 host",
+    "host2026": "2026 host"
+  },
+  contact: {
+    "title": "Get in touch",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "send": "Send message",
+    "sending": "Sending…",
+    "sent": "Message sent! The conference team will reply soon.",
+    "error": "It couldn't be sent right now. Try again or write to",
+    "invalid": "Fill in your name, a valid email and the message."
   },
   footer: {
     closing: "See you in Cartagena",

@@ -6,15 +6,17 @@ const nextConfig: NextConfig = {
   // The stylesheet travels inside the page instead of as a separate request,
   // so the first paint never waits for it.
   experimental: { inlineCss: true },
-  // Static files stay in the browser cache: the hero video and the music (a
-  // language switch, a real page load, plays them at once instead of fetching
-  // them again), the photos, the brand marks and the covers. A week, not
-  // forever, so a replaced file still lands (new files get new names anyway).
+  // Static files stay in the browser cache: the hero video (a language
+  // switch, a real page load, plays it at once instead of fetching it again),
+  // the photos, the brand marks and the PDFs. A week, not forever, so a
+  // replaced file still lands (new files get new names anyway). The PDFs
+  // (report, sponsorship brochure) open in the browser, never as a download.
   async headers() {
-    return ["/videos/:path*", "/music/:path*", "/photos/:path*", "/brand/:path*"].map((source) => ({
-      source,
-      headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }],
-    }));
+    const cache = { key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" };
+    return [
+      ...["/videos/:path*", "/photos/:path*", "/brand/:path*"].map((source) => ({ source, headers: [cache] })),
+      { source: "/docs/:path*", headers: [cache, { key: "Content-Disposition", value: "inline" }] },
+    ];
   },
   images: {
     // AVIF where the browser takes it (smaller), WebP otherwise.

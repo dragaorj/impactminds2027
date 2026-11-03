@@ -8,32 +8,48 @@ import {
   PresentationChart,
   Tree,
   UsersThree,
+  ArrowUpRight,
+  FilePdf,
+  Star,
 } from "@phosphor-icons/react/dist/ssr";
 import type { Dict } from "@/lib/dictionaries/pt";
-import { photos } from "@/lib/site";
+import { links, photos } from "@/lib/site";
 import Art from "../Art";
 import NumbersShow, { type ShowCopy } from "../NumbersShow";
 import WatchShow from "../WatchShow";
 import { Bezel, container, section } from "../ui";
 
-function Stat({ value, prefix = "", locale, className = "" }: { value: number; prefix?: string; locale: string; className?: string }) {
+function Stat({
+  value,
+  prefix = "",
+  suffix,
+  decimals = 0,
+  locale,
+  className = "",
+}: {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  decimals?: number;
+  locale: string;
+  className?: string;
+}) {
   return (
     <p className={`font-display leading-none tabular-nums ${className}`}>
       {prefix}
-      <span data-count={value} data-locale={locale}>
-        {value.toLocaleString(locale)}
+      <span data-count={value} data-locale={locale} data-decimals={decimals || undefined}>
+        {value.toLocaleString(locale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}
       </span>
+      {suffix && <span className="text-[0.45em] text-muted">{suffix}</span>}
     </p>
   );
 }
 
-// Small gold icon chip that opens every card; `tone` adapts it to the card colour.
-function Chip({ icon: I, tone = "default" }: { icon: Icon; tone?: "default" | "dark" | "onGold" | "onLavender" }) {
+// Small gold icon chip that opens every card; `tone` adapts it to the photo card.
+function Chip({ icon: I, tone = "default" }: { icon: Icon; tone?: "default" | "dark" }) {
   const tones = {
     default: "bg-sun/15 text-gold ring-gold/25",
     dark: "bg-white/10 text-[#E2C985] ring-white/20 backdrop-blur-md",
-    onGold: "bg-sun-ink/10 text-sun-ink ring-sun-ink/15",
-    onLavender: "bg-terra-ink/10 text-terra-ink ring-terra-ink/15",
   } as const;
   return (
     <span className={`grid size-11 place-items-center rounded-full ring-1 ${tones[tone]}`}>
@@ -67,7 +83,8 @@ function MiniNetwork() {
 }
 
 // Bento of the 2026 edition: the headline figure sits on a real photo of the
-// community, every card opens with a gold icon chip and lifts on hover. The
+// community and every other card shares one plain look; each opens with a gold
+// icon chip and lifts on hover. The return score closes it, highlighted. The
 // title breaks after the edition so "em números" gets its own gold line.
 export default function Numbers({ t, locale, show }: { t: Dict["numbers"]; locale: string; show: ShowCopy }) {
   const label = "mt-3 max-w-[24ch] text-[0.9375rem] leading-snug";
@@ -86,7 +103,22 @@ export default function Numbers({ t, locale, show }: { t: Dict["numbers"]; local
           </h2>
           <p className="mt-6 max-w-[60ch] text-lg leading-relaxed text-ink-2">{t.lead}</p>
           </div>
-          <WatchShow label={t.watch} />
+          <div className="flex flex-wrap items-center gap-3">
+            <WatchShow label={t.watch} />
+            {/* The full 2026 report (PDF, in Portuguese). */}
+            <a
+              href={links.report2026}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex min-h-12 shrink-0 items-center gap-3 rounded-full py-1.5 pl-2 pr-5 text-[0.9375rem] font-medium btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-[0.98]"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-sun/15 text-gold transition-colors group-hover:bg-sun-ink/10 group-hover:text-sun-ink">
+                <FilePdf size="1.05rem" weight="light" />
+              </span>
+              {t.report}
+              <ArrowUpRight size="1rem" className="shrink-0 transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </a>
+          </div>
         </div>
 
         <div className="relative mt-14 grid grid-flow-dense grid-cols-2 gap-3 md:mt-20 lg:auto-rows-[minmax(13rem,auto)] lg:grid-cols-12 lg:gap-4">
@@ -122,44 +154,32 @@ export default function Numbers({ t, locale, show }: { t: Dict["numbers"]; local
             </div>
           </Bezel>
 
-          <Bezel className={`lg:col-span-3 ${card}`} inner="bg-sun text-sun-ink">
+          <Bezel className={`lg:col-span-3 ${card}`}>
             <div data-reveal className="flex h-full flex-col justify-between gap-6 p-6">
-              <Art name="arcs" className="absolute -right-2 -top-2 -z-10 w-24 !opacity-40 [color:var(--sun-ink)]" />
-              <Chip icon={GlobeHemisphereWest} tone="onGold" />
+              <Chip icon={GlobeHemisphereWest} />
               <div>
-                <Stat value={33} locale={locale} className="text-5xl md:text-6xl" />
-                <p className={label}>{t.countries}</p>
+                <Stat value={33} locale={locale} className="text-5xl text-brand md:text-6xl" />
+                <p className={`${label} text-ink-2`}>{t.countries}</p>
               </div>
             </div>
           </Bezel>
 
-          <Bezel className={`lg:col-span-3 ${card}`} inner="bg-block text-white">
-            <div data-reveal className="group relative flex h-full min-h-[13rem] flex-col justify-between gap-6 p-6">
-              <Image
-                src={photos.speakersTile}
-                alt=""
-                fill
-                sizes="(min-width:1024px) 25vw, 50vw"
-                className="object-cover opacity-60 mix-blend-luminosity transition-transform duration-[1800ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.06]"
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(34_14_52/0.2),rgb(34_14_52/0.9))]" />
-              <span className="relative">
-                <Chip icon={MicrophoneStage} tone="dark" />
-              </span>
-              <div className="relative">
-                <Stat value={220} prefix="+" locale={locale} className="text-5xl md:text-6xl" />
-                <p className={`${label} text-white/85`}>{t.speakers}</p>
+          <Bezel className={`lg:col-span-3 ${card}`}>
+            <div data-reveal className="flex h-full flex-col justify-between gap-6 p-6">
+              <Chip icon={MicrophoneStage} />
+              <div>
+                <Stat value={220} prefix="+" locale={locale} className="text-5xl text-brand md:text-6xl" />
+                <p className={`${label} text-ink-2`}>{t.speakers}</p>
               </div>
             </div>
           </Bezel>
 
-          <Bezel className={`lg:col-span-3 ${card}`} inner="bg-terra text-terra-ink">
+          <Bezel className={`lg:col-span-3 ${card}`}>
             <div data-reveal className="flex h-full flex-col justify-between gap-6 p-6">
-              <Art name="palm" className="absolute -bottom-4 right-3 -z-10 h-[85%] !opacity-30 [color:var(--terra-ink)]" />
-              <Chip icon={Tree} tone="onLavender" />
+              <Chip icon={Tree} />
               <div>
-                <Stat value={12} locale={locale} className="text-5xl md:text-6xl" />
-                <p className={label}>{t.fieldVisits}</p>
+                <Stat value={12} locale={locale} className="text-5xl text-brand md:text-6xl" />
+                <p className={`${label} text-ink-2`}>{t.fieldVisits}</p>
               </div>
             </div>
           </Bezel>
@@ -175,39 +195,49 @@ export default function Numbers({ t, locale, show }: { t: Dict["numbers"]; local
             </div>
           </Bezel>
 
-          <Bezel className={`col-span-2 lg:col-span-5 ${card}`}>
+          <Bezel className={`col-span-2 lg:col-span-3 ${card}`}>
             <div data-reveal className="flex h-full flex-col justify-between gap-6 p-6">
               <Chip icon={PresentationChart} />
-              <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <Stat value={23} locale={locale} className="text-5xl text-brand md:text-6xl" />
-                  <p className={`${label} text-ink-2`}>{t.panels}</p>
-                </div>
-                <ul className="grid grid-cols-3 gap-4 sm:gap-6">
-                  {t.panelsBreakdown.map((p) => (
-                    <li key={p.label} className="border-l border-gold/50 pl-3">
-                      <p className="font-display text-2xl text-ink">{p.value}</p>
-                      <p className="mt-1 text-xs leading-tight text-muted">{p.label}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </Bezel>
-
-          <Bezel className={`col-span-2 lg:col-span-4 ${card}`}>
-            <div data-reveal className="flex h-full items-end justify-between gap-4 p-6">
               <div>
-                <Stat value={11} locale={locale} className="text-5xl text-brand md:text-6xl" />
-                <p className={`${label} text-ink-2`}>{t.connections}</p>
+                <Stat value={23} locale={locale} className="text-5xl text-brand md:text-6xl" />
+                <p className={`${label} text-ink-2`}>{t.panels}</p>
               </div>
-              <MiniNetwork />
             </div>
           </Bezel>
 
-          {/* Motion presentation played over the bento from the hero CTA. */}
+          {/* The connections made, beside how likely they are to meet again. */}
+          <Bezel className={`col-span-2 lg:col-span-6 ${card}`}>
+            <div data-reveal className="grid h-full gap-6 p-6 sm:grid-cols-[1fr_auto_1fr] sm:items-end">
+              <div className="flex items-end justify-between gap-4">
+                <div>
+                  <Stat value={11} locale={locale} className="text-5xl text-brand md:text-6xl" />
+                  <p className={`${label} text-ink-2`}>{t.connections}</p>
+                </div>
+                <MiniNetwork />
+              </div>
+              <span aria-hidden className="h-px w-full bg-line sm:h-full sm:w-px" />
+              <div>
+                <Stat value={4.2} decimals={1} suffix="/5" locale={locale} className="text-5xl text-brand md:text-6xl" />
+                <p className={`${label} text-ink-2`}>{t.reconnect}</p>
+              </div>
+            </div>
+          </Bezel>
+
+          {/* Highlighted below: how likely participants are to come back. */}
+          <Bezel className={`col-span-2 lg:col-span-12 ${card}`} inner="bg-sun/10">
+            <div data-reveal className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:gap-8 md:p-8">
+              <span className="grid size-14 shrink-0 place-items-center rounded-full bg-sun text-sun-ink">
+                <Star size="1.5rem" weight="fill" />
+              </span>
+              <Stat value={8.5} decimals={1} suffix="/10*" locale={locale} className="text-6xl text-brand md:text-7xl" />
+              <p className="max-w-[34ch] font-display text-2xl leading-snug text-ink md:text-[1.75rem]">{t.comeBack}</p>
+            </div>
+          </Bezel>
+
+          {/* Motion presentation played over the bento ("Ver apresentação"). */}
           <NumbersShow t={t} show={show} locale={locale} />
         </div>
+        <p className="mt-4 text-xs text-muted">{t.footnote}</p>
       </div>
     </section>
   );
