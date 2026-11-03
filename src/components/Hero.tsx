@@ -97,8 +97,29 @@ export default function Hero({
       const k = h.getBoundingClientRect().width / (h.offsetWidth || 1);
       let widest = 0;
       for (const line of h.querySelectorAll<HTMLElement>(".ed-line")) widest = Math.max(widest, line.getBoundingClientRect().width / k);
+      const tall = h.offsetHeight;
       h.style.fontSize = "";
       if (widest) h.style.setProperty("--ed-w", `${((100 * box.clientWidth) / widest) * 0.97}px`);
+      // Height: whatever the screen leaves once everything else in the hero
+      // (signature, pill, dates, buttons, paddings) has its room, so the whole
+      // block always shows in the first screen, browser bars included.
+      const page = h.closest<HTMLElement>(".ed-root");
+      if (!page || !tall) return;
+      const outer = (el: Element) => {
+        const cs = getComputedStyle(el);
+        return cs.display === "none" ? 0 : (el as HTMLElement).offsetHeight + parseFloat(cs.marginTop) + parseFloat(cs.marginBottom);
+      };
+      const [top, middle, bottom] = Array.from(page.children);
+      const pad = getComputedStyle(page);
+      const others =
+        parseFloat(pad.paddingTop) +
+        parseFloat(pad.paddingBottom) +
+        Array.from(top.children).reduce((sum, el) => sum + outer(el), 0) +
+        (middle as HTMLElement).offsetHeight -
+        h.offsetHeight +
+        Array.from(bottom.children).reduce((sum, el) => sum + outer(el), 0);
+      const room = window.innerHeight - others - 8;
+      h.style.setProperty("--ed-h", `${Math.max(16, (100 * room) / tall)}px`);
     };
     fit();
     document.fonts?.ready.then(fit);
@@ -112,6 +133,10 @@ export default function Hero({
     ro.observe(box);
     // Turning the screen swaps the layout without always changing the width.
     window.addEventListener("resize", refit);
+    // The bar under the buttons opening or closing (countdown, music, cookies)
+    // changes the room left: fit again once it has moved.
+    const onShift = () => window.setTimeout(fit, 750);
+    window.addEventListener("im:hero-shift", onShift);
     const portrait = window.matchMedia("(orientation: portrait)");
     portrait.addEventListener("change", refit);
 
@@ -140,6 +165,7 @@ export default function Hero({
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", refit);
+      window.removeEventListener("im:hero-shift", onShift);
       portrait.removeEventListener("change", refit);
       offs.forEach((off) => off());
       plays.forEach((tl) => tl.kill());
@@ -393,10 +419,10 @@ export default function Hero({
     // from zero and share the spare height equally, so the headline sits on
     // the screen's centre on any device; when one band needs more room than its
     // share it keeps it and the other takes the rest, so nothing ever overlaps.
-    <div className="mx-auto flex min-h-[100dvh] w-full max-w-[132rem] flex-col px-5 pb-[max(5.5rem,env(safe-area-inset-bottom))] pt-24 sm:px-8 sm:pb-20 lg:px-[5vw] lg:pb-16 [@media(max-height:500px)]:pb-4! [@media(max-height:500px)]:pt-20!">
+    <div className="ed-root mx-auto flex min-h-[100dvh] w-full max-w-[132rem] flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-20 sm:px-8 sm:pb-20 sm:pt-24 lg:px-[5vw] lg:pb-16 [@media(max-height:500px)]:pb-4! [@media(max-height:500px)]:pt-20!">
       <div className="flex flex-1 basis-0 flex-col items-start">
-      {/* Top left: the event's signature, in small spaced caps. */}
-      <div className="hero-out-up mt-[min(1.5vw,2svh)] [@media(max-height:500px)]:hidden">
+      {/* Top left: the event's signature, in small spaced caps (desktop only). */}
+      <div className="hero-out-up mt-[min(1.5vw,2svh)] max-lg:hidden [@media(max-height:500px)]:hidden">
         <p data-hero className={`text-left ${ED_CAPTION}`}>
           {t.editorial.kicker.map((l, i) => (
             <span key={i} className={`block ${i === 0 ? "text-white" : i === t.editorial.kicker.length - 1 ? "text-[#D9B865]" : ""}`}>
@@ -415,7 +441,7 @@ export default function Hero({
             portrait ones the taller, narrower one. */}
         <h1
           ref={edHead}
-          className="hero-title flex flex-col items-center font-[family-name:var(--font-ed-sans)] text-[min(var(--ed-cap),var(--ed-w,8vw))] font-extrabold uppercase leading-[1.1] tracking-[-0.025em] [--ed-cap:10svh] [font-stretch:110%] will-change-[transform,filter] sm:[font-stretch:118%] lg:[--ed-cap:9.4svh] portrait:[--ed-cap:7svh] [@media(max-height:500px)]:[--ed-cap:7svh]! [@media(min-width:1024px)_and_(max-height:820px)]:[--ed-cap:8.4svh]!"
+          className="hero-title flex flex-col items-center font-[family-name:var(--font-ed-sans)] text-[min(var(--ed-cap),var(--ed-w,8vw),var(--ed-h,100vh))] font-extrabold uppercase leading-[1.1] tracking-[-0.025em] [--ed-cap:10svh] [font-stretch:110%] will-change-[transform,filter] sm:[font-stretch:118%] lg:[--ed-cap:9.4svh] portrait:[--ed-cap:7svh] [@media(max-height:500px)]:[--ed-cap:7svh]! [@media(min-width:1024px)_and_(max-height:820px)]:[--ed-cap:8.4svh]!"
         >
           <span className="contents portrait:hidden">{t.editorial.lines.map(edLine)}</span>
           <span className="hidden portrait:contents">{t.editorial.tall.map(edLine)}</span>
@@ -434,8 +460,8 @@ export default function Hero({
       </div>
 
       <div className="flex flex-1 basis-0 flex-col justify-end">
-      {/* Bottom right, over the round buttons: when and where, matching the signature. */}
-      <div className="hero-out-down self-end [@media(max-height:500px)]:hidden">
+      {/* Bottom right, over the round buttons: when and where, matching the signature (desktop only). */}
+      <div className="hero-out-down self-end max-lg:hidden [@media(max-height:500px)]:hidden">
         <p data-hero className={`text-right ${ED_CAPTION}`}>
           {t.editorial.when.map((l, i) => (
             <span key={i} className={`block ${i === 0 ? "text-white" : i === t.editorial.when.length - 1 ? "text-[#D9B865]" : ""}`}>
