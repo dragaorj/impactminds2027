@@ -24,19 +24,44 @@ function preferredLocale(request: NextRequest): Locale {
   return match ? (match.base as Locale) : defaultLocale;
 }
 
-export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const hasPrefix = locales.some(
-    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
-  );
-  if (hasPrefix) return;
+// Crawlers and link previews keep the language of the address they asked for.
+const BOT = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|linkedin|twitter|discord|slack/i;
 
-  request.nextUrl.pathname = `/${preferredLocale(request)}${pathname}`;
+// A visitor arriving from outside (a shared link, a search result) on a page
+// in another language than their browser's is taken to their own, unless
+// they already picked one in the switcher (cookie). Moves inside the site, the
+// switcher's own prefetch/prerender requests and crawlers are left alone.
+function arrivingElsewhere(request: NextRequest, current: Locale): Locale | null {
+  if (request.cookies.get("im-lang")) return null;
+  if (!request.headers.get("accept-language")) return null;
+  if (request.headers.get("sec-purpose")?.includes("prefetch")) return null;
+  if (BOT.test(request.headers.get("user-agent") ?? "")) return null;
+  const referer = request.headers.get("referer");
+  if (referer) {
+    try {
+      if (new URL(referer).host === request.nextUrl.host) return null;
+    } catch {}
+  }
+  const wanted = preferredLocale(request);
+  return wanted === current ? null : wanted;
+}
+
+function redirect(request: NextRequest, pathname: string) {
+  request.nextUrl.pathname = pathname;
   const response = NextResponse.redirect(request.nextUrl);
   // The target depends on each visitor's language: never cache the redirect.
   response.headers.set("Vary", "Accept-Language, Cookie");
   response.headers.set("Cache-Control", "private, no-store");
   return response;
+}
+
+export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const current = locales.find((locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`));
+  if (!current) return redirect(request, `/${preferredLocale(request)}${pathname}`);
+
+  const wanted = arrivingElsewhere(request, current);
+  if (wanted) return redirect(request, `/${wanted}${pathname.slice(current.length + 1)}`);
 }
 
 export const config = {
