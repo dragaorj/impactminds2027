@@ -716,13 +716,15 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
       </div>
       <div className="flex shrink-0 items-center gap-0 sm:gap-1">
         <span className="hidden sm:contents">{controls("hover:bg-white/10", "size-10", "1.05rem", "text-[#D9B865]")}</span>
-        <span className="contents sm:hidden">{controls("size-8! hover:bg-white/10", "size-8", "0.95rem", "text-[#D9B865]")}</span>
+        <span className="contents sm:hidden @max-[22rem]/mbar:[&>button:first-child]:hidden @max-[22rem]/mbar:[&>button:last-child]:hidden">{controls("size-8! hover:bg-white/10", "size-8", "0.95rem", "text-[#D9B865]")}</span>
       </div>
       <div className="hidden min-w-0 flex-1 items-center gap-3 text-[0.6875rem] tabular-nums text-white/70 @[40rem]/mbar:flex">
         <span className="shrink-0">{fmt(time.cur)}</span>
         {seek(28, "h-7 min-w-[4.5rem] flex-1 gap-[1.5px] overflow-hidden", "light", barOpen)}
         <span className="shrink-0">{fmt(time.dur)}</span>
       </div>
+      {/* Narrow bar: just the mute button (phones set the volume with their own keys). */}
+      <div className="shrink-0 @[42.5rem]/mbar:hidden">{volumeCtl("size-8! hover:bg-white/10", "hidden")}</div>
       <div className="hidden shrink-0 @[42.5rem]/mbar:block">{volumeCtl("hover:bg-white/10", "music-range-light w-16 min-w-0")}</div>
       {/* Narrow bar: the track's progress as a thin line along the bottom. */}
       <span aria-hidden className="absolute inset-x-8 bottom-2 h-0.5 overflow-hidden rounded-full bg-white/15 @[40rem]/mbar:hidden">

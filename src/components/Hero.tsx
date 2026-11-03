@@ -133,10 +133,6 @@ export default function Hero({
     ro.observe(box);
     // Turning the screen swaps the layout without always changing the width.
     window.addEventListener("resize", refit);
-    // The bar under the buttons opening or closing (countdown, music, cookies)
-    // changes the room left: fit again once it has moved.
-    const onShift = () => window.setTimeout(fit, 750);
-    window.addEventListener("im:hero-shift", onShift);
     const portrait = window.matchMedia("(orientation: portrait)");
     portrait.addEventListener("change", refit);
 
@@ -165,7 +161,6 @@ export default function Hero({
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", refit);
-      window.removeEventListener("im:hero-shift", onShift);
       portrait.removeEventListener("change", refit);
       offs.forEach((off) => off());
       plays.forEach((tl) => tl.kill());
@@ -420,7 +415,7 @@ export default function Hero({
     // the screen's centre on any device; when one band needs more room than its
     // share it keeps it and the other takes the rest, so nothing ever overlaps.
     <div className="ed-root mx-auto flex min-h-[100dvh] w-full max-w-[132rem] flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-20 sm:px-8 sm:pb-20 sm:pt-24 lg:px-[5vw] lg:pb-16 [@media(max-height:500px)]:pb-4! [@media(max-height:500px)]:pt-20!">
-      <div className="flex flex-1 basis-0 flex-col items-start">
+      <div className="flex flex-1 basis-0 flex-col items-start max-lg:flex-none">
       {/* Top left: the event's signature, in small spaced caps (desktop only). */}
       <div className="hero-out-up mt-[min(1.5vw,2svh)] max-lg:hidden [@media(max-height:500px)]:hidden">
         <p data-hero className={`text-left ${ED_CAPTION}`}>
@@ -433,7 +428,7 @@ export default function Hero({
       </div>
       </div>
 
-      <div className="flex shrink-0 flex-col items-center py-[min(3vw,2.5svh)] text-center [@media(max-height:500px)]:py-1!">
+      <div className="flex shrink-0 flex-col items-center py-[min(3vw,2.5svh)] text-center max-lg:my-auto [@media(max-height:500px)]:py-1!">
         {/* The farewell to Manaus and the invitation to Cartagena. */}
         {/* Sized by the fit effect: as wide as the gutters allow, capped by a
             share of the screen's height (--ed-cap) so the whole block stays in
@@ -446,8 +441,11 @@ export default function Hero({
           <span className="contents portrait:hidden">{t.editorial.lines.map(edLine)}</span>
           <span className="hidden portrait:contents">{t.editorial.tall.map(edLine)}</span>
         </h1>
-        {/* The speakers pill, set a size up (zoom keeps its fan-out maths). */}
+        {/* The speakers pill, set a size up (zoom keeps its fan-out maths).
+            Below lg it steps aside (.ed-pill, globals.css) while the countdown,
+            music or cookie details show in its place. */}
         <div className="hero-typed mt-[min(4.5vw,3.6svh)] [@media(max-height:500px)]:mt-2!">
+          <div className="ed-pill">
           <p
             data-hero
             className="faces-pill inline-flex items-center gap-3 rounded-full bg-[rgb(34_14_52/0.5)] py-1.5 pl-1.5 pr-4 text-xs ring-1 ring-white/20 [zoom:1.15] sm:text-sm sm:[zoom:1.3] [@media(max-height:500px)]:[zoom:1]!"
@@ -456,10 +454,11 @@ export default function Hero({
             <span className="sm:hidden">{t.speakersPillShort}</span>
             <span className="max-sm:hidden">{t.speakersPill}</span>
           </p>
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-1 basis-0 flex-col justify-end">
+      <div className="flex flex-1 basis-0 flex-col justify-end max-lg:flex-none">
       {/* Bottom right, over the round buttons: when and where, matching the signature (desktop only). */}
       <div className="hero-out-down self-end max-lg:hidden [@media(max-height:500px)]:hidden">
         <p data-hero className={`text-right ${ED_CAPTION}`}>
@@ -472,7 +471,9 @@ export default function Hero({
       </div>
 
       {/* Below lg: the CTA and the two round buttons share a row, the bar under them. */}
-      <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-4 lg:mt-6 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,46rem)_minmax(0,1fr)] lg:gap-6">
+      {/* Below lg the details bar floats just above the buttons, over the
+          pill's place, so opening it never moves or shrinks the headline. */}
+      <div className="relative mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-4 lg:mt-6 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,46rem)_minmax(0,1fr)] lg:gap-6">
         <div className="hero-out-down flex min-w-0 flex-1 sm:flex-none lg:col-start-1 lg:row-start-1 lg:justify-self-start">
           <div data-hero className="flex w-full">
             {cta("h-[3.25rem] w-full min-w-0 justify-between max-sm:[container-type:inline-size] sm:w-auto sm:whitespace-nowrap pl-3.5 pr-1.5 text-[0.8125rem] sm:h-16 sm:pl-7 sm:pr-2.5 sm:text-base")}
@@ -484,7 +485,7 @@ export default function Hero({
             <span data-music-slot className="relative size-[3.25rem] shrink-0 sm:size-16 lg:size-20" />
           </div>
         </div>
-        {bar("basis-full lg:col-start-2 lg:row-start-1 lg:[&_[data-countdown-bar]]:mt-0")}
+        {bar("basis-full max-lg:absolute max-lg:inset-x-0 max-lg:bottom-full max-lg:mb-3 max-lg:[&_[data-countdown-bar]]:mt-0 lg:col-start-2 lg:row-start-1 lg:[&_[data-countdown-bar]]:mt-0")}
       </div>
       </div>
     </div>

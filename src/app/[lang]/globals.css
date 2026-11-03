@@ -463,6 +463,13 @@ html[data-lite]:is([data-countdown-open], [data-music-open]) body::after { backg
 @media (min-width: 1024px) {
   .hero-bar-slot > * { overflow: visible; }
 }
+/* Below lg the hero's details bar floats over the speakers pill: the pill
+   fades out while the countdown, the music or the cookie notice is on show. */
+.ed-pill { transition: opacity 0.5s ease-out, visibility 0s linear 0s; }
+@media (max-width: 1023.98px) {
+  html[data-facts="on"] .ed-root .ed-pill,
+  .ed-root:has([data-countdown-bar]:not([data-view="facts"])) .ed-pill { opacity: 0; visibility: hidden; transition: opacity 0.4s ease-out, visibility 0s linear 0.4s; }
+}
 @media (max-width: 1023.98px) {
   html:not([data-facts="on"]) .hero-bar-slot:has([data-view="facts"]) { grid-template-rows: 0fr; }
 }
