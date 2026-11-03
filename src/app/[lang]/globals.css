@@ -457,6 +457,12 @@ html[data-lite]:is([data-countdown-open], [data-music-open]) body::after { backg
    On desktop the block is centred and the room stays. */
 .hero-bar-slot { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 0.7s cubic-bezier(0.65, 0, 0.35, 1); }
 .hero-bar-slot > * { min-height: 0; overflow: hidden; }
+/* The clip is only for the fold itself: open (and on desktop, where it never
+   folds) the content may glow past the row, like the play button's halo. */
+.hero-bar-slot:not(:has([data-view="facts"])) > * { overflow: visible; }
+@media (min-width: 1024px) {
+  .hero-bar-slot > * { overflow: visible; }
+}
 @media (max-width: 1023.98px) {
   html:not([data-facts="on"]) .hero-bar-slot:has([data-view="facts"]) { grid-template-rows: 0fr; }
 }

@@ -70,8 +70,16 @@ export default function CountdownRing({ labels }: { labels: Labels }) {
     const onMusic = (e: Event) => {
       if ((e as CustomEvent<boolean>).detail && !raised) setOpen(false);
     };
+    // Left idle in the hero bar (Hero's "im:hero-idle"), the details close.
+    const onIdle = () => {
+      if (!raised) setOpen(false);
+    };
     window.addEventListener("im:music-bar", onMusic);
-    return () => window.removeEventListener("im:music-bar", onMusic);
+    window.addEventListener("im:hero-idle", onIdle);
+    return () => {
+      window.removeEventListener("im:music-bar", onMusic);
+      window.removeEventListener("im:hero-idle", onIdle);
+    };
   }, [raised]);
 
   // While the ring is in the corner, its hero slot collapses (CSS) so the CTA

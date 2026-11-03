@@ -161,6 +161,25 @@ export default function Hero({
     };
   }, []);
 
+  // The countdown's or the music's details close on their own (fading back)
+  // after 10 seconds without the mouse, keyboard or touch: "im:hero-idle"
+  // tells CountdownRing and MusicPlayer to close.
+  useEffect(() => {
+    if (view === "facts") return;
+    let timer = 0;
+    const arm = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => window.dispatchEvent(new Event("im:hero-idle")), 10000);
+    };
+    const events = ["pointermove", "pointerdown", "keydown", "wheel", "touchstart"] as const;
+    arm();
+    events.forEach((type) => window.addEventListener(type, arm, { passive: true }));
+    return () => {
+      window.clearTimeout(timer);
+      events.forEach((type) => window.removeEventListener(type, arm));
+    };
+  }, [view]);
+
   const cta = (size: string) => (
     <a
       href="#numeros"
@@ -242,7 +261,8 @@ export default function Hero({
   // Shared by both layouts: the frosted bar with the facts / countdown / music / cookie notice.
   const bar = (place = "") => (
     <>
-        {/* Frosted bar with the event's key facts. Clicking the countdown ring
+        {/* The event's key facts, loose on the video (no box, a soft shadow
+            under the text keeps it legible). Clicking the countdown ring
             cross-fades it to the countdown's details (same box, same size).
             The facts view is hidden unless turned on in the accessibility menu
             (data-view + html[data-facts], globals.css). On phones and tablets, with no bar on show its
@@ -256,7 +276,7 @@ export default function Hero({
             data-hero
             data-countdown-bar
             data-view={shown}
-            className="relative mx-auto mt-6 w-full max-w-3xl rounded-full bg-[rgb(42_18_64/0.6)] ring-1 ring-white/20 sm:mt-10"
+            className="relative mx-auto mt-6 w-full max-w-3xl [text-shadow:0_1px_14px_rgb(28_11_44/0.7)] sm:mt-10"
           >
             <dl
               aria-hidden={shown !== "facts"}

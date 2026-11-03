@@ -532,8 +532,14 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
     const onCountdown = (e: Event) => {
       if ((e as CustomEvent<boolean>).detail) setBarOpen(false);
     };
+    // Left idle in the hero bar (Hero's "im:hero-idle"), the player closes.
+    const onIdle = () => setBarOpen(false);
     window.addEventListener("im:countdown-bar", onCountdown);
-    return () => window.removeEventListener("im:countdown-bar", onCountdown);
+    window.addEventListener("im:hero-idle", onIdle);
+    return () => {
+      window.removeEventListener("im:countdown-bar", onCountdown);
+      window.removeEventListener("im:hero-idle", onIdle);
+    };
   }, []);
 
   useLayoutEffect(() => {
@@ -692,13 +698,15 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
   const hintReach = Math.max(0, Math.min((112 - cornerSize) / 2, cornerRight - 8));
   const counter = `${String(index + 1).padStart(2, "0")}/${String(total).padStart(2, "0")}`;
 
-  // The hero bar's player: one line on desktop (cover, track, controls, seek,
-  // volume); on phones the track and the main controls, with the seek line
-  // along the bottom edge.
+  // The hero bar's player: one line when the bar is wide enough (cover, track,
+  // controls, the times around the waveform, volume); narrower, the track and
+  // the main controls, with the seek line along the bottom edge. It follows the
+  // bar's own width (container queries), not the screen's, so the times always
+  // have room beside the waveform and never sit on it.
   const bar = (
-    <div className="relative flex h-full items-center gap-2 px-3.5 text-white sm:gap-4 sm:px-6">
+    <div className="@container/mbar relative flex h-full items-center gap-2 px-3.5 text-white @[30rem]/mbar:gap-3 @[30rem]/mbar:px-5 @[54rem]/mbar:gap-4 @[54rem]/mbar:px-6">
       {cover("size-9 sm:size-11")}
-      <div className="min-w-0 flex-1 sm:w-36 sm:flex-none">
+      <div className="min-w-0 flex-1 @[40rem]/mbar:w-28 @[40rem]/mbar:flex-none @[54rem]/mbar:w-36">
         <p className="flex items-center gap-1.5 whitespace-nowrap text-[0.625rem] font-medium uppercase tracking-[0.14em] text-[#D9B865]">
           {eq}
           {counter}
@@ -710,14 +718,14 @@ export default function MusicPlayer({ labels }: { labels: Labels }) {
         <span className="hidden sm:contents">{controls("hover:bg-white/10", "size-10", "1.05rem", "text-[#D9B865]")}</span>
         <span className="contents sm:hidden">{controls("size-8! hover:bg-white/10", "size-8", "0.95rem", "text-[#D9B865]")}</span>
       </div>
-      <div className="hidden min-w-0 flex-1 items-center gap-3 text-[0.6875rem] tabular-nums text-white/70 md:flex">
+      <div className="hidden min-w-0 flex-1 items-center gap-3 text-[0.6875rem] tabular-nums text-white/70 @[40rem]/mbar:flex">
         <span className="shrink-0">{fmt(time.cur)}</span>
-        {seek(28, "h-7 min-w-0 flex-1 gap-[1.5px]", "light", barOpen)}
+        {seek(28, "h-7 min-w-[4.5rem] flex-1 gap-[1.5px] overflow-hidden", "light", barOpen)}
         <span className="shrink-0">{fmt(time.dur)}</span>
       </div>
-      <div className="hidden shrink-0 lg:block">{volumeCtl("hover:bg-white/10", "music-range-light w-16 min-w-0")}</div>
-      {/* Phones and tablets: the track's progress as a thin line along the bottom. */}
-      <span aria-hidden className="absolute inset-x-8 bottom-2 h-0.5 overflow-hidden rounded-full bg-white/15 md:hidden">
+      <div className="hidden shrink-0 @[42.5rem]/mbar:block">{volumeCtl("hover:bg-white/10", "music-range-light w-16 min-w-0")}</div>
+      {/* Narrow bar: the track's progress as a thin line along the bottom. */}
+      <span aria-hidden className="absolute inset-x-8 bottom-2 h-0.5 overflow-hidden rounded-full bg-white/15 @[40rem]/mbar:hidden">
         <span className="block h-full bg-[#D9B865]" style={{ width: `${progress * 100}%` }} />
       </span>
     </div>
