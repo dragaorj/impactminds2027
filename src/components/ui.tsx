@@ -23,7 +23,8 @@ export function Bezel({
 }
 
 const btnBase =
-  "group inline-flex h-12 items-center gap-3 whitespace-nowrap rounded-full pl-6 pr-1.5 text-[0.9375rem] font-medium transition-transform duration-500 ease-[var(--ease-spring)] active:scale-[0.98]";
+  // A long label wraps onto two lines on narrow phones instead of running past the edge.
+  "group inline-flex min-h-12 max-w-full items-center gap-3 rounded-full py-1.5 pl-6 pr-1.5 text-left text-[0.9375rem] font-medium leading-snug text-balance transition-transform duration-500 ease-[var(--ease-spring)] active:scale-[0.98] sm:whitespace-nowrap";
 
 export function Button({
   href,
@@ -50,7 +51,7 @@ export function Button({
     >
       {children}
       <span
-        className={`grid size-9 place-items-center rounded-full ${icon} transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-translate-y-px group-hover:translate-x-0.5 group-hover:scale-105`}
+        className={`grid size-9 shrink-0 place-items-center rounded-full ${icon} transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-translate-y-px group-hover:translate-x-0.5 group-hover:scale-105`}
       >
         <ArrowUpRight size="1rem" />
       </span>

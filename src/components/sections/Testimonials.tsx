@@ -13,46 +13,57 @@ import { H2, container, section } from "../ui";
 // the role ("CEO, Fundação Luksic" -> "Fundação Luksic").
 const org = (role: string) => role.slice(role.lastIndexOf(",") + 1).trim();
 
-// One row of plain cards that scrolls sideways (swipe, trackpad or the arrows),
-// each card: the organisation, the quote, then the person with a closing quote
-// mark. A counter and a thin progress line under the row show where you are.
+// Plain cards, each: the organisation, the quote, then the person with a
+// closing quote mark. From md all six show at once in a grid (two, then three
+// per row); on phones one card at a time, swiped or stepped with the arrows,
+// moving on by itself every few seconds while in view and left alone.
 export default function Testimonials({ t, lang }: { t: Dict["testimonials"]; lang: Locale }) {
   const track = useRef<HTMLUListElement>(null);
   const [current, setCurrent] = useState(0);
+  const [paused, setPaused] = useState(false);
   const total = testimonials.length;
 
-  // The card nearest the row's left edge is the current one.
+  // The card filling the row is the current one (phones only; from md the row is a grid).
   useEffect(() => {
     const el = track.current;
     if (!el) return;
     const sync = () => {
-      const cards = Array.from(el.children) as HTMLElement[];
-      const at = (c: HTMLElement) => c.offsetLeft - cards[0].offsetLeft;
-      const start = el.scrollLeft;
-      let best = 0;
-      cards.forEach((c, i) => {
-        if (Math.abs(at(c) - start) < Math.abs(at(cards[best]) - start)) best = i;
-      });
-      // At the very end the last card counts as current, even if it never reaches the left edge.
-      if (start + el.clientWidth >= el.scrollWidth - 4) best = cards.length - 1;
-      setCurrent(best);
+      const card = el.children[0] as HTMLElement | undefined;
+      if (!card || el.scrollWidth <= el.clientWidth) return;
+      setCurrent(Math.max(0, Math.min(total - 1, Math.round(el.scrollLeft / (card.offsetWidth + 16)))));
     };
-    sync();
     el.addEventListener("scroll", sync, { passive: true });
     return () => el.removeEventListener("scroll", sync);
-  }, []);
+  }, [total]);
 
-  const go = (step: number) => {
+  const show = (i: number) => {
     const el = track.current;
     if (!el) return;
-    const cards = Array.from(el.children) as HTMLElement[];
-    const next = Math.max(0, Math.min(total - 1, current + step));
+    const next = (i + total) % total;
+    const card = el.children[next] as HTMLElement;
+    el.scrollTo({ left: card.offsetLeft - (el.children[0] as HTMLElement).offsetLeft, behavior: "smooth" });
     setCurrent(next);
-    el.scrollTo({ left: cards[next].offsetLeft - cards[0].offsetLeft, behavior: "smooth" });
   };
 
+  // Autoplay on phones: every 6s while the row is on screen, unless the reader
+  // is touching or has stepped through it themselves, or motion is reduced.
+  useEffect(() => {
+    const el = track.current;
+    if (!el || paused || document.documentElement.dataset.motion === "reduce") return;
+    if (!window.matchMedia("(max-width: 47.99rem)").matches) return;
+    let visible = false;
+    const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting), { threshold: 0.5 });
+    io.observe(el);
+    const id = window.setInterval(() => visible && show(current + 1), 6000);
+    return () => {
+      io.disconnect();
+      window.clearInterval(id);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current, paused]);
+
   const arrow =
-    "grid size-11 place-items-center rounded-full text-ink ring-1 ring-line transition-[background-color,color,opacity] duration-300 hover:bg-sun hover:text-sun-ink disabled:pointer-events-none disabled:opacity-35";
+    "grid size-11 place-items-center rounded-full text-ink ring-1 ring-line transition-[background-color,color] duration-300 hover:bg-sun hover:text-sun-ink";
 
   return (
     <section id="depoimentos" className={`${section} overflow-hidden bg-bg-2 wave-y`} aria-labelledby="depoimentos-title">
@@ -65,11 +76,12 @@ export default function Testimonials({ t, lang }: { t: Dict["testimonials"]; lan
         <ul
           ref={track}
           aria-label={t.title}
-          className="-mx-5 mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] sm:-mx-8 sm:scroll-px-8 sm:px-8 md:mt-16 lg:-mx-[5vw] lg:scroll-px-[5vw] lg:px-[5vw] [&::-webkit-scrollbar]:hidden"
+          className="mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto [scrollbar-width:none] md:mt-16 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-3 [&::-webkit-scrollbar]:hidden"
+          onPointerDown={() => setPaused(true)}
           data-reveal
         >
           {testimonials.map((item) => (
-            <li key={item.name} className="w-[min(86vw,22rem)] shrink-0 snap-start md:w-[24rem]">
+            <li key={item.name} className="w-full shrink-0 snap-center md:w-auto">
               <figure className="flex h-full flex-col rounded-[1.75rem] bg-surface p-6 ring-1 ring-line md:p-7">
                 <p className="text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-muted">{org(item.role[lang])}</p>
                 <blockquote className="mt-4 flex-1 text-lg leading-relaxed text-ink">{item.quote[lang]}</blockquote>
@@ -90,26 +102,19 @@ export default function Testimonials({ t, lang }: { t: Dict["testimonials"]; lan
           ))}
         </ul>
 
-        {/* Where you are: "2 / 6", a thin line filling up, and the arrows. */}
-        <div className="mt-8 flex items-center gap-5">
-          <p className="font-display text-lg tabular-nums text-ink" aria-live="polite" data-nosplit>
-            {current + 1}
-            <span className="text-muted"> / {total}</span>
-          </p>
-          <span aria-hidden className="h-px flex-1 overflow-hidden bg-line">
-            <span
-              className="block h-full bg-gold transition-[width] duration-500 ease-out"
-              style={{ width: `${((current + 1) / total) * 100}%` }}
-            />
-          </span>
-          <div className="flex gap-2">
-            <button type="button" onClick={() => go(-1)} disabled={current === 0} aria-label={t.prev} className={arrow}>
-              <CaretLeft size="1rem" />
-            </button>
-            <button type="button" onClick={() => go(1)} disabled={current === total - 1} aria-label={t.next} className={arrow}>
-              <CaretRight size="1rem" />
-            </button>
+        {/* Phones: the arrows around one dot per card. */}
+        <div className="mt-6 flex items-center justify-center gap-4 md:hidden">
+          <button type="button" onClick={() => (setPaused(true), show(current - 1))} aria-label={t.prev} className={arrow}>
+            <CaretLeft size="1rem" />
+          </button>
+          <div className="flex gap-2" aria-hidden>
+            {testimonials.map((item, i) => (
+              <span key={item.name} className={`h-1.5 rounded-full transition-[width,background-color] duration-500 ${i === current ? "w-6 bg-gold" : "w-1.5 bg-line"}`} />
+            ))}
           </div>
+          <button type="button" onClick={() => (setPaused(true), show(current + 1))} aria-label={t.next} className={arrow}>
+            <CaretRight size="1rem" />
+          </button>
         </div>
       </div>
     </section>

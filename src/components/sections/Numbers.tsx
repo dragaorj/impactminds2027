@@ -95,7 +95,7 @@ export default function Numbers({ t, locale, show }: { t: Dict["numbers"]; local
     <section id="numeros" className={section} aria-labelledby="numeros-title">
       <Art name="mosaic" className="pointer-events-none absolute bottom-6 left-[1.25vw] hidden w-20 lg:block" />
       <div className={container}>
-        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between" data-reveal>
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between" data-reveal>
           <div className="max-w-3xl">
           <h2 id="numeros-title" className="font-display text-[clamp(2.25rem,5.2vw,4.25rem)] leading-[1.02] text-ink" data-nosplit>
             <span className="block">{titleHead}</span>
@@ -110,7 +110,7 @@ export default function Numbers({ t, locale, show }: { t: Dict["numbers"]; local
               href={links.report2026}
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex min-h-12 shrink-0 items-center gap-3 rounded-full py-1.5 pl-2 pr-5 text-[0.9375rem] font-medium btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-[0.98]"
+              className="group inline-flex min-h-12 min-w-0 items-center gap-3 rounded-full py-1.5 pl-2 pr-5 text-left text-[0.9375rem] font-medium leading-snug btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-[0.98]"
             >
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-sun/15 text-gold transition-colors group-hover:bg-sun-ink/10 group-hover:text-sun-ink">
                 <FilePdf size="1.05rem" weight="light" />

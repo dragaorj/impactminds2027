@@ -152,7 +152,7 @@ export default function LatamNetwork({ lang, labels }: { lang: Locale; labels: L
       {/* Readout in the empty Atlantic corner: where the active place is. */}
       <div
         aria-live="polite"
-        className="absolute right-0 top-0 text-right text-[0.625rem] uppercase leading-relaxed tracking-[0.18em] text-muted tabular-nums sm:text-[0.6875rem] lg:right-[4%] lg:top-24"
+        className="absolute right-0 top-0 text-right text-[0.625rem] uppercase leading-relaxed tracking-[0.18em] text-muted tabular-nums sm:text-[0.6875rem] lg:right-0 lg:top-24"
       >
         <p>
           {dms(active.ll[1], "N", "S")} · {dms(active.ll[0], "E", "W")}
@@ -161,7 +161,7 @@ export default function LatamNetwork({ lang, labels }: { lang: Locale; labels: L
       </div>
 
       {/* The places, as a list. */}
-      <div className="pointer-events-auto mt-8 lg:absolute lg:bottom-24 lg:right-[4%] lg:mt-0 lg:text-right">
+      <div className="pointer-events-auto mt-8 lg:absolute lg:bottom-24 lg:right-0 lg:mt-0 lg:text-right">
         <p className="text-center text-[0.6875rem] uppercase tracking-[0.18em] text-muted lg:text-right">{labels.places}</p>
         <ul
           ref={list}

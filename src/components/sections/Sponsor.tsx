@@ -17,7 +17,7 @@ export default function Sponsor({ t, locale }: { t: Dict["sponsor"]; locale: str
       {/* Concentric rings sunk into the section's lower edge: the next section
           (and its wave) is painted over their lower half, so they sit behind it. */}
       <Art name="rings" className="absolute -bottom-36 left-[2vw] hidden w-72 xl:block" />
-      <div className={`${container} grid gap-12 xl:grid-cols-12 xl:items-center xl:gap-12`}>
+      <div className={`${container} grid grid-cols-1 gap-12 xl:grid-cols-12 xl:items-center xl:gap-12`}>
         <div className="xl:col-span-6" data-reveal>
           <H2 id="patrocinio-title" className="!text-[clamp(2.1rem,4.4vw,3.5rem)]">
             {t.title}
