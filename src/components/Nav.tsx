@@ -25,8 +25,9 @@ const iconBtnOnVideo =
 // Picking one is a real page load on purpose: client-side switching kept
 // hidden copies of every visited language in the DOM (same ids, stale
 // animations), which made things vanish. To keep it instant, the other
-// languages are prefetched (once the visitor reaches for the button) and the
-// scroll position is handed over
+// languages are prerendered in the background once the visitor reaches for
+// the button (Speculation Rules, Chromium; a plain prefetch elsewhere), so the
+// switch swaps in an already-rendered page, and the scroll position is handed over
 // (sessionStorage "im-switch"): the new page restores it and skips the intro
 // and all entrance animations (html[data-switch]).
 // Each language in its own words, shown small under its name in the page's
@@ -68,6 +69,21 @@ function LangSwitch({
   }, []);
   const root = useRef<HTMLDivElement>(null);
 
+  // Once the visitor shows interest, the other languages are prerendered:
+  // picking one then shows it at once. Added once, never on page load, and the
+  // rules must be a real script element (React's own <script> stays inert).
+  const ready = warm || open;
+  useEffect(() => {
+    if (!ready || !HTMLScriptElement.supports?.("speculationrules")) return;
+    const rules = document.createElement("script");
+    rules.type = "speculationrules";
+    rules.textContent = JSON.stringify({
+      prerender: [{ source: "list", urls: locales.filter((l) => l !== lang).map((l) => `/${l}${sub}`), eagerness: "immediate" }],
+    });
+    document.head.appendChild(rules);
+    return () => rules.remove();
+  }, [ready, lang, sub]);
+
   useEffect(() => {
     if (!open) return;
     const onDown = (e: PointerEvent) => {
@@ -96,6 +112,7 @@ function LangSwitch({
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         onPointerEnter={() => setWarm(true)}
+        onPointerDown={() => setWarm(true)}
         onFocus={() => setWarm(true)}
         className={`group relative flex h-10 items-center gap-1.5 rounded-full pl-2.5 pr-3 text-[0.9375rem] font-medium uppercase leading-none tracking-[0.06em] transition-[background-color,color] duration-500 ease-[var(--ease-spring)] ${
           open ? "bg-sun text-sun-ink" : onVideo ? "text-white hover:bg-sun hover:text-sun-ink" : "text-ink hover:bg-sun hover:text-sun-ink"
