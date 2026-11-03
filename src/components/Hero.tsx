@@ -297,7 +297,7 @@ export default function Hero({
             data-hero
             data-countdown-bar
             data-view={shown}
-            className="relative mx-auto mt-6 w-full max-w-3xl [text-shadow:0_1px_14px_rgb(28_11_44/0.7)] sm:mt-10"
+            className="@container/hbar relative mx-auto mt-6 w-full max-w-3xl [text-shadow:0_1px_14px_rgb(28_11_44/0.7)] sm:mt-10"
           >
             <dl
               aria-hidden={shown !== "facts"}
@@ -315,25 +315,27 @@ export default function Hero({
             <div
               id="hero-countdown"
               aria-hidden={!countdown}
-              className={`absolute inset-0 flex flex-col justify-center px-3 text-left transition-[opacity,filter,translate] duration-500 ease-out sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:px-7 ${
+              className={`absolute inset-0 flex flex-col justify-center px-3 text-left transition-[opacity,filter,translate] duration-500 ease-out @[36rem]/hbar:flex-row @[36rem]/hbar:items-center @[36rem]/hbar:justify-between @[36rem]/hbar:gap-5 @[36rem]/hbar:px-7 ${
                 countdown ? "opacity-100 delay-150" : "pointer-events-none translate-y-1 opacity-0 blur-[2px]"
               }`}
             >
-              {/* Phones: just the four units, laid out like the facts they replace
-                  (four centred columns with dividers); the venue and the dates from
-                  sm, with the units grouped in the middle, each label centred
-                  under its number. */}
-              <div className="hidden sm:block sm:shrink-0">
+              {/* A narrow bar (phones, or the room between the buttons on small
+                  desktops): just the four units, laid out like the facts they
+                  replace (four centred columns with dividers); wider, the venue
+                  and the dates, with the units grouped in the middle, each label
+                  centred under its number, and the agenda link when it fits.
+                  It follows the bar's own width (@container hbar). */}
+              <div className="hidden @[36rem]/hbar:block @[36rem]/hbar:shrink-0">
                 <p className="text-[0.8125rem] text-white/75">{t.eyebrow}</p>
                 <p className="mt-0.5 text-[0.8125rem] font-medium text-[#D9B865]">{t.dates}</p>
               </div>
-              <div className="w-full [&_dd]:text-xl [&_dt]:mt-1 max-sm:[&_dl]:gap-0 max-sm:[&_dl>div]:items-center max-sm:[&_dl>div+div]:border-l max-sm:[&_dl>div+div]:border-white/15 max-sm:[&_dt]:text-[0.625rem] sm:w-auto sm:flex-1 sm:[&_dl]:flex sm:[&_dl]:justify-center sm:[&_dl]:gap-7 sm:[&_dl>div]:min-w-[3.25rem] sm:[&_dl>div]:items-center sm:[&_dd]:text-[1.65rem] sm:[&_dt]:text-xs">
+              <div className="w-full [&_dd]:text-xl [&_dt]:mt-1 @max-[36rem]/hbar:[&_dl]:gap-0 @max-[36rem]/hbar:[&_dl>div]:items-center @max-[36rem]/hbar:[&_dl>div+div]:border-l @max-[36rem]/hbar:[&_dl>div+div]:border-white/15 @max-[36rem]/hbar:[&_dt]:text-[0.625rem] @[36rem]/hbar:w-auto @[36rem]/hbar:flex-1 @[36rem]/hbar:[&_dl]:flex @[36rem]/hbar:[&_dl]:justify-center @[36rem]/hbar:[&_dl]:gap-7 @[36rem]/hbar:[&_dl>div]:min-w-[3.25rem] @[36rem]/hbar:[&_dl>div]:items-center @[36rem]/hbar:[&_dd]:text-[1.65rem] @[36rem]/hbar:[&_dt]:text-xs">
                 <Countdown start={EVENT_START} end={EVENT_END} labels={t} compact paused={!countdown} />
               </div>
               <a
                 href="#agenda-2027"
                 tabIndex={countdown ? 0 : -1}
-                className="group hidden shrink-0 items-center gap-2 rounded-full py-1.5 pl-3.5 pr-2 text-[0.8125rem] font-medium ring-1 ring-white/25 transition-colors hover:bg-[#D9B865] hover:text-[#2A1240] md:flex"
+                className="group hidden shrink-0 items-center gap-2 rounded-full py-1.5 pl-3.5 pr-2 text-[0.8125rem] font-medium ring-1 ring-white/25 transition-colors hover:bg-[#D9B865] hover:text-[#2A1240] @[44rem]/hbar:flex"
               >
                 {agendaLink}
                 <ArrowRight size="1rem" className="transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-x-0.5" />
@@ -471,9 +473,12 @@ export default function Hero({
       </div>
 
       {/* Below lg: the CTA and the two round buttons share a row, the bar under them. */}
+      {/* From lg the CTA and the round buttons keep their full width at the
+          sides and the details bar takes only the room between them, so it
+          never runs under either. */}
       {/* Below lg the details bar floats just above the buttons, over the
           pill's place, so opening it never moves or shrinks the headline. */}
-      <div className="relative mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-4 lg:mt-6 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,46rem)_minmax(0,1fr)] lg:gap-6">
+      <div className="relative mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-4 lg:mt-6 lg:grid lg:grid-cols-[minmax(max-content,1fr)_minmax(0,46rem)_minmax(max-content,1fr)] lg:gap-6">
         <div className="hero-out-down flex min-w-0 flex-1 sm:flex-none lg:col-start-1 lg:row-start-1 lg:justify-self-start">
           <div data-hero className="flex w-full">
             {cta("h-[3.25rem] w-full min-w-0 justify-between max-sm:[container-type:inline-size] sm:w-auto sm:whitespace-nowrap pl-3.5 pr-1.5 text-[0.8125rem] sm:h-16 sm:pl-7 sm:pr-2.5 sm:text-base")}
