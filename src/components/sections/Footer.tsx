@@ -74,49 +74,50 @@ export default function Footer({
           data-reveal
           className="mt-14 grid gap-10 rounded-[2rem] bg-surface/60 p-7 ring-1 ring-line backdrop-blur-xl md:p-10 lg:grid-cols-12 lg:gap-8"
         >
-          <div className="lg:col-span-6">
+          {/* Left: the Latimpacto mark, the site links and the social links. */}
+          <div className="lg:col-span-5">
             <LatimpactoMark tone="brand" title="Latimpacto" className="aspect-[619/143] h-9 w-auto" />
-            <div className="mt-8 max-w-xl">
-              <ContactForm t={contact} />
+            <nav aria-label={nav.primary} className="mt-8">
+              <ul className="flex flex-col">
+                {items.map((item) => (
+                  <li key={item.href} className="border-b border-line last:border-b-0">
+                    <a
+                      href={item.href}
+                      className="group flex items-center justify-between gap-4 py-3.5 text-ink transition-colors duration-300 hover:text-gold"
+                    >
+                      {item.label}
+                      <ArrowUpRight
+                        size="1rem"
+                        className="shrink-0 text-muted transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-gold"
+                      />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <div className="mt-8">
+              <p className="text-sm text-muted">{t.follow}</p>
+              <ul className="mt-4 flex gap-2">
+                {social.map(({ href, label, Icon }) => (
+                  <li key={label}>
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className="grid size-12 place-items-center rounded-full btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:scale-105 hover:bg-sun hover:text-sun-ink"
+                    >
+                      <Icon size="1.25rem" weight="light" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
-          <nav aria-label={nav.primary} className="lg:col-span-3">
-            <ul className="flex flex-col">
-              {items.map((item) => (
-                <li key={item.href} className="border-b border-line last:border-b-0">
-                  <a
-                    href={item.href}
-                    className="group flex items-center justify-between gap-4 py-3.5 text-ink transition-colors duration-300 hover:text-gold"
-                  >
-                    {item.label}
-                    <ArrowUpRight
-                      size="1rem"
-                      className="shrink-0 text-muted transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-gold"
-                    />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <div className="lg:col-span-3">
-            <p className="text-sm text-muted">{t.follow}</p>
-            <ul className="mt-4 flex gap-2">
-              {social.map(({ href, label, Icon }) => (
-                <li key={label}>
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={label}
-                    className="grid size-12 place-items-center rounded-full btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:scale-105 hover:bg-sun hover:text-sun-ink"
-                  >
-                    <Icon size="1.25rem" weight="light" />
-                  </a>
-                </li>
-              ))}
-            </ul>
+          {/* Right: the contact form. */}
+          <div id="contato" className="scroll-mt-32 lg:col-span-6 lg:col-start-7">
+            <ContactForm t={contact} />
           </div>
         </div>
 

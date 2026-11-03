@@ -10,8 +10,15 @@ type Status = "idle" | "sending" | "sent" | "error" | "invalid";
 const field =
   "w-full rounded-[1.25rem] bg-ink/5 px-4 py-3 text-base text-ink ring-1 ring-line outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-sun/60";
 
-// Name, email and message, sent to the conference team (/api/contact mails
-// them to CONTACT_EMAIL). On any failure the address is shown so nothing is lost.
+// Web3Forms access key issued to the conference inbox. It is public by design
+// (it only lets this form send to that inbox) and its free plan only accepts
+// submissions from the browser, so the form posts there directly.
+const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
+
+// Name, email and message, sent to the conference team: through Web3Forms when
+// its key is set, otherwise /api/contact (Resend). If neither can send, the
+// visitor's mail app opens with the message ready, and the address is shown,
+// so nothing is lost.
 export default function ContactForm({ t }: { t: Dict["contact"] }) {
   const [status, setStatus] = useState<Status>("idle");
 
@@ -24,17 +31,39 @@ export default function ContactForm({ t }: { t: Dict["contact"] }) {
       return;
     }
     setStatus("sending");
+    const subject = `Contato pelo site · ${data.name.trim()}`;
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error(String(res.status));
+      const res = WEB3FORMS_KEY
+        ? await fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({
+              access_key: WEB3FORMS_KEY,
+              subject,
+              from_name: "Site Impact Minds",
+              name: data.name,
+              email: data.email,
+              replyto: data.email,
+              message: data.message,
+              botcheck: data.company ? true : "",
+            }),
+          })
+        : await fetch("/api/contact", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || out.success === false) throw new Error(String(res.status));
       form.reset();
       setStatus("sent");
     } catch {
       setStatus("error");
+      // Hand the message to the visitor's mail app, ready to send.
+      const body = `${data.message.trim()}
+
+${data.name.trim()} · ${data.email.trim()}`;
+      window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
   };
 

@@ -29,7 +29,7 @@ export default function Cartagena({ t }: { t: Dict["cartagena"] }) {
               {t.dates}
             </li>
           </ul>
-          <H2 id="cartagena-title" className="mt-6">
+          <H2 id="cartagena-title" className="mt-6 text-balance">
             {t.title}
           </H2>
           <div className="mt-8 max-w-[62ch] space-y-5 text-lg leading-relaxed text-ink-2">

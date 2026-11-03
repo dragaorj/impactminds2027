@@ -12,6 +12,9 @@ const en: Dict = {
     agenda2026: "2026 Academic Agenda",
     speakers2026: "2026 Speakers",
     editions: "Past editions",
+    about: "Impact Minds",
+    cartagena: "Cartagena 2027",
+    contact: "Contact",
     openMenu: "Open menu",
     closeMenu: "Close menu",
     primary: "Main navigation",
@@ -121,7 +124,7 @@ const en: Dict = {
     kicker: "Impact Minds 2027",
     place: "Cartagena, Colombia",
     dates: "August 24–27",
-    title: "Where Impact Connects Latin America",
+    title: "Where Impact Connects Latin America",
     paragraphs: [
       "Cartagena is a city where history, diversity and a deep connection with the Caribbean come together, making it a strategic setting to drive conversations on impact, sustainable development and social innovation in Latin America.",
       "Its cultural richness and its place as a meeting point between territories and communities offer a unique stage for the next edition of Impact Minds: connecting people, experiences and solutions that reflect the potential of Colombia and the whole region.",
@@ -456,7 +459,7 @@ const en: Dict = {
     "send": "Send message",
     "sending": "Sending…",
     "sent": "Message sent! The conference team will reply soon.",
-    "error": "It couldn't be sent right now. Try again or write to",
+    "error": "We couldn't send it from the site, so we opened your email app with the message ready. If it didn't open, write to",
     "invalid": "Fill in your name, a valid email and the message."
   },
   footer: {

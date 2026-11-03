@@ -10,6 +10,9 @@ const pt = {
     agenda2026: "Agenda Acadêmica 2026",
     speakers2026: "Palestrantes 2026",
     editions: "Edições anteriores",
+    about: "A Impact Minds",
+    cartagena: "Cartagena 2027",
+    contact: "Contato",
     openMenu: "Abrir menu",
     closeMenu: "Fechar menu",
     primary: "Navegação principal",
@@ -119,7 +122,7 @@ const pt = {
     kicker: "Impact Minds 2027",
     place: "Cartagena, Colômbia",
     dates: "24 – 27 de agosto",
-    title: "Onde o Impacto Conecta a América Latina",
+    title: "Onde o Impacto Conecta a América Latina",
     paragraphs: [
       "Cartagena é uma cidade onde convergem história, diversidade e uma profunda conexão com o Caribe, tornando-se um cenário estratégico para impulsionar conversas sobre impacto, desenvolvimento sustentável e inovação social na América Latina.",
       "Sua riqueza cultural e sua posição como ponto de encontro entre diferentes territórios e comunidades oferecem um cenário único para a próxima edição da Impact Minds: conectar atores, experiências e soluções que reflitam o potencial da Colômbia e de toda a região.",
@@ -454,7 +457,7 @@ const pt = {
     "send": "Enviar mensagem",
     "sending": "Enviando…",
     "sent": "Mensagem enviada! A equipe da conferência vai responder em breve.",
-    "error": "Não foi possível enviar agora. Tente de novo ou escreva para",
+    "error": "Não foi possível enviar pelo site, então abrimos seu e-mail com a mensagem pronta. Se ele não abrir, escreva para",
     "invalid": "Preencha nome, um e-mail válido e a mensagem."
   },
   footer: {

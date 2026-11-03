@@ -273,7 +273,7 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   );
 }
 
-export default function Nav({ lang, nav, controls, privacyLabel, sub = "" }: Props) {
+export default function Nav({ lang, nav, controls, sub = "" }: Props) {
   const { prefs, setTheme, setA11y, resetA11y } = usePrefs();
   const [menuOpen, setMenuOpen] = useState(false);
   // Phones: the menu has two tabs, the site's sections and accessibility.
@@ -321,10 +321,10 @@ export default function Nav({ lang, nav, controls, privacyLabel, sub = "" }: Pro
   // Off the home page the section links lead back to it.
   const home = sub ? `/${lang}` : "";
   const items = [
-    { href: `${home}#conexoes`, label: nav.agenda2026 },
-    { href: `${home}#palestrantes`, label: nav.speakers2026 },
+    { href: `${home}#sobre`, label: nav.about },
+    { href: `${home}#cartagena`, label: nav.cartagena },
     { href: `${home}#edicoes`, label: nav.editions },
-    { href: `/${lang}/privacy`, label: privacyLabel },
+    { href: `${home}#contato`, label: nav.contact },
   ];
 
   useEffect(() => {
