@@ -199,7 +199,7 @@ const es: Dict = {
     edition: "Ponente · Impact Minds 2026",
   },
   connections: {
-    title: "Las Cuatro Conexiones Clave",
+    title: "Las Cuatro Conexiones Clave",
     p1: "En 2026, Impact Minds tuvo como hilo conductor Connecting Us, una invitación a ir más allá de la colaboración y fortalecer conexiones con propósito.",
     p2: "A lo largo de esta edición, conectamos intenciones, capital, actores y sistemas, acercando diferentes sectores, instrumentos financieros y estrategias para impulsar acciones capaces de generar impacto sistémico.",
     p3: "Más que reunir a una comunidad, Connecting Us reforzó la importancia de conectarnos mejor para transformar no solo proyectos, sino los sistemas que moldean nuestras realidades.",

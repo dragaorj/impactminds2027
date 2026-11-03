@@ -62,6 +62,14 @@ export default function Testimonials({ t, lang }: { t: Dict["testimonials"]; lan
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current, paused]);
 
+  // Hover zoom grows from the pointer: its spot in the card is the transform origin (globals.css, .tm-card).
+  const zoomAt = (e: React.PointerEvent<HTMLElement>) => {
+    if (e.pointerType !== "mouse") return;
+    const r = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty("--mx", `${(((e.clientX - r.left) / r.width) * 100).toFixed(1)}%`);
+    e.currentTarget.style.setProperty("--my", `${(((e.clientY - r.top) / r.height) * 100).toFixed(1)}%`);
+  };
+
   const arrow =
     "grid size-11 place-items-center rounded-full text-ink ring-1 ring-line transition-[background-color,color] duration-300 hover:bg-sun hover:text-sun-ink";
 
@@ -82,7 +90,7 @@ export default function Testimonials({ t, lang }: { t: Dict["testimonials"]; lan
         >
           {testimonials.map((item) => (
             <li key={item.name} className="w-full shrink-0 snap-center md:w-auto">
-              <figure className="flex h-full flex-col rounded-[1.75rem] bg-surface p-6 ring-1 ring-line md:p-7">
+              <figure className="tm-card relative flex h-full flex-col rounded-[1.75rem] bg-surface p-6 ring-1 ring-line md:p-7" onPointerMove={zoomAt}>
                 <p className="text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-muted">{org(item.role[lang])}</p>
                 <blockquote className="mt-4 flex-1 text-lg leading-relaxed text-ink">{item.quote[lang]}</blockquote>
                 <figcaption className="mt-8 flex items-end gap-3">

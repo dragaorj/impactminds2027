@@ -199,7 +199,7 @@ const en: Dict = {
     edition: "Speaker · Impact Minds 2026",
   },
   connections: {
-    title: "The Four Key Connections",
+    title: "The Four Key Connections",
     p1: "In 2026, Connecting Us was the guiding theme of Impact Minds, an invitation to go beyond collaboration and strengthen connections with purpose.",
     p2: "Throughout the edition, we connected intentions, capital, actors, and systems, bringing together different sectors, financial instruments, and strategies to drive actions capable of creating systemic impact.",
     p3: "More than bringing a community together, Connecting Us reinforced the importance of connecting better to transform not only projects, but also the systems that shape our realities.",

@@ -1050,3 +1050,14 @@ html[data-motion="reduce"] .lm .lm-country { opacity: 1; transition: none; }
 html[data-motion="reduce"] .lm .lm-dot { scale: 1; transition: none; }
 html[data-motion="reduce"] .lm :is(.lm-halo, .lm-packet) { display: none; }
 html[data-motion="reduce"] .lm .lm-orbit { animation: none; }
+
+/* Testimonial cards: on hover (mouse) the card zooms in gently from where the
+   pointer is; the origin follows the pointer smoothly (Testimonials, zoomAt). */
+.tm-card {
+  transform-origin: var(--mx, 50%) var(--my, 50%);
+  transition: transform 0.9s var(--ease-out-expo), transform-origin 0.6s ease-out, box-shadow 0.6s ease, background-color 0.6s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .tm-card:hover { z-index: 2; transform: scale(1.04); box-shadow: var(--shadow); }
+}
+html[data-motion="reduce"] .tm-card:hover { transform: none; }

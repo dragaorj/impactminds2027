@@ -41,7 +41,7 @@ export default function Agenda({
               <span aria-hidden className="h-3 w-px bg-line dark:bg-white/30" />
               <span className="font-medium text-gold dark:text-[#E2C985]">{dates}</span>
             </p>
-            <h2 id="agenda-title" className="mt-6 font-display text-[clamp(2.25rem,5.2vw,4.25rem)] leading-[1.02]">
+            <h2 id="agenda-title" className="mt-6 font-display text-[clamp(2.25rem,5.2vw,4.25rem)] leading-[1.02] text-balance">
               {t.title}
             </h2>
             <p className="mt-5 max-w-[40ch] text-lg leading-relaxed text-ink-2 dark:text-block-muted">{t.lead}</p>
