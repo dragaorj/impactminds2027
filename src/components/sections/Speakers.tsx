@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Pause, Play, X } from "@phosphor-icons/react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, X } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import type { Locale } from "@/lib/i18n";
 import { links, speakers, type Speaker } from "@/lib/site";
@@ -230,11 +230,9 @@ function SpeakerBox({
   );
 }
 
-// Endless, slow conveyor of speakers. Pauses on hover, keyboard focus, the
-// pause button (WCAG 2.2.2) or while a speaker is open; with reduced motion it
-// becomes a plain scroll rail.
+// Endless, slow conveyor of speakers. Pauses on hover, keyboard focus or while
+// a speaker is open; with reduced motion it becomes a plain scroll rail.
 export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Locale }) {
-  const [paused, setPaused] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
   const wide = useSyncExternalStore(watchWide, () => window.matchMedia(WIDE).matches, () => null);
   // A fresh random order on every visit. The server renders the default order;
@@ -262,7 +260,7 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
   return (
     <section id="palestrantes" className={`${section} scroll-mt-20 overflow-hidden`} aria-labelledby="palestrantes-title">
       <div className={container}>
-        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between" data-reveal>
+        <div data-reveal>
           <div>
             <H2 id="palestrantes-title" className="max-w-[26ch]">
               {t.title}
@@ -270,17 +268,6 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
             <p className="mt-5 font-display text-2xl text-gold md:text-[1.75rem]">{t.count}</p>
             <p className="mt-2 max-w-[52ch] text-lg leading-relaxed text-ink-2">{t.lead}</p>
           </div>
-          <button
-            type="button"
-            onClick={() => setPaused((p) => !p)}
-            aria-pressed={paused}
-            className="speaker-toggle flex h-12 w-max items-center gap-2.5 rounded-full p-1.5 pr-5 text-sm btn-outline"
-          >
-            <span className="grid size-9 place-items-center rounded-full bg-brand text-brand-ink">
-              {paused ? <Play size="0.875rem" weight="fill" /> : <Pause size="0.875rem" weight="fill" />}
-            </span>
-            {paused ? t.play : t.pause}
-          </button>
         </div>
       </div>
 
@@ -288,8 +275,8 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
           a tap on any face opens the speaker. Larger screens keep the cards below. */}
       {wide !== true && (
       <div
-        className="speaker-loop mt-10 space-y-3 md:hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]"
-        data-paused={paused || open !== null || undefined}
+        className="speaker-loop mt-8 space-y-3 py-2 md:hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]"
+        data-paused={open !== null || undefined}
         data-reveal
       >
         {[0, 1].map((row) => {
@@ -326,8 +313,8 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
 
       {wide !== false && (
       <div
-        className="speaker-loop no-scrollbar mt-14 hidden md:block [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)]"
-        data-paused={paused || open !== null || undefined}
+        className="speaker-loop no-scrollbar mt-11 hidden py-3 md:block [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)]"
+        data-paused={open !== null || undefined}
         data-reveal
       >
         <div className="speaker-track flex w-max">

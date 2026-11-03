@@ -91,7 +91,7 @@ export const speakers: Speaker[] = [
     name: "Stefan Wilhelm",
     org: { pt: "Bayer Foundation", es: "Bayer Foundation", en: "Bayer Foundation" },
     role: { pt: "Diretor Associado de Impacto Social", es: "Director Asociado de Impacto Social", en: "Associate Director, Social Impact" },
-    photo: "/photos/speakers/stefan-wilhelm-v4.webp",
+    photo: "/photos/speakers/stefan-wilhelm-v5.webp",
   },
   {
     name: "Paraskevi Bessa",

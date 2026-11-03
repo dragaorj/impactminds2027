@@ -223,21 +223,18 @@ export default function Numbers({ t, locale, show }: { t: Dict["numbers"]; local
             </div>
           </Bezel>
 
-          {/* Highlighted below: how likely participants are to come back. */}
-          {/* Same build as the other cards: chip, then the figure and its label. */}
-          <Bezel className={`col-span-2 lg:col-span-12 ${card}`} inner="bg-sun/10">
-            <div data-reveal className="flex h-full flex-col justify-between gap-6 p-6 md:p-7">
-              <Chip icon={Star} />
-              <div>
-                <Stat value={8.5} decimals={1} suffix="/10*" locale={locale} className="text-5xl text-brand md:text-6xl" />
-                <p className="mt-3 text-[0.9375rem] leading-snug text-ink-2">{t.comeBack}</p>
-              </div>
-            </div>
-          </Bezel>
-
           {/* Motion presentation played over the bento ("Ver apresentação"). */}
           <NumbersShow t={t} show={show} locale={locale} />
         </div>
+
+        {/* Below the bento, one slim line: how likely participants are to come back. */}
+        <Bezel className={`mt-3 lg:mt-4 ${card}`} inner="bg-sun/10">
+          <div data-reveal className="flex flex-wrap items-center gap-x-5 gap-y-2 px-5 py-4 md:px-7 md:py-5">
+            <Chip icon={Star} />
+            <Stat value={8.5} decimals={1} suffix="/10*" locale={locale} className="text-4xl text-brand md:text-5xl" />
+            <p className="text-base leading-snug text-ink-2 md:text-lg">{t.comeBack}</p>
+          </div>
+        </Bezel>
         <p className="mt-4 text-xs text-muted">{t.footnote}</p>
       </div>
     </section>
