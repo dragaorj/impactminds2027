@@ -41,6 +41,13 @@ const es: Dict = {
     close: "Cerrar",
   },
   hero: {
+    editorial: {
+      kicker: ["Impact Minds", "Connecting Us", "2026 · Manaus"],
+      // Landscape screens: four wide lines; portrait: more, shorter ones.
+      lines: [[{ text: "Gracias por todo", serif: true }, { text: "Manaus," }], [{ text: "2026" }, { text: "fue un éxito.", serif: true }], [{ text: "Nos vemos en", serif: true }, { text: "Cartagena" }], [{ text: "en", serif: true }, { text: "2027." }]],
+      tall: [[{ text: "Gracias por todo", serif: true }], [{ text: "Manaus," }], [{ text: "2026" }, { text: "fue un", serif: true }], [{ text: "éxito.", serif: true }], [{ text: "Nos vemos en", serif: true }], [{ text: "Cartagena" }], [{ text: "en", serif: true }, { text: "2027." }]],
+      when: ["Impact Minds", "24 al 27 de agosto", "2027 · Colombia"],
+    },
     eyebrow: "Cartagena, Colombia",
     title: "Impact Minds",
     subtitle: "Connecting Us",

@@ -39,6 +39,13 @@ const pt = {
     close: "Fechar",
   },
   hero: {
+    editorial: {
+      kicker: ["Impact Minds", "Connecting Us", "2026 · Manaus"],
+      // Landscape screens: four wide lines; portrait: more, shorter ones.
+      lines: [[{ text: "Obrigado por tudo", serif: true }, { text: "Manaus," }], [{ text: "2026" }, { text: "foi um sucesso.", serif: true }], [{ text: "Nos vemos em", serif: true }, { text: "Cartagena" }], [{ text: "em", serif: true }, { text: "2027." }]],
+      tall: [[{ text: "Obrigado por tudo", serif: true }], [{ text: "Manaus," }], [{ text: "2026" }, { text: "foi um", serif: true }], [{ text: "sucesso.", serif: true }], [{ text: "Nos vemos em", serif: true }], [{ text: "Cartagena" }], [{ text: "em", serif: true }, { text: "2027." }]],
+      when: ["Impact Minds", "24 a 27 de agosto", "2027 · Colômbia"],
+    },
     eyebrow: "Cartagena, Colômbia",
     title: "Impact Minds",
     subtitle: "Connecting Us",

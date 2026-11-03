@@ -461,8 +461,11 @@ export default function Nav({ lang, nav, controls, privacyLabel, sub = "" }: Pro
         data-hero={sub ? undefined : ""}
       >
         <div
-          className={`mx-auto flex h-16 items-center justify-between gap-3 rounded-full py-2 pl-5 pr-2 transition-[max-width,background-color,box-shadow,backdrop-filter] duration-700 ease-[var(--ease-out-expo)] ${
-            scrolled ? "max-w-[30rem]" : "max-w-full"
+          className={`mx-auto flex h-16 items-center justify-between gap-3 rounded-full py-2 transition-[max-width,padding,background-color,box-shadow,backdrop-filter] duration-700 ease-[var(--ease-out-expo)] ${
+            // At the top the bar is see-through, so the logo and the menu icon sit
+            // right on the page's own gutter (the edges every section lines up to);
+            // once scrolled the pill takes its padding back.
+            scrolled ? "max-w-[30rem] pl-5 pr-2" : "max-w-full pl-2 pr-0 sm:pl-0"
           } ${
             scrolled
               ? "bg-surface/75 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-md"
@@ -539,7 +542,7 @@ export default function Nav({ lang, nav, controls, privacyLabel, sub = "" }: Pro
 
             <button
               type="button"
-              className={btn + " group relative"}
+              className={`${btn} group relative ${scrolled ? "" : "-mr-0.5 sm:-mr-2.5"}`}
               aria-label={menuOpen ? nav.closeMenu : nav.openMenu}
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
