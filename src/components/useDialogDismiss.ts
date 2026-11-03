@@ -15,11 +15,15 @@ export function useDialogDismiss(ref: RefObject<HTMLDialogElement | null>, open:
     const onClick = (e: MouseEvent) => {
       if (!(e.target as Element).closest("button, a, [data-keep]")) close();
     };
+    // Inside a scrolling region (data-scroll, e.g. a speaker's bio) scrolling reads it instead.
+    const inScroll = (e: Event) => !!(e.target as Element).closest?.("[data-scroll]");
     const onWheel = (e: WheelEvent) => {
+      if (inScroll(e)) return;
       // Vertical scrolling only, so a sideways trackpad swipe doesn't close it.
       if (Math.abs(e.deltaY) > 4 && Math.abs(e.deltaY) >= Math.abs(e.deltaX)) close();
     };
     const onTouchStart = (e: TouchEvent) => {
+      if (inScroll(e)) return void (start = null);
       const t = e.touches[0];
       start = t ? { x: t.clientX, y: t.clientY } : null;
     };

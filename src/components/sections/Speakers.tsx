@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, Pause, Play, X } from "@phosphor-i
 import type { Dict } from "@/lib/dictionaries/pt";
 import type { Locale } from "@/lib/i18n";
 import { links, speakers, type Speaker } from "@/lib/site";
+import { speakerBios } from "@/lib/speakerBios";
 import Art from "../Art";
 import { H2, container, section } from "../ui";
 import { useDialogDismiss } from "../useDialogDismiss";
@@ -42,7 +43,6 @@ function shuffle<T>(items: readonly T[]): T[] {
   return a;
 }
 
-// The platform photos are oval cut-outs, so they are scaled up to fill the circle.
 // Our own photos are already small square WebPs: served as they are and loaded
 // up front, so the moving rows never wait on the image optimiser.
 function Portrait({ s, i, sizes }: { s: Speaker; i: number; sizes: string }) {
@@ -57,7 +57,7 @@ function Portrait({ s, i, sizes }: { s: Speaker; i: number; sizes: string }) {
           sizes={sizes}
           unoptimized={local}
           loading={local ? "eager" : undefined}
-          className={`portrait-img object-cover ${s.framed ? "portrait-framed" : "scale-[1.24] object-[50%_35%]"}`}
+          className="portrait-img object-cover"
         />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
@@ -94,10 +94,29 @@ function Card({ s, i, lang, label, onOpen }: { s: Speaker; i: number; lang: Loca
 type BoxLabels = { title: string; close: string; prev: string; next: string; edition: string };
 
 const navBtn =
-  "grid size-12 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 backdrop-blur-md transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-95";
+  "grid size-12 shrink-0 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 backdrop-blur-md transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-95";
 
-// Speaker lightbox: the portrait in full colour beside name, role and
-// organisation; arrows and the keyboard step through the whole line-up.
+// A bio paragraph with its web addresses as links.
+function Linked({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/(https?:\/\/[^\s]+[^\s.,;)])/).map((part, i) =>
+        /^https?:\/\//.test(part) ? (
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="break-all font-medium text-white underline decoration-[#E2C985]/70 underline-offset-[3px] hover:text-[#E2C985]">
+            {part.replace(/^https?:\/\//, "")}
+          </a>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  );
+}
+
+// Speaker profile, laid straight over the blurred, darkened page (no card):
+// the portrait in full colour beside the name, role, organisation and bio (on
+// phones stacked, the bio scrolling on its own). Arrows (and the keyboard) step
+// through the whole line-up.
 function SpeakerBox({
   list,
   index,
@@ -112,6 +131,7 @@ function SpeakerBox({
   labels: BoxLabels;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const bioRef = useRef<HTMLDivElement>(null);
   const total = list.length;
 
   useEffect(() => {
@@ -123,6 +143,7 @@ function SpeakerBox({
 
   useEffect(() => {
     if (index === null) return;
+    bioRef.current?.scrollTo({ top: 0 });
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") onIndex((index + 1) % total);
       if (e.key === "ArrowLeft") onIndex((index - 1 + total) % total);
@@ -133,20 +154,21 @@ function SpeakerBox({
 
   const s = index === null ? null : list[index];
   const close = () => onIndex(null);
-  // Closes on a click outside the portrait and text, or on a scroll gesture.
+  // Closes on a click outside the card, or on a scroll gesture outside it.
   useDialogDismiss(dialog, index !== null, close);
+  const bio = s ? speakerBios[s.name]?.[lang] : undefined;
 
   return (
     <dialog
       ref={dialog}
       onClose={close}
       aria-label={labels.title}
-      className="m-0 h-[100dvh] max-h-none w-screen max-w-none bg-[rgb(34_14_52/0.94)] p-0 backdrop:bg-transparent"
+      className="m-0 h-[100dvh] max-h-none w-screen max-w-none bg-transparent p-0 backdrop:bg-[rgb(14_7_22/0.88)] backdrop:backdrop-blur-2xl"
     >
       {index !== null && s && (
-        <div className="flex h-full flex-col px-4 pb-6 pt-4 sm:px-8">
-          <div className="flex items-center justify-between text-white">
-            <p className="text-sm tabular-nums text-white/70">
+        <div className="flex h-full flex-col px-4 pb-5 pt-4 text-white sm:px-8 sm:pb-6">
+          <div className="flex items-center justify-between">
+            <p className="text-xs tabular-nums tracking-[0.18em] text-white/60">
               {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
             </p>
             <button type="button" onClick={close} aria-label={labels.close} className={navBtn}>
@@ -154,19 +176,42 @@ function SpeakerBox({
             </button>
           </div>
 
-          <div className="grid min-h-0 flex-1 place-items-center py-6">
+          <div className="flex min-h-0 flex-1 items-center justify-center py-4 md:py-6">
             <div
               key={s.name}
-              className="flex w-full max-w-5xl animate-[menuIn_0.6s_var(--ease-out-expo)_both] flex-col items-center gap-8 text-center text-white md:flex-row md:gap-14 md:text-left"
+              className="flex max-h-full w-full max-w-6xl animate-[menuIn_0.6s_var(--ease-out-expo)_both] flex-col items-center gap-6 md:flex-row md:items-center md:gap-16"
             >
-              <div data-keep className="w-[min(70vw,24rem,44dvh)] shrink-0 rounded-full p-2 ring-1 ring-white/20 md:w-[min(38vw,26rem,62dvh)]">
-                <Portrait s={s} i={index} sizes="(min-width:768px) 26rem, 70vw" />
+              {/* The portrait, in full colour inside a fine gold ring with a soft glow. */}
+              <div data-keep className="relative w-[min(42vw,11rem,24dvh)] shrink-0 md:w-[min(30vw,25rem,60dvh)]">
+                <span aria-hidden className="absolute -inset-10 rounded-full bg-[radial-gradient(circle,rgb(226_183_90/0.22),transparent_65%)]" />
+                <div className="relative rounded-full p-1.5 ring-1 ring-[#E2C985]/45 md:p-2">
+                  <Portrait s={s} i={index} sizes="(min-width:768px) 25rem, 11rem" />
+                </div>
               </div>
-              <div data-keep className="min-w-0">
-                <p className="text-sm text-[#E2C985]">{labels.edition}</p>
-                <h3 className="mt-3 font-display text-[clamp(2.25rem,5vw,4rem)] leading-[1.02]">{s.name}</h3>
-                <p className="mt-5 text-lg text-white/85 sm:text-xl">{s.role[lang]}</p>
-                <p className="mt-1 text-lg font-medium sm:text-xl">{s.org[lang]}</p>
+
+              {/* Who, then the bio, which scrolls on its own when it is long. */}
+              <div data-keep data-scroll className="flex min-h-0 w-full max-w-2xl flex-1 flex-col text-center md:text-left">
+                <p className="text-[0.6875rem] uppercase tracking-[0.2em] text-[#E2C985]">{labels.edition}</p>
+                <h3 className="mt-3 font-display text-[clamp(2rem,4.5vw,3.75rem)] leading-[1.02] text-balance">{s.name}</h3>
+                <p className="mt-3 text-base text-white/80 md:text-lg">{s.role[lang]}</p>
+                <p className="mt-0.5 text-base font-medium text-[#E2C985] md:text-lg">{s.org[lang]}</p>
+                {bio && (
+                  <>
+                    <span aria-hidden className="mx-auto mt-6 block h-px w-16 bg-[#E2C985]/50 md:mx-0 md:mt-8" />
+                    <div
+                      ref={bioRef}
+                      className="mt-6 min-h-0 flex-1 overflow-y-auto overscroll-contain pb-6 text-left [mask-image:linear-gradient(180deg,#000_calc(100%-2.5rem),transparent)] [scrollbar-width:thin] md:mt-8 md:max-h-[42dvh]"
+                    >
+                      <div className="space-y-4 text-[0.9375rem] leading-relaxed text-white/75 md:text-base">
+                        {bio.split(/\n\s*\n/).map((p, i) => (
+                          <p key={i}>
+                            <Linked text={p} />
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

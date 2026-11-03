@@ -224,13 +224,14 @@ export default function Numbers({ t, locale, show }: { t: Dict["numbers"]; local
           </Bezel>
 
           {/* Highlighted below: how likely participants are to come back. */}
+          {/* Same build as the other cards: chip, then the figure and its label. */}
           <Bezel className={`col-span-2 lg:col-span-12 ${card}`} inner="bg-sun/10">
-            <div data-reveal className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:gap-8 md:p-8">
-              <span className="grid size-14 shrink-0 place-items-center rounded-full bg-sun text-sun-ink">
-                <Star size="1.5rem" weight="fill" />
-              </span>
-              <Stat value={8.5} decimals={1} suffix="/10*" locale={locale} className="text-6xl text-brand md:text-7xl" />
-              <p className="max-w-[34ch] font-display text-2xl leading-snug text-ink md:text-[1.75rem]">{t.comeBack}</p>
+            <div data-reveal className="flex h-full flex-col justify-between gap-6 p-6 md:p-7">
+              <Chip icon={Star} />
+              <div>
+                <Stat value={8.5} decimals={1} suffix="/10*" locale={locale} className="text-5xl text-brand md:text-6xl" />
+                <p className="mt-3 text-[0.9375rem] leading-snug text-ink-2">{t.comeBack}</p>
+              </div>
             </div>
           </Bezel>
 

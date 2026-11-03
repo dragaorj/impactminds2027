@@ -58,8 +58,8 @@ export const editionGalleries: string[][] = [
 ];
 
 type Trilingual = { pt: string; es: string; en: string };
-// framed: the photo is already a full, centred portrait (not an oval cut-out), so it is not zoomed in.
-export type Speaker = { name: string; org: Trilingual; role: Trilingual; photo?: string; framed?: boolean };
+// Photos are square portraits framed alike (eyes at 38%, chin at 63%), so the heads line up.
+export type Speaker = { name: string; org: Trilingual; role: Trilingual; photo?: string };
 
 // A selection of the 2026 speakers shown in the carousel (photos in public/photos/speakers).
 export const speakers: Speaker[] = [
@@ -67,80 +67,79 @@ export const speakers: Speaker[] = [
     name: "Marla Blow",
     org: { pt: "Skoll Foundation", es: "Skoll Foundation", en: "Skoll Foundation" },
     role: { pt: "CEO e Presidente", es: "CEO y Presidenta", en: "CEO and President" },
-    photo: "/photos/speakers/marla-blow.webp",
+    photo: "/photos/speakers/marla-blow-v3.webp",
   },
   {
     name: "Alice Damasceno",
     org: { pt: "Lenovo", es: "Lenovo", en: "Lenovo" },
     role: { pt: "Diretora de Responsabilidade Social Corporativa e Comunicações ESG", es: "Directora de Responsabilidad Social Corporativa y Comunicaciones ESG", en: "Director of Corporate Social Responsibility and ESG Communications" },
-    photo: "/photos/speakers/alice-damasceno.webp",
+    photo: "/photos/speakers/alice-damasceno-v4.webp",
   },
   {
     name: "Fabio Segura",
     org: { pt: "Jacobs Foundation", es: "Jacobs Foundation", en: "Jacobs Foundation" },
     role: { pt: "Co-CEO", es: "Co-CEO", en: "Co-CEO" },
-    photo: "/photos/speakers/fabio-segura.webp",
+    photo: "/photos/speakers/fabio-segura-v3.webp",
   },
   {
     name: "Eddine Sarroukh",
     org: { pt: "Philips Foundation", es: "Philips Foundation", en: "Philips Foundation" },
     role: { pt: "Diretor", es: "Director", en: "Director" },
-    photo: "/photos/speakers/eddine-sarroukh.webp",
+    photo: "/photos/speakers/eddine-sarroukh-v3.webp",
   },
   {
     name: "Stefan Wilhelm",
     org: { pt: "Bayer Foundation", es: "Bayer Foundation", en: "Bayer Foundation" },
     role: { pt: "Diretor Associado de Impacto Social", es: "Director Asociado de Impacto Social", en: "Associate Director, Social Impact" },
-    photo: "/photos/speakers/stefan-wilhelm-v2.webp",
-    framed: true,
+    photo: "/photos/speakers/stefan-wilhelm-v3.webp",
   },
   {
     name: "Paraskevi Bessa",
     org: { pt: "Banco Asiático de Investimento em Infraestrutura (AIIB)", es: "Banco Asiático de Inversión en Infraestructura (AIIB)", en: "Asian Infrastructure Investment Bank (AIIB)" },
     role: { pt: "Oficial Sênior de Mobilização de Recursos", es: "Oficial Sénior de Movilización de Recursos", en: "Senior Resource Mobilization Officer" },
-    photo: "/photos/speakers/paraskevi-bessa.webp",
+    photo: "/photos/speakers/paraskevi-bessa-v3.webp",
   },
   {
     name: "Alejandro Botero",
     org: { pt: "Bancolombia", es: "Bancolombia", en: "Bancolombia" },
     role: { pt: "Vice-Presidente Corporativo", es: "Vicepresidente Corporativo", en: "Corporate Vice President" },
-    photo: "/photos/speakers/alejandro-botero.webp",
+    photo: "/photos/speakers/alejandro-botero-v4.webp",
   },
   {
     name: "Daniela Konietzko",
     org: { pt: "Fundação WWB Colômbia", es: "Fundación WWB Colombia", en: "WWB Colombia Foundation" },
     role: { pt: "Presidente", es: "Presidenta", en: "President" },
-    photo: "/photos/speakers/daniela-konietzko.webp",
+    photo: "/photos/speakers/daniela-konietzko-v3.webp",
   },
   {
-    name: "Patricia Daros",
+    name: "Patrícia Daros",
     org: { pt: "Fundo Vale", es: "Fundo Vale", en: "Fundo Vale" },
     role: { pt: "Diretora", es: "Directora", en: "Director" },
-    photo: "/photos/speakers/patricia-daros.webp",
+    photo: "/photos/speakers/patricia-daros-v3.webp",
   },
   {
     name: "Rose Meire Apurinã",
     org: { pt: "Podáali – Fundo Indígena da Amazônia Brasileira", es: "Podáali – Fondo Indígena de la Amazonía Brasileña", en: "Podáali – Brazilian Amazon Indigenous Fund" },
     role: { pt: "Diretora", es: "Directora", en: "Director" },
-    photo: "/photos/speakers/rose-meire-apurina.webp",
+    photo: "/photos/speakers/rose-meire-apurina-v3.webp",
   },
   {
     name: "Caroline Flammer",
     org: { pt: "Universidade Columbia", es: "Universidad de Columbia", en: "Columbia University" },
     role: { pt: "Professora da Cátedra A. Barton Hepburn de Economia", es: "Profesora de la Cátedra A. Barton Hepburn de Economía", en: "A. Barton Hepburn Professor of Economics" },
-    photo: "/photos/speakers/caroline-flammer.webp",
+    photo: "/photos/speakers/caroline-flammer-v4.webp",
   },
   {
     name: "James Burrows",
     org: { pt: "Better Society Capital", es: "Better Society Capital", en: "Better Society Capital" },
     role: { pt: "Diretor-Geral", es: "Director General", en: "Managing Director" },
-    photo: "/photos/speakers/james-burrows.webp",
+    photo: "/photos/speakers/james-burrows-v3.webp",
   },
   {
     name: "Natalia Guala",
     org: { pt: "Grupo Social ONCE", es: "Grupo Social ONCE", en: "Grupo Social ONCE" },
     role: { pt: "Diretora Técnica de Relações Internacionais", es: "Directora Técnica de Relaciones Internacionales", en: "Technical Director of International Relations" },
-    photo: "/photos/speakers/natalia-guala.webp",
+    photo: "/photos/speakers/natalia-guala-v4.webp",
   },
 ];
 

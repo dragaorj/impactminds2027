@@ -603,10 +603,7 @@ html[data-motion="reduce"] :is(.loop-float, .loop-sway, .loop-sway-soft, .loop-w
   transition: transform 1.2s var(--ease-out-expo), filter 0.8s ease;
 }
 .speaker-card:hover .portrait-img,
-.speaker-card:focus-visible .portrait-img { filter: none; transform: scale(1.34); }
-/* A full portrait (not a cut-out) only leans in a little, so the head stays in. */
-.speaker-card:hover .portrait-framed,
-.speaker-card:focus-visible .portrait-framed { transform: scale(1.08); }
+.speaker-card:focus-visible .portrait-img { filter: none; transform: scale(1.1); }
 .speaker-wash {
   background: #cdb8ec;
   mix-blend-mode: color;
