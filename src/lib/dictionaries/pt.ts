@@ -225,14 +225,14 @@ const pt = {
   partners: {
     "title": "Quem esteve conosco em 2026",
     "tiers": {
-      "organizer": "Organized by",
-      "pioneers": "Pioneers",
-      "visionaries": "Visionaries",
-      "sponsor": "Sponsor",
-      "catalysts": "Catalysts",
-      "boosting": "Boosting",
-      "media": "Media Partner",
-      "partners": "Partner"
+      "organizer": "Organizado por",
+      "pioneers": "Pioneiros",
+      "visionaries": "Visionários",
+      "sponsor": "Patrocinador",
+      "catalysts": "Catalisadores",
+      "boosting": "Impulsionadores",
+      "media": "Parceiros de mídia",
+      "partners": "Parceiros"
     }
   },
   sponsor: {

@@ -227,14 +227,14 @@ const es: Dict = {
   partners: {
     "title": "Quienes estuvieron con nosotros en 2026",
     "tiers": {
-      "organizer": "Organized by",
-      "pioneers": "Pioneers",
-      "visionaries": "Visionaries",
-      "sponsor": "Sponsor",
-      "catalysts": "Catalysts",
-      "boosting": "Boosting",
-      "media": "Media Partner",
-      "partners": "Partner"
+      "organizer": "Organizado por",
+      "pioneers": "Pioneros",
+      "visionaries": "Visionarios",
+      "sponsor": "Patrocinador",
+      "catalysts": "Catalizadores",
+      "boosting": "Impulsores",
+      "media": "Aliados de medios",
+      "partners": "Aliados"
     }
   },
   sponsor: {
