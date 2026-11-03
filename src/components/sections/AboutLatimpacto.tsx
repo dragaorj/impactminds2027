@@ -10,12 +10,12 @@ import LatamNetwork from "../LatamNetwork";
 // On phones the map follows the text.
 export default function AboutLatimpacto({ t, lang }: { t: Dict["latimpacto"]; lang: Locale }) {
   return (
-    <section id="latimpacto" className={`${section} overflow-hidden`} aria-labelledby="latimpacto-title">
+    <section id="latimpacto" className={`${section} overflow-hidden lg:py-16`} aria-labelledby="latimpacto-title">
       {/* Same container as every section, so the text lines up on the left and
           the readout and list on the right; its content box is also the box the
           map fills from lg. */}
       <div className={container}>
-        <div className="relative lg:flex lg:min-h-[max(46rem,min(58rem,88vh))] lg:items-center">
+        <div className="relative lg:flex lg:min-h-[max(48rem,min(66rem,86vh))] lg:items-center">
           <div className="relative z-[1] max-w-[34rem] lg:pointer-events-none lg:max-w-[min(34rem,36%)]">
             <div className="lg:pointer-events-auto" data-reveal>
               <H2 id="latimpacto-title">{t.title}</H2>

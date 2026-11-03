@@ -86,7 +86,7 @@ export default function LatamNetwork({ lang, labels }: { lang: Locale; labels: L
     // (AboutLatimpacto): map large on the right, the readout top right, the list
     // bottom right over the Atlantic.
     <div ref={root} className="lm pointer-events-none relative lg:absolute lg:inset-0" data-on={on || undefined} data-nosplit>
-      <div className="pointer-events-auto relative mx-auto aspect-[600/720] w-full max-w-[36rem] lg:absolute lg:inset-y-[-3%] lg:left-[33%] lg:right-[17%] lg:aspect-auto lg:w-auto lg:max-w-none">
+      <div className="pointer-events-auto relative mx-auto aspect-[600/720] w-full max-w-[36rem] lg:absolute lg:inset-y-[-6%] lg:left-[27%] lg:right-[13%] lg:aspect-auto lg:w-auto lg:max-w-none">
         <svg viewBox={latam.viewBox} role="img" aria-label={labels.title} className="absolute inset-0 h-full w-full overflow-visible">
           <g onPointerLeave={() => setCountry(null)}>
             {latam.countries.map((c) => (
