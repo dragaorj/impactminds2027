@@ -14,6 +14,8 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { links, photos } from "@/lib/site";
+import { readerHref } from "@/lib/docs";
+import type { Locale } from "@/lib/i18n";
 import Art from "../Art";
 import NumbersShow, { type ShowCopy } from "../NumbersShow";
 import WatchShow from "../WatchShow";
@@ -86,7 +88,7 @@ function MiniNetwork() {
 // community and every other card shares one plain look; each opens with a gold
 // icon chip and lifts on hover. The return score closes it, highlighted. The
 // title breaks after the edition so "em números" gets its own gold line.
-export default function Numbers({ t, locale, show }: { t: Dict["numbers"]; locale: string; show: ShowCopy }) {
+export default function Numbers({ t, locale, lang, show }: { t: Dict["numbers"]; locale: string; lang: Locale; show: ShowCopy }) {
   const label = "mt-3 max-w-[24ch] text-[0.9375rem] leading-snug";
   const card = "transition-[transform,box-shadow] duration-500 ease-[var(--ease-spring)] hover:-translate-y-1 hover:ring-sun/50";
   const [titleHead, titleTail] = t.title.split(/(?<=2026)\s/);
@@ -105,11 +107,9 @@ export default function Numbers({ t, locale, show }: { t: Dict["numbers"]; local
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <WatchShow label={t.watch} />
-            {/* The full 2026 report (PDF, in Portuguese). */}
+            {/* The full 2026 report (PDF, in Portuguese), in the site's reader. */}
             <a
-              href={links.report2026}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={readerHref(lang, links.report2026)}
               className="group inline-flex min-h-12 min-w-0 items-center gap-3 rounded-full py-1.5 pl-2 pr-5 text-left text-[0.9375rem] font-medium leading-snug btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-[0.98]"
             >
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-sun/15 text-gold transition-colors group-hover:bg-sun-ink/10 group-hover:text-sun-ink">

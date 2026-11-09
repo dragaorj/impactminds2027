@@ -1,5 +1,7 @@
 import type { Dict } from "@/lib/dictionaries/pt";
 import { links, participantsByYear } from "@/lib/site";
+import { readerHref } from "@/lib/docs";
+import type { Locale } from "@/lib/i18n";
 import { Check } from "@phosphor-icons/react/dist/ssr";
 import Art from "../Art";
 import CountUp from "../CountUp";
@@ -8,7 +10,7 @@ import { Bezel, Button, H2, container, section } from "../ui";
 // The invitation to sponsor the 2027 edition: the pitch and the button to the
 // sponsorship brochure (PDF) on the left, the reasons in numbers in a card on
 // the right, and what a sponsor gets in a row of three cards below.
-export default function Sponsor({ t, locale }: { t: Dict["sponsor"]; locale: string }) {
+export default function Sponsor({ t, locale, lang }: { t: Dict["sponsor"]; locale: string; lang: Locale }) {
   const first = participantsByYear[0].value;
   const last = participantsByYear[participantsByYear.length - 1].value;
   const growth = `+${Math.round(((last - first) / first) * 100)}%`;
@@ -24,7 +26,7 @@ export default function Sponsor({ t, locale }: { t: Dict["sponsor"]; locale: str
           </H2>
           <p className="mt-5 max-w-[46ch] text-lg leading-relaxed text-ink-2">{t.text}</p>
           <div className="mt-9">
-            <Button href={links.sponsorBrochure} external>
+            <Button href={readerHref(lang, links.sponsorBrochure)}>
               {t.cta}
             </Button>
           </div>

@@ -1,6 +1,6 @@
 const pt = {
   meta: {
-    title: "Impact Minds 2027 | Connecting Us | Cartagena",
+    title: "Impact Minds Conference",
     description:
       "A conferência da Latimpacto chega a Cartagena em agosto de 2027. Veja os resultados da Impact Minds 2026 em Manaus e prepare-se para a próxima edição.",
   },
@@ -19,6 +19,7 @@ const pt = {
     navTab: "Navegação",
   },
   controls: {
+    cookies: "Redefinir cookies",
     language: "Idioma",
     scrollbar: "Mostrar barra de rolagem",
     facts: "Mostrar barra de informações do evento",
@@ -44,8 +45,8 @@ const pt = {
     editorial: {
       kicker: ["Impact Minds", "Connecting Us", "2026 · Manaus"],
       // Landscape screens: four wide lines; portrait: more, shorter ones.
-      lines: [[{ text: "Obrigado por tudo", serif: true }, { text: "Manaus," }], [{ text: "2026" }, { text: "foi um sucesso.", serif: true }], [{ text: "Nos vemos em", serif: true }, { text: "Cartagena" }], [{ text: "em", serif: true }, { text: "2027." }]],
-      tall: [[{ text: "Obrigado por tudo", serif: true }], [{ text: "Manaus," }], [{ text: "2026" }, { text: "foi um", serif: true }], [{ text: "sucesso.", serif: true }], [{ text: "Nos vemos em", serif: true }], [{ text: "Cartagena" }], [{ text: "em", serif: true }, { text: "2027." }]],
+      lines: [[{ text: "Obrigado por tudo", serif: true }, { text: "Manaus," }], [{ text: "2026" }, { text: "foi um sucesso.", serif: true }], [{ text: "Nos vemos em", serif: true }, { text: "Cartagena," }], [{ text: "de", serif: true }, { text: "24 a 27" }, { text: "de agosto de", serif: true }, { text: "2027." }]],
+      tall: [[{ text: "Obrigado por tudo", serif: true }], [{ text: "Manaus," }], [{ text: "2026" }, { text: "foi um", serif: true }], [{ text: "sucesso.", serif: true }], [{ text: "Nos vemos em", serif: true }], [{ text: "Cartagena," }], [{ text: "de", serif: true }, { text: "24 a 27" }], [{ text: "de agosto de", serif: true }, { text: "2027." }]],
       when: ["Impact Minds", "24 a 27 de agosto", "2027 · Colômbia"],
     },
     eyebrow: "Cartagena, Colômbia",
@@ -121,7 +122,7 @@ const pt = {
   cartagena: {
     kicker: "Impact Minds 2027",
     place: "Cartagena, Colômbia",
-    dates: "24 – 27 de agosto",
+    dates: "24 – 27 de agosto de 2027",
     title: "Onde o Impacto Conecta a América Latina",
     paragraphs: [
       "Cartagena é uma cidade onde convergem história, diversidade e uma profunda conexão com o Caribe, tornando-se um cenário estratégico para impulsionar conversas sobre impacto, desenvolvimento sustentável e inovação social na América Latina.",
@@ -257,7 +258,18 @@ const pt = {
     label: "Toneladas de CO₂ compensadas na última conferência",
     value: "638,79",
   },
+  reader: {
+    back: "Voltar ao site",
+    download: "Baixar PDF",
+    loading: "Carregando o documento…",
+    pages: "páginas",
+    error: "Não foi possível exibir o documento aqui.",
+    open: "Abrir o arquivo",
+    sponsorDoc: "Oportunidades de patrocínio · Impact Minds 2027",
+  },
   editions: {
+    intro: "Cinco edições conectando capital, conhecimento e ação pela América Latina. Escolha uma edição para ver as fotos e o relatório completo.",
+    report: "Relatório completo",
     title: "Edições anteriores",
     close: "Fechar",
     prev: "Foto anterior",
@@ -336,7 +348,7 @@ const pt = {
     ]
   },
   visits: {
-    "title": "12 visitas de campo",
+    "title": "12 visitas de campo em 2026",
     "lead": "Experiências imersivas que aproximaram as conversas da Impact Minds da realidade do território amazônico.",
     "close": "Fechar",
     "prev": "Foto anterior",
@@ -438,6 +450,13 @@ const pt = {
     "intl": "Presença internacional no Pioneers Post, Alliance Magazine e ImpactAlpha."
   },
   latimpacto: {
+    name: "Latimpacto",
+    tagline: "A rede latino-americana com alcance global",
+    facts: [
+      { value: "+240", label: "membros que investem na região com uma perspectiva de impacto" },
+      { value: "América Latina e Caribe", label: "mobilizando capital para a geração de impacto" },
+      { value: "Da filantropia às finanças sustentáveis", label: "atores, conhecimento e capital ao longo do contínuo de capital" },
+    ],
     "title": "Sobre a Latimpacto",
     "paragraphs": [
       "A Latimpacto é a rede latino-americana com alcance global que busca maximizar a mobilização de capital destinado à geração de impacto na América Latina e no Caribe. Articula atores, conhecimento e capital ao longo do contínuo de capital, desde a filantropia de risco e o investimento de impacto até as finanças sustentáveis.",

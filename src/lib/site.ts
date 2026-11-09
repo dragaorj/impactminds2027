@@ -46,8 +46,9 @@ export const photos = {
 };
 
 // Bento gallery per edition, in the order of the dictionaries' editions list
-// (2026 first). Twelve photos fill the grid; an empty list shows "coming soon".
-// TODO: add the 12 photos for 2025, 2024, 2023 and 2022 when the client sends them.
+// (2026 first). Twelve photos fill the grid; an empty list falls back to the
+// files in public/photos/editions/<year>/ (lib/editions.ts), and with none
+// there the edition shows "coming soon".
 const ed2026 = (n: string) => `/photos/editions/2026/${n}.jpg`;
 export const editionGalleries: string[][] = [
   ["01", "02", "06", "04", "05", "08", "07", "09", "11", "10", "03", "12"].map(ed2026),
@@ -56,6 +57,11 @@ export const editionGalleries: string[][] = [
   [],
   [],
 ];
+
+// Full report per edition, same order (2026 first). null falls back to
+// public/docs/impact-minds-<year>-relatorio.pdf (lib/editions.ts); with no
+// file there the edition has no report button. A link here (e.g. Drive) wins.
+export const editionReports: (string | null)[] = [links.report2026, null, null, null, null];
 
 type Trilingual = { pt: string; es: string; en: string };
 // Photos are square portraits framed alike (eyes at 38%, chin at 63%), so the heads line up.

@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { CalendarBlank, MapPin } from "@phosphor-icons/react/dist/ssr";
+import { CalendarBlank } from "@phosphor-icons/react/dist/ssr";
 import type { Dict } from "@/lib/dictionaries/pt";
-import { H2, container, section } from "../ui";
+import { container, section } from "../ui";
 
 const PHOTOS = ["/photos/cartagena-catedral.jpg", "/photos/cartagena-getsemani.jpg", "/photos/cartagena-sacadas.jpg"];
 
@@ -13,25 +13,25 @@ export default function Cartagena({ t }: { t: Dict["cartagena"] }) {
     <section id="cartagena" className={section} aria-labelledby="cartagena-title">
       <div className={`${container} grid gap-10 md:gap-14 xl:grid-cols-12 xl:gap-x-12`}>
         <div className="xl:col-span-6 xl:self-center" data-reveal>
-          <p className="flex items-center gap-3 text-xs font-medium uppercase tracking-[0.16em] text-gold md:text-sm" data-nosplit>
-            <svg aria-hidden viewBox="0 0 24 24" className="size-4 shrink-0 fill-current md:size-[1.125rem]">
+          <p className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.16em] text-gold md:text-base" data-nosplit>
+            <svg aria-hidden viewBox="0 0 24 24" className="size-[1.125rem] shrink-0 fill-current md:size-5">
               <path d="M12 0c.9 6.4 5 10.6 12 12-7 1.4-11.1 5.6-12 12-.9-6.4-5-10.6-12-12C7 10.6 11.1 6.4 12 0Z" />
             </svg>
             {t.kicker}
           </p>
-          <ul className="mt-5 flex flex-wrap gap-2" data-nosplit>
-            <li className="inline-flex items-center gap-2 rounded-full bg-ink/5 px-4 py-1.5 text-sm text-ink ring-1 ring-line">
-              <MapPin size="1rem" weight="light" className="text-gold" />
-              {t.place}
-            </li>
-            <li className="inline-flex items-center gap-2 rounded-full bg-ink/5 px-4 py-1.5 text-sm text-ink ring-1 ring-line">
-              <CalendarBlank size="1rem" weight="light" className="text-gold" />
-              {t.dates}
-            </li>
-          </ul>
-          <H2 id="cartagena-title" className="mt-6 text-balance">
+          {/* Where and when come first, set as the section's headline; the line
+              about Cartagena follows as a quieter subtitle. */}
+          <h2 id="cartagena-title" className="mt-5 font-display text-[calc(clamp(min(2.5rem,10vw),6vw,5.25rem)-1px)] leading-[1] text-balance text-ink">
+            {t.place}
+          </h2>
+          <p className="mt-4 flex items-center gap-3 font-display text-[clamp(1.5rem,3vw,2.5rem)] leading-tight text-gold" data-nosplit>
+            <CalendarBlank aria-hidden className="size-[0.8em] shrink-0" weight="light" />
+            {t.dates}
+          </p>
+          <p className="mt-8 flex items-center gap-4 font-display text-xl leading-snug text-ink-2 md:text-2xl">
+            <span aria-hidden className="h-px w-10 shrink-0 bg-gold/60" />
             {t.title}
-          </H2>
+          </p>
           <div className="mt-8 max-w-[62ch] space-y-5 text-lg leading-relaxed text-ink-2">
             {t.paragraphs.map((p) => (
               <p key={p}>{p}</p>

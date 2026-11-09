@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { ArrowUpRight, FilePdf } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
-import { editionGalleries } from "@/lib/site";
 import Art from "../Art";
 import Lightbox from "../Lightbox";
 import { prefersReducedMotion } from "../prefs";
@@ -45,11 +45,23 @@ const FOCUS_2026 = [
 ];
 const STEP_MS = 5000;
 
-export default function Editions({ t }: { t: Dict["editions"] }) {
+// Photos and report per edition come from the page (lib/editions.ts finds
+// them by file name). On the editions page (asPage) the page's own heading
+// names it, so the section shows only the selected edition and its report.
+export default function Editions({
+  t,
+  media,
+  asPage = false,
+}: {
+  t: Dict["editions"];
+  media: { photos: string[]; report: string | null }[];
+  asPage?: boolean;
+}) {
   const [active, setActive] = useState(0);
   const [viewing, setViewing] = useState<number | null>(null);
-  const photos = editionGalleries[active] ?? [];
+  const photos = media[active]?.photos ?? [];
   const current = t.list[active];
+  const report = media[active]?.report ?? null;
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
@@ -63,13 +75,37 @@ export default function Editions({ t }: { t: Dict["editions"] }) {
   }, [viewing]);
 
   return (
-    <section id="edicoes" className={`${section} scroll-mt-20`} aria-labelledby="edicoes-title">
+    <section id="edicoes" className={asPage ? "relative pb-24 md:pb-36" : `${section} scroll-mt-20`} aria-labelledby={asPage ? undefined : "edicoes-title"} aria-label={asPage ? t.title : undefined}>
       <div className={container}>
-        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <H2 id="edicoes-title">{t.title}</H2>
-          <p className="font-display text-2xl text-brand md:text-3xl" aria-live="polite" data-nosplit>
-            {current.city} <span className="text-terra">{current.year}</span>
-          </p>
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          {asPage ? (
+            <p className="font-display text-3xl text-brand md:text-4xl" aria-live="polite" data-nosplit>
+              {current.city} <span className="text-terra">{current.year}</span>
+            </p>
+          ) : (
+            <H2 id="edicoes-title">{t.title}</H2>
+          )}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3" data-nosplit>
+            {!asPage && (
+              <p className="font-display text-2xl text-brand md:text-3xl" aria-live="polite">
+                {current.city} <span className="text-terra">{current.year}</span>
+              </p>
+            )}
+            {/* The edition's full report (PDF), when there is one. */}
+            {report && (
+              <a
+                href={report}
+                {...(report.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                className="group inline-flex min-h-12 items-center gap-3 rounded-full py-1.5 pl-2 pr-5 text-[0.9375rem] font-medium uppercase tracking-[0.06em] btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-[0.98]"
+              >
+                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-sun/15 text-gold transition-colors group-hover:bg-sun-ink/10 group-hover:text-sun-ink">
+                  <FilePdf size="1.05rem" weight="light" />
+                </span>
+                {t.report} {current.year}
+                <ArrowUpRight size="1rem" className="shrink-0" />
+              </a>
+            )}
+          </div>
         </div>
 
         {photos.length ? (
@@ -96,7 +132,7 @@ export default function Editions({ t }: { t: Dict["editions"] }) {
                     fill
                     sizes="(min-width:1024px) 40vw, 60vw"
                     className="object-cover transition-transform duration-[1800ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.06]"
-                    style={{ objectPosition: active === 0 ? FOCUS_2026[i] : "50% 40%" }}
+                    style={{ objectPosition: current.year === "2026" ? FOCUS_2026[i] : "50% 40%" }}
                   />
                   <span
                     aria-hidden

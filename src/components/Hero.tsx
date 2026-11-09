@@ -323,23 +323,13 @@ export default function Hero({
   );
 
   const editorial = (
-    // Three bands: the signature on top, the headline and the pill in the
-    // middle, the dates and the controls at the bottom. The outer bands grow
+    // Three bands: an empty one on top, the headline in the middle, the two
+    // buttons centred at the bottom. The outer bands grow
     // from zero and share the spare height equally, so the headline sits on
     // the screen's centre on any device; when one band needs more room than its
     // share it keeps it and the other takes the rest, so nothing ever overlaps.
-    <div className="ed-root mx-auto flex min-h-[100dvh] w-full max-w-[132rem] flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-20 sm:px-8 sm:pb-20 sm:pt-24 lg:px-[5vw] lg:pb-16 [@media(max-height:500px)]:pb-4! [@media(max-height:500px)]:pt-20!">
+    <div className="ed-root mx-auto flex min-h-[100dvh] w-full max-w-[132rem] flex-col px-5 pb-[max(3.5rem,env(safe-area-inset-bottom))] pt-20 sm:px-8 sm:pb-28 sm:pt-24 lg:px-[5vw] lg:pb-28 [@media(max-height:500px)]:pb-4! [@media(max-height:500px)]:pt-20!">
       <div className="flex flex-1 basis-0 flex-col items-start max-lg:flex-none">
-      {/* Top left: the event's signature, in small spaced caps (desktop only). */}
-      <div className="hero-out-up mt-[min(1.5vw,2svh)] max-lg:hidden [@media(max-height:500px)]:hidden">
-        <p data-hero className={`text-left ${ED_CAPTION}`}>
-          {t.editorial.kicker.map((l, i) => (
-            <span key={i} className={`block ${i === 0 ? "text-white" : i === t.editorial.kicker.length - 1 ? "text-[#D9B865]" : ""}`}>
-              {l}
-            </span>
-          ))}
-        </p>
-      </div>
       </div>
 
       <div className="flex shrink-0 flex-col items-center py-[min(3vw,2.5svh)] text-center max-lg:my-auto [@media(max-height:500px)]:py-1!">
@@ -355,48 +345,19 @@ export default function Hero({
           <span className="contents portrait:hidden">{t.editorial.lines.map(edLine)}</span>
           <span className="hidden portrait:contents">{t.editorial.tall.map(edLine)}</span>
         </h1>
-        {/* The speakers pill, set a size up (zoom keeps its fan-out maths).
-            Below lg it steps aside (.ed-pill, globals.css) while the cookie
-            notice shows in its place. */}
-        <div className="hero-typed mt-[min(4.5vw,3.6svh)] [@media(max-height:500px)]:mt-2!">
-          <div className="ed-pill">
-          <p
-            data-hero
-            className="faces-pill inline-flex items-center gap-3 rounded-full bg-[rgb(34_14_52/0.5)] py-1.5 pl-1.5 pr-4 text-xs ring-1 ring-white/20 [zoom:1.15] sm:text-sm sm:[zoom:1.3] [@media(max-height:500px)]:[zoom:1]!"
-          >
-            <SpeakerFaces label={speakerLabel} />
-            <span className="sm:hidden">{t.speakersPillShort}</span>
-            <span className="max-sm:hidden">{t.speakersPill}</span>
-          </p>
-          </div>
-        </div>
       </div>
 
       <div className="flex flex-1 basis-0 flex-col justify-end max-lg:flex-none">
-      {/* Bottom right, over the round buttons: when and where, matching the signature (desktop only). */}
-      <div className="hero-out-down self-end max-lg:hidden [@media(max-height:500px)]:hidden">
-        <p data-hero className={`text-right ${ED_CAPTION}`}>
-          {t.editorial.when.map((l, i) => (
-            <span key={i} className={`block ${i === 0 ? "text-white" : i === t.editorial.when.length - 1 ? "text-[#D9B865]" : ""}`}>
-              {l}
-            </span>
-          ))}
-        </p>
-      </div>
-
-      {/* Phones: the CTA and the agenda button side by side, the same width. */}
-      {/* From lg the CTA and the round buttons keep their full width at the
-          sides and the details bar takes only the room between them, so it
-          never runs under either. */}
-      {/* Below lg the details bar floats just above the buttons, over the
-          pill's place, so opening it never moves or shrinks the headline. */}
-      <div className="relative mt-5 grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-4 lg:mt-6 lg:grid lg:grid-cols-[minmax(max-content,1fr)_minmax(0,46rem)_minmax(max-content,1fr)] lg:gap-6">
-        <div className="hero-out-down flex min-w-0 flex-1 sm:flex-none lg:col-start-1 lg:row-start-1 lg:justify-self-start">
+      {/* The CTA and the agenda button, centred together (on phones side by
+          side, the same width). The details bar (facts, from the accessibility
+          menu) floats just below them, so it never moves the headline. */}
+      <div className="relative mt-5 grid grid-cols-2 items-center gap-2 sm:flex sm:justify-center sm:gap-4 lg:mt-6">
+        <div className="hero-out-down flex min-w-0 flex-1 sm:flex-none">
           <div data-hero className="flex w-full">
             {cta("h-[3.25rem] w-full min-w-0 justify-between max-sm:[container-type:inline-size] sm:w-auto sm:whitespace-nowrap pl-3.5 pr-1.5 text-[0.8125rem] sm:h-16 sm:pl-7 sm:pr-2.5 sm:text-base")}
           </div>
         </div>
-        <div className="hero-out-down min-w-0 sm:shrink-0 lg:col-start-3 lg:row-start-1 lg:justify-self-end">
+        <div className="hero-out-down min-w-0 sm:shrink-0">
           <div data-hero className="flex">
             <a
               href="#agenda-2027"
@@ -406,7 +367,7 @@ export default function Hero({
             </a>
           </div>
         </div>
-        {bar("basis-full max-lg:absolute max-lg:inset-x-0 max-lg:bottom-full max-lg:mb-3 max-lg:[&_[data-hero-bar]]:mt-0 lg:col-start-2 lg:row-start-1 lg:[&_[data-hero-bar]]:mt-0")}
+        {bar("absolute inset-x-0 top-full mt-3 [&_[data-hero-bar]]:mt-0")}
       </div>
       </div>
     </div>

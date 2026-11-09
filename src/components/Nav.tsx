@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowCounterClockwise, ArrowRight, Check, GlobeSimple, Minus, Moon, PersonArmsSpread, Plus, Sun } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, ArrowRight, Check, Cookie, GlobeSimple, Minus, Moon, PersonArmsSpread, Plus, Sun } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { locales, type Locale } from "@/lib/i18n";
+import { mainNav } from "@/lib/nav";
 import { links } from "@/lib/site";
 import LatimpactoMark from "./LatimpactoMark";
 import { usePrefs } from "./prefs";
+import { openConsent } from "./consent";
 
 // sub: the page under the language ("" for the home page, "/privacy" ...). Off
 // the home page the bar has no hero video under it and the section links point
@@ -318,14 +320,7 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
   const panelRef = useRef<HTMLDivElement>(null);
   const panelBtnRef = useRef<HTMLButtonElement>(null);
 
-  // Off the home page the section links lead back to it.
-  const home = sub ? `/${lang}` : "";
-  const items = [
-    { href: `${home}#sobre`, label: nav.about },
-    { href: `${home}#cartagena`, label: nav.cartagena },
-    { href: `${home}#edicoes`, label: nav.editions },
-    { href: `${home}#contato`, label: nav.contact },
-  ];
+  const items = mainNav(lang, nav, !sub);
 
   useEffect(() => {
     if (!panelOpen && !menuOpen) return;
@@ -441,6 +436,20 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
           options={locales.map((l) => ({ value: l, label: l.toUpperCase(), href: `/${l}${sub}`, lang: l }))}
         />
       </div>
+      {/* Brings the cookie notice back to change the choice (the menus close
+          first: the notice steps aside while one is open). */}
+      <button
+        type="button"
+        onClick={() => {
+          setPanelOpen(false);
+          setMenuOpen(false);
+          openConsent();
+        }}
+        className="mt-2 flex w-full items-center gap-2.5 rounded-[1.25rem] bg-ink/5 px-4 py-3.5 text-left text-sm text-ink transition-colors duration-300 hover:bg-sun/12 active:bg-sun/12"
+      >
+        <Cookie aria-hidden size="1.125rem" weight="light" className="shrink-0 text-gold" />
+        {controls.cookies}
+      </button>
       <button
         type="button"
         onClick={resetA11y}

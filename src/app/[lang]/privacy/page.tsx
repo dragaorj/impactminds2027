@@ -142,7 +142,7 @@ export default async function PrivacyPage({ params }: PageProps<"/[lang]/privacy
         contact={t.contact}
         hero={t.hero}
         nav={t.nav}
-        home={`/${lang}`}
+        lang={lang}
         privacy={{ href: privacyPath(lang), label: p.navLabel }}
       />
       <BackToTop label={t.footer.backToTop} />

@@ -15,12 +15,10 @@ import Testimonials from "@/components/sections/Testimonials";
 import Launches from "@/components/sections/Launches";
 import Events from "@/components/sections/Events";
 import Visits from "@/components/sections/Visits";
-import Connections from "@/components/sections/Connections";
 import Agenda from "@/components/sections/Agenda";
 import Partners from "@/components/sections/Partners";
 import Sponsor from "@/components/sections/Sponsor";
 import Carbon from "@/components/sections/Carbon";
-import Editions from "@/components/sections/Editions";
 import AboutLatimpacto from "@/components/sections/AboutLatimpacto";
 import OffscreenPause from "@/components/OffscreenPause";
 import Footer from "@/components/sections/Footer";
@@ -57,25 +55,24 @@ export default function Home({ lang, hero = "editorial" }: { lang: Locale; hero?
         <Hero variant={hero} t={t.hero} videoSrc={localVideo("header-3.mp4")} agendaLink={t.hero.agendaCta} speakerLabel={t.speakers.open} />
         <About t={t.about} videoSrc={localVideo("about.mp4")} />
         <Cartagena t={t.cartagena} />
+        <Agenda t={t.agenda} place={t.hero.eyebrow} dates={t.hero.dates} locale={locale} />
+        <Sponsor t={t.sponsor} locale={locale} lang={lang} />
         <Numbers
           t={t.numbers}
           locale={locale}
+          lang={lang}
           show={{ survey: t.survey, connections: t.connections }}
         />
         <Testimonials t={t.testimonials} lang={lang} />
         <Speakers t={t.speakers} lang={lang} />
-        <Connections t={t.connections} />
         <Launches t={t.launches} locale={locale} />
         <Events t={t.events} />
         <Visits t={t.visits} />
-        <Agenda t={t.agenda} place={t.hero.eyebrow} dates={t.hero.dates} locale={locale} />
-        <Partners t={t.partners} />
-        <Sponsor t={t.sponsor} locale={locale} />
         <Carbon t={t.carbon} locale={locale} />
-        <Editions t={t.editions} />
-        <AboutLatimpacto t={t.latimpacto} lang={lang} />
+        <Partners t={t.partners} />
+        <AboutLatimpacto t={t.latimpacto} />
       </main>
-      <Footer t={t.footer} contact={t.contact} hero={t.hero} nav={t.nav} privacy={{ href: privacyPath(lang), label: p.navLabel }} />
+      <Footer t={t.footer} contact={t.contact} hero={t.hero} nav={t.nav} lang={lang} onHome privacy={{ href: privacyPath(lang), label: p.navLabel }} />
       <BackToTop label={t.footer.backToTop} />
       <ScrollFx />
       <OffscreenPause />

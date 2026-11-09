@@ -2,7 +2,7 @@ import type { Dict } from "./pt";
 
 const en: Dict = {
   meta: {
-    title: "Impact Minds 2027 | Connecting Us | Cartagena",
+    title: "Impact Minds Conference",
     description:
       "Latimpacto's conference comes to Cartagena in August 2027. See the results of Impact Minds 2026 in Manaus and get ready for the next edition.",
   },
@@ -21,6 +21,7 @@ const en: Dict = {
     navTab: "Navigation",
   },
   controls: {
+    cookies: "Reset cookies",
     language: "Language",
     scrollbar: "Show scrollbar",
     facts: "Show event info bar",
@@ -46,8 +47,8 @@ const en: Dict = {
     editorial: {
       kicker: ["Impact Minds", "Connecting Us", "2026 · Manaus"],
       // Landscape screens: four wide lines; portrait: more, shorter ones.
-      lines: [[{ text: "Thank you for everything", serif: true }, { text: "Manaus," }], [{ text: "2026" }, { text: "was a success.", serif: true }], [{ text: "See you in", serif: true }, { text: "Cartagena" }], [{ text: "in", serif: true }, { text: "2027." }]],
-      tall: [[{ text: "Thank you for", serif: true }], [{ text: "everything", serif: true }], [{ text: "Manaus," }], [{ text: "2026" }, { text: "was a", serif: true }], [{ text: "success.", serif: true }], [{ text: "See you in", serif: true }], [{ text: "Cartagena" }], [{ text: "in", serif: true }, { text: "2027." }]],
+      lines: [[{ text: "Thank you for everything", serif: true }, { text: "Manaus," }], [{ text: "2026" }, { text: "was a success.", serif: true }], [{ text: "See you in", serif: true }, { text: "Cartagena," }], [{ text: "August", serif: true }, { text: "24–27, 2027." }]],
+      tall: [[{ text: "Thank you for", serif: true }], [{ text: "everything", serif: true }], [{ text: "Manaus," }], [{ text: "2026" }, { text: "was a", serif: true }], [{ text: "success.", serif: true }], [{ text: "See you in", serif: true }], [{ text: "Cartagena," }], [{ text: "August", serif: true }, { text: "24–27," }], [{ text: "2027." }]],
       when: ["Impact Minds", "August 24–27", "2027 · Colombia"],
     },
     eyebrow: "Cartagena, Colombia",
@@ -123,7 +124,7 @@ const en: Dict = {
   cartagena: {
     kicker: "Impact Minds 2027",
     place: "Cartagena, Colombia",
-    dates: "August 24–27",
+    dates: "August 24–27, 2027",
     title: "Where Impact Connects Latin America",
     paragraphs: [
       "Cartagena is a city where history, diversity and a deep connection with the Caribbean come together, making it a strategic setting to drive conversations on impact, sustainable development and social innovation in Latin America.",
@@ -259,7 +260,18 @@ const en: Dict = {
     label: "Tonnes of CO₂ offset at the last conference",
     value: "638.79",
   },
+  reader: {
+    back: "Back to the site",
+    download: "Download PDF",
+    loading: "Loading the document…",
+    pages: "pages",
+    error: "The document couldn't be shown here.",
+    open: "Open the file",
+    sponsorDoc: "Sponsorship opportunities · Impact Minds 2027",
+  },
   editions: {
+    intro: "Five editions connecting capital, knowledge and action across Latin America. Pick an edition to see its photos and full report.",
+    report: "Full report",
     title: "Past editions",
     close: "Close",
     prev: "Previous photo",
@@ -338,7 +350,7 @@ const en: Dict = {
     ]
   },
   visits: {
-    "title": "12 field visits",
+    "title": "12 field visits in 2026",
     "lead": "Immersive experiences that brought the Impact Minds conversations closer to the reality of the Amazon.",
     "close": "Close",
     "prev": "Previous photo",
@@ -440,6 +452,13 @@ const en: Dict = {
     "intl": "International coverage in Pioneers Post, Alliance Magazine, and ImpactAlpha."
   },
   latimpacto: {
+    name: "Latimpacto",
+    tagline: "The Latin American network with a global reach",
+    facts: [
+      { value: "240+", label: "members investing in the region with an impact lens" },
+      { value: "Latin America and the Caribbean", label: "mobilizing capital to generate impact" },
+      { value: "From philanthropy to sustainable finance", label: "actors, knowledge and capital across the capital continuum" },
+    ],
     "title": "About Latimpacto",
     "paragraphs": [
       "Latimpacto is the Latin American network with global reach that seeks to maximize the mobilization of capital for impact in Latin America and the Caribbean. It brings together actors, knowledge and capital across the capital continuum, from venture philanthropy and impact investing to sustainable finance.",

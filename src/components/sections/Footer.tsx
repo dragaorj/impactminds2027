@@ -1,5 +1,7 @@
 import { ArrowUpRight, InstagramLogo, LinkedinLogo, YoutubeLogo } from "@phosphor-icons/react/dist/ssr";
 import type { Dict } from "@/lib/dictionaries/pt";
+import type { Locale } from "@/lib/i18n";
+import { mainNav } from "@/lib/nav";
 import { links } from "@/lib/site";
 import Image from "next/image";
 import TypeOnView from "../TypeOnView";
@@ -9,21 +11,23 @@ import LatimpactoMark from "../LatimpactoMark";
 
 // Closing statement beside the Cartagena banner, then a glass card with the
 // Latimpacto signature and a contact form, the page's own navigation and social links.
-// home: "" on the home page itself, "/pt" etc. elsewhere (section links lead back).
+// The links are the menu's own (mainNav); the privacy notice sits in the credits.
 export default function Footer({
   t,
   hero,
   nav,
   privacy,
   contact,
-  home = "",
+  lang,
+  onHome = false,
 }: {
   t: Dict["footer"];
   contact: Dict["contact"];
   hero: Dict["hero"];
   nav: Dict["nav"];
   privacy: { href: string; label: string };
-  home?: string;
+  lang: Locale;
+  onHome?: boolean;
 }) {
   const words = t.closing.split(" ");
   const closingTail = words.pop();
@@ -33,12 +37,7 @@ export default function Footer({
     { href: links.social.linkedin, label: "LinkedIn", Icon: LinkedinLogo },
     { href: links.social.youtube, label: "YouTube", Icon: YoutubeLogo },
   ];
-  const items = [
-    { href: `${home}#conexoes`, label: nav.agenda2026 },
-    { href: `${home}#palestrantes`, label: nav.speakers2026 },
-    { href: `${home}#edicoes`, label: nav.editions },
-    { href: privacy.href, label: privacy.label },
-  ];
+  const items = mainNav(lang, nav, onHome);
   return (
     <footer className="relative overflow-hidden border-t border-line pb-8 pt-24 md:pt-32">
       <div className={container}>
@@ -126,6 +125,11 @@ export default function Footer({
             reveal may never fire, so the credits are always shown as is. */}
         <div data-nosplit className="mt-10 flex flex-col items-center gap-2 border-t border-line pt-8 text-center text-sm text-muted">
           <p>© 2026 Impact&nbsp;Minds: Standing Together. Latimpacto. {t.rights}</p>
+          <p>
+            <a href={privacy.href} className="underline decoration-line underline-offset-[3px] transition-colors hover:text-gold">
+              {privacy.label}
+            </a>
+          </p>
           <p>
             {t.madeBy}{" "}
             <a
