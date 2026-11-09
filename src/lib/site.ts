@@ -234,3 +234,13 @@ export const participantsByYear = [
   { year: 2025, value: 789 },
 ];
 
+
+// The site's public address, for absolute links in the page head (hreflang,
+// Open Graph). A custom domain goes in NEXT_PUBLIC_SITE_URL; otherwise
+// Vercel's production domain, set at build time.
+export const siteUrl = new URL(
+  process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "https://impactminds2027.vercel.app"),
+);

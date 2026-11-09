@@ -3,9 +3,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
-  // The stylesheet travels inside the page instead of as a separate request,
-  // so the first paint never waits for it.
-  experimental: { inlineCss: true },
+  // The stylesheet stays a separate, cached file. (Inlining it, the
+  // experimental inlineCss, sent its 130 KB twice in every page, in the HTML
+  // and again in the React payload, which made parsing the page the longest
+  // task on phones.)
   // Static files stay in the browser cache: the hero video (a language
   // switch, a real page load, plays it at once instead of fetching it again),
   // the photos, the brand marks and the PDFs. A week, not forever, so a

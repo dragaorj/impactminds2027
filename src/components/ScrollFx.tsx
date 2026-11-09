@@ -111,12 +111,19 @@ export default function ScrollFx() {
       }
 
       const counters = gsap.utils.toArray<HTMLElement>("[data-count]");
+      // One number formatter per locale and precision (building one is costly,
+      // and a count-up formats on every frame).
+      const formatters = new Map<string, Intl.NumberFormat>();
       const format = (el: HTMLElement, n: number) => {
         const decimals = Number(el.dataset.decimals ?? 0);
-        const text = n.toLocaleString(el.dataset.locale ?? "pt-BR", {
-          minimumFractionDigits: decimals,
-          maximumFractionDigits: decimals,
-        });
+        const locale = el.dataset.locale ?? "pt-BR";
+        const key = `${locale}|${decimals}`;
+        let nf = formatters.get(key);
+        if (!nf) {
+          nf = new Intl.NumberFormat(locale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+          formatters.set(key, nf);
+        }
+        const text = nf.format(n);
         el.textContent = el.dataset.pad ? text.padStart(Number(el.dataset.pad), "0") : text;
       };
 
@@ -135,11 +142,19 @@ export default function ScrollFx() {
         return;
       }
 
+      // The setup below (hundreds of tweens and triggers, each measuring the
+      // page) runs in a few short tasks instead of one long one, so the page
+      // stays responsive while it loads. Everything it hides sits below the
+      // first screen, under the opening curtain, so nothing shows the gap.
+      const steps: (() => void)[] = [];
+      const step = (fn: () => void) => steps.push(contextSafe!(fn));
+
       // Every entrance plays once. None of the triggers use `once: true`: after a
       // language switch the page keeps its scroll position, so many triggers are
       // created already passed, and a trigger that kills itself while it is
       // being set up crashes ScrollTrigger ("reading 'end'"). Played-once state
       // lives on the element (data-revealed) or in the tween instead.
+      step(() => {
       const reveal = (batch: Element[]) => {
         const els = (batch as HTMLElement[]).filter((el) => !el.hasAttribute("data-revealed"));
         if (!els.length) return;
@@ -151,6 +166,8 @@ export default function ScrollFx() {
         );
       };
       ScrollTrigger.batch("[data-reveal]", { start: "top 88%", onEnter: reveal, onEnterBack: reveal });
+      });
+      step(() => {
 
       // [data-stagger]: a slower, softer entrance for a row of cards. The rule
       // ([data-stagger-line]) draws across, then each card ([data-stagger-item])
@@ -181,6 +198,7 @@ export default function ScrollFx() {
           )
           .to(dots, { scale: 1, opacity: 1, duration: 0.7, stagger: 0.18, ease: "back.out(2.2)" }, 0.45);
       });
+      });
 
       // Every heading and text block outside the hero rises line by line from
       // behind a mask as it enters view. Splitting measures every line, so each
@@ -204,6 +222,10 @@ export default function ScrollFx() {
           type: "lines",
           mask: "lines",
           autoSplit: true,
+          // Lines only (words stay whole), so the split text still reads as is:
+          // no aria-label on the element (not allowed on a <p>, and it broke the
+          // accessibility tree that agents and screen readers use).
+          aria: "none",
           onSplit: (self) => {
             // Give each mask room for descenders (g, p, ç) without shifting the layout.
             gsap.set(self.masks, { paddingBottom: "0.16em", marginBottom: "-0.16em" });
@@ -229,18 +251,21 @@ export default function ScrollFx() {
         },
         { rootMargin: "100% 0px" },
       );
-      gsap.utils.toArray<HTMLElement>(textSel).forEach((el) => {
-        if (
-          el.closest("#top, [data-words], [data-nosplit], a, button, [aria-hidden='true']") ||
-          el.querySelector("[data-count], svg, img") ||
-          !el.textContent?.trim()
-        )
-          return;
-        nearText.observe(el);
-      });
+      step(() =>
+        gsap.utils.toArray<HTMLElement>(textSel).forEach((el) => {
+          if (
+            el.closest("#top, [data-words], [data-nosplit], a, button, [aria-hidden='true']") ||
+            el.querySelector("[data-count], svg, img") ||
+            !el.textContent?.trim()
+          )
+            return;
+          nearText.observe(el);
+        }),
+      );
 
       // [data-ticks]: tick meters light up (CSS transitions, staggered per tick)
       // once the group scrolls into view.
+      step(() => {
       gsap.utils.toArray<HTMLElement>("[data-ticks]").forEach((group) => {
         const light = () => group.setAttribute("data-lit", "");
         ScrollTrigger.create({ trigger: group, start: "top 85%", onEnter: light, onEnterBack: light });
@@ -262,15 +287,17 @@ export default function ScrollFx() {
           },
         );
       });
+      });
 
       // Each number counts up from zero once per visit. Scrolling away and back
       // leaves it as it is; the back-to-top button (im:replay) rewinds them
       // all so they count again on the way down, as does a full reload.
-      const counterTweens = counters.map((el) => {
+      const counterTweens: gsap.core.Tween[] = [];
+      step(() => counters.forEach((el) => {
         const target = Number(el.dataset.count);
         const state = { n: 0 };
         format(el, 0);
-        return gsap.to(state, {
+        counterTweens.push(gsap.to(state, {
           n: target,
           duration: Number(el.dataset.duration ?? 2),
           ease: "expo.out",
@@ -279,8 +306,8 @@ export default function ScrollFx() {
             el.dataset.done = "";
           },
           scrollTrigger: { trigger: el, start: "top 90%", toggleActions: "play none none none" },
-        });
-      });
+        }));
+      }));
       const replayCounters = () => {
         counterTweens.forEach((tw) => tw.pause(0));
         counters.forEach((el) => {
@@ -290,6 +317,7 @@ export default function ScrollFx() {
       };
       window.addEventListener("im:replay", replayCounters);
 
+      step(() => {
       gsap.utils.toArray<HTMLElement>("[data-img-scale]").forEach((el) => {
         gsap.fromTo(
           el,
@@ -339,6 +367,18 @@ export default function ScrollFx() {
           },
         );
       });
+      });
+
+      // One step per task (the browser paints and handles input in between).
+      // Once all are in, one refresh measures every trigger together.
+      let stepTimer = 0;
+      let frame = 0;
+      const runSteps = () => {
+        steps.shift()?.();
+        if (steps.length) stepTimer = window.setTimeout(runSteps, 0);
+        else frame = requestAnimationFrame(() => ScrollTrigger.refresh());
+      };
+      runSteps();
 
       const refresh = () => ScrollTrigger.refresh();
       window.addEventListener("im:ready", refresh);
@@ -366,8 +406,8 @@ export default function ScrollFx() {
         timer = window.setTimeout(refreshWhenStill, 150);
       });
       ro.observe(document.body);
-      const frame = requestAnimationFrame(refresh);
       return () => {
+        clearTimeout(stepTimer);
         nearText.disconnect();
         ro.disconnect();
         window.removeEventListener("scroll", onScroll);

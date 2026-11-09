@@ -39,22 +39,28 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
   const wanted = useRef(false);
   const lightboxOpen = useRef(false);
 
-  // The YouTube player (its script, iframe and stream are heavy) is only set
-  // up once the panel is about a screen away; until then the poster shows.
+  // The YouTube player (its script, iframe and stream, over 2 MB, plus its
+  // cookies) is only set up once the visitor starts using the page (the
+  // first scroll, tap or key; the panel sits below the full-screen hero, so
+  // nobody sees it before that) or the panel shows on screen. The opening
+  // load stays light; until the video plays the poster shows, as before.
   const [near, setNear] = useState(false);
   useEffect(() => {
     const el = holder.current;
     if (src || !el) return;
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (!e.isIntersecting) return;
-        setNear(true);
-        io.disconnect();
-      },
-      { rootMargin: "100% 0px" },
-    );
+    const kinds = ["scroll", "wheel", "touchstart", "pointerdown", "keydown"] as const;
+    const go = () => {
+      setNear(true);
+      stop();
+    };
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && go());
+    const stop = () => {
+      io.disconnect();
+      kinds.forEach((k) => window.removeEventListener(k, go));
+    };
     io.observe(el);
-    return () => io.disconnect();
+    kinds.forEach((k) => window.addEventListener(k, go, { passive: true, once: true }));
+    return stop;
   }, [src]);
 
   useEffect(() => {

@@ -11,9 +11,10 @@ export type NativeLoopHandle = { setMuted(m: boolean): void; pause(): void; play
 const WATCH_MS = 1500;
 const FROZEN_MS = 2000;
 
-// Starts the video just before it (deferLoad) right after the first frame,
+// Starts the video just before it (deferLoad) once the page has loaded (its
+// scripts first: 5 MB of video would otherwise hold them up on a slow line),
 // muted, unless motion is reduced (html[data-motion], set by the prefs script).
-const START_SOON = `(function(){var v=document.currentScript.previousElementSibling;if(!v||document.documentElement.dataset.motion==="reduce")return;if(v.hasAttribute("data-hero-video"))v.addEventListener("playing",function(){window.__imHeroVideo=true;dispatchEvent(new Event("im:hero-video"))},{once:true});requestAnimationFrame(function(){requestAnimationFrame(function(){setTimeout(function(){v.preload="auto";v.muted=true;var p=v.play();if(p)p.catch(function(){})},0)})})})();`;
+const START_SOON = `(function(){var v=document.currentScript.previousElementSibling;if(!v||document.documentElement.dataset.motion==="reduce")return;if(v.hasAttribute("data-hero-video"))v.addEventListener("playing",function(){window.__imHeroVideo=true;dispatchEvent(new Event("im:hero-video"))},{once:true});function go(){v.preload="auto";v.muted=true;var p=v.play();if(p)p.catch(function(){})}if(document.readyState==="complete")go();else addEventListener("load",go,{once:true})})();`;
 
 // Self-hosted background video: muted, looping, inline, with no controls of
 // any kind. Autoplay is skipped when the visitor asked for reduced motion

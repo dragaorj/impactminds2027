@@ -7,6 +7,7 @@ import InlineScript from "@/components/InlineScript";
 import PrefsSync from "@/components/PrefsSync";
 import CookieConsent from "@/components/CookieConsent";
 import { privacyCopy, privacyPath } from "@/lib/privacy";
+import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const gloock = localFont({
@@ -41,6 +42,7 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
   if (!hasLocale(lang)) return {};
   const dict = getDictionary(lang);
   return {
+    metadataBase: siteUrl,
     title: dict.meta.title,
     description: dict.meta.description,
     alternates: {

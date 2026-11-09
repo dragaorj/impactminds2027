@@ -109,7 +109,7 @@ function LangSwitch({
     >
       <button
         type="button"
-        aria-label={`${label}: ${names[lang]}`}
+        aria-label={`${lang.toUpperCase()}, ${label}: ${names[lang]}`}
         aria-haspopup="true"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}

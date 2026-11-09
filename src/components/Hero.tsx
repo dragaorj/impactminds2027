@@ -123,7 +123,9 @@ export default function Hero({
       fit();
       window.setTimeout(fit, 120);
     };
-    const ro = new ResizeObserver(refit);
+    // (Its first call, on observe, would only repeat the fit just done.)
+    let observed = false;
+    const ro = new ResizeObserver(() => (observed ? refit() : (observed = true)));
     ro.observe(box);
     // Turning the screen swaps the layout without always changing the width.
     window.addEventListener("resize", refit);
