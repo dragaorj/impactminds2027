@@ -38,7 +38,8 @@ export default function Footer({
     { href: links.social.linkedin, label: "LinkedIn", Icon: LinkedinLogo },
     { href: links.social.youtube, label: "YouTube", Icon: YoutubeLogo },
   ];
-  const items = mainNav(lang, nav, onHome);
+  // The contact form sits right beside these links, so no "Contato" link here.
+  const items = mainNav(lang, nav, onHome).filter((item) => item.href !== "#contato");
   return (
     <footer className="relative overflow-hidden border-t border-line pb-8 pt-24 md:pt-32">
       <div className={container}>
