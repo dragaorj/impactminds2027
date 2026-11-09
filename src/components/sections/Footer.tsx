@@ -29,9 +29,10 @@ export default function Footer({
   lang: Locale;
   onHome?: boolean;
 }) {
-  const words = t.closing.split(" ");
-  const closingTail = words.pop();
-  const closingHead = words.join(" ");
+  // Two lines, broken before the city: "Nos vemos em" / "Cartagena em 2027".
+  const cut = t.closing.indexOf("Cartagena");
+  const closingHead = cut > 0 ? t.closing.slice(0, cut).trim() : t.closing;
+  const closingTail = cut > 0 ? t.closing.slice(cut) : "";
   const social = [
     { href: links.social.instagram, label: "Instagram", Icon: InstagramLogo },
     { href: links.social.linkedin, label: "LinkedIn", Icon: LinkedinLogo },
@@ -49,10 +50,10 @@ export default function Footer({
               <span aria-hidden className="h-3 w-px bg-line" />
               <span className="font-medium text-gold">{hero.dates}</span>
             </p>
-            {/* Always two lines, "Nos vemos em" / "Cartagena": the type is sized to
-                this column's own width (cqi), so the first line fits on any screen.
-                In gold like the hero's typed line, typing itself in on arrival. */}
-            <p className="w-full font-display text-[clamp(2.5rem,15.5cqi,6rem)] leading-[0.98] text-gold" data-nosplit>
+            {/* Always two lines, "Nos vemos em" / "Cartagena em 2027": the type is
+                sized to this column's own width (cqi), so the longer line fits on
+                any screen. In gold like the hero's typed line, typing itself in. */}
+            <p className="w-full font-display text-[clamp(1.75rem,10.5cqi,4.25rem)] leading-[1.02] text-gold" data-nosplit>
               <TypeOnView lines={[closingHead, closingTail ?? ""]} className="block" />
             </p>
           </div>

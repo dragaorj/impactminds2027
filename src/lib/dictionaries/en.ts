@@ -482,7 +482,7 @@ const en: Dict = {
     "invalid": "Fill in your name, a valid email and the message."
   },
   footer: {
-    closing: "See you in Cartagena",
+    closing: "See you in Cartagena in 2027",
     about: "Latimpacto is the Latin American network with global reach that seeks to maximize the mobilization of capital for impact in Latin America and the Caribbean. It brings together more than 240 members, including families, family offices, companies, foundations, multilateral organizations, academic institutions, and accelerators.",
     visit: "Visit Latimpacto",
     follow: "Follow Latimpacto",

@@ -482,7 +482,7 @@ const es: Dict = {
     "invalid": "Completa nombre, un correo válido y el mensaje."
   },
   footer: {
-    closing: "Nos vemos en Cartagena",
+    closing: "Nos vemos en Cartagena en 2027",
     about: "Latimpacto es la red latinoamericana con alcance global que busca maximizar la movilización de capital para el impacto en América Latina y el Caribe. Reúne a más de 240 miembros, entre familias, family offices, empresas, fundaciones, organizaciones multilaterales, instituciones académicas y aceleradoras.",
     visit: "Conoce Latimpacto",
     follow: "Sigue a Latimpacto",
