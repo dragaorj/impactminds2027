@@ -95,7 +95,7 @@ export default function Numbers({ t, locale, lang, show }: { t: Dict["numbers"];
 
   return (
     <section id="numeros" className={section} aria-labelledby="numeros-title">
-      <Art name="mosaic" className="pointer-events-none absolute bottom-6 left-[1.25vw] hidden w-20 lg:block" />
+      <Art name="petals" className="pointer-events-none absolute bottom-6 left-[1.25vw] hidden w-16 lg:block" />
       <div className={container}>
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between" data-reveal>
           <div className="max-w-3xl">

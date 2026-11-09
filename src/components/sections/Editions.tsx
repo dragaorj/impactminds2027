@@ -148,7 +148,7 @@ export default function Editions({
             className="mt-12 grid min-h-[22rem] place-items-center rounded-[2rem] bg-bg-2 px-6 text-center ring-1 ring-line md:mt-16"
           >
             <div className="flex flex-col items-center gap-5">
-              <Art name="mosaic" className="w-16 !visible" />
+              <Art name="bloom" className="w-12 !visible" />
               <p className="max-w-[32ch] font-display text-2xl leading-snug text-ink">{t.soon}</p>
             </div>
           </div>

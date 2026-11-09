@@ -9,7 +9,7 @@ import { Bezel, H2, container, section } from "../ui";
 export default function Launches({ t, locale }: { t: Dict["launches"]; locale: string }) {
   return (
     <section id="lancamentos" className={section} aria-labelledby="lancamentos-title">
-      <Art name="mosaic" className="pointer-events-none absolute bottom-6 left-[1.25vw] hidden w-20 lg:block" />
+      <Art name="bloom" className="pointer-events-none absolute bottom-6 left-[1.25vw] hidden w-16 lg:block" />
       <div className={container}>
         <div className="max-w-3xl">
           <H2 id="lancamentos-title">{t.title}</H2>

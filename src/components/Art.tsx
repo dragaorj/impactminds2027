@@ -16,7 +16,8 @@ type ArtName =
   | "laurel"
   | "arcs"
   | "rings"
-  | "mosaic";
+  | "petals"
+  | "bloom";
 
 const f1 = (n: number) => n.toFixed(1);
 
@@ -246,20 +247,36 @@ const drawings: Record<ArtName, { box: string; paths: Stroke[]; loop?: string; s
       { d: "M514 42 q2 -10 13 -9 q5 -11 18 -5 q11 -2 12 9 z", c: "loop-drift" },
     ],
   },
-  // The 2027 banner's geometric tiles (half circle, quarter discs, leaf,
-  // circle, paired D shapes) as static line art: outlines only, no fill, no
-  // entrance or scroll animation.
-  mosaic: {
-    box: "-2 -2 84 124",
+  // The brand's geometric elements (the client's "Impact Minds Elements" SVGs),
+  // drawn with the same stroke as the skyline. Static: no fill, no entrance or
+  // scroll animation. "petals": eight quarter-leaves in a 2x4 column;
+  // "bloom": leaves, a split disc and the drop shapes below.
+  petals: {
+    box: "-2 -2 154 304",
     loop: "",
     still: true,
     paths: [
-      "M0 40 A20 20 0 0 1 40 40 Z",
-      "M80 0 V40 H40 A40 40 0 0 1 80 0 Z",
-      "M0 80 Q0 40 40 40 Q40 80 0 80 Z",
-      "M44 60 a16 16 0 1 0 32 0 a16 16 0 1 0 -32 0",
-      "M0 80 H40 A40 40 0 0 1 0 120 Z",
-      "M40 80 A20 20 0 0 1 40 120 Z M80 80 A20 20 0 0 0 80 120 Z",
+      "M0 0C41.42 0 75 33.58 75 75C33.58 75 0 41.42 0 0Z",
+      "M150 0C108.58 0 75 33.58 75 75C116.42 75 150 41.42 150 0Z",
+      "M0 150C41.42 150 75 116.42 75 75C33.58 75 0 108.58 0 150Z",
+      "M150 150C108.58 150 75 116.42 75 75C116.42 75 150 108.58 150 150Z",
+      "M0 150C41.42 150 75 183.58 75 225C33.58 225 0 191.42 0 150Z",
+      "M150 150C108.58 150 75 183.58 75 225C116.42 225 150 191.42 150 150Z",
+      "M0 300C41.42 300 75 266.42 75 225C33.58 225 0 258.58 0 300Z",
+      "M150 300C108.58 300 75 266.42 75 225C116.42 225 150 258.58 150 300Z",
+    ],
+  },
+  bloom: {
+    box: "-2 -2 155 295",
+    loop: "",
+    still: true,
+    paths: [
+      "M75 75.49C33.58 75.49 0 41.91 0 0.48V0H150V0.48C150 41.91 116.43 75.49 75 75.49Z",
+      "M75 75.49C116.43 75.49 150 109.08 150 150.5V150.99H0V150.5C0 109.08 33.58 75.49 75 75.49Z",
+      "M150 225.99C108.58 225.99 75 192.41 75 150.99C116.42 150.99 150 184.57 150 225.99Z",
+      "M0 225.99C41.42 225.99 75 192.41 75 150.99C33.58 150.99 0 184.57 0 225.99Z",
+      "M150 290.99C108.58 290.99 75 257.41 75 215.99C116.42 215.99 150 249.57 150 290.99Z",
+      "M0 290.99C41.42 290.99 75 257.41 75 215.99C33.58 215.99 0 249.57 0 290.99Z",
     ],
   },
   laurel: { box: "0 0 160 120", paths: laurel(), loop: "loop-sway-soft" },
