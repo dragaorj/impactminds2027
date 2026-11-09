@@ -12,8 +12,9 @@ const field =
 
 // Web3Forms access key issued to the conference inbox. It is public by design
 // (it only lets this form send to that inbox) and its free plan only accepts
-// submissions from the browser, so the form posts there directly.
-const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
+// submissions from the browser, so the form posts there directly. It lives
+// here in the code; NEXT_PUBLIC_WEB3FORMS_KEY, if set, takes over.
+const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY || "825f5f09-ad19-48f6-b62d-26d6b5662127";
 
 // Name, email and message, sent to the conference team: through Web3Forms when
 // its key is set, otherwise /api/contact (Resend). If neither can send, the
