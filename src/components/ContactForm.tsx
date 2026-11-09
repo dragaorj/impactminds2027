@@ -32,7 +32,7 @@ export default function ContactForm({ t }: { t: Dict["contact"] }) {
       return;
     }
     setStatus("sending");
-    const subject = `Contato pelo site · ${data.name.trim()}`;
+    const subject = "Mensagem do site ImpactMindsConference";
     try {
       const res = WEB3FORMS_KEY
         ? await fetch("https://api.web3forms.com/submit", {

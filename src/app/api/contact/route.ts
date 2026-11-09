@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       from,
       to: [CONTACT_EMAIL],
       reply_to: email,
-      subject: `Contato pelo site · ${name}`,
+      subject: "Mensagem do site ImpactMindsConference",
       text: `Nome: ${name}\nE-mail: ${email}\n\n${message}`,
       html: `<p><strong>Nome:</strong> ${escape(name)}<br><strong>E-mail:</strong> ${escape(email)}</p><p>${escape(message).replace(/\n/g, "<br>")}</p>`,
     }),
