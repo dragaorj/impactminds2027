@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Key, SignOut } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { useAgenda } from "./store";
-import { ProfileSheet } from "./Team";
+import { OnlineFaces, ProfileSheet, useOnline } from "./Team";
 
 // The person signed in: their photo (initials when there is none).
 function Face({ size }: { size: number }) {
@@ -26,6 +26,9 @@ function Face({ size }: { size: number }) {
 export default function Account({ t, compact = false, loginHref }: { t: Dict["agendaApp"]; compact?: boolean; loginHref: string }) {
   const { profile, logout } = useAgenda();
   const [open, setOpen] = useState(false);
+  // The rest of the team online now (beside "Edit mode", wide screens).
+  const online = useOnline(!compact);
+  const others = online.filter((o) => o.id !== profile?.id);
   // Older links (?entrar=1) go to the sign-in page.
   useEffect(() => {
     if (!compact && new URLSearchParams(location.search).get("entrar") === "1") location.replace(loginHref);
@@ -50,6 +53,9 @@ export default function Account({ t, compact = false, loginHref }: { t: Dict["ag
 
   return profile ? (
     <span className="flex items-center gap-1.5">
+      <span className="mr-1">
+        <OnlineFaces people={others} label={t.onlineNow} />
+      </span>
       <button
         type="button"
         onClick={() => setOpen(true)}

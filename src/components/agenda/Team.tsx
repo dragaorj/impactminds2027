@@ -442,6 +442,7 @@ export function ProfileSheet({ open, onClose, t }: { open: boolean; onClose: () 
   const [err, setErr] = useState("");
   const input = useRef<HTMLInputElement>(null);
   const master = profile?.role === "master";
+  const online = useOnline(open);
 
   // The master's own record (with the password the save keeps unchanged).
   useEffect(() => {
@@ -556,8 +557,77 @@ export function ProfileSheet({ open, onClose, t }: { open: boolean; onClose: () 
             e.target.value = "";
           }}
         />
+        {/* The team signed in right now (phones have no room for it in the top bar). */}
+        {online.length > 0 && (
+          <div className="mt-6 w-full border-t border-line pt-4 text-left">
+            <p className="flex items-center gap-2 text-[13px] font-semibold text-ink-2">
+              <span className="relative inline-flex size-2">
+                <span className="absolute size-2 animate-ping rounded-full bg-[#34c759]/60" />
+                <span className="size-2 rounded-full bg-[#34c759]" />
+              </span>
+              {t.onlineNow}
+            </p>
+            <ul className="mt-2.5 space-y-2">
+              {online.map((o) => (
+                <li key={o.id} className="flex items-center gap-2.5 text-[15px]">
+                  <Avatar name={fullName(o) || "?"} photo={o.photo || undefined} size={28} />
+                  <span className="truncate">{fullName(o)}</span>
+                  {o.id === profile.id && <span className="text-[13px] text-muted">({t.you})</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         {err && <p className="mt-4 w-full rounded-[14px] bg-[#fdecec] px-4 py-3 text-sm text-[#b42318]">{err}</p>}
       </div>
     </Sheet>
+  );
+}
+
+// Who of the team is signed in right now (a beat every 30 s while the
+// platform is open; seen in the last 45 s), refreshed every 30 s.
+export function useOnline(active = true): Online[] {
+  const { team, signedIn } = useAgenda();
+  const [list, setList] = useState<Online[]>([]);
+  useEffect(() => {
+    if (!signedIn || !active) return;
+    let alive = true;
+    const load = () =>
+      team
+        .online()
+        .then((l) => alive && setList(l))
+        .catch(() => {});
+    load();
+    const id = window.setInterval(load, 30000);
+    return () => {
+      alive = false;
+      window.clearInterval(id);
+    };
+  }, [team, signedIn, active]);
+  return signedIn ? list : [];
+}
+
+// The team online, as small overlapping photos (a green light on each);
+// names on hover; "+n" beyond four.
+export function OnlineFaces({ people, label }: { people: Online[]; label: string }) {
+  if (!people.length) return null;
+  const shown = people.slice(0, 4);
+  const names = people.map((p) => `${p.first ?? ""} ${p.last ?? ""}`.trim()).join(", ");
+  return (
+    <span className="flex items-center" title={`${label}: ${names}`} aria-label={`${label}: ${names}`} role="img">
+      {shown.map((p, k) => (
+        <span key={p.id} className="relative -ml-2 first:ml-0" style={{ zIndex: shown.length - k }}>
+          <span className="block rounded-full ring-2 ring-[var(--bg)]">
+            <Avatar name={`${p.first ?? ""} ${p.last ?? ""}`.trim() || "?"} photo={p.photo || undefined} size={30} />
+          </span>
+          <span aria-hidden className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full bg-[#34c759] ring-2 ring-[var(--bg)]" />
+        </span>
+      ))}
+      {people.length > shown.length && (
+        <span className="-ml-2 grid size-[34px] place-items-center rounded-full bg-[rgb(118_118_128/0.16)] text-[11px] font-semibold text-ink-2 ring-2 ring-[var(--bg)]">
+          +{people.length - shown.length}
+        </span>
+      )}
+    </span>
   );
 }

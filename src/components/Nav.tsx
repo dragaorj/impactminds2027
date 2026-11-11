@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowCounterClockwise, ArrowRight, Check, Cookie, GlobeSimple, LockSimple, Minus, Moon, PersonArmsSpread, Plus, Sun } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, ArrowRight, Check, Cookie, GlobeSimple, LockSimple, Minus, PersonArmsSpread, Plus } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { locales, type Locale } from "@/lib/i18n";
 import { agendaLoginPath, mainNav } from "@/lib/nav";
@@ -276,7 +276,7 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
 }
 
 export default function Nav({ lang, nav, controls, sub = "" }: Props) {
-  const { prefs, setTheme, setA11y, resetA11y } = usePrefs();
+  const { prefs, setA11y, resetA11y } = usePrefs();
   const [menuOpen, setMenuOpen] = useState(false);
   // Phones: the menu has two tabs, the site's sections and accessibility.
   const [menuTab, setMenuTab] = useState<"nav" | "a11y">("nav");
@@ -364,7 +364,6 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
     return () => window.removeEventListener("scroll", read);
   }, []);
 
-  const isDark = prefs.theme === "dark";
   const onVideo = !scrolled && !sub;
   const btn = onVideo ? iconBtnOnVideo : iconBtn;
 
@@ -411,19 +410,9 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
           window.dispatchEvent(new Event("im:hero-shift"));
         }}
       />
-      {/* Saved defaults, per visitor: theme (localStorage) and
-        language (cookie read on arrival); picking a language
-        also switches the page now. */}
+      {/* Saved default, per visitor: the language (cookie); picking one
+        also switches the page now. (The site has one theme: light.) */}
       <div className="mt-1 border-t border-line pt-1">
-        <Choice
-          label={controls.defaultTheme}
-          value={prefs.theme}
-          onChange={setTheme}
-          options={[
-            { value: "dark", label: controls.dark },
-            { value: "light", label: controls.light },
-          ]}
-        />
         <Choice
           label={controls.defaultLanguage}
           value={lang}
@@ -502,18 +491,6 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
 
           <div className="flex items-center gap-1">
             <LangSwitch lang={lang} label={controls.language} names={controls.languages} onVideo={onVideo} onOpenChange={setLangOpen} sub={sub} />
-            {/* Phones keep just the language and the menu; these two live in the menu there. */}
-            <button
-              type="button"
-              className={btn + " group relative max-sm:hidden"}
-              onClick={() => setTheme(isDark ? "light" : "dark")}
-              aria-label={isDark ? controls.themeToLight : controls.themeToDark}
-            >
-              {isDark ? <Sun size="1.25rem" weight="light" className="icon-sun" /> : <Moon size="1.25rem" weight="light" className="icon-moon" />}
-              <span aria-hidden className="fab-tip fab-tip-below">
-                {isDark ? controls.themeToLight : controls.themeToDark}
-              </span>
-            </button>
 
             <div className="relative">
               <button
@@ -666,21 +643,6 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
                       ))}
                     </ul>
                   </nav>
-                  {/* Phones only: the theme switch (the bar shows it from sm up). */}
-                  <button
-                    type="button"
-                    onClick={() => setTheme(isDark ? "light" : "dark")}
-                    aria-label={isDark ? controls.themeToLight : controls.themeToDark}
-                    className="mt-2 flex w-full animate-[menuItem_0.6s_var(--ease-out-expo)_both] items-center gap-2.5 rounded-[1.25rem] bg-ink/5 px-4 py-3.5 text-left text-sm text-ink transition-colors duration-300 hover:bg-sun/12 active:bg-sun/12 sm:hidden"
-                    style={{ animationDelay: `${80 + items.length * 60}ms` }}
-                  >
-                    {isDark ? (
-                      <Sun aria-hidden size="1.125rem" weight="light" className="shrink-0 text-gold" />
-                    ) : (
-                      <Moon aria-hidden size="1.125rem" weight="light" className="shrink-0 text-gold" />
-                    )}
-                    {isDark ? controls.light : controls.dark}
-                  </button>
                 </div>
                 {menuTab === "a11y" && (
                   <div
