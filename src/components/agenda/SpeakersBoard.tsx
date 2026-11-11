@@ -5,13 +5,14 @@ import Image from "next/image";
 import { CaretRight, GridFour, MagnifyingGlass, Rows, SquaresFour, Star } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import type { AgendaSpeaker } from "@/lib/agendaShape";
-import { useAgenda } from "./store";
+import { useAgenda, useAsked } from "./store";
 import { speakersViewPath, type SpeakersView } from "@/lib/nav";
 import type { Locale } from "@/lib/i18n";
 import ShareButton from "./Share";
 import { Avatar, Segmented, Sheet, card, norm } from "./ui";
-import SpeakerDetail from "./SpeakerDetail";
-import { EditBar, FeaturedOrder, SpeakerForm } from "./Editor";
+import SpeakerDetail, { preloadPhoto } from "./SpeakerDetail";
+import { useReveal } from "./motion";
+import { FeaturedOrder, SpeakerForm } from "./Editor";
 
 type T = Dict["agendaApp"];
 
@@ -76,9 +77,22 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
   const featured = list.filter((s) => s.featured);
   const others = list.filter((s) => !s.featured);
   const open = data.speakers.find((s) => s.id === openId) ?? null;
+  // The speakers glide in when the view or the group changes.
+  const reveal = useReveal<HTMLDivElement>(`${mode}|${group}`);
+  useAsked("newSpeaker", () => setEditId(null));
+  useAsked("order", () => setOrdering(true));
+  const warm = (e: React.SyntheticEvent) => preloadPhoto((e.target as HTMLElement).closest<HTMLElement>("[data-photo]")?.dataset.photo);
 
   return (
-    <div className="mx-auto max-w-[1280px] min-[112.5rem]:max-w-[84vw] px-4 pb-16 pt-6 sm:px-6 sm:pt-10">
+    <div
+      ref={reveal}
+      className="mx-auto max-w-[1280px] min-[112.5rem]:max-w-[84vw] px-4 pb-16 pt-6 sm:px-6 sm:pt-10"
+      // A speaker under the pointer (or the finger, or the keyboard): their
+      // large photos start loading, so opening and zooming are instant.
+      onPointerOver={warm}
+      onPointerDown={warm}
+      onFocus={warm}
+    >
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
         <div>
           <h1 className="text-[2rem] font-semibold leading-tight tracking-[-0.025em] sm:text-[2.5rem]">{t.speakers}</h1>
@@ -89,7 +103,6 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
         </p>
       </div>
 
-      {editing && <EditBar t={t} lang={lang} onNewSpeaker={() => setEditId(null)} onOrder={() => setOrdering(true)} />}
 
       <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center">
       <label className="relative block flex-1 sm:max-w-xl">
@@ -145,7 +158,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
               {mode === "cards" ? (
                 <ul className="mt-3 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 portrait:lg:grid-cols-3 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(17rem,1fr))]">
                   {featured.map((s) => (
-                    <li key={s.id}>
+                    <li key={s.id} data-reveal>
                       <FeaturedCard s={s} onOpen={() => setOpenId(s.id)} />
                     </li>
                   ))}
@@ -164,10 +177,11 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
               ) : (
               <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(13rem,1fr))]">
                 {others.map((s) => (
-                  <li key={s.id}>
+                  <li key={s.id} data-reveal>
                     <button
                       type="button"
                       onClick={() => setOpenId(s.id)}
+                      data-photo={s.photo || undefined}
                       className={`${card} group flex h-full w-full flex-col items-center px-3 pb-5 pt-6 text-center transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow)] active:scale-[0.985]`}
                     >
                       <Avatar name={s.name} photo={s.photo} size={80} />
@@ -203,6 +217,7 @@ function FeaturedCard({ s, onOpen }: { s: AgendaSpeaker; onOpen: () => void }) {
     <button
       type="button"
       onClick={onOpen}
+      data-photo={s.photo || undefined}
       className={`${card} group flex h-full w-full flex-col overflow-hidden text-left transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow)] active:scale-[0.985]`}
     >
       <span className="relative block aspect-[4/5] w-full overflow-hidden bg-brand-soft">
@@ -232,10 +247,10 @@ function People({ list, mode, featured = false, onOpen }: { list: AgendaSpeaker[
     return (
       <ul className={`mt-3 grid gap-3 sm:gap-4 ${featured ? "grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]" : "grid-cols-5 sm:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))]"}`}>
         {list.map((s) => (
-          <li key={s.id} className="relative">
+          <li key={s.id} data-reveal className="relative">
             <button
               type="button"
-              onClick={() => onOpen(s.id)}
+              onClick={() => onOpen(s.id)} data-photo={s.photo || undefined}
               aria-label={s.name}
               className="group relative block aspect-square w-full overflow-hidden rounded-full bg-brand-soft shadow-[var(--shadow-card)] ring-1 ring-line transition-transform duration-300 hover:scale-[1.04] focus-visible:scale-[1.04] active:scale-[0.97]"
             >
@@ -264,8 +279,8 @@ function People({ list, mode, featured = false, onOpen }: { list: AgendaSpeaker[
   return (
     <ul className={`${card} mt-3 overflow-hidden min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(28rem,1fr))] min-[112.5rem]:grid`}>
       {list.map((s) => (
-        <li key={s.id} className="-mt-px border-t border-line">
-          <button type="button" onClick={() => onOpen(s.id)} className="flex w-full items-center gap-3.5 px-4 py-3 text-left transition-colors hover:bg-[rgb(118_118_128/0.06)]">
+        <li key={s.id} data-reveal className="-mt-px border-t border-line">
+          <button type="button" onClick={() => onOpen(s.id)} data-photo={s.photo || undefined} className="flex w-full items-center gap-3.5 px-4 py-3 text-left transition-colors hover:bg-[rgb(118_118_128/0.06)]">
             <Avatar name={s.name} photo={s.photo} size={48} />
             <span className="min-w-0 flex-1">
               <span className="flex items-center gap-1.5">

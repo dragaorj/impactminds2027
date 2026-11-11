@@ -140,12 +140,12 @@ export default function Footer({
           <p>
             {t.madeBy}{" "}
             <a
-              href="https://www.linkedin.com/in/marlonwebdesigner/"
+              href="https://fyw.com.br/"
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-ink transition-colors hover:text-gold"
             >
-              Marlon Dias
+              Fyw
             </a>
           </p>
         </div>

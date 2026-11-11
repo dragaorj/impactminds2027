@@ -1,13 +1,31 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import { Clock, LinkedinLogo, MagnifyingGlassPlus, MapPin, PencilSimple, Star, X } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import type { AgendaData, AgendaSpeaker } from "@/lib/agendaShape";
 import { Avatar, ReadMore, dayLabel } from "./ui";
 
 type T = Dict["agendaApp"];
+
+// The zoomed photo, fetched ahead (on hover, when the speaker opens): the
+// browser picks the same file the zoom will show, so it opens at once.
+const ZOOM_SIZES = "(min-width: 640px) 544px, 86vw";
+const preloaded = new Set<string>();
+export function preloadPhoto(src?: string) {
+  if (!src || preloaded.has(src) || typeof window === "undefined") return;
+  preloaded.add(src);
+  // The zoom, and the round photo at the top of the speaker card (112 px).
+  for (const sizes of [ZOOM_SIZES, "224px"]) {
+    const { props } = getImageProps({ src, alt: "", fill: true, sizes });
+    const img = new window.Image();
+    img.decoding = "async";
+    if (props.sizes) img.sizes = props.sizes;
+    if (props.srcSet) img.srcset = props.srcSet;
+    img.src = props.src;
+  }
+}
 
 // A speaker, in the centred pop-up: the photo (tap to see it large), name,
 // role and organisation, LinkedIn, bio and the sessions they speak at.
@@ -27,6 +45,7 @@ export default function SpeakerDetail({
   agendaHref: string;
 }) {
   const [zoom, setZoom] = useState(false);
+  useEffect(() => preloadPhoto(s.photo), [s.photo]);
   const talks = data.talks.filter((x) => x.speakerIds.includes(s.id) || x.moderatorId === s.id);
   return (
     <article>
@@ -134,7 +153,7 @@ function PhotoZoom({ src, name, closeLabel, onClose }: { src: string; name: stri
     >
       <div className="flex h-full flex-col items-center justify-center gap-4 p-6">
         <div className="relative aspect-square w-[min(34rem,86vw,72dvh)] overflow-hidden rounded-full shadow-[0_40px_100px_-30px_rgb(0_0_0/0.7)]">
-          <Image src={src} alt={name} fill sizes="(min-width: 640px) 544px, 86vw" className="object-cover" />
+          <Image src={src} alt={name} fill sizes={ZOOM_SIZES} loading="eager" className="object-cover" />
         </div>
         <p className="text-base font-medium text-white">{name}</p>
         <button type="button" onClick={onClose} aria-label={closeLabel} className="absolute right-5 top-5 grid size-11 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 backdrop-blur-md hover:bg-white/20">

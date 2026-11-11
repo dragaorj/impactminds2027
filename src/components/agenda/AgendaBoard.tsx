@@ -1,19 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { CalendarPlus, CaretRight, Clock, Info, MagnifyingGlass, MapPin, PencilSimple, Rows, SquaresFour, Star, Translate, X } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import type { AgendaSpeaker, AgendaTalk } from "@/lib/agendaShape";
 import { hhmm, toMin } from "@/lib/agendaShape";
-import { useAgenda } from "./store";
+import { useAgenda, useAsked } from "./store";
 import { agendaViewPath, type AgendaView } from "@/lib/nav";
 import type { Locale } from "@/lib/i18n";
 import ShareButton from "./Share";
 import { NoticeBox } from "./Tools";
 import { Avatar, Button, ReadMore, Segmented, Sheet, Tag, card, dayLabel, norm } from "./ui";
 import SpeakerDetail from "./SpeakerDetail";
-import { EditBar, TalkForm } from "./Editor";
+import { TalkForm } from "./Editor";
+import { useReveal } from "./motion";
 
 type T = Dict["agendaApp"];
 const FAVS_KEY = "im-agenda-favs";
@@ -27,7 +28,7 @@ const FAVS_KEY = "im-agenda-favs";
 // session", "Edit" on every session, and sessions drag to another time or
 // room in the grid. Day, view and open session live in the address.
 export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T; fixedView?: AgendaView }) {
-  const { data, editing, moveTalk } = useAgenda();
+  const { data, editing, signedIn, moveTalk } = useAgenda();
   const days = data.days.length ? data.days : [...new Set(data.talks.map((x) => x.day))].map((i) => ({ index: i, date: "", weekday: "" }));
   const [day, setDay] = useState(days[0]?.index ?? 0);
   const [favMode, setFavMode] = useState(false);
@@ -37,13 +38,18 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
   const [openId, setOpenId] = useState<string | null>(null);
   const [speakerId, setSpeakerId] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null | undefined>(undefined); // undefined: closed; null: new
-  const [view, setView] = useState<"list" | "grid">("list");
+  // The view in the address (/agenda/grade, /agenda/lista) is drawn from the
+  // first paint, on the server too: nothing switches after it loads.
+  const [view, setView] = useState<"list" | "grid">(fixedView ?? "list");
+  // The sessions glide in when the day, the view or a filter changes.
+  const reveal = useReveal<HTMLDivElement>(`${favMode ? "fav" : day}|${view}|${room}|${format}`);
   const [favs, setFavs] = useState<Set<string>>(new Set());
   const [ready, setReady] = useState(false);
 
   const spk = useMemo(() => new Map(data.speakers.map((s) => [s.id, s])), [data.speakers]);
+  useAsked("newTalk", () => setEditId(null));
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const p = new URLSearchParams(location.search);
     const d = Number(p.get("dia"));
     if (p.has("dia") && days.some((x) => x.index === d)) setDay(d);
@@ -113,8 +119,9 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
     return [...m.entries()];
   }, [shown, favMode]);
 
-  // Editors see every room (empty ones too), so a session can go anywhere.
-  const roomsToday = editing ? data.rooms : data.rooms.filter((r) => dayTalks.some((x) => x.roomId === r.id));
+  // Every room, empty ones too, for everyone: the grid always has its full
+  // shape (and editors can drop a session anywhere).
+  const roomsToday = data.rooms;
   const formatsToday = [...new Set(dayTalks.map((x) => x.format).filter(Boolean))];
   const filtered = !!(q || room || format);
   const open = data.talks.find((x) => x.id === openId) ?? null;
@@ -140,7 +147,6 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
 
       <NoticeBox t={t} />
 
-      {editing && <EditBar t={t} lang={lang} onNewTalk={() => setEditId(null)} />}
 
       {/* Days, then the visitor's favourites */}
       <div role="tablist" aria-label={t.day} className="no-scrollbar -mx-4 -mb-5 mt-3 flex gap-2.5 overflow-x-auto px-4 pb-6 pt-3 sm:-mx-6 sm:px-6">
@@ -215,10 +221,10 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
           )}
         </div>
       </div>
-      {editing && gridOn && <p className="mt-3 text-[13px] text-muted">{t.dragHint}</p>}
+      {signedIn && gridOn && <p className="mt-3 text-[13px] text-muted">{t.dragHint}</p>}
 
-      <div className="mt-6">
-        {groups.length === 0 && !(editing && gridOn) ? (
+      <div className="mt-6" ref={reveal}>
+        {groups.length === 0 && (!gridOn || (filtered && !editing)) ? (
           <div className={`${card} px-6 py-14 text-center`}>
             <p className="mx-auto max-w-md text-[15px] text-ink-2">{favMode && !filtered ? t.noFavs : filtered ? t.noResults : data.talks.length ? t.emptyDay : t.empty}</p>
             {filtered && (
@@ -244,7 +250,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
               const x0 = talks[0];
               const d = favMode ? days.find((y) => y.index === x0.day) : undefined;
               return (
-                <li key={key} className="grid gap-3 md:grid-cols-[6rem_1fr] md:gap-6">
+                <li key={key} data-reveal className="grid gap-3 md:grid-cols-[6rem_1fr] md:gap-6">
                   <div className="flex items-baseline gap-2 md:sticky md:top-24 md:block md:self-start md:pt-4">
                     {d?.date && <p className="text-[13px] font-medium text-gold md:mb-1">{dayLabel(d.date, lang).weekday} · {dayLabel(d.date, lang).day}</p>}
                     <p className="text-[19px] font-semibold tabular-nums tracking-[-0.01em]">{x0.start}</p>
@@ -654,8 +660,8 @@ function GridView({
 
   const starts = talks.map((x) => toMin(x.start));
   const ends = talks.map((x) => Math.max(toMin(x.end), toMin(x.start) + 15));
-  const from = Math.floor(Math.min(editable ? 8 * 60 : Infinity, ...(starts.length ? starts : [8 * 60])) / 30) * 30;
-  const to = Math.ceil(Math.max(editable ? 19 * 60 : 0, ...(ends.length ? ends : [18 * 60])) / 30) * 30;
+  const from = Math.floor(Math.min(8 * 60, ...(starts.length ? starts : [8 * 60])) / 30) * 30;
+  const to = Math.ceil(Math.max(19 * 60, ...(ends.length ? ends : [18 * 60])) / 30) * 30;
   const height = (to - from) * PPM;
   const marks = Array.from({ length: (to - from) / 30 + 1 }, (_, i) => from + i * 30);
   // A room with sessions side by side gets room for each of them.

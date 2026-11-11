@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CalendarBlank, UsersThree } from "@phosphor-icons/react/dist/ssr";
 import type { Dict } from "@/lib/dictionaries/pt";
 import type { Locale } from "@/lib/i18n";
@@ -5,6 +6,7 @@ import { locales } from "@/lib/i18n";
 import { LOGO_PATHS, LOGO_VIEWBOX } from "@/components/latimpactoLogo";
 import { agendaLoginPath, agendaPath, agendaSpeakersPath } from "@/lib/nav";
 import Account from "./Account";
+import EditMenu from "./Tools";
 
 type Tab = "agenda" | "speakers";
 
@@ -30,10 +32,6 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
 
   return (
     <div className="platform min-h-[100dvh] font-sans">
-      <PlatformRootSize />
-      {/* Embedded in another site (?embed=1): only the content, no bars. Set
-          before the first paint, so the bars never flash. */}
-      <script dangerouslySetInnerHTML={{ __html: "if(/[?&]embed=1/.test(location.search)){document.documentElement.setAttribute('data-embed','');var st=document.createElement('style');st.textContent='.platform-chrome{display:none!important}.platform-body{padding-bottom:0!important}';document.head.appendChild(st)}" }} />
       <header className="platform-chrome sticky top-0 z-40 border-b border-line bg-[rgb(243_242_246/0.78)] backdrop-blur-xl backdrop-saturate-[1.8]">
         <div className="mx-auto flex h-14 max-w-[1280px] min-[112.5rem]:max-w-[84vw] items-center gap-3 px-4 sm:h-16 sm:px-6">
           <a href={`/${lang}`} aria-label={t.backToSite} className="flex min-w-0 shrink items-center gap-2.5 text-ink sm:gap-3">
@@ -50,7 +48,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
 
           <nav aria-label={t.title} className="mx-auto hidden rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] md:flex">
             {tabs.map((x) => (
-              <a
+              <Link
                 key={x.id}
                 href={x.href}
                 aria-current={x.id === tab ? "page" : undefined}
@@ -59,11 +57,13 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
                 }`}
               >
                 {x.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
           <div className="ml-auto flex shrink-0 items-center gap-2 md:ml-0">
+            {/* The editors' menu (only when signed in). */}
+            <EditMenu t={t} lang={lang} tab={tab} />
             <div className="flex items-center rounded-full bg-[rgb(118_118_128/0.12)] p-[3px]" role="group" aria-label={t.languages}>
               {locales.map((l) => (
                 <a
@@ -88,7 +88,15 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
         </div>
       </header>
 
-      <div className="platform-body pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</div>
+      <div className="platform-body pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
+        {children}
+        <footer className="platform-chrome border-t border-line px-4 py-6 text-center text-[13px] text-muted">
+          {t.platformBy}{" "}
+          <a href="https://fyw.com.br/" target="_blank" rel="noopener noreferrer" className="font-semibold text-ink-2 transition-colors hover:text-brand">
+            Fyw
+          </a>
+        </footer>
+      </div>
 
       {/* Phones: tab bar at the bottom */}
       <nav
@@ -96,7 +104,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
         className="platform-chrome fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-[rgb(250_250_252/0.86)] px-2 pb-[env(safe-area-inset-bottom)] pt-1 backdrop-blur-xl backdrop-saturate-[1.8] md:hidden"
       >
         {tabs.map(({ id, label, href: h, Icon }) => (
-          <a
+          <Link
             key={id}
             href={h}
             aria-current={id === tab ? "page" : undefined}
@@ -104,7 +112,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
           >
             <Icon size={24} weight={id === tab ? "fill" : "regular"} aria-hidden />
             {label}
-          </a>
+          </Link>
         ))}
         <Account t={t} compact loginHref={agendaLoginPath(lang)} />
       </nav>

@@ -1,30 +1,51 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowUp, DownloadSimple, FloppyDisk, Info, PencilSimple, Plus, Trash, UploadSimple, Warning, Wrench } from "@phosphor-icons/react";
+import gsap from "gsap";
+import { ArrowDown, ArrowUp, DownloadSimple, FloppyDisk, GearSix, Info, PencilSimple, Plus, Star, Trash, UploadSimple, UsersThree, Warning, Wrench } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { mlObject, toMin, type ConfigRow, type ML, type RawAgenda, type SpeakerRow, type TalkRow } from "@/lib/agendaShape";
 import { useAgenda } from "./store";
 import { Button, Segmented, Sheet, Switch, TriField, card, dayLabel, fieldBox } from "./ui";
 import { DaysPanel } from "./Editor";
+import TeamSheet from "./Team";
 
 type T = Dict["agendaApp"];
 type Tab = "days" | "slots" | "rooms" | "formats" | "hubs" | "notice";
 
-// The editors' tools, as in the old admin: Manage (days, times, rooms,
-// formats, hubs, notice), export to CSV, backup / restore, and delete
-// everything (master only).
-export default function ToolsMenu({ t, lang }: { t: T; lang: string }) {
-  const { profile, raw, data } = useAgenda();
+// The editors' menu, behind a gear in the top bar (phones too): new
+// session / new speaker and the speakers' order (on their page), Manage
+// (days, times, rooms, formats, hubs, notice), CSV export, backup, the team
+// and logs and delete everything (master only). Shown only when signed in.
+export default function EditMenu({ t, lang, tab }: { t: T; lang: string; tab: "agenda" | "speakers" }) {
+  const { profile, raw, data, signedIn, editing, busy, ask } = useAgenda();
   const [menu, setMenu] = useState(false);
-  const [sheet, setSheet] = useState<"manage" | "backup" | "wipe" | null>(null);
+  const [sheet, setSheet] = useState<"manage" | "backup" | "wipe" | "team" | null>(null);
   const box = useRef<HTMLDivElement>(null);
+  const list = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!menu) return;
     const close = (e: PointerEvent) => !box.current?.contains(e.target as Node) && setMenu(false);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setMenu(false);
     window.addEventListener("pointerdown", close);
-    return () => window.removeEventListener("pointerdown", close);
+    window.addEventListener("keydown", esc);
+    // A soft drop: the panel and its rows settle in.
+    if (list.current && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.fromTo(list.current, { autoAlpha: 0, y: -6, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.24, ease: "power3.out", clearProps: "opacity,visibility,transform" });
+      gsap.fromTo(list.current.querySelectorAll("[role=menuitem]"), { autoAlpha: 0, x: -4 }, { autoAlpha: 1, x: 0, duration: 0.22, ease: "power2.out", stagger: 0.018, delay: 0.04, clearProps: "opacity,visibility,transform" });
+    }
+    return () => {
+      window.removeEventListener("pointerdown", close);
+      window.removeEventListener("keydown", esc);
+    };
   }, [menu]);
+  if (!signedIn || !profile) return null;
+  const master = profile.role === "master";
+  const name = `${profile.first ?? ""} ${profile.last ?? ""}`.trim();
+  const go = (fn: () => void) => () => {
+    setMenu(false);
+    fn();
+  };
 
   const exportCsv = () => {
     if (!raw) return;
@@ -56,48 +77,94 @@ export default function ToolsMenu({ t, lang }: { t: T; lang: string }) {
     }
     const csv = "﻿" + rows.map((r) => r.map(q).join(",")).join("\n");
     download(new Blob([csv], { type: "text/csv;charset=utf-8" }), `agenda-impact-minds-2027-${new Date().toISOString().slice(0, 10)}.csv`);
-    setMenu(false);
   };
 
   return (
     <div ref={box} className="relative">
-      <Button onClick={() => setMenu((v) => !v)} aria-expanded={menu} aria-haspopup="menu">
-        <Wrench size={17} /> {t.tools}
-      </Button>
+      <button
+        type="button"
+        onClick={() => setMenu((v) => !v)}
+        aria-expanded={menu}
+        aria-haspopup="menu"
+        aria-label={t.tools}
+        title={t.tools}
+        className={`relative grid size-9 place-items-center rounded-full transition-[background-color,color,transform] duration-200 active:scale-95 sm:size-10 ${menu ? "bg-brand text-brand-ink" : "bg-[rgb(118_118_128/0.12)] text-ink hover:bg-[rgb(118_118_128/0.18)]"}`}
+      >
+        <GearSix size={20} weight={menu ? "fill" : "regular"} className={`transition-transform duration-500 ease-out ${menu ? "rotate-90" : ""} ${busy ? "animate-spin" : ""}`} />
+        {/* Editing: a small green light on the gear. */}
+        <span aria-hidden className="absolute right-0.5 top-0.5 size-2.5 rounded-full bg-[#34c759] ring-2 ring-[var(--bg)]" />
+      </button>
       {menu && (
-        <div role="menu" className="absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-[18px] bg-surface p-1.5 shadow-[0_20px_50px_-20px_rgb(29_20_38/0.35)] ring-1 ring-line">
-          <MenuItem icon={<Wrench size={18} />} onClick={() => (setSheet("manage"), setMenu(false))}>
-            {t.manage}
-          </MenuItem>
-          <MenuItem icon={<DownloadSimple size={18} />} onClick={exportCsv}>
-            {t.exportCsv}
-          </MenuItem>
-          <MenuItem icon={<FloppyDisk size={18} />} onClick={() => (setSheet("backup"), setMenu(false))}>
-            {t.backup}
-          </MenuItem>
-          {profile?.role === "master" && (
-            <MenuItem danger icon={<Trash size={18} />} onClick={() => (setSheet("wipe"), setMenu(false))}>
-              {t.wipe}
+        <div
+          ref={list}
+          role="menu"
+          className="absolute right-0 top-full z-50 mt-2 w-[17rem] origin-top-right max-sm:fixed max-sm:inset-x-3 max-sm:top-[3.75rem] max-sm:mt-0 max-sm:w-auto overflow-hidden rounded-[20px] bg-surface p-1.5 shadow-[0_24px_60px_-20px_rgb(29_20_38/0.4)] ring-1 ring-line"
+        >
+          <div className="flex items-center gap-2.5 px-3 pb-2.5 pt-2">
+            <span className="relative grid size-2 place-items-center">
+              <span className="absolute size-2 animate-ping rounded-full bg-[#34c759]/60" />
+              <span className="size-2 rounded-full bg-[#34c759]" />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[12px] text-muted">{busy ? t.saving : t.editMode}</span>
+              <span className="block truncate text-[14px] font-medium">{name}</span>
+            </span>
+          </div>
+          <div className={`border-t border-line pt-1.5 ${editing ? "" : "pointer-events-none opacity-50"}`} aria-busy={!editing}>
+            {tab === "agenda" ? (
+              <MenuItem strong icon={<Plus size={18} weight="bold" />} onClick={go(() => ask("newTalk"))}>
+                {t.newSession}
+              </MenuItem>
+            ) : (
+              <>
+                <MenuItem strong icon={<Plus size={18} weight="bold" />} onClick={go(() => ask("newSpeaker"))}>
+                  {t.newSpeaker}
+                </MenuItem>
+                <MenuItem icon={<Star size={18} weight="fill" className="text-[#c9a24d]" />} onClick={go(() => ask("order"))}>
+                  {t.orderFeatured}
+                </MenuItem>
+              </>
+            )}
+            <MenuItem icon={<Wrench size={18} />} onClick={go(() => setSheet("manage"))}>
+              {t.manage}
             </MenuItem>
-          )}
+            <MenuItem icon={<DownloadSimple size={18} />} onClick={go(exportCsv)}>
+              {t.exportCsv}
+            </MenuItem>
+            <MenuItem icon={<FloppyDisk size={18} />} onClick={go(() => setSheet("backup"))}>
+              {t.backup}
+            </MenuItem>
+            {master && (
+              <>
+                <MenuItem icon={<UsersThree size={18} />} onClick={go(() => setSheet("team"))}>
+                  {t.advanced}
+                </MenuItem>
+                <div className="my-1.5 border-t border-line" />
+                <MenuItem danger icon={<Trash size={18} />} onClick={go(() => setSheet("wipe"))}>
+                  {t.wipe}
+                </MenuItem>
+              </>
+            )}
+          </div>
         </div>
       )}
       <ManageSheet open={sheet === "manage"} onClose={() => setSheet(null)} t={t} lang={lang} />
       <BackupSheet open={sheet === "backup"} onClose={() => setSheet(null)} t={t} />
-      <WipeSheet open={sheet === "wipe"} onClose={() => setSheet(null)} t={t} />
+      {master && <WipeSheet open={sheet === "wipe"} onClose={() => setSheet(null)} t={t} />}
+      {master && <TeamSheet open={sheet === "team"} onClose={() => setSheet(null)} t={t} lang={lang} />}
     </div>
   );
 }
 
-function MenuItem({ icon, danger = false, onClick, children }: { icon: React.ReactNode; danger?: boolean; onClick: () => void; children: React.ReactNode }) {
+function MenuItem({ icon, danger = false, strong = false, onClick, children }: { icon: React.ReactNode; danger?: boolean; strong?: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
       type="button"
       role="menuitem"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-[12px] px-3 py-2.5 text-left text-[15px] transition-colors ${danger ? "text-[#b42318] hover:bg-[#fdecec]" : "text-ink hover:bg-[rgb(118_118_128/0.1)]"}`}
+      className={`flex w-full items-center gap-3 rounded-[12px] px-3 py-2.5 text-left text-[15px] transition-colors ${danger ? "text-[#b42318] hover:bg-[#fdecec]" : strong ? "font-semibold text-brand hover:bg-brand-soft" : "text-ink hover:bg-[rgb(118_118_128/0.1)]"}`}
     >
-      <span className={danger ? "" : "text-ink-2"}>{icon}</span>
+      <span className={danger || strong ? "" : "text-ink-2"}>{icon}</span>
       {children}
     </button>
   );
@@ -469,7 +536,7 @@ export { dayLabel };
 // edit bar sits for editors; editors see it on top with a pencil (or an
 // empty line inviting them to write one), and write it in PT, ES and EN.
 export function NoticeBox({ t }: { t: T }) {
-  const { data, editing } = useAgenda();
+  const { data, signedIn: editing } = useAgenda();
   const [open, setOpen] = useState(false);
   if (!editing && !data.notice) return null;
   const has = !!data.notice;

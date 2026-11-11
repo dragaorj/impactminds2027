@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { getDictionary, htmlLang, locales, type Locale } from "@/lib/i18n";
 import { agendaPath, agendaSpeakersPath, agendaViewPath, speakersViewPath, type AgendaView, type SpeakersView } from "@/lib/nav";
 import { getAgenda } from "@/lib/agenda";
-import PlatformShell, { PlatformRootSize } from "./PlatformShell";
+import PlatformShell from "./PlatformShell";
 import AgendaBoard, { Empty } from "./AgendaBoard";
 import SpeakersBoard from "./SpeakersBoard";
-import { AgendaProvider } from "./store";
 import { LoginPage } from "./Editor";
 
 // The platform's two pages, shared by every address that shows them:
@@ -13,7 +12,6 @@ import { LoginPage } from "./Editor";
 // /pt/agenda/palestrantes/fotos … A view in the address is fixed by the link
 // (handy to share or embed); the page itself still lets the visitor switch.
 
-const EMPTY = { days: [], rooms: [], formats: [], talks: [], speakers: [] };
 
 export function agendaMetadata(lang: Locale, view?: AgendaView): Metadata {
   const t = getDictionary(lang);
@@ -39,11 +37,9 @@ export async function AgendaScreen({ lang, view }: { lang: Locale; view?: Agenda
   const t = getDictionary(lang).agendaApp;
   const data = await getAgenda(lang);
   return (
-    <AgendaProvider initial={data ?? EMPTY} lang={lang}>
-      <PlatformShell lang={lang} tab="agenda" t={t}>
-        <main id="conteudo">{data ? <AgendaBoard lang={lang} t={t} fixedView={view} /> : <Empty text={t.empty} />}</main>
-      </PlatformShell>
-    </AgendaProvider>
+    <PlatformShell lang={lang} tab="agenda" t={t}>
+      <main id="conteudo">{data ? <AgendaBoard lang={lang} t={t} fixedView={view} /> : <Empty text={t.empty} />}</main>
+    </PlatformShell>
   );
 }
 
@@ -51,24 +47,19 @@ export async function SpeakersScreen({ lang, view }: { lang: Locale; view?: Spea
   const t = getDictionary(lang).agendaApp;
   const data = await getAgenda(lang);
   return (
-    <AgendaProvider initial={data ?? EMPTY} lang={lang}>
-      <PlatformShell lang={lang} tab="speakers" t={t}>
-        <main id="conteudo">
-          {data ? <SpeakersBoard lang={lang} t={t} agendaHref={agendaPath(lang)} fixedView={view} /> : <Empty text={t.emptySpeakers} />}
-        </main>
-      </PlatformShell>
-    </AgendaProvider>
+    <PlatformShell lang={lang} tab="speakers" t={t}>
+      <main id="conteudo">
+        {data ? <SpeakersBoard lang={lang} t={t} agendaHref={agendaPath(lang)} fixedView={view} /> : <Empty text={t.emptySpeakers} />}
+      </main>
+    </PlatformShell>
   );
 }
 
 export function LoginScreen({ lang }: { lang: Locale }) {
   const t = getDictionary(lang).agendaApp;
   return (
-    <AgendaProvider initial={EMPTY} lang={lang}>
-      <div className="platform min-h-[100dvh] font-sans">
-        <PlatformRootSize />
-        <LoginPage t={t} lang={lang} />
-      </div>
-    </AgendaProvider>
+    <div className="platform min-h-[100dvh] font-sans">
+      <LoginPage t={t} lang={lang} />
+    </div>
   );
 }

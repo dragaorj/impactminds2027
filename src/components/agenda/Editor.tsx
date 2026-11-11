@@ -2,12 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowDown, ArrowUp, Camera, ImageSquare, DotsSixVertical, Key, MagnifyingGlass, Plus, Star, Trash, UsersThree, X } from "@phosphor-icons/react";
+import { ArrowDown, ArrowUp, Camera, ImageSquare, DotsSixVertical, Key, MagnifyingGlass, Plus, Star, Trash, X } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { useAgenda, type SpeakerDraft, type TalkDraft } from "./store";
 import { MAX_PLACE_IMAGES, localPhoto } from "@/lib/agendaShape";
-import ToolsMenu from "./Tools";
-import TeamSheet from "./Team";
 import { LOGO_PATHS, LOGO_VIEWBOX } from "@/components/latimpactoLogo";
 import { Avatar, Button, Field, Segmented, Sheet, Switch, TriField, card, dayLabel, fieldBox, norm } from "./ui";
 
@@ -75,54 +73,6 @@ export function LoginPage({ t, lang }: { t: T; lang: string }) {
         </a>
       </form>
     </main>
-  );
-}
-
-// The signed-in strip: who is editing, the main actions, sign out.
-export function EditBar({ t, lang, onNewTalk, onNewSpeaker, onOrder }: { t: T; lang: string; onNewTalk?: () => void; onNewSpeaker?: () => void; onOrder?: () => void }) {
-  const { profile, busy } = useAgenda();
-  const [team, setTeam] = useState(false);
-  if (!profile) return null;
-  const name = `${profile.first ?? ""} ${profile.last ?? ""}`.trim();
-  return (
-    <div className={`${card} mt-6 flex flex-wrap items-center gap-3 p-3 pl-4`}>
-      <span className="flex min-w-0 flex-1 items-center gap-3">
-        <span className="relative grid size-9 shrink-0 place-items-center rounded-full bg-[#34c759]/12 text-[#1f8f3f]">
-          <span className="absolute size-2 rounded-full bg-[#34c759]" />
-          <span className="absolute size-2 animate-ping rounded-full bg-[#34c759]/60" />
-        </span>
-        <span className="min-w-0">
-          <span className="block text-[13px] text-muted">{busy ? t.saving : t.editMode}</span>
-          <span className="block truncate text-[15px] font-medium">
-            {t.signedAs} {name}
-          </span>
-        </span>
-      </span>
-      <span className="flex flex-wrap items-center gap-2">
-        <ToolsMenu t={t} lang={lang} />
-        {onOrder && (
-          <Button onClick={onOrder}>
-            <Star size={17} weight="fill" className="text-[#c9a24d]" /> {t.orderFeatured}
-          </Button>
-        )}
-        {onNewSpeaker && (
-          <Button kind="primary" onClick={onNewSpeaker}>
-            <Plus size={17} weight="bold" /> {t.newSpeaker}
-          </Button>
-        )}
-        {onNewTalk && (
-          <Button kind="primary" onClick={onNewTalk}>
-            <Plus size={17} weight="bold" /> {t.newSession}
-          </Button>
-        )}
-        {profile.role === "master" && (
-          <Button kind="quiet" onClick={() => setTeam(true)}>
-            <UsersThree size={17} /> {t.advanced}
-          </Button>
-        )}
-      </span>
-      {profile.role === "master" && <TeamSheet open={team} onClose={() => setTeam(false)} t={t} lang={lang} />}
-    </div>
   );
 }
 

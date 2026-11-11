@@ -1,9 +1,10 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { Locale } from "@/lib/i18n";
 import { AGENDA_DB, FEATURED, dbHeaders, placeImages, placeImagesValue, fetchRaw, mlObject, normalize, toMin, type AgendaData, type ML, type RawAgenda, type SpeakerRow, type TalkRow } from "@/lib/agendaShape";
 import { compressImage } from "./compress";
+import { useHydrated } from "./motion";
 import { agendaChanged } from "@/lib/agendaActions";
 
 // The platform's shared state: what the pages show (the server's copy for
@@ -13,6 +14,10 @@ import { agendaChanged } from "@/lib/agendaActions";
 // under the same key as the old admin, so one sign-in serves both.
 
 const SESSION_KEY = "latimpacto_session_v1";
+// Who is signed in (name, role; never the password), to show the editing
+// bars at once on the next visit.
+const PROFILE_KEY = "latimpacto_profile_v1";
+const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 export type Profile = { id: string; first: string; last: string; email?: string; photo?: string; role: "master" | "editor" };
 
@@ -43,12 +48,21 @@ export type SpeakerDraft = {
   sort?: number;
 };
 
+export type Ask = "newTalk" | "newSpeaker" | "order";
+
 type Store = {
   data: AgendaData;
   raw: RawAgenda | null;
   lang: Locale;
   profile: Profile | null;
   editing: boolean;
+  // Signed in (the editing bars show), even before the data for editing has
+  // arrived; editing = signed in and ready to change things.
+  signedIn: boolean;
+  // The gear menu asks a page for something (a new session, a new speaker,
+  // the order); the page opens it.
+  request: { kind: Ask; n: number } | null;
+  ask: (kind: Ask) => void;
   busy: boolean;
   error: string;
   login: (token: string) => Promise<boolean>;
@@ -127,13 +141,23 @@ const makeId = (p: string) => `${p}-${Date.now()}-${Math.random().toString(36).s
 const clean = (o: ML): ML => ({ pt: (o.pt ?? "").trim(), en: (o.en ?? "").trim(), es: (o.es ?? "").trim() });
 
 export function AgendaProvider({ initial, lang, children }: { initial: AgendaData; lang: Locale; children: React.ReactNode }) {
+  useHydrated();
   const [raw, setRaw] = useState<RawAgenda | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [busy, setBusy] = useState(false);
+  const [request, setRequest] = useState<{ kind: Ask; n: number } | null>(null);
+  const ask = useCallback((kind: Ask) => setRequest((r) => ({ kind, n: (r?.n ?? 0) + 1 })), []);
   const [error, setError] = useState("");
 
   const refresh = useCallback(async () => setRaw(await fetchRaw({ cache: "no-store" })), []);
+
+  const remember = (t: string, p: Profile) => {
+    try {
+      localStorage.setItem(SESSION_KEY, t);
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+    } catch {}
+  };
 
   const login = useCallback(
     async (tok: string) => {
@@ -144,9 +168,7 @@ export function AgendaProvider({ initial, lang, children }: { initial: AgendaDat
         if (!p) return false;
         setToken(t);
         setProfile(p);
-        try {
-          localStorage.setItem(SESSION_KEY, t);
-        } catch {}
+        remember(t, p);
         await refresh();
         rpc("sb_log", { p_token: t, p_action: "Entrou no modo edição", p_detail: "agenda 2027" }).catch(() => {});
         return true;
@@ -168,23 +190,45 @@ export function AgendaProvider({ initial, lang, children }: { initial: AgendaDat
     void refresh();
   }, [refresh]);
 
-  // A saved sign-in comes back on its own.
-  useEffect(() => {
+  // A saved sign-in comes back at once, before the first paint after the page
+  // starts (the editing bars are there from the start, nothing pops in); the
+  // database confirms it in the background and signs out if it was revoked.
+  useIsoLayoutEffect(() => {
+    if (preview.current) return;
     let saved: string | null = null;
+    let cached: Profile | null = null;
     try {
       saved = localStorage.getItem(SESSION_KEY);
+      cached = JSON.parse(localStorage.getItem(PROFILE_KEY) || "null");
     } catch {}
-    if (saved) void login(saved);
-  }, [login]);
+    if (!saved) return;
+    if (cached?.id) {
+      setToken(saved);
+      setProfile(cached);
+    }
+    const tok = saved;
+    void refresh().catch(() => {});
+    rpc<Profile | null>("sb_login", { p_token: tok })
+      .then((p) => {
+        if (!p) return logoutRef.current();
+        setToken(tok);
+        setProfile(p);
+        remember(tok, p);
+      })
+      .catch(() => {});
+  }, [refresh]);
 
+  const logoutRef = useRef<() => void>(() => {});
   const logout = useCallback(() => {
     try {
       localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(PROFILE_KEY);
     } catch {}
     setToken(null);
     setProfile(null);
     setRaw(null);
   }, []);
+  logoutRef.current = logout;
 
   // Every write: token-checked function, then a fresh read.
   const run = useCallback(
@@ -483,7 +527,11 @@ export function AgendaProvider({ initial, lang, children }: { initial: AgendaDat
             localStorage.setItem(SESSION_KEY, p.token);
           } catch {}
         }
-        if (m.id && m.id === profile?.id) setProfile((x) => (x ? { ...x, first: p.first, last: p.last, email: p.email, photo: p.photo } : x));
+        if (m.id && m.id === profile?.id) {
+          const me = { ...profile, first: p.first, last: p.last, email: p.email, photo: p.photo };
+          setProfile(me);
+          remember(p.token, me);
+        }
       },
       remove: async (id) => {
         if (preview.current) return;
@@ -507,6 +555,9 @@ export function AgendaProvider({ initial, lang, children }: { initial: AgendaDat
     lang,
     profile,
     editing: !!profile && !!raw,
+    signedIn: !!profile,
+    request,
+    ask,
     busy,
     error,
     login,
@@ -530,3 +581,19 @@ export function AgendaProvider({ initial, lang, children }: { initial: AgendaDat
 }
 
 export type { SpeakerRow, TalkRow };
+
+// A page answers the gear menu: `fn` runs when the menu asks for `kind`
+// (only for asks made while the page is open).
+export function useAsked(kind: Ask, fn: () => void) {
+  const { request } = useAgenda();
+  const seen = useRef(request?.n ?? 0);
+  const run = useRef(fn);
+  useEffect(() => {
+    run.current = fn;
+  });
+  useEffect(() => {
+    if (!request || request.n === seen.current) return;
+    seen.current = request.n;
+    if (request.kind === kind) run.current();
+  }, [request, kind]);
+}
