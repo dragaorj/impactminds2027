@@ -9,7 +9,7 @@ import { useAgenda, useAsked } from "./store";
 import { speakersViewPath, type SpeakersView } from "@/lib/nav";
 import type { Locale } from "@/lib/i18n";
 import ShareButton from "./Share";
-import { Avatar, SearchCount, Segmented, Sheet, card, norm } from "./ui";
+import { Avatar, PageTitle, SearchCount, Segmented, Sheet, card, norm } from "./ui";
 import SpeakerDetail, { preloadPhoto } from "./SpeakerDetail";
 import { useReveal } from "./motion";
 import { FeaturedOrder, SpeakerForm } from "./Editor";
@@ -94,8 +94,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
       onPointerDown={warm}
       onFocus={warm}
     >
-      <h1 className="text-[2rem] font-semibold leading-tight tracking-[-0.025em] sm:text-[2.5rem]">{t.speakers}</h1>
-      <p className="mt-1 text-[15px] text-muted">{t.subtitle}</p>
+      <PageTitle title={t.speakers} subtitle={t.subtitle} />
 
 
       <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center">
@@ -111,14 +110,16 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
         />
         <SearchCount shown={list.length} total={shown.length} one={t.speakerOne} many={t.speakers.toLowerCase()} of={t.ofTotal} filtered={!!query} />
       </label>
+        {/* Phones: all filters on one compact row (as on the agenda). */}
+        <div className="flex items-center gap-2 sm:contents">
         <Segmented
           label={t.featured}
           value={group}
           onChange={setGroup}
-          className="shrink-0 sm:ml-auto"
+          className="min-w-0 flex-1 sm:ml-auto sm:flex-none sm:shrink-0"
           options={[
             { value: "all", label: t.all },
-            { value: "featured", label: <><Star size={15} weight="fill" className="text-[#c9a24d]" aria-hidden />{t.featured}</> },
+            { value: "featured", label: <><Star size={15} weight="fill" className="shrink-0 text-[#c9a24d] max-sm:hidden" aria-hidden />{t.featured}</> },
           ]}
         />
         <ShareButton t={t} />
@@ -133,6 +134,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
             { value: "photos", title: t.photos, label: <><GridFour size={17} aria-hidden /><span className="max-md:sr-only">{t.photos}</span></> },
           ]}
         />
+        </div>
       </div>
 
       {!data.speakers.length ? (
@@ -151,7 +153,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
                 <Star size={14} weight="fill" className="text-[#c9a24d]" aria-hidden /> {t.featured}
               </h2>
               {mode === "cards" ? (
-                <ul className="mt-3 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5 portrait:lg:grid-cols-3 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(17rem,1fr))]">
+                <ul className="mt-3 grid grid-cols-3 gap-2 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5 portrait:lg:grid-cols-3 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(17rem,1fr))]">
                   {featured.map((s) => (
                     <li key={s.id} data-glide>
                       <FeaturedCard s={s} onOpen={() => setOpenId(s.id)} />
@@ -170,19 +172,19 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
               {mode !== "cards" ? (
                 <People list={others} mode={mode} onOpen={setOpenId} />
               ) : (
-              <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(13rem,1fr))]">
+              <ul className="mt-3 grid grid-cols-3 gap-2 sm:gap-3 lg:grid-cols-4 xl:grid-cols-6 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(13rem,1fr))]">
                 {others.map((s) => (
                   <li key={s.id} data-glide>
                     <button
                       type="button"
                       onClick={() => setOpenId(s.id)}
                       data-photo={s.photo || undefined}
-                      className={`${card} group flex h-full w-full flex-col items-center px-3 pb-5 pt-6 text-center transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow)] active:scale-[0.985]`}
+                      className={`${card} group flex h-full w-full flex-col items-center px-2 pb-3.5 pt-4 text-center sm:px-3 sm:pb-5 sm:pt-6 transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow)] active:scale-[0.985]`}
                     >
                       <Avatar name={s.name} photo={s.photo} size={80} />
-                      <span className="mt-4 text-[15px] font-semibold leading-snug tracking-[-0.01em] text-ink group-hover:text-brand">{s.name}</span>
-                      {s.role && <span className="mt-1 line-clamp-2 text-[13px] leading-snug text-muted">{s.role}</span>}
-                      {s.company && <span className="mt-1.5 line-clamp-1 text-[13px] font-medium text-ink-2">{s.company}</span>}
+                      <span className="mt-2.5 line-clamp-2 text-[13px] font-semibold leading-snug tracking-[-0.01em] text-ink group-hover:text-brand sm:mt-4 sm:text-[15px]">{s.name}</span>
+                      {s.role && <span className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-muted sm:mt-1 sm:text-[13px]">{s.role}</span>}
+                      {s.company && <span className="mt-1 line-clamp-1 text-[11px] font-medium text-ink-2 sm:mt-1.5 sm:text-[13px]">{s.company}</span>}
                     </button>
                   </li>
                 ))}
@@ -217,20 +219,20 @@ function FeaturedCard({ s, onOpen }: { s: AgendaSpeaker; onOpen: () => void }) {
     >
       <span className="relative block aspect-[4/5] w-full overflow-hidden bg-brand-soft">
         {s.photo ? (
-          <Image src={s.photo} alt="" fill sizes="(min-width: 1024px) 300px, 50vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+          <Image src={s.photo} alt="" fill sizes="(min-width: 1024px) 300px, 34vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
         ) : (
           <span className="grid size-full place-items-center">
             <Avatar name={s.name} size={96} />
           </span>
         )}
-        <span className="absolute left-3 top-3 grid size-8 place-items-center rounded-full bg-white/85 text-[#c9a24d] shadow-sm backdrop-blur">
-          <Star size={15} weight="fill" aria-hidden />
+        <span className="absolute left-1.5 top-1.5 grid size-6 place-items-center rounded-full bg-white/90 text-[#c9a24d] shadow-sm backdrop-blur sm:left-3 sm:top-3 sm:size-8">
+          <Star size={13} weight="fill" aria-hidden className="sm:size-[15px]" />
         </span>
       </span>
-      <span className="flex flex-1 flex-col p-4 sm:p-5">
-        <span className="text-[17px] font-semibold leading-snug tracking-[-0.015em] text-ink group-hover:text-brand">{s.name}</span>
-        {s.role && <span className="mt-1 line-clamp-2 text-[13px] leading-snug text-muted">{s.role}</span>}
-        {s.company && <span className="mt-1.5 line-clamp-1 text-[13px] font-medium text-ink-2">{s.company}</span>}
+      <span className="flex flex-1 flex-col p-2.5 sm:p-5">
+        <span className="line-clamp-2 text-[13px] font-semibold leading-snug tracking-[-0.01em] text-ink group-hover:text-brand sm:text-[17px] sm:tracking-[-0.015em]">{s.name}</span>
+        {s.role && <span className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-muted sm:mt-1 sm:text-[13px]">{s.role}</span>}
+        {s.company && <span className="mt-1 line-clamp-1 text-[11px] font-medium text-ink-2 sm:mt-1.5 sm:text-[13px]">{s.company}</span>}
       </span>
     </button>
   );

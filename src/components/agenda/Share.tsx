@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Copy, ShareNetwork } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { Sheet, fieldBox } from "./ui";
@@ -9,7 +9,9 @@ type T = Dict["agendaApp"];
 
 // The current view's own link, and the code to embed it in another site (the
 // same link with ?embed=1: only the content, no bars).
-export default function ShareButton({ t }: { t: T }) {
+// `ask`: another control (a phone menu) opens it by changing the number;
+// `triggerClassName` can hide the round button where that menu stands in.
+export default function ShareButton({ t, ask = 0, triggerClassName = "" }: { t: T; ask?: number; triggerClassName?: string }) {
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState<"" | "link" | "code">("");
   const [url, setUrl] = useState("");
@@ -22,6 +24,10 @@ export default function ShareButton({ t }: { t: T }) {
     setDone("");
     setOpen(true);
   };
+  useEffect(() => {
+    if (ask) show();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ask]);
   const embed = (() => {
     if (!url) return "";
     const u = new URL(url);
@@ -42,7 +48,7 @@ export default function ShareButton({ t }: { t: T }) {
         onClick={show}
         title={t.share}
         aria-label={t.share}
-        className="platform-chrome grid size-11 shrink-0 place-items-center rounded-full bg-[rgb(118_118_128/0.12)] text-ink-2 transition-colors hover:bg-[rgb(118_118_128/0.2)] hover:text-ink"
+        className={`platform-chrome ${triggerClassName} grid size-11 shrink-0 place-items-center rounded-full bg-[rgb(118_118_128/0.12)] text-ink-2 transition-colors hover:bg-[rgb(118_118_128/0.2)] hover:text-ink`}
       >
         <ShareNetwork size={18} />
       </button>

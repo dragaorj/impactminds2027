@@ -73,7 +73,7 @@ export function Segmented<V extends string>({
             aria-pressed={on}
             title={o.title}
             onClick={() => onChange(o.value)}
-            className={`flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3.5 font-medium transition-[background-color,box-shadow,color] duration-200 ${
+            className={`flex min-w-0 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-2.5 font-medium sm:px-3.5 transition-[background-color,box-shadow,color] duration-200 ${
               size === "sm" ? "h-8 text-[13px]" : "h-9 text-sm"
             } ${on ? "bg-surface text-ink shadow-[0_1px_2px_rgb(0_0_0/0.06),0_3px_8px_-2px_rgb(0_0_0/0.12)]" : "text-ink-2 hover:text-ink"}`}
           >
@@ -320,5 +320,26 @@ export function SearchCount({ shown, total, one, many, of, filtered }: { shown: 
         </>
       )}
     </span>
+  );
+}
+
+// A page's title with the place and dates. Phones: the two side by side (the
+// place and the dates on two short lines at the right), saving a line;
+// wider screens: the line under the title.
+export function PageTitle({ title, subtitle }: { title: string; subtitle: string }) {
+  const [place, dates] = subtitle.split(" · ");
+  return (
+    <div className="flex items-center justify-between gap-4 sm:block">
+      <h1 className="text-[2rem] font-semibold leading-tight tracking-[-0.025em] sm:text-[2.5rem]">{title}</h1>
+      <p className="text-right text-[12px] leading-snug text-muted sm:mt-1 sm:text-left sm:text-[15px]">
+        <span className="max-sm:block">{place}</span>
+        {dates && (
+          <>
+            <span className="max-sm:hidden"> · </span>
+            <span className="max-sm:block">{dates}</span>
+          </>
+        )}
+      </p>
+    </div>
   );
 }

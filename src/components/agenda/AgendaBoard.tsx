@@ -11,7 +11,7 @@ import { agendaViewPath, type AgendaView } from "@/lib/nav";
 import type { Locale } from "@/lib/i18n";
 import ShareButton from "./Share";
 import { NoticeBox } from "./Tools";
-import { Avatar, Button, ReadMore, SearchCount, Segmented, Sheet, Tag, card, dayLabel, norm } from "./ui";
+import { Avatar, PageTitle, Button, ReadMore, SearchCount, Segmented, Sheet, Tag, card, dayLabel, norm } from "./ui";
 import SpeakerDetail from "./SpeakerDetail";
 import { TalkForm } from "./Editor";
 import { useReveal } from "./motion";
@@ -136,8 +136,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
 
   return (
     <div className={`${wrap} pb-16 pt-6 sm:pt-10`}>
-      <h1 className="text-[2rem] font-semibold leading-tight tracking-[-0.025em] sm:text-[2.5rem]">{t.title}</h1>
-      <p className="mt-1 text-[15px] text-muted">{t.subtitle}</p>
+      <PageTitle title={t.title} subtitle={t.subtitle} />
 
       <NoticeBox t={t} />
 
