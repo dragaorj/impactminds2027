@@ -65,7 +65,7 @@ export const editionReports: (string | null)[] = [links.report2026, null, null, 
 
 type Trilingual = { pt: string; es: string; en: string };
 // Photos are square portraits framed alike (eyes at 38%, chin at 63%), so the heads line up.
-export type Speaker = { name: string; org: Trilingual; role: Trilingual; photo?: string };
+export type Speaker = { name: string; org: Trilingual; role: Trilingual; photo?: string; bio?: Trilingual };
 
 // A selection of the 2026 speakers shown in the carousel (photos in public/photos/speakers).
 export const speakers: Speaker[] = [

@@ -17,7 +17,21 @@ const nextConfig: NextConfig = {
     return [
       ...["/videos/:path*", "/photos/:path*", "/brand/:path*"].map((source) => ({ source, headers: [cache] })),
       { source: "/docs/:path*", headers: [cache, { key: "Content-Disposition", value: "inline" }] },
+      // The agenda app's page and scripts change with each deploy: always checked.
+      { source: "/agenda-app/:file(index.html|sb-config.js|supabase-sync.js)", headers: [{ key: "Cache-Control", value: "public, max-age=0, must-revalidate" }] },
     ];
+  },
+  // The agenda platform: the public agenda and speakers are pages of the site
+  // (/{lang}/agenda, /{lang}/agenda/palestrantes); the team's admin (login,
+  // editing) is the agenda app in public/agenda-app, at /{lang}/agenda/admin.
+  // The app reads the language from the address.
+  async rewrites() {
+    return {
+      beforeFiles: [
+        { source: "/:lang(pt|es|en)/agenda/admin", destination: "/agenda-app/index.html" },
+        { source: "/:lang(pt|es|en)/agenda/admin/:page(palestrantes|speakers|ponentes)", destination: "/agenda-app/index.html" },
+      ],
+    };
   },
   images: {
     // AVIF where the browser takes it (smaller), WebP otherwise.
@@ -32,6 +46,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "i.ytimg.com" },
       // Speaker photos hosted by the impactminds.app agenda platform.
       { protocol: "https", hostname: "yndnugzoqiyophwkzrcx.supabase.co" },
+      // Photos uploaded through the agenda system (any of its Supabase projects).
+      { protocol: "https", hostname: "*.supabase.co" },
+      // The site itself, when a speaker photo is saved with its full address.
+      { protocol: "https", hostname: "www.impactmindsconference.com" },
+      { protocol: "https", hostname: "impactmindsconference.com" },
     ],
   },
   turbopack: {

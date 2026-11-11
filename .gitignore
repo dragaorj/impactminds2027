@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Banco da agenda 2027: o script preenchido tem a senha do admin master (nunca no Git)
+supabase/agenda-2027.sql

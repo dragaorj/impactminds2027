@@ -23,6 +23,8 @@ import AboutLatimpacto from "@/components/sections/AboutLatimpacto";
 import OffscreenPause from "@/components/OffscreenPause";
 import Footer from "@/components/sections/Footer";
 import { privacyCopy, privacyPath } from "@/lib/privacy";
+import { getFeaturedSpeakers } from "@/lib/agenda";
+import { agendaPath } from "@/lib/nav";
 
 // The editorial hero's headline: a wide black sans played against an italic serif.
 const edSans = Archivo({
@@ -42,7 +44,8 @@ const edSerif = Instrument_Serif({
 
 // The home page itself. hero: "editorial" (the farewell to Manaus and the
 // invitation to Cartagena) or the earlier "classic" title with the typed line.
-export default function Home({ lang, hero = "editorial" }: { lang: Locale; hero?: "classic" | "editorial" }) {
+export default async function Home({ lang, hero = "editorial" }: { lang: Locale; hero?: "classic" | "editorial" }) {
+  const featured = await getFeaturedSpeakers();
   const t = getDictionary(lang);
   const locale = htmlLang[lang];
   const p = privacyCopy[lang];
@@ -55,7 +58,7 @@ export default function Home({ lang, hero = "editorial" }: { lang: Locale; hero?
         <Hero variant={hero} t={t.hero} videoSrc={localVideo("header-3.mp4")} agendaLink={t.hero.agendaCta} speakerLabel={t.speakers.open} />
         <About t={t.about} videoSrc={localVideo("about.mp4")} />
         <Cartagena t={t.cartagena} />
-        <Agenda t={t.agenda} place={t.hero.eyebrow} dates={t.hero.dates} locale={locale} />
+        <Agenda t={t.agenda} place={t.hero.eyebrow} dates={t.hero.dates} locale={locale} href={agendaPath(lang)} />
         <Sponsor t={t.sponsor} locale={locale} lang={lang} />
         <Numbers
           t={t.numbers}
@@ -64,7 +67,7 @@ export default function Home({ lang, hero = "editorial" }: { lang: Locale; hero?
           show={{ survey: t.survey, connections: t.connections }}
         />
         <Testimonials t={t.testimonials} lang={lang} />
-        <Speakers t={t.speakers} lang={lang} />
+        <Speakers t={t.speakers} lang={lang} featured={featured} />
         <Launches t={t.launches} locale={locale} />
         <Events t={t.events} />
         <Visits t={t.visits} />

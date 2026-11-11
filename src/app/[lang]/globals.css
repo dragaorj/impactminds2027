@@ -96,6 +96,42 @@
   --block-muted: #ffffff;
 }
 
+/* The agenda platform (/{lang}/agenda): always light and airy, whatever the
+   site's theme: a soft lilac-grey ground, white cards, the site's purple and
+   gold as accents. Scoped to .platform, so the rest of the site is untouched. */
+.platform {
+  --bg: #f3f2f6;
+  --bg-2: #ecebf0;
+  --surface: #ffffff;
+  --ink: #1d1426;
+  --ink-2: #4d4459;
+  --muted: #8b8397;
+  --line: rgb(29 20 38 / 0.07);
+  --brand: #5b2a86;
+  --brand-ink: #ffffff;
+  --brand-soft: #f1eaf8;
+  --gold: #8a6619;
+  --sun: #c9a24d;
+  --shadow-card: 0 1px 1px rgb(29 20 38 / 0.03), 0 6px 18px -10px rgb(29 20 38 / 0.12);
+  --shadow: 0 1px 2px rgb(29 20 38 / 0.04), 0 18px 40px -20px rgb(29 20 38 / 0.22);
+  color-scheme: light;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  letter-spacing: -0.006em;
+  -webkit-font-smoothing: antialiased;
+}
+/* Panels rise in (side panel from the right, sheet from the bottom on
+   phones, centred cards with a soft scale). */
+.platform-sheet[open] { animation: sheet-in 0.32s cubic-bezier(0.32, 0.72, 0, 1); }
+.platform-sheet[open][data-centered] { animation: sheet-pop 0.28s cubic-bezier(0.32, 0.72, 0, 1); }
+.platform-sheet[open]::backdrop { animation: veil-in 0.25s ease-out; }
+@keyframes sheet-in { from { transform: translateY(24px); opacity: 0; } }
+@media (min-width: 640px) { @keyframes sheet-in { from { transform: translateX(32px); opacity: 0; } } }
+@keyframes sheet-pop { from { transform: scale(0.96); opacity: 0; } }
+@keyframes veil-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .platform-sheet[open], .platform-sheet[open]::backdrop { animation: none; } }
+
 @theme inline {
   --color-bg: var(--bg);
   --color-bg-2: var(--bg-2);

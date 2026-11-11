@@ -1,4 +1,5 @@
 import type { Dict } from "@/lib/dictionaries/pt";
+import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { EVENT_START } from "@/lib/site";
 import Art from "../Art";
 import { container } from "../ui";
@@ -13,7 +14,9 @@ export default function Agenda({
   place,
   dates,
   locale,
+  href,
 }: {
+  href: string;
   t: Dict["agenda"];
   place: string;
   dates: string;
@@ -61,6 +64,7 @@ export default function Agenda({
                 data-stagger-dot
                 className="absolute left-[1.4rem] top-7 grid size-3 -translate-x-1/2 place-items-center rounded-full bg-[#E2C985] shadow-[0_0_0_6px_rgb(226_201_133/0.15)] lg:left-8 lg:top-[1.4rem] lg:-translate-y-1/2"
               />
+              <a href={`${href}?dia=${i}`} aria-label={`${t.cta}: ${weekday(i)} ${d.day} ${t.month}`} className="block h-full rounded-[2rem]">
               <article data-stagger-item className="group h-full rounded-[2rem] bg-ink/[0.04] p-1.5 ring-1 ring-line dark:bg-white/[0.06] dark:ring-white/12 transition-[box-shadow,transform] duration-500 ease-[var(--ease-spring)] hover:-translate-y-1 hover:ring-[#E2C985]/50">
                 <div className="flex h-full flex-col rounded-[calc(2rem-6px)] bg-surface p-6 shadow-[inset_0_1px_1px_rgb(255_255_255/0.08)] dark:bg-[rgb(255_255_255/0.035)] md:p-7">
                   <p className="text-xs font-medium uppercase tracking-[0.16em] text-gold dark:text-[#E2C985]" data-nosplit>
@@ -80,9 +84,22 @@ export default function Agenda({
                   </ul>
                 </div>
               </article>
+              </a>
             </li>
           ))}
         </ol>
+
+        <div className="mt-12" data-reveal>
+          <a
+            href={href}
+            className="group inline-flex h-12 items-center gap-3 rounded-full pl-6 pr-1.5 text-[0.9375rem] font-medium btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] active:scale-[0.98]"
+          >
+            {t.cta}
+            <span className="grid size-9 place-items-center rounded-full bg-brand text-brand-ink transition-transform duration-500 ease-[var(--ease-spring)] group-hover:scale-105">
+              <ArrowUpRight size="1rem" />
+            </span>
+          </a>
+        </div>
       </div>
     </section>
   );

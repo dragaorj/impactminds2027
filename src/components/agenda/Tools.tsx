@@ -1,0 +1,505 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { ArrowDown, ArrowUp, DownloadSimple, FloppyDisk, Info, PencilSimple, Plus, Trash, UploadSimple, Warning, Wrench } from "@phosphor-icons/react";
+import type { Dict } from "@/lib/dictionaries/pt";
+import { mlObject, toMin, type ConfigRow, type ML, type RawAgenda, type SpeakerRow, type TalkRow } from "@/lib/agendaShape";
+import { useAgenda } from "./store";
+import { Button, Segmented, Sheet, Switch, TriField, card, dayLabel, fieldBox } from "./ui";
+import { DaysPanel } from "./Editor";
+
+type T = Dict["agendaApp"];
+type Tab = "days" | "slots" | "rooms" | "formats" | "hubs" | "notice";
+
+// The editors' tools, as in the old admin: Manage (days, times, rooms,
+// formats, hubs, notice), export to CSV, backup / restore, and delete
+// everything (master only).
+export default function ToolsMenu({ t, lang }: { t: T; lang: string }) {
+  const { profile, raw, data } = useAgenda();
+  const [menu, setMenu] = useState(false);
+  const [sheet, setSheet] = useState<"manage" | "backup" | "wipe" | null>(null);
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!menu) return;
+    const close = (e: PointerEvent) => !box.current?.contains(e.target as Node) && setMenu(false);
+    window.addEventListener("pointerdown", close);
+    return () => window.removeEventListener("pointerdown", close);
+  }, [menu]);
+
+  const exportCsv = () => {
+    if (!raw) return;
+    const q = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const rooms = new Map(data.rooms.map((r) => [r.id, r.name]));
+    const formats = new Map(data.formats.map((f) => [f.id, f.name]));
+    const spk = new Map(raw.speakers.map((s) => [s.id, s]));
+    const rows = [["Dia", "Data", "Início", "Fim", "Sala", "Formato", "Título (PT)", "Title (EN)", "Título (ES)", "Palestrantes", "Organizações", "Moderação", "Idiomas", "Descrição (PT)"]];
+    for (const x of [...raw.talks].sort((a, b) => a.day - b.day || toMin(a.time) - toMin(b.time))) {
+      const ti = mlObject(x.title);
+      const people = (x.speaker_ids ?? []).map((id) => spk.get(id)).filter(Boolean) as SpeakerRow[];
+      const end = toMin(x.time) + (x.duration || 30);
+      rows.push([
+        String(x.day + 1),
+        data.days[x.day]?.date ?? "",
+        x.time,
+        `${String(Math.floor(end / 60)).padStart(2, "0")}:${String(end % 60).padStart(2, "0")}`,
+        rooms.get(x.room) ?? x.room,
+        formats.get(x.format) ?? x.format,
+        ti.pt ?? "",
+        ti.en ?? "",
+        ti.es ?? "",
+        people.map((p) => p.name).join("; "),
+        people.map((p) => mlObject(p.company).pt ?? "").join("; "),
+        x.moderator_id ? (spk.get(x.moderator_id)?.name ?? "") : "",
+        (x.langs ?? []).join(" "),
+        mlObject(x.descr).pt ?? "",
+      ]);
+    }
+    const csv = "﻿" + rows.map((r) => r.map(q).join(",")).join("\n");
+    download(new Blob([csv], { type: "text/csv;charset=utf-8" }), `agenda-impact-minds-2027-${new Date().toISOString().slice(0, 10)}.csv`);
+    setMenu(false);
+  };
+
+  return (
+    <div ref={box} className="relative">
+      <Button onClick={() => setMenu((v) => !v)} aria-expanded={menu} aria-haspopup="menu">
+        <Wrench size={17} /> {t.tools}
+      </Button>
+      {menu && (
+        <div role="menu" className="absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-[18px] bg-surface p-1.5 shadow-[0_20px_50px_-20px_rgb(29_20_38/0.35)] ring-1 ring-line">
+          <MenuItem icon={<Wrench size={18} />} onClick={() => (setSheet("manage"), setMenu(false))}>
+            {t.manage}
+          </MenuItem>
+          <MenuItem icon={<DownloadSimple size={18} />} onClick={exportCsv}>
+            {t.exportCsv}
+          </MenuItem>
+          <MenuItem icon={<FloppyDisk size={18} />} onClick={() => (setSheet("backup"), setMenu(false))}>
+            {t.backup}
+          </MenuItem>
+          {profile?.role === "master" && (
+            <MenuItem danger icon={<Trash size={18} />} onClick={() => (setSheet("wipe"), setMenu(false))}>
+              {t.wipe}
+            </MenuItem>
+          )}
+        </div>
+      )}
+      <ManageSheet open={sheet === "manage"} onClose={() => setSheet(null)} t={t} lang={lang} />
+      <BackupSheet open={sheet === "backup"} onClose={() => setSheet(null)} t={t} />
+      <WipeSheet open={sheet === "wipe"} onClose={() => setSheet(null)} t={t} />
+    </div>
+  );
+}
+
+function MenuItem({ icon, danger = false, onClick, children }: { icon: React.ReactNode; danger?: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      className={`flex w-full items-center gap-3 rounded-[12px] px-3 py-2.5 text-left text-[15px] transition-colors ${danger ? "text-[#b42318] hover:bg-[#fdecec]" : "text-ink hover:bg-[rgb(118_118_128/0.1)]"}`}
+    >
+      <span className={danger ? "" : "text-ink-2"}>{icon}</span>
+      {children}
+    </button>
+  );
+}
+
+function download(blob: Blob, name: string) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+// --------------------------------------------------------------- manage
+
+function ManageSheet({ open, onClose, t, lang }: { open: boolean; onClose: () => void; t: T; lang: string }) {
+  const [tab, setTab] = useState<Tab>("days");
+  const { raw } = useAgenda();
+  const c = raw?.config ?? {};
+  const label = (x: string, n?: number) => (n === undefined ? x : `${x} (${n})`);
+  return (
+    <Sheet centered wide open={open} onClose={onClose} label={t.manage} closeLabel={t.close}>
+      <h2 className="text-2xl font-semibold tracking-tight">{t.manage}</h2>
+      <div className="no-scrollbar -mx-1 mt-4 overflow-x-auto px-1 pb-1">
+        <Segmented
+          label={t.manage}
+          value={tab}
+          onChange={setTab}
+          className="w-max min-w-full"
+          size="sm"
+          options={[
+            { value: "days", label: label(t.tabDays, c.days?.length ?? 0) },
+            { value: "slots", label: label(t.tabSlots, c.slots?.length ?? 0) },
+            { value: "rooms", label: label(t.tabRooms, c.rooms?.length ?? 0) },
+            { value: "formats", label: label(t.tabFormats, c.formats?.length ?? 0) },
+            { value: "hubs", label: label(t.tabHubs, c.hubs?.length ?? 0) },
+            { value: "notice", label: t.tabNotice },
+          ]}
+        />
+      </div>
+      <div className="mt-5">
+        {tab === "days" && <DaysPanel t={t} lang={lang} onDone={onClose} />}
+        {tab === "slots" && <SlotsPanel t={t} />}
+        {tab === "rooms" && <RoomsPanel t={t} />}
+        {tab === "formats" && <FormatsPanel t={t} />}
+        {tab === "hubs" && <HubsPanel t={t} />}
+        {tab === "notice" && <NoticePanel t={t} />}
+      </div>
+    </Sheet>
+  );
+}
+
+function SaveRow({ t, onSave, msg }: { t: T; onSave: () => unknown; msg?: string }) {
+  const { busy } = useAgenda();
+  return (
+    <div className="mt-5 flex items-center justify-end gap-3">
+      {msg && <span className="flex-1 text-sm text-[#b42318]">{msg}</span>}
+      <Button kind="primary" onClick={onSave} disabled={busy}>
+        {busy ? t.saving : t.save}
+      </Button>
+    </div>
+  );
+}
+
+function Mover({ i, n, onMove, t }: { i: number; n: number; onMove: (from: number, to: number) => void; t: T }) {
+  return (
+    <span className="flex shrink-0">
+      <button type="button" onClick={() => onMove(i, i - 1)} disabled={i === 0} aria-label={t.moveUp} className="grid size-9 place-items-center rounded-full text-ink-2 hover:bg-[rgb(118_118_128/0.1)] disabled:opacity-30">
+        <ArrowUp size={15} />
+      </button>
+      <button type="button" onClick={() => onMove(i, i + 1)} disabled={i === n - 1} aria-label={t.moveDown} className="grid size-9 place-items-center rounded-full text-ink-2 hover:bg-[rgb(118_118_128/0.1)] disabled:opacity-30">
+        <ArrowDown size={15} />
+      </button>
+    </span>
+  );
+}
+const moved = <X,>(list: X[], from: number, to: number) => {
+  if (to < 0 || to >= list.length) return list;
+  const next = [...list];
+  const [x] = next.splice(from, 1);
+  next.splice(to, 0, x);
+  return next;
+};
+const DelBtn = ({ onClick, t }: { onClick: () => void; t: T }) => (
+  <button type="button" onClick={onClick} aria-label={t.del} className="grid size-9 shrink-0 place-items-center rounded-full text-muted hover:bg-[#fdecec] hover:text-[#b42318]">
+    <Trash size={16} />
+  </button>
+);
+
+// Time slots (the old admin's grid rows; a break is a shared row).
+function SlotsPanel({ t }: { t: T }) {
+  const { raw, saveConfig } = useAgenda();
+  const [slots, setSlots] = useState(raw?.config.slots ?? []);
+  const [time, setTime] = useState("09:00");
+  const add = () => {
+    if (!time || slots.some((s) => s.label === time)) return;
+    setSlots([...slots, { label: time, isBreak: false }].sort((a, b) => toMin(a.label) - toMin(b.label)));
+  };
+  return (
+    <div>
+      <div className="flex gap-2">
+        <input type="time" step={300} value={time} onChange={(e) => setTime(e.target.value)} className={`${fieldBox} h-11 flex-1 tabular-nums`} />
+        <Button onClick={add}>
+          <Plus size={16} weight="bold" /> {t.addSlot}
+        </Button>
+      </div>
+      <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {slots.map((s, i) => (
+          <li key={s.label} className={`${card} flex items-center gap-2 py-1.5 pl-3.5 pr-1.5`}>
+            <span className="flex-1 text-[15px] font-semibold tabular-nums">{s.label}</span>
+            <button
+              type="button"
+              onClick={() => setSlots(slots.map((x, j) => (j === i ? { ...x, isBreak: !x.isBreak } : x)))}
+              className={`h-8 rounded-full px-2.5 text-xs font-medium ${s.isBreak ? "bg-[rgb(201_162_77/0.18)] text-[#7a5a12]" : "text-muted hover:bg-[rgb(118_118_128/0.1)]"}`}
+            >
+              {t.isBreak}
+            </button>
+            <DelBtn onClick={() => setSlots(slots.filter((_, j) => j !== i))} t={t} />
+          </li>
+        ))}
+      </ul>
+      <SaveRow t={t} onSave={() => saveConfig({ slots }, "Editou os horários")} />
+    </div>
+  );
+}
+
+type Room = NonNullable<ConfigRow["rooms"]>[number];
+function RoomsPanel({ t }: { t: T }) {
+  const { raw, saveConfig } = useAgenda();
+  const [rooms, setRooms] = useState<Room[]>(raw?.config.rooms ?? []);
+  const [msg, setMsg] = useState("");
+  const used = (id: string) => (raw?.talks ?? []).some((x) => x.room === id);
+  return (
+    <div>
+      <ul className="space-y-2">
+        {rooms.map((r, i) => (
+          <li key={r.id} className={`${card} p-3`}>
+            <div className="flex items-center gap-2">
+              <input type="color" value={r.color || "#5b2a86"} onChange={(e) => setRooms(rooms.map((x, j) => (j === i ? { ...x, color: e.target.value } : x)))} aria-label={t.color} className="size-9 shrink-0 cursor-pointer rounded-full border-0 bg-transparent p-0" />
+              <div className="min-w-0 flex-1">
+                <TriField label={`${t.room} ${i + 1}`} value={mlObject(r.name)} onChange={(v) => setRooms(rooms.map((x, j) => (j === i ? { ...x, name: v } : x)))} langsLabel={t.languages} />
+              </div>
+            </div>
+            <div className="mt-2 flex justify-end">
+              <Mover i={i} n={rooms.length} onMove={(a, b) => setRooms(moved(rooms, a, b))} t={t} />
+              <DelBtn onClick={() => (used(r.id) ? setMsg(t.inUse) : setRooms(rooms.filter((_, j) => j !== i)))} t={t} />
+            </div>
+          </li>
+        ))}
+      </ul>
+      <Button
+        className="mt-3 w-full"
+        onClick={() => setRooms([...rooms, { id: `r_${Date.now()}`, cls: `c${(rooms.length % 9) + 1}`, bg: "#f3edf9", color: "#8e63c6", name: { pt: "", en: "", es: "" } }])}
+      >
+        <Plus size={16} weight="bold" /> {t.addRoom}
+      </Button>
+      <SaveRow t={t} msg={msg} onSave={() => saveConfig({ rooms }, "Editou as salas")} />
+    </div>
+  );
+}
+
+type Format = NonNullable<ConfigRow["formats"]>[number];
+function FormatsPanel({ t }: { t: T }) {
+  const { raw, saveConfig } = useAgenda();
+  const [formats, setFormats] = useState<Format[]>(raw?.config.formats ?? []);
+  const [msg, setMsg] = useState("");
+  const used = (val: string) => (raw?.talks ?? []).some((x) => x.format === val);
+  return (
+    <div>
+      <ul className="space-y-2">
+        {formats.map((f, i) => (
+          <li key={f.val} className={`${card} p-3`}>
+            <div className="flex items-center gap-2">
+              <input type="color" value={f.color || "#5b2a86"} onChange={(e) => setFormats(formats.map((x, j) => (j === i ? { ...x, color: e.target.value } : x)))} aria-label={t.color} className="size-9 shrink-0 cursor-pointer rounded-full border-0 bg-transparent p-0" />
+              <div className="min-w-0 flex-1">
+                <TriField label={`${t.format} ${i + 1}`} value={{ pt: f.pt, en: f.en, es: f.es }} onChange={(v) => setFormats(formats.map((x, j) => (j === i ? { ...x, ...v } : x)))} langsLabel={t.languages} />
+              </div>
+            </div>
+            <div className="mt-2 flex justify-end">
+              <Mover i={i} n={formats.length} onMove={(a, b) => setFormats(moved(formats, a, b))} t={t} />
+              <DelBtn onClick={() => (used(f.val) ? setMsg(t.inUse) : setFormats(formats.filter((_, j) => j !== i)))} t={t} />
+            </div>
+          </li>
+        ))}
+      </ul>
+      <Button
+        className="mt-3 w-full"
+        onClick={() => {
+          const val = `F${Date.now().toString(36).toUpperCase()}`;
+          setFormats([...formats, { val, cls: `fmt-${val}`, color: "#8e63c6", pt: "", en: "", es: "" }]);
+        }}
+      >
+        <Plus size={16} weight="bold" /> {t.addFormat}
+      </Button>
+      <SaveRow t={t} msg={msg} onSave={() => saveConfig({ formats }, "Editou os formatos")} />
+    </div>
+  );
+}
+
+function HubsPanel({ t }: { t: T }) {
+  const { raw, saveConfig } = useAgenda();
+  const [hubs, setHubs] = useState<ML[]>((raw?.config.hubs ?? []).map((h) => mlObject(h)));
+  const [colors, setColors] = useState<string[]>(raw?.config.hub_colors ?? []);
+  const [show, setShow] = useState(raw?.config.show_all_hubs_btn !== false);
+  return (
+    <div>
+      <ul className="space-y-2">
+        {hubs.map((h, i) => (
+          <li key={i} className={`${card} flex items-center gap-2 p-3`}>
+            <input type="color" value={colors[i] || "#8e63c6"} onChange={(e) => setColors(Object.assign([...colors], { [i]: e.target.value }))} aria-label={t.color} className="size-9 shrink-0 cursor-pointer rounded-full border-0 bg-transparent p-0" />
+            <div className="min-w-0 flex-1">
+              <TriField label={`Hub ${i + 1}`} value={h} onChange={(v) => setHubs(hubs.map((x, j) => (j === i ? v : x)))} langsLabel={t.languages} />
+            </div>
+            <DelBtn
+              onClick={() => {
+                setHubs(hubs.filter((_, j) => j !== i));
+                setColors(colors.filter((_, j) => j !== i));
+              }}
+              t={t}
+            />
+          </li>
+        ))}
+      </ul>
+      <Button className="mt-3 w-full" onClick={() => setHubs([...hubs, { pt: "", en: "", es: "" }])}>
+        <Plus size={16} weight="bold" /> {t.addHub}
+      </Button>
+      <div className={`${card} mt-3 p-4`}>
+        <Switch checked={show} onChange={setShow} label={t.allHubsBtn} />
+      </div>
+      <SaveRow t={t} onSave={() => saveConfig({ hubs, hubColors: colors, showAllHubsBtn: show }, "Editou os hubs")} />
+    </div>
+  );
+}
+
+export function NoticePanel({ t, onDone }: { t: T; onDone?: () => void }) {
+  const { raw, saveConfig } = useAgenda();
+  const d = raw?.config.disclaimer ?? {};
+  const [on, setOn] = useState(!!d.enabled);
+  const [text, setText] = useState<ML>({ pt: d.pt ?? "", es: d.es ?? "", en: d.en ?? "" });
+  return (
+    <div className="space-y-4">
+      <div className={`${card} p-4`}>
+        <Switch checked={on} onChange={setOn} label={t.noticeOn} />
+      </div>
+      <TriField label={t.noticeText} value={text} onChange={setText} multiline langsLabel={t.languages} />
+      <SaveRow
+        t={t}
+        onSave={async () => {
+          await saveConfig({ disclaimer: { enabled: on, ...text } }, "Editou o aviso");
+          onDone?.();
+        }}
+      />
+    </div>
+  );
+}
+
+// --------------------------------------------------------------- backup
+
+// The old admin's backup ({ speakers, schedules: [{ time: { room: talk } }],
+// rooms, … }) is turned into this platform's shape.
+function fromLegacy(b: Record<string, unknown>): RawAgenda | null {
+  const list = (v: unknown) => (Array.isArray(v) ? v : []);
+  if (!Array.isArray(b.schedules) || !Array.isArray(b.speakers)) return null;
+  const txt = (v: unknown) => (v && typeof v === "object" ? JSON.stringify(v) : String(v ?? ""));
+  const talks: TalkRow[] = [];
+  (b.schedules as Record<string, Record<string, Record<string, unknown>>>[]).forEach((day, di) => {
+    for (const [time, slot] of Object.entries(day ?? {}))
+      for (const [room, x] of Object.entries(slot ?? {}))
+        talks.push({
+          id: String(x.id), day: di, time, room, hub: String(x.hub ?? ""), format: String(x.format ?? ""), duration: Number(x.duration) || 30,
+          speaker_ids: list(x.speakerIds) as string[], speaker_name: String(x.speakerName ?? ""), moderator_id: (x.moderatorId as string) ?? null,
+          speakers_pending: !!x.speakersPending, langs: list(x.langs) as string[], title: x.title as ML, descr: x.desc as ML, loc_img: String(x.locImg ?? ""),
+        });
+  });
+  const speakers: SpeakerRow[] = (b.speakers as Record<string, unknown>[]).map((s) => ({
+    id: String(s.id), name: String(s.name ?? ""), role: txt(s.role), company: txt(s.company), bio: txt(s.bio), photo: String(s.photo ?? ""),
+    linkedin: String(s.linkedin ?? ""), sort: Number(s.sort) || 0, category: String(s.category ?? "speaker"),
+  }));
+  return {
+    config: { days: b.days as ConfigRow["days"], rooms: b.rooms as ConfigRow["rooms"], formats: b.formats as ConfigRow["formats"], slots: b.slots as ConfigRow["slots"], categories: b.categories as ConfigRow["categories"], hubs: b.hubs as ConfigRow["hubs"], hub_colors: b.hubColors as string[] },
+    talks,
+    speakers,
+  };
+}
+
+function BackupSheet({ open, onClose, t }: { open: boolean; onClose: () => void; t: T }) {
+  const { raw, restore, busy } = useAgenda();
+  const [msg, setMsg] = useState("");
+  const input = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (open) setMsg("");
+  }, [open]);
+  const save = () => raw && download(new Blob([JSON.stringify({ format: "impact-minds-2027", savedAt: new Date().toISOString(), ...raw }, null, 2)], { type: "application/json" }), `backup-agenda-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.json`);
+  const load = async (file: File) => {
+    try {
+      const b = JSON.parse(await file.text());
+      const data: RawAgenda | null = b.config && Array.isArray(b.talks) && Array.isArray(b.speakers) ? { config: b.config, talks: b.talks, speakers: b.speakers } : fromLegacy(b);
+      if (!data) return setMsg(t.badFile);
+      if (!confirm(t.restoreConfirm)) return;
+      await restore(data);
+      setMsg(t.restored);
+    } catch {
+      setMsg(t.badFile);
+    }
+  };
+  return (
+    <Sheet centered open={open} onClose={onClose} label={t.backupTitle} closeLabel={t.close}>
+      <span className="grid size-14 place-items-center rounded-[18px] bg-brand-soft text-brand">
+        <FloppyDisk size={26} />
+      </span>
+      <h2 className="mt-4 text-2xl font-semibold tracking-tight">{t.backupTitle}</h2>
+      <p className="mt-1.5 text-[15px] leading-relaxed text-ink-2">{t.backupLead}</p>
+      <div className="mt-6 grid gap-2.5">
+        <Button kind="primary" onClick={save} disabled={!raw}>
+          <DownloadSimple size={18} /> {t.download}
+        </Button>
+        <Button onClick={() => input.current?.click()} disabled={busy}>
+          <UploadSimple size={18} /> {busy ? t.saving : t.restoreBtn}
+        </Button>
+        <input ref={input} type="file" accept="application/json,.json" hidden onChange={(e) => e.target.files?.[0] && load(e.target.files[0])} />
+      </div>
+      {msg && <p className="mt-4 text-center text-sm text-ink-2">{msg}</p>}
+    </Sheet>
+  );
+}
+
+// --------------------------------------------------------------- wipe
+
+function WipeSheet({ open, onClose, t }: { open: boolean; onClose: () => void; t: T }) {
+  const { wipe, busy, profile } = useAgenda();
+  const [word, setWord] = useState("");
+  useEffect(() => {
+    if (open) setWord("");
+  }, [open]);
+  const key = t.wipeWord;
+  return (
+    <Sheet centered open={open} onClose={onClose} label={t.wipe} closeLabel={t.close}>
+      <span className="grid size-14 place-items-center rounded-[18px] bg-[#fdecec] text-[#b42318]">
+        <Warning size={26} />
+      </span>
+      <h2 className="mt-4 text-2xl font-semibold tracking-tight">{t.wipe}</h2>
+      <p className="mt-1.5 text-[15px] leading-relaxed text-ink-2">{profile?.role === "master" ? t.wipeLead : t.masterOnly}</p>
+      {profile?.role === "master" && (
+        <>
+          <label className="mt-5 block">
+            <span className="mb-1.5 block text-[13px] font-medium text-ink-2">{t.wipeConfirmLabel.replace("{word}", key)}</span>
+            <input value={word} onChange={(e) => setWord(e.target.value)} className={`${fieldBox} h-12`} />
+          </label>
+          <Button
+            kind="danger"
+            className="mt-5 w-full"
+            disabled={busy || word.trim().toUpperCase() !== key}
+            onClick={async () => {
+              await wipe();
+              onClose();
+            }}
+          >
+            <Trash size={18} /> {busy ? t.saving : t.wipe}
+          </Button>
+        </>
+      )}
+    </Sheet>
+  );
+}
+
+export { dayLabel };
+
+// The notice for everyone, as on the old admin: shown to visitors where the
+// edit bar sits for editors; editors see it on top with a pencil (or an
+// empty line inviting them to write one), and write it in PT, ES and EN.
+export function NoticeBox({ t }: { t: T }) {
+  const { data, editing } = useAgenda();
+  const [open, setOpen] = useState(false);
+  if (!editing && !data.notice) return null;
+  const has = !!data.notice;
+  return (
+    <>
+      <div
+        className={`mt-5 flex items-start gap-3 rounded-[18px] px-4 py-3 text-[15px] leading-relaxed ${
+          has ? "bg-[rgb(201_162_77/0.12)] text-[#5f4610] ring-1 ring-[rgb(201_162_77/0.25)]" : "bg-surface text-muted ring-1 ring-dashed ring-[rgb(118_118_128/0.35)]"
+        }`}
+      >
+        <Info size={20} className={`mt-0.5 shrink-0 ${has ? "text-[#a07c26]" : "text-muted"}`} aria-hidden />
+        <span className={`flex-1 whitespace-pre-line ${has ? "" : "italic"}`}>{has ? data.notice : t.noNotice}</span>
+        {editing && (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-label={t.editNotice}
+            title={t.editNotice}
+            className="-my-1 -mr-1 grid size-9 shrink-0 place-items-center rounded-full text-[#a07c26] transition-colors hover:bg-[rgb(201_162_77/0.18)]"
+          >
+            <PencilSimple size={17} />
+          </button>
+        )}
+      </div>
+      {editing && (
+        <Sheet centered open={open} onClose={() => setOpen(false)} label={t.editNotice} closeLabel={t.close}>
+          <h2 className="text-2xl font-semibold tracking-tight">{t.editNotice}</h2>
+          <div className="mt-5">{open && <NoticePanel t={t} onDone={() => setOpen(false)} />}</div>
+        </Sheet>
+      )}
+    </>
+  );
+}

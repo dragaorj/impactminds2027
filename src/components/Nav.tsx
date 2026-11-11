@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowCounterClockwise, ArrowRight, Check, Cookie, GlobeSimple, Minus, Moon, PersonArmsSpread, Plus, Sun } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, ArrowRight, Check, Cookie, GlobeSimple, LockSimple, Minus, Moon, PersonArmsSpread, Plus, Sun } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { locales, type Locale } from "@/lib/i18n";
-import { mainNav } from "@/lib/nav";
+import { agendaLoginPath, mainNav } from "@/lib/nav";
 import { links } from "@/lib/site";
 import LatimpactoMark from "./LatimpactoMark";
 import { usePrefs } from "./prefs";
@@ -556,6 +556,15 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
                 </div>
               )}
             </div>
+
+            {/* The team's sign-in: the agenda platform, where speakers and the
+                agenda are edited (opens its login). */}
+            <a href={agendaLoginPath(lang)} rel="nofollow" className={btn + " group relative"} aria-label={nav.login}>
+              <LockSimple size="1.25rem" weight="light" />
+              <span aria-hidden className="fab-tip fab-tip-below">
+                {nav.login}
+              </span>
+            </a>
 
             <button
               type="button"

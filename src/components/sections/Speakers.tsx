@@ -7,6 +7,7 @@ import type { Dict } from "@/lib/dictionaries/pt";
 import type { Locale } from "@/lib/i18n";
 import { links, speakers, type Speaker } from "@/lib/site";
 import { speakerBios } from "@/lib/speakerBios";
+import { agendaSpeakersPath } from "@/lib/nav";
 import Art from "../Art";
 import { H2, container, section } from "../ui";
 import { useDialogDismiss } from "../useDialogDismiss";
@@ -156,7 +157,7 @@ function SpeakerBox({
   const close = () => onIndex(null);
   // Closes on a click outside the card, or on a scroll gesture outside it.
   useDialogDismiss(dialog, index !== null, close);
-  const bio = s ? speakerBios[s.name]?.[lang] : undefined;
+  const bio = s ? s.bio?.[lang] || speakerBios[s.name]?.[lang] : undefined;
 
   return (
     <dialog
@@ -232,16 +233,20 @@ function SpeakerBox({
 
 // Endless, slow conveyor of speakers. Pauses on hover, keyboard focus or while
 // a speaker is open; with reduced motion it becomes a plain scroll rail.
-export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Locale }) {
+// featured: the headline speakers set in the agenda system, shown in that
+// order (no shuffle); without them, the built-in list in a random order.
+export default function Speakers({ t, lang, featured = [] }: { t: Dict["speakers"]; lang: Locale; featured?: Speaker[] }) {
   const [open, setOpen] = useState<number | null>(null);
   const wide = useSyncExternalStore(watchWide, () => window.matchMedia(WIDE).matches, () => null);
   // A fresh random order on every visit. The server renders the default order;
   // the shuffle happens right after mount, long before the section scrolls in.
-  const [list, setList] = useState(speakers);
+  const fixed = featured.length > 0;
+  const [list, setList] = useState(fixed ? featured : speakers);
   useEffect(() => {
+    if (fixed) return;
     const id = requestAnimationFrame(() => setList(shuffle(speakers)));
     return () => cancelAnimationFrame(id);
-  }, []);
+  }, [fixed]);
   // A speaker picked in the hero's pill: scroll here, then open their profile
   // once the scroll has settled.
   useEffect(() => {
@@ -338,9 +343,7 @@ export default function Speakers({ t, lang }: { t: Dict["speakers"]; lang: Local
 
       <div className={`${container} mt-14`} data-reveal>
         <a
-          href={links.speakers2026Page}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={agendaSpeakersPath(lang)}
           className="group inline-flex h-12 items-center gap-3 rounded-full pl-6 pr-1.5 text-[0.9375rem] font-medium btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] active:scale-[0.98]"
         >
           {t.cta}
