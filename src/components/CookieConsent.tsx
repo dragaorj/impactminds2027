@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Cookie } from "@phosphor-icons/react";
 import type { PrivacyCopy } from "@/lib/privacy";
 import { readConsent, saveConsent } from "./consent";
@@ -18,6 +19,8 @@ const btn = "h-10 whitespace-nowrap rounded-full px-3 text-sm font-medium transi
 export default function CookieConsent({ t, privacyHref }: { t: PrivacyCopy["banner"]; privacyHref: string }) {
   const [open, setOpen] = useState(false);
   const [shown, setShown] = useState(false);
+  // Not in the agenda platform (/{lang}/agenda…): only on the site's pages.
+  const inPlatform = /^\/[a-z]{2}\/agenda(\/|$)/.test(usePathname() ?? "");
 
   useEffect(() => {
     let timer = 0;
@@ -48,7 +51,7 @@ export default function CookieConsent({ t, privacyHref }: { t: PrivacyCopy["bann
     window.setTimeout(() => setOpen(false), LEAVE_MS);
   };
 
-  if (!open) return null;
+  if (!open || inPlatform) return null;
 
   return (
     <>
