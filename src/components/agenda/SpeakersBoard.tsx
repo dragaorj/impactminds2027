@@ -20,7 +20,7 @@ type T = Dict["agendaApp"];
 // filters both. A card opens the speaker in the middle of the screen (photo
 // zoom, bio, LinkedIn, sessions); ?s=<id> opens one directly. Signed in:
 // "New speaker", "Order featured" and "Edit" on every speaker.
-export default function SpeakersBoard({ lang, t, agendaHref, adminHref, fixedView }: { lang: string; t: T; agendaHref: string; adminHref: string; fixedView?: SpeakersView }) {
+export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang: string; t: T; agendaHref: string; fixedView?: SpeakersView }) {
   const { data, editing } = useAgenda();
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -89,7 +89,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, adminHref, fixedVie
         </p>
       </div>
 
-      {editing && <EditBar t={t} lang={lang} onNewSpeaker={() => setEditId(null)} onOrder={() => setOrdering(true)} adminHref={adminHref} />}
+      {editing && <EditBar t={t} lang={lang} onNewSpeaker={() => setEditId(null)} onOrder={() => setOrdering(true)} />}
 
       <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center">
       <label className="relative block flex-1 sm:max-w-xl">

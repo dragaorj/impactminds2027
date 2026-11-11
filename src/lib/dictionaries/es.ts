@@ -364,6 +364,7 @@ const es: Dict = {
     dragHint: "Arrastra una sesión para cambiar el horario o la sala.",
     saving: "Guardando…",
     advanced: "Equipo y registros",
+    team: "Equipo", teamLead: "Quién puede entrar y editar la agenda. El master ve y gestiona a todos.", logs: "Registros", logsLead: "Todo lo que el equipo cambió, del más reciente al más antiguo.", addMember: "Agregar persona", editMember: "Editar persona", fFirst: "Nombre", fLast: "Apellido", fEmail: "Correo", fPhone: "Teléfono", fPassword: "Contraseña de acceso", fPasswordHint: "Con ella la persona entra. Mínimo 6 caracteres; cada persona tiene la suya.", genPassword: "Generar", showPassword: "Mostrar contraseña", hidePassword: "Ocultar contraseña", copyPassword: "Copiar contraseña", roleLabel: "Rol", roleEditor: "Editor", roleMaster: "Master", roleEditorHint: "Edita sesiones, ponentes y la configuración.", roleMasterHint: "Todo lo del editor, más equipo, registros y borrar todo.", you: "tú", onlineNow: "En línea ahora", lastSeen: "Visto", never: "Nunca entró", confirmDelMember: "¿Quitar a esta persona del equipo? Ya no podrá entrar.", passwordTaken: "Esa contraseña ya es de otra persona. Usa otra.", passwordShort: "La contraseña necesita al menos 6 caracteres.", clearLogs: "Limpiar registros", confirmClearLogs: "¿Borrar todos los registros? No se puede deshacer.", noLogs: "Aún no hay registros.", refresh: "Actualizar", masterLocked: "El master principal no puede eliminarse ni dejar de ser master.",
     others: "Demás ponentes",
     addSpeaker: "Agregar ponente",
     minutes: "min",

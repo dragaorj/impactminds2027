@@ -66,6 +66,22 @@ type Store = {
   talkDraft: (id?: string) => TalkDraft;
   uploadImage: (file: File) => Promise<string>;
   speakerDraft: (id?: string) => SpeakerDraft;
+  team: Team;
+};
+
+// The team (who can edit) and the log of changes: master only, checked again
+// by the database. A member's password is their sign-in token.
+export type Member = { id: string; first: string; last: string; email: string; phone: string; photo: string; token: string; role: "master" | "editor"; last_seen: string | null; created_at: string };
+export type MemberDraft = { id?: string; first: string; last: string; email: string; phone: string; photo: string; token: string; role: "master" | "editor" };
+export type LogRow = { id: number; ts: string; who: string; role: string; action: string; detail: string };
+export type Online = { id: string; first: string; last: string; photo: string };
+type Team = {
+  list: () => Promise<Member[]>;
+  save: (m: MemberDraft, photo?: File | null) => Promise<void>;
+  remove: (id: string) => Promise<void>;
+  logs: () => Promise<LogRow[]>;
+  clearLogs: () => Promise<void>;
+  online: () => Promise<Online[]>;
 };
 
 const Ctx = createContext<Store | null>(null);
@@ -95,7 +111,7 @@ async function rpc<T = unknown>(fn: string, args: Record<string, unknown>): Prom
 // Image upload to the agenda's public bucket, as the old admin does; made
 // light first (cropped, resized, WebP).
 async function uploadPhoto(original: File, folder = "speakers"): Promise<string> {
-  const file = await compressImage(original, folder === "speakers" ? "speaker" : "place");
+  const file = await compressImage(original, folder === "talks" ? "place" : "speaker");
   const ext = file.type.includes("png") ? "png" : file.type.includes("webp") ? "webp" : "jpg";
   const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const res = await fetch(`${AGENDA_DB.url}/storage/v1/object/agenda/${path}`, {
@@ -147,7 +163,7 @@ export function AgendaProvider({ initial, lang, children }: { initial: AgendaDat
   useEffect(() => {
     if (process.env.NODE_ENV !== "development" || !location.search.includes("editpreview=1")) return;
     preview.current = true;
-    setProfile({ id: "preview", first: "Preview", last: "", role: "editor" });
+    setProfile({ id: "preview", first: "Preview", last: "", role: "master" });
     setToken("preview");
     void refresh();
   }, [refresh]);
@@ -441,6 +457,49 @@ export function AgendaProvider({ initial, lang, children }: { initial: AgendaDat
     await run("Apagou tudo", "", () => rpc("sb_wipe", { p_token: token }));
   }, [run, token]);
 
+  // Presence: while signed in, a beat every 30 s, so the team sees who is
+  // editing right now.
+  useEffect(() => {
+    if (!token || preview.current) return;
+    const beat = () => void rpc("sb_heartbeat", { p_token: token }).catch(() => {});
+    beat();
+    const id = setInterval(beat, 30000);
+    return () => clearInterval(id);
+  }, [token]);
+
+  const team: Team = useMemo(
+    () => ({
+      list: () => rpc<Member[]>("sb_list_profiles", { p_token: token }).then((x) => x ?? []),
+      save: async (m, photo) => {
+        if (preview.current) return;
+        const url = photo ? await uploadPhoto(photo, "team") : m.photo;
+        const p = { ...m, first: m.first.trim(), last: m.last.trim(), email: m.email.trim(), phone: m.phone.trim(), token: m.token.trim(), photo: url };
+        await rpc("sb_upsert_profile", { p_token: token, p_p: p });
+        rpc("sb_log", { p_token: token, p_action: m.id ? "Editou um membro da equipe" : "Adicionou um membro à equipe", p_detail: `${p.first} ${p.last}`.trim() }).catch(() => {});
+        // Own password changed: this session keeps working with the new one.
+        if (m.id && m.id === profile?.id && p.token !== token) {
+          setToken(p.token);
+          try {
+            localStorage.setItem(SESSION_KEY, p.token);
+          } catch {}
+        }
+        if (m.id && m.id === profile?.id) setProfile((x) => (x ? { ...x, first: p.first, last: p.last, email: p.email, photo: p.photo } : x));
+      },
+      remove: async (id) => {
+        if (preview.current) return;
+        await rpc("sb_delete_profile", { p_token: token, p_id: id });
+        rpc("sb_log", { p_token: token, p_action: "Removeu um membro da equipe", p_detail: id }).catch(() => {});
+      },
+      logs: () => rpc<LogRow[]>("sb_get_logs", { p_token: token }).then((x) => x ?? []),
+      clearLogs: async () => {
+        if (preview.current) return;
+        await rpc("sb_clear_logs", { p_token: token });
+      },
+      online: () => rpc<Online[]>("sb_online_profiles", { p_token: token }).then((x) => x ?? []),
+    }),
+    [token, profile?.id],
+  );
+
   const data = useMemo(() => (raw ? normalize(raw, lang) : initial), [raw, lang, initial]);
   const value: Store = {
     data,
@@ -465,6 +524,7 @@ export function AgendaProvider({ initial, lang, children }: { initial: AgendaDat
     talkDraft,
     speakerDraft,
     uploadImage: (file: File) => uploadPhoto(file, "talks"),
+    team,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

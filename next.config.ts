@@ -17,21 +17,13 @@ const nextConfig: NextConfig = {
     return [
       ...["/videos/:path*", "/photos/:path*", "/brand/:path*"].map((source) => ({ source, headers: [cache] })),
       { source: "/docs/:path*", headers: [cache, { key: "Content-Disposition", value: "inline" }] },
-      // The agenda app's page and scripts change with each deploy: always checked.
-      { source: "/agenda-app/:file(index.html|sb-config.js|supabase-sync.js)", headers: [{ key: "Cache-Control", value: "public, max-age=0, must-revalidate" }] },
     ];
   },
-  // The agenda platform: the public agenda and speakers are pages of the site
-  // (/{lang}/agenda, /{lang}/agenda/palestrantes); the team's admin (login,
-  // editing) is the agenda app in public/agenda-app, at /{lang}/agenda/admin.
-  // The app reads the language from the address.
-  async rewrites() {
-    return {
-      beforeFiles: [
-        { source: "/:lang(pt|es|en)/agenda/admin", destination: "/agenda-app/index.html" },
-        { source: "/:lang(pt|es|en)/agenda/admin/:page(palestrantes|speakers|ponentes)", destination: "/agenda-app/index.html" },
-      ],
-    };
+  // The agenda platform lives in the site's own pages (/{lang}/agenda …),
+  // editing included. The old separate admin is gone: its addresses lead to
+  // the team's sign-in.
+  async redirects() {
+    return [{ source: "/:lang(pt|es|en)/agenda/admin/:rest*", destination: "/:lang/agenda/entrar", permanent: false }];
   },
   images: {
     // AVIF where the browser takes it (smaller), WebP otherwise.

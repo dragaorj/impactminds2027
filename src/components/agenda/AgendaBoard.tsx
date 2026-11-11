@@ -26,7 +26,7 @@ const FAVS_KEY = "im-agenda-favs";
 // Favourites stay in this browser. Signed in, the same screens edit: "New
 // session", "Edit" on every session, and sessions drag to another time or
 // room in the grid. Day, view and open session live in the address.
-export default function AgendaBoard({ lang, t, adminHref, fixedView }: { lang: string; t: T; adminHref: string; fixedView?: AgendaView }) {
+export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T; fixedView?: AgendaView }) {
   const { data, editing, moveTalk } = useAgenda();
   const days = data.days.length ? data.days : [...new Set(data.talks.map((x) => x.day))].map((i) => ({ index: i, date: "", weekday: "" }));
   const [day, setDay] = useState(days[0]?.index ?? 0);
@@ -140,7 +140,7 @@ export default function AgendaBoard({ lang, t, adminHref, fixedView }: { lang: s
 
       <NoticeBox t={t} />
 
-      {editing && <EditBar t={t} lang={lang} onNewTalk={() => setEditId(null)} adminHref={adminHref} />}
+      {editing && <EditBar t={t} lang={lang} onNewTalk={() => setEditId(null)} />}
 
       {/* Days, then the visitor's favourites */}
       <div role="tablist" aria-label={t.day} className="no-scrollbar -mx-4 -mb-5 mt-3 flex gap-2.5 overflow-x-auto px-4 pb-6 pt-3 sm:-mx-6 sm:px-6">

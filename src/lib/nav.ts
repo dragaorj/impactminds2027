@@ -3,11 +3,10 @@ import type { Locale } from "@/lib/i18n";
 
 export const editionsPath = (lang: Locale) => `/${lang}/edicoes`;
 // The agenda platform: the public agenda and speakers (pages of the site,
-// read from the agenda's database) and the team's admin (the agenda app).
+// read from the agenda's database), editing included.
 export const agendaPath = (lang: Locale) => `/${lang}/agenda`;
 export const agendaSpeakersPath = (lang: Locale) =>
   `/${lang}/agenda/${lang === "en" ? "speakers" : lang === "es" ? "ponentes" : "palestrantes"}`;
-export const agendaAdminPath = (lang: Locale) => `/${lang}/agenda/admin`;
 // The team's sign-in, a page of its own (nothing of the agenda behind it).
 export const LOGIN_SLUG = "entrar";
 export const agendaLoginPath = (lang: Locale) => `/${lang}/agenda/${LOGIN_SLUG}`;

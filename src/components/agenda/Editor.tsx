@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowDown, ArrowUp, Camera, ImageSquare, DotsSixVertical, Key, MagnifyingGlass, Plus, Star, Trash, X } from "@phosphor-icons/react";
+import { ArrowDown, ArrowUp, Camera, ImageSquare, DotsSixVertical, Key, MagnifyingGlass, Plus, Star, Trash, UsersThree, X } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { useAgenda, type SpeakerDraft, type TalkDraft } from "./store";
 import { MAX_PLACE_IMAGES, localPhoto } from "@/lib/agendaShape";
 import ToolsMenu from "./Tools";
+import TeamSheet from "./Team";
 import { LOGO_PATHS, LOGO_VIEWBOX } from "@/components/latimpactoLogo";
 import { Avatar, Button, Field, Segmented, Sheet, Switch, TriField, card, dayLabel, fieldBox, norm } from "./ui";
 
@@ -78,8 +79,9 @@ export function LoginPage({ t, lang }: { t: T; lang: string }) {
 }
 
 // The signed-in strip: who is editing, the main actions, sign out.
-export function EditBar({ t, lang, onNewTalk, onNewSpeaker, onOrder, adminHref }: { t: T; lang: string; onNewTalk?: () => void; onNewSpeaker?: () => void; onOrder?: () => void; adminHref: string }) {
+export function EditBar({ t, lang, onNewTalk, onNewSpeaker, onOrder }: { t: T; lang: string; onNewTalk?: () => void; onNewSpeaker?: () => void; onOrder?: () => void }) {
   const { profile, busy } = useAgenda();
+  const [team, setTeam] = useState(false);
   if (!profile) return null;
   const name = `${profile.first ?? ""} ${profile.last ?? ""}`.trim();
   return (
@@ -113,10 +115,13 @@ export function EditBar({ t, lang, onNewTalk, onNewSpeaker, onOrder, adminHref }
             <Plus size={17} weight="bold" /> {t.newSession}
           </Button>
         )}
-        <a href={adminHref} className="inline-flex h-11 items-center rounded-full px-4 text-[15px] font-medium text-ink-2 hover:bg-[rgb(118_118_128/0.1)] hover:text-ink">
-          {t.advanced}
-        </a>
+        {profile.role === "master" && (
+          <Button kind="quiet" onClick={() => setTeam(true)}>
+            <UsersThree size={17} /> {t.advanced}
+          </Button>
+        )}
       </span>
+      {profile.role === "master" && <TeamSheet open={team} onClose={() => setTeam(false)} t={t} lang={lang} />}
     </div>
   );
 }

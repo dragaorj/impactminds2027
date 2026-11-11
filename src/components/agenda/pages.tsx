@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getDictionary, htmlLang, locales, type Locale } from "@/lib/i18n";
-import { agendaAdminPath, agendaPath, agendaSpeakersPath, agendaViewPath, speakersViewPath, type AgendaView, type SpeakersView } from "@/lib/nav";
+import { agendaPath, agendaSpeakersPath, agendaViewPath, speakersViewPath, type AgendaView, type SpeakersView } from "@/lib/nav";
 import { getAgenda } from "@/lib/agenda";
 import PlatformShell, { PlatformRootSize } from "./PlatformShell";
 import AgendaBoard, { Empty } from "./AgendaBoard";
@@ -41,7 +41,7 @@ export async function AgendaScreen({ lang, view }: { lang: Locale; view?: Agenda
   return (
     <AgendaProvider initial={data ?? EMPTY} lang={lang}>
       <PlatformShell lang={lang} tab="agenda" t={t}>
-        <main id="conteudo">{data ? <AgendaBoard lang={lang} t={t} adminHref={agendaAdminPath(lang)} fixedView={view} /> : <Empty text={t.empty} />}</main>
+        <main id="conteudo">{data ? <AgendaBoard lang={lang} t={t} fixedView={view} /> : <Empty text={t.empty} />}</main>
       </PlatformShell>
     </AgendaProvider>
   );
@@ -54,7 +54,7 @@ export async function SpeakersScreen({ lang, view }: { lang: Locale; view?: Spea
     <AgendaProvider initial={data ?? EMPTY} lang={lang}>
       <PlatformShell lang={lang} tab="speakers" t={t}>
         <main id="conteudo">
-          {data ? <SpeakersBoard lang={lang} t={t} agendaHref={agendaPath(lang)} adminHref={agendaAdminPath(lang)} fixedView={view} /> : <Empty text={t.emptySpeakers} />}
+          {data ? <SpeakersBoard lang={lang} t={t} agendaHref={agendaPath(lang)} fixedView={view} /> : <Empty text={t.emptySpeakers} />}
         </main>
       </PlatformShell>
     </AgendaProvider>
