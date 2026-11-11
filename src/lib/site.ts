@@ -26,7 +26,7 @@ export const links = {
   // Full report of the 2026 edition (Manaus), one per language.
   report2026: {
     pt: "/docs/impact-minds-2026-relatorio.pdf",
-    es: "https://drive.google.com/file/d/1fs4vqVHgUib0Rl_3g44pJ9e3GCgt5PWd/view",
+    es: "https://drive.google.com/file/d/1tBbIIGZtfbyH0oQc9EBJF8V0eVBxSLix/view",
     en: "https://drive.google.com/file/d/1fs4vqVHgUib0Rl_3g44pJ9e3GCgt5PWd/view",
   },
   // TODO: full photo album (Flickr, Drive, etc.).
