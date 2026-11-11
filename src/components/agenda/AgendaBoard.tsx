@@ -754,7 +754,7 @@ function GridView({
               onClick={() => fold(room.id)}
               aria-expanded={!isFolded}
               title={`${isFolded ? t.expand : t.collapse}: ${room.name}`}
-              className={`sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-l border-line bg-[rgb(255_255_255/0.92)] backdrop-blur transition-colors hover:bg-[#f8f7fa] ${
+              className={`sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-l border-line bg-[rgb(255_255_255/0.97)] backdrop-blur transition-colors hover:bg-[#f8f7fa] ${
                 isFolded ? "justify-center px-0" : "px-4 text-left"
               }`}
             >

@@ -12,6 +12,9 @@ import { wrap } from "./width";
 type Tab = "agenda" | "speakers";
 
 // The frosted bars: the blur also with Safari's own prefix (iPhone, iPad).
+// Their ground is nearly opaque too: where a phone does not draw the blur
+// (some browsers, graphics acceleration off), the text behind still never
+// shows through and mixes with the bar.
 const glass = { WebkitBackdropFilter: "blur(24px) saturate(1.8)", backdropFilter: "blur(24px) saturate(1.8)" } as const;
 
 // The agenda keeps its real size on every screen: the site's root size grows
@@ -36,7 +39,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
 
   return (
     <div className="platform min-h-[100dvh] font-sans">
-      <header style={glass} className="platform-chrome sticky top-0 z-40 border-b border-line bg-[rgb(243_242_246/0.78)] backdrop-blur-xl backdrop-saturate-[1.8]">
+      <header style={glass} className="platform-chrome sticky top-0 z-40 border-b border-line bg-[rgb(243_242_246/0.97)] backdrop-blur-xl backdrop-saturate-[1.8]">
         <div className={`${wrap} flex h-14 items-center gap-3 sm:h-16`}>
           <a href={`/${lang}`} aria-label={t.backToSite} className="flex min-w-0 shrink items-center gap-2.5 text-ink sm:gap-3">
             <svg viewBox={LOGO_VIEWBOX} className="h-[17px] w-auto shrink-0 text-brand sm:h-[18px]" aria-hidden>
@@ -106,7 +109,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
       <nav
         aria-label={t.title}
         style={glass}
-        className="platform-chrome fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-[rgb(250_250_252/0.86)] px-2 pb-[env(safe-area-inset-bottom)] pt-1 backdrop-blur-xl backdrop-saturate-[1.8] md:hidden"
+        className="platform-chrome fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-[rgb(250_250_252/0.97)] px-2 pb-[env(safe-area-inset-bottom)] pt-1 backdrop-blur-xl backdrop-saturate-[1.8] md:hidden"
       >
         {tabs.map(({ id, label, href: h, Icon }) => (
           <Link
