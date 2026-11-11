@@ -365,6 +365,9 @@ const pt = {
     platformBy: "Plataforma desenvolvida pela",
     tour: {
       howTo: "Como usar",
+      hint: "Faça um tour rápido",
+      pause: "Pausar",
+      play: "Continuar",
       next: "Próximo",
       back: "Voltar",
       skip: "Pular",

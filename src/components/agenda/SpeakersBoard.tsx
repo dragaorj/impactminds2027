@@ -33,7 +33,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
   // The view comes from the address (/palestrantes/fotos …) or the last one
   // used here; the address always shows the view's own link. ?filtro=destaques
   // shows only the featured speakers.
-  const [mode, setMode] = useState<SpeakersView>(fixedView ?? "cards");
+  const [mode, setMode] = useState<SpeakersView>(fixedView ?? "list");
   const [group, setGroup] = useState<"all" | "featured">("all");
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -112,7 +112,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
         <SearchCount shown={list.length} total={shown.length} one={t.speakerOne} many={t.speakers.toLowerCase()} of={t.ofTotal} filtered={!!query} />
       </label>
       {/* "How to use": the guided tour again. */}
-      <HelpButton label={t.tour.howTo} />
+      <HelpButton label={t.tour.howTo} hint={t.tour.hint} />
       </div>
         {/* Phones: all filters on one compact row (as on the agenda). */}
         <div className="flex items-center gap-2 sm:contents">

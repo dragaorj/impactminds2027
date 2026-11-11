@@ -367,6 +367,9 @@ const es: Dict = {
     platformBy: "Plataforma desarrollada por",
     tour: {
       howTo: "Cómo usar",
+      hint: "Haz un recorrido rápido",
+      pause: "Pausar",
+      play: "Continuar",
       next: "Siguiente",
       back: "Atrás",
       skip: "Omitir",

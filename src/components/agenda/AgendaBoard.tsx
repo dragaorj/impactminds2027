@@ -56,14 +56,13 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
     if (p.has("dia") && days.some((x) => x.index === d)) setDay(d);
     if (p.get("fav") === "1") setFavMode(true);
     // The view: fixed by the address (/agenda/lista, /agenda/grade), else the
-    // last one used here, else the grid on wide screens.
+    // last one used here, else the list.
     let v: string | null = fixedView ?? p.get("v");
     try {
       if (!v) v = localStorage.getItem("im-agenda-view");
       setFavs(new Set(JSON.parse(localStorage.getItem(FAVS_KEY) || "[]")));
     } catch {}
     if (v === "grid" || v === "list") setView(v);
-    else if (window.matchMedia("(min-width: 1024px) and (orientation: landscape)").matches) setView("grid");
     const s = p.get("s");
     if (s) {
       const talk = data.talks.find((x) => x.id === s);
@@ -145,9 +144,9 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
           editors' gear menu). Wide screens: one row. Phones and tablets: two
           rows, search on top, then the days, the favourites star, rooms and
           the view. */}
-      <div className="mt-5 flex flex-col gap-2.5 lg:flex-row lg:flex-wrap lg:items-center">
+      <div className="mt-5 flex flex-col gap-2.5 lg:flex-row lg:items-center">
         <div className="flex gap-2 lg:contents">
-          <label className="relative min-w-0 flex-1 lg:order-3 lg:min-w-[16rem]" data-tour="search">
+          <label className="relative min-w-0 flex-1 lg:order-3" data-tour="search">
             <span className="sr-only">{t.search}</span>
             <MagnifyingGlass size={17} aria-hidden className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
             <input
@@ -161,7 +160,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
             <SearchCount shown={shown.length} total={dayTalks.length} one={t.sessionOne} many={t.sessions} of={t.ofTotal} filtered={filtered} />
           </label>
           {/* "How to use": the guided tour again. */}
-          <HelpButton label={t.tour.howTo} className="lg:order-7" />
+          <HelpButton label={t.tour.howTo} hint={t.tour.hint} className="lg:order-7" />
         </div>
 
         <div className="flex items-center gap-2 lg:contents">
@@ -218,7 +217,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
             }`}
           >
             <Star size={16} weight="fill" aria-hidden className={favMode ? "" : "text-[#c9a24d]"} />
-            {t.favorites}
+            <span className="max-xl:sr-only">{t.favorites}</span>
             <span className={`tabular-nums ${favMode ? "text-[#241800]/70" : "text-muted"}`}>{favs.size}</span>
           </button>
 
@@ -375,7 +374,7 @@ function Select({ label, value, onChange, all, options, tour }: { label: string;
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`h-11 w-full appearance-none truncate rounded-full pl-4 pr-10 text-[15px] outline-none transition-[box-shadow,background-color] focus:ring-2 focus:ring-brand/35 lg:w-auto lg:max-w-[15rem] ${
+        className={`h-11 w-full appearance-none truncate rounded-full pl-4 pr-10 text-[15px] outline-none transition-[box-shadow,background-color] focus:ring-2 focus:ring-brand/35 lg:w-auto lg:max-w-[11rem] xl:max-w-[15rem] ${
           value ? "bg-brand-soft font-medium text-brand" : "bg-[rgb(118_118_128/0.12)] text-ink"
         }`}
       >
