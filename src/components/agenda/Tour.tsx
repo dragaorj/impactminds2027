@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
-import { CaretLeft, CaretRight, Pause, Play, Question, X } from "@phosphor-icons/react";
+import { CaretLeft, CaretRight, Check, Pause, Play, Question, X } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 
 type TourT = Dict["agendaApp"]["tour"];
@@ -315,33 +315,33 @@ export default function Tour({ page, steps, t, enabled }: { page: string; steps:
               <p data-step-text className="mt-1 min-h-[3em] text-[15px] leading-relaxed text-ink-2">
                 {step.text}
               </p>
-              {/* Progress dots: a line of their own, never under the buttons. */}
-              <div className="mt-4 flex flex-wrap items-center gap-1" aria-hidden>
-                {live.map((_, k) => (
-                  <span key={k} className={`h-1 shrink-0 rounded-full transition-all duration-300 ${k === i ? "w-4 bg-brand" : k < i ? "w-1 bg-brand/45" : "w-1 bg-[rgb(118_118_128/0.28)]"}`} />
-                ))}
-              </div>
-              <div className="mt-3 flex items-center gap-2">
-                {/* Back: quiet, white; Next: the one that stands out. */}
-                {i > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setI(i - 1)}
-                    aria-label={t.back}
-                    title={t.back}
-                    className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-surface pl-3 pr-4 text-[14px] font-medium text-ink-2 ring-1 ring-line shadow-[var(--shadow-card)] transition-[color,transform] hover:text-ink active:scale-[0.97]"
-                  >
-                    <CaretLeft size={15} weight="bold" aria-hidden /> {t.back}
-                  </button>
-                )}
-                <span className="flex-1" />
+              {/* Progress dots, then two round buttons: back (quiet, white) and
+                  next (the one that stands out; a tick on the last step). */}
+              <div className="mt-4 flex items-center gap-3">
+                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1" aria-hidden>
+                  {live.map((_, k) => (
+                    <span key={k} className={`h-1 shrink-0 rounded-full transition-all duration-300 ${k === i ? "w-4 bg-brand" : k < i ? "w-1 bg-brand/45" : "w-1 bg-[rgb(118_118_128/0.28)]"}`} />
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setI(Math.max(0, i - 1))}
+                  disabled={i === 0}
+                  aria-label={t.back}
+                  title={t.back}
+                  className="grid size-10 shrink-0 place-items-center rounded-full bg-surface text-ink-2 ring-1 ring-line shadow-[var(--shadow-card)] transition-[color,transform,opacity] hover:text-ink active:scale-95 disabled:opacity-35"
+                >
+                  <CaretLeft size={17} weight="bold" aria-hidden />
+                </button>
                 <button
                   type="button"
                   onClick={next}
                   autoFocus
-                  className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-brand pl-5 pr-4 text-[14px] font-semibold text-brand-ink shadow-[0_8px_20px_-10px_rgb(91_42_134/0.7)] transition-transform active:scale-[0.97]"
+                  aria-label={last ? t.done : t.next}
+                  title={last ? t.done : t.next}
+                  className="grid size-10 shrink-0 place-items-center rounded-full bg-brand text-brand-ink shadow-[0_8px_20px_-10px_rgb(91_42_134/0.7)] transition-transform active:scale-95"
                 >
-                  {last ? t.done : t.next} {!last && <CaretRight size={15} weight="bold" aria-hidden />}
+                  {last ? <Check size={17} weight="bold" aria-hidden /> : <CaretRight size={17} weight="bold" aria-hidden />}
                 </button>
               </div>
             </div>
