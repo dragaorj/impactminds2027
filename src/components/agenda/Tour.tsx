@@ -14,12 +14,28 @@ export type TourStep = { target?: string; title: string; text: string };
 // beside it, gliding along with a small arrow pointing at it, says what it does;
 // a thin bar shows the time left on each step. Next / Back / Pause / Skip,
 // Esc and the arrow keys; pointing at the card pauses it.
-// First visit (viewing, and again the first time signed in to edit; never
-// embedded in another site): it starts on its own. Seen once per page, mode
-// and device (kept in this browser); the "?" beside the search plays it
-// again.
+// It starts on its own only once per person (this browser), on the first
+// page of the platform they open, viewing or editing; never embedded in
+// another site. After that, only the "?" beside the search plays it.
 
-const KEY = "im-agenda-tour-v1:";
+// Seen: once per person (this browser), whatever the page or the mode.
+// (Earlier versions kept one mark per page: any of them counts too.)
+const SEEN = "im-agenda-tour-seen";
+const OLD = "im-agenda-tour-v1:";
+function seenBefore() {
+  try {
+    if (localStorage.getItem(SEEN)) return true;
+    for (let k = 0; k < localStorage.length; k++) if (localStorage.key(k)?.startsWith(OLD)) return true;
+    return false;
+  } catch {
+    return true; // no storage: never pop up on its own
+  }
+}
+function markSeen() {
+  try {
+    localStorage.setItem(SEEN, "1");
+  } catch {}
+}
 const EVENT = "im:agenda-tour";
 const PAD = 6;
 const TOP = 76; // clear of the top bar
@@ -80,7 +96,7 @@ function inOrder(steps: TourStep[]): TourStep[] {
 
 type Box = { x: number; y: number; w: number; h: number; r: number } | null;
 
-export default function Tour({ page, steps, t, enabled }: { page: string; steps: TourStep[]; t: TourT; enabled: boolean }) {
+export default function Tour({ steps, t, enabled }: { steps: TourStep[]; t: TourT; enabled: boolean }) {
   const [i, setI] = useState(-1);
   const [box, setBox] = useState<Box>(null);
   const [paused, setPaused] = useState(false);
@@ -98,6 +114,8 @@ export default function Tour({ page, steps, t, enabled }: { page: string; steps:
     stepsRef.current = steps;
   });
   const start = useCallback(() => {
+    // Seen from the moment it starts (leaving mid-way does not bring it back).
+    markSeen();
     setLive(inOrder(stepsRef.current));
     setPaused(false);
     setI(0);
@@ -105,25 +123,19 @@ export default function Tour({ page, steps, t, enabled }: { page: string; steps:
   const last = i === live.length - 1;
 
   const finish = useCallback(() => {
-    try {
-      localStorage.setItem(KEY + page, "1");
-    } catch {}
+    markSeen();
     setI(-1);
-  }, [page]);
+  }, []);
   const next = useCallback(() => setI((n) => (n + 1 < live.length ? n + 1 : (finish(), -1))), [live.length, finish]);
 
   // First visit: starts after the page settles. Never when embedded in
   // another site.
   useEffect(() => {
     if (!enabled || document.documentElement.hasAttribute("data-embed")) return;
-    let seen: string | null = "1";
-    try {
-      seen = localStorage.getItem(KEY + page);
-    } catch {}
-    if (seen) return;
+    if (seenBefore()) return;
     const id = window.setTimeout(start, 900);
     return () => window.clearTimeout(id);
-  }, [enabled, page, start]);
+  }, [enabled, start]);
 
   // The "?" plays it again, from the start.
   useEffect(() => {

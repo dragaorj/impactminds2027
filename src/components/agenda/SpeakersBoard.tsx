@@ -143,8 +143,6 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
       </div>
 
       <Tour
-        // Viewing and editing each have their own first-visit tour.
-        page={signedIn ? "speakers-edit" : "speakers"}
         enabled
         t={t.tour}
         steps={[

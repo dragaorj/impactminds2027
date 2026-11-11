@@ -277,8 +277,6 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
         </div>
       </div>
       <Tour
-        // Viewing and editing each have their own first-visit tour.
-        page={signedIn ? "agenda-edit" : "agenda"}
         enabled
         t={t.tour}
         steps={[
