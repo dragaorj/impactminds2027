@@ -1,5 +1,20 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { defaultLocale, hasLocale, locales, type Locale } from "@/lib/i18n";
+import { SPEAKER_SLUGS, agendaSpeakersPath, agendaViewFromSlug, agendaViewPath, speakersViewFromSlug, speakersViewPath } from "@/lib/nav";
+
+// The same page in another language, with that language's own words in the
+// address for the agenda platform (/pt/agenda/palestrantes/fotos ->
+// /es/agenda/ponentes/fotos, /en/agenda/speakers/photos).
+function localized(rest: string, to: Locale): string {
+  const [, root, a, b] = rest.split("/");
+  if (root !== "agenda" || !a) return `/${to}${rest}`;
+  if (SPEAKER_SLUGS.includes(a)) {
+    const v = b ? speakersViewFromSlug(b) : null;
+    return v ? speakersViewPath(to, v) : agendaSpeakersPath(to);
+  }
+  const v = agendaViewFromSlug(a);
+  return v ? agendaViewPath(to, v) : `/${to}${rest}`;
+}
 
 // A language picked in the site's switcher (cookie) wins; otherwise the first
 // supported language in the browser's Accept-Language list, by priority
@@ -61,7 +76,7 @@ export function proxy(request: NextRequest) {
   if (!current) return redirect(request, `/${preferredLocale(request)}${pathname}`);
 
   const wanted = arrivingElsewhere(request, current);
-  if (wanted) return redirect(request, `/${wanted}${pathname.slice(current.length + 1)}`);
+  if (wanted) return redirect(request, localized(pathname.slice(current.length + 1), wanted));
 }
 
 export const config = {

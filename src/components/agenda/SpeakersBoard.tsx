@@ -8,10 +8,10 @@ import type { AgendaSpeaker } from "@/lib/agendaShape";
 import { useAgenda, useAsked } from "./store";
 import { speakersViewPath, type SpeakersView } from "@/lib/nav";
 import type { Locale } from "@/lib/i18n";
-import ShareButton from "./Share";
 import { Avatar, PageTitle, SearchCount, Segmented, Sheet, card, norm } from "./ui";
 import SpeakerDetail, { preloadPhoto } from "./SpeakerDetail";
 import { useReveal } from "./motion";
+import Tour, { HelpButton } from "./Tour";
 import { FeaturedOrder, SpeakerForm } from "./Editor";
 import { wrap } from "./width";
 
@@ -23,7 +23,7 @@ type T = Dict["agendaApp"];
 // zoom, bio, LinkedIn, sessions); ?s=<id> opens one directly. Signed in:
 // "New speaker", "Order featured" and "Edit" on every speaker.
 export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang: string; t: T; agendaHref: string; fixedView?: SpeakersView }) {
-  const { data, editing } = useAgenda();
+  const { data, editing, signedIn } = useAgenda();
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null | undefined>(undefined);
@@ -98,7 +98,8 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
 
 
       <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center">
-      <label className="relative block flex-1 sm:max-w-xl">
+      <div className="flex gap-2 sm:contents">
+      <label className="relative block min-w-0 flex-1 sm:max-w-xl" data-tour="search">
         <span className="sr-only">{t.searchSpeakers}</span>
         <MagnifyingGlass size={17} aria-hidden className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
         <input
@@ -110,21 +111,25 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
         />
         <SearchCount shown={list.length} total={shown.length} one={t.speakerOne} many={t.speakers.toLowerCase()} of={t.ofTotal} filtered={!!query} />
       </label>
+      {/* "How to use": the guided tour again. */}
+      <HelpButton label={t.tour.howTo} />
+      </div>
         {/* Phones: all filters on one compact row (as on the agenda). */}
         <div className="flex items-center gap-2 sm:contents">
         <Segmented
           label={t.featured}
+          tour="group"
           value={group}
           onChange={setGroup}
           className="min-w-0 flex-1 sm:ml-auto sm:flex-none sm:shrink-0"
           options={[
             { value: "all", label: t.all },
-            { value: "featured", label: <><Star size={15} weight="fill" className="shrink-0 text-[#c9a24d] max-sm:hidden" aria-hidden />{t.featured}</> },
+            { value: "featured", label: <><Star size={15} weight="fill" className="shrink-0 text-[#c9a24d]" aria-hidden />{t.featured}</> },
           ]}
         />
-        <ShareButton t={t} />
         <Segmented
           label={t.view}
+          tour="view"
           value={mode}
           onChange={pickMode}
           className="shrink-0"
@@ -137,6 +142,22 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
         </div>
       </div>
 
+      <Tour
+        page="speakers"
+        enabled={!signedIn}
+        t={t.tour}
+        steps={[
+          t.tour.spkWelcome,
+          { target: "search", ...t.tour.spkSearch },
+          { target: "group", ...t.tour.group },
+          { target: "view", ...t.tour.spkView },
+          { target: "content", ...t.tour.spkContent },
+          { target: "tabs", ...t.tour.spkTabs },
+          { target: "lang", ...t.tour.lang },
+          { target: "howto", ...t.tour.end },
+        ]}
+      />
+
       {!data.speakers.length ? (
         <div className={`${card} mt-8 px-6 py-14 text-center`}>
           <p className="text-[15px] text-ink-2">{t.emptySpeakers}</p>
@@ -148,7 +169,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
       ) : (
         <>
           {featured.length > 0 && (
-            <section className="mt-8" aria-labelledby="featured-title">
+            <section className="mt-8" aria-labelledby="featured-title" data-tour="content">
               <h2 id="featured-title" className="flex items-center gap-2 text-[13px] font-semibold text-muted">
                 <Star size={14} weight="fill" className="text-[#c9a24d]" aria-hidden /> {t.featured}
               </h2>
@@ -168,7 +189,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
 
           {/* Everyone else, below a plain line (no heading), smaller. */}
           {others.length > 0 && (
-            <section className={featured.length > 0 ? "mt-10 border-t border-line pt-8" : "mt-8"} aria-label={t.others}>
+            <section className={featured.length > 0 ? "mt-10 border-t border-line pt-8" : "mt-8"} aria-label={t.others} data-tour="content">
               {mode !== "cards" ? (
                 <People list={others} mode={mode} onOpen={setOpenId} />
               ) : (

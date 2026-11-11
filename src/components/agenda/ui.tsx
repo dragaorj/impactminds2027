@@ -54,7 +54,9 @@ export function Segmented<V extends string>({
   label,
   className = "",
   size = "md",
+  tour,
 }: {
+  tour?: string;
   value: V;
   onChange: (v: V) => void;
   options: { value: V; label: React.ReactNode; title?: string }[];
@@ -63,7 +65,7 @@ export function Segmented<V extends string>({
   size?: "sm" | "md";
 }) {
   return (
-    <div role="group" aria-label={label} className={`flex rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] ${className}`}>
+    <div role="group" aria-label={label} data-tour={tour} className={`flex rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] ${className}`}>
       {options.map((o) => {
         const on = o.value === value;
         return (
@@ -73,7 +75,7 @@ export function Segmented<V extends string>({
             aria-pressed={on}
             title={o.title}
             onClick={() => onChange(o.value)}
-            className={`flex min-w-0 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-2.5 font-medium sm:px-3.5 transition-[background-color,box-shadow,color] duration-200 ${
+            className={`flex min-w-0 flex-auto items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3.5 font-medium sm:px-4 transition-[background-color,box-shadow,color] duration-200 ${
               size === "sm" ? "h-8 text-[13px]" : "h-9 text-sm"
             } ${on ? "bg-surface text-ink shadow-[0_1px_2px_rgb(0_0_0/0.06),0_3px_8px_-2px_rgb(0_0_0/0.12)]" : "text-ink-2 hover:text-ink"}`}
           >

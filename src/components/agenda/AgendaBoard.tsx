@@ -2,19 +2,19 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { CalendarPlus, CaretRight, Clock, Info, MagnifyingGlass, MapPin, PencilSimple, Rows, SquaresFour, Star, Translate, X } from "@phosphor-icons/react";
+import { CalendarPlus, CaretRight, Clock, Door, Info, MagnifyingGlass, MapPin, PencilSimple, Rows, SquaresFour, Star, Translate, X } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import type { AgendaSpeaker, AgendaTalk } from "@/lib/agendaShape";
 import { hhmm, toMin } from "@/lib/agendaShape";
 import { useAgenda, useAsked } from "./store";
 import { agendaViewPath, type AgendaView } from "@/lib/nav";
 import type { Locale } from "@/lib/i18n";
-import ShareButton from "./Share";
 import { NoticeBox } from "./Tools";
 import { Avatar, PageTitle, Button, ReadMore, SearchCount, Segmented, Sheet, Tag, card, dayLabel, norm } from "./ui";
 import SpeakerDetail from "./SpeakerDetail";
 import { TalkForm } from "./Editor";
 import { useReveal } from "./motion";
+import Tour, { HelpButton } from "./Tour";
 import { wrap } from "./width";
 
 type T = Dict["agendaApp"];
@@ -140,125 +140,166 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
 
       <NoticeBox t={t} />
 
-      {/* Phones: the days as one segmented control, full width, every day in
-          sight (short weekday over the date number); the favourites are a
-          star in the filters row below. */}
-      <div role="tablist" aria-label={t.day} className="mt-5 grid gap-1 rounded-[16px] bg-[rgb(118_118_128/0.12)] p-1 sm:hidden" style={{ gridTemplateColumns: `repeat(${days.length || 1}, minmax(0, 1fr))` }}>
-        {days.map((d) => {
-          const l = dayLabel(d.date, lang);
-          const on = !favMode && d.index === day;
-          return (
-            <button
-              key={d.index}
-              type="button"
-              role="tab"
-              aria-selected={on}
-              aria-label={d.date ? l.long : `${t.day} ${d.index + 1}`}
-              onClick={() => pickDay(d.index)}
-              className={`flex flex-col items-center rounded-[12px] py-1.5 transition-[background-color,box-shadow,color,transform] duration-200 active:scale-[0.97] ${
-                on ? "bg-brand text-brand-ink shadow-[0_6px_16px_-8px_rgb(91_42_134/0.7)]" : "text-ink"
-              }`}
-            >
-              <span className={`text-[11px] font-semibold uppercase tracking-[0.04em] ${on ? "text-white/75" : "text-muted"}`}>{d.date ? l.weekday : t.day}</span>
-              <span className="text-[19px] font-semibold leading-tight tabular-nums tracking-[-0.01em]">{d.date ? l.num : d.index + 1}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* The toolbar: the days (a compact selector, like the view switch),
+          the favourites, search, rooms and the view (sharing is in the
+          editors' gear menu). Wide screens: one row. Phones and tablets: two
+          rows, search on top, then the days, the favourites star, rooms and
+          the view. */}
+      <div className="mt-5 flex flex-col gap-2.5 lg:flex-row lg:flex-wrap lg:items-center">
+        <div className="flex gap-2 lg:contents">
+          <label className="relative min-w-0 flex-1 lg:order-3 lg:min-w-[16rem]" data-tour="search">
+            <span className="sr-only">{t.search}</span>
+            <MagnifyingGlass size={17} aria-hidden className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
+            <input
+              type="search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder={t.search}
+              className="h-11 w-full rounded-full bg-[rgb(118_118_128/0.12)] pl-11 pr-28 text-[15px] text-ink outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-brand/35"
+            />
+            {/* How many sessions are shown (of how many, when filtering). */}
+            <SearchCount shown={shown.length} total={dayTalks.length} one={t.sessionOne} many={t.sessions} of={t.ofTotal} filtered={filtered} />
+          </label>
+          {/* "How to use": the guided tour again. */}
+          <HelpButton label={t.tour.howTo} className="lg:order-7" />
+        </div>
 
-      {/* Wider screens: day cards, then the visitor's favourites (kept in
-          this browser). */}
-      <div role="tablist" aria-label={t.day} className="no-scrollbar -mx-6 -mb-5 mt-3 hidden gap-2.5 overflow-x-auto px-6 pb-6 pt-3 sm:flex">
-        {days.map((d) => {
-          const l = dayLabel(d.date, lang);
-          const on = !favMode && d.index === day;
-          const count = data.talks.filter((x) => x.day === d.index).length;
-          return (
-            <button
-              key={d.index}
-              type="button"
-              role="tab"
-              aria-selected={on}
-              onClick={() => pickDay(d.index)}
-              className={`flex min-w-[8rem] shrink-0 flex-col items-start rounded-[18px] px-4 py-3 text-left transition-[background-color,box-shadow,color,transform] duration-200 active:scale-[0.98] ${
-                on ? "bg-brand text-brand-ink shadow-[0_12px_28px_-14px_rgb(91_42_134/0.75)]" : "bg-surface text-ink shadow-[var(--shadow-card)] ring-1 ring-line hover:bg-[#fbfafc]"
-              }`}
-            >
-              <span className={`text-[13px] font-medium ${on ? "text-white/75" : "text-muted"}`}>{d.weekday || l.weekday}</span>
-              <span className="mt-0.5 flex w-full items-baseline justify-between gap-3">
-                <span className="whitespace-nowrap text-[17px] font-semibold tracking-[-0.01em]">{d.date ? l.day : `${t.day} ${d.index + 1}`}</span>
-                <span className={`text-[13px] tabular-nums ${on ? "text-white/70" : "text-muted"}`}>{count}</span>
-              </span>
-            </button>
-          );
-        })}
-        <button
-          type="button"
-          role="tab"
-          aria-selected={favMode}
-          onClick={() => setFavMode(true)}
-          className={`flex min-w-[8rem] shrink-0 flex-col items-start rounded-[18px] px-4 py-3 text-left transition-[background-color,box-shadow,color,transform] duration-200 active:scale-[0.98] ${
-            favMode ? "bg-[#c9a24d] text-[#241800] shadow-[0_12px_28px_-14px_rgb(201_162_77/0.8)]" : "bg-surface text-ink shadow-[var(--shadow-card)] ring-1 ring-line hover:bg-[#fbfafc]"
-          }`}
-        >
-          <Star size={16} weight="fill" aria-hidden className={favMode ? "" : "text-[#c9a24d]"} />
-          <span className="mt-0.5 flex w-full items-baseline justify-between gap-3">
-            <span className="text-[17px] font-semibold tracking-[-0.01em]">{t.favorites}</span>
-            <span className={`text-[13px] tabular-nums ${favMode ? "text-[#241800]/70" : "text-muted"}`}>{favs.size}</span>
-          </span>
-        </button>
-      </div>
-
-      {/* Search, filters, view */}
-      <div className="mt-4 flex flex-col gap-2.5 lg:flex-row lg:items-center">
-        <label className="relative flex-1">
-          <span className="sr-only">{t.search}</span>
-          <MagnifyingGlass size={17} aria-hidden className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
-          <input
-            type="search"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder={t.search}
-            className="h-11 w-full rounded-full bg-[rgb(118_118_128/0.12)] pl-11 pr-28 text-[15px] text-ink outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-brand/35"
-          />
-          {/* How many sessions are shown (of how many, when filtering). */}
-          <SearchCount shown={shown.length} total={dayTalks.length} one={t.sessionOne} many={t.sessions} of={t.ofTotal} filtered={filtered} />
-        </label>
-        <div className="flex gap-2.5">
-          <Select label={t.room} value={room} onChange={setRoom} all={t.allRooms} options={roomsToday.map((r) => ({ value: r.id, label: r.name }))} />
-          <Select label={t.format} value={format} onChange={setFormat} all={t.allFormats} options={formatsToday.map((f) => ({ value: f, label: f }))} />
-          {/* Phones: the favourites, a star beside the filters. */}
+        <div className="flex items-center gap-2 lg:contents">
+          {/* The days. */}
+          <div role="tablist" aria-label={t.day} data-tour="days" className="flex min-w-0 flex-1 rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] lg:order-1 lg:flex-none">
+            {days.map((d) => {
+              const l = dayLabel(d.date, lang);
+              const on = !favMode && d.index === day;
+              const count = data.talks.filter((x) => x.day === d.index).length;
+              return (
+                <button
+                  key={d.index}
+                  type="button"
+                  role="tab"
+                  aria-selected={on}
+                  aria-label={`${d.date ? l.long : `${t.day} ${d.index + 1}`} (${count})`}
+                  title={d.date ? l.long : undefined}
+                  onClick={() => pickDay(d.index)}
+                  className={`flex h-[38px] min-w-0 flex-1 flex-col items-center justify-center rounded-full px-2 leading-none transition-[background-color,box-shadow,color] duration-200 sm:flex-row sm:gap-1.5 sm:px-3.5 lg:flex-none ${
+                    on ? "bg-brand text-brand-ink shadow-[0_6px_16px_-8px_rgb(91_42_134/0.7)]" : "text-ink-2 hover:text-ink"
+                  }`}
+                >
+                  <span className={`text-[10px] font-semibold uppercase tracking-[0.04em] sm:text-[13px] sm:font-medium sm:normal-case sm:tracking-normal ${on ? "text-white/80" : "text-muted"}`}>
+                    {d.date ? l.weekday : t.day}
+                  </span>
+                  <span className="mt-0.5 text-[15px] font-semibold tabular-nums sm:mt-0 sm:text-[14px]">{d.date ? l.num : d.index + 1}</span>
+                </button>
+              );
+            })}
+          </div>
+          {/* Phones / tablets: the favourites, a star beside the days. */}
           <button
             type="button"
+            data-tour="favs"
             onClick={() => (favMode ? pickDay(day) : setFavMode(true))}
             aria-pressed={favMode}
             aria-label={`${t.favorites} (${favs.size})`}
             title={t.favorites}
-            className={`flex h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[15px] font-medium transition-[background-color,color,transform] duration-200 active:scale-95 sm:hidden ${
+            className={`flex h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[15px] font-medium transition-[background-color,color,transform] duration-200 active:scale-95 lg:hidden ${
               favMode ? "bg-[#c9a24d] text-[#241800]" : "bg-[rgb(118_118_128/0.12)] text-ink"
             }`}
           >
             <Star size={17} weight="fill" aria-hidden className={favMode ? "" : "text-[#c9a24d]"} />
             <span className="tabular-nums">{favs.size}</span>
           </button>
-          <ShareButton t={t} />
+          {/* Wide screens: the favourites beside the days. */}
+          <button
+            type="button"
+            data-tour="favs"
+            onClick={() => (favMode ? pickDay(day) : setFavMode(true))}
+            aria-pressed={favMode}
+            className={`h-11 shrink-0 items-center gap-2 lg:order-2 rounded-full px-4 text-[14px] font-medium transition-[background-color,color,transform] duration-200 active:scale-95 max-lg:hidden lg:flex ${
+              favMode ? "bg-[#c9a24d] text-[#241800]" : "bg-[rgb(118_118_128/0.12)] text-ink hover:bg-[rgb(118_118_128/0.18)]"
+            }`}
+          >
+            <Star size={16} weight="fill" aria-hidden className={favMode ? "" : "text-[#c9a24d]"} />
+            {t.favorites}
+            <span className={`tabular-nums ${favMode ? "text-[#241800]/70" : "text-muted"}`}>{favs.size}</span>
+          </button>
+
+          {/* Rooms (and formats): full selects on wide screens, a small
+              button on phones (the native list opens on tap). */}
+          <div className="flex gap-2.5 max-lg:hidden lg:order-4" data-tour="rooms">
+            <Select label={t.room} value={room} onChange={setRoom} all={t.allRooms} options={roomsToday.map((r) => ({ value: r.id, label: r.name }))} />
+            <Select tour="format" label={t.format} value={format} onChange={setFormat} all={t.allFormats} options={formatsToday.map((f) => ({ value: f, label: f }))} />
+          </div>
+          {roomsToday.length > 1 && (
+            <label
+              data-tour="rooms"
+              title={t.allRooms}
+              className={`relative grid size-11 shrink-0 place-items-center rounded-full transition-colors lg:hidden ${room ? "bg-brand-soft text-brand" : "bg-[rgb(118_118_128/0.12)] text-ink-2"}`}
+            >
+              <span className="sr-only">{t.room}</span>
+              <Door size={18} weight={room ? "fill" : "regular"} aria-hidden />
+              {room && <span aria-hidden className="absolute right-1.5 top-1.5 size-2 rounded-full bg-brand ring-2 ring-[var(--bg)]" />}
+              <select value={room} onChange={(e) => setRoom(e.target.value)} className="absolute inset-0 cursor-pointer opacity-0">
+                <option value="">{t.allRooms}</option>
+                {roomsToday.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+
           {!favMode && (
-            <Segmented
-              label={t.view}
-              value={view}
-              onChange={setView}
-              className="shrink-0"
-              options={[
-                { value: "list", title: t.list, label: <><Rows size={17} aria-hidden /><span className="max-xl:sr-only">{t.list}</span></> },
-                { value: "grid", title: t.grid, label: <><SquaresFour size={17} aria-hidden /><span className="max-xl:sr-only">{t.grid}</span></> },
-              ]}
-            />
+            <>
+              {/* Phones / tablets: one button switches list ↔ grid. */}
+              <button
+                type="button"
+                data-tour="view"
+                onClick={() => setView(view === "grid" ? "list" : "grid")}
+                title={view === "grid" ? t.list : t.grid}
+                aria-label={view === "grid" ? t.list : t.grid}
+                className="grid size-11 shrink-0 place-items-center rounded-full bg-[rgb(118_118_128/0.12)] text-ink-2 transition-[background-color,color,transform] duration-200 hover:text-ink active:scale-95 lg:hidden"
+              >
+                {view === "grid" ? <Rows size={18} aria-hidden /> : <SquaresFour size={18} aria-hidden />}
+              </button>
+              <div className="max-lg:hidden lg:order-6" data-tour="view">
+                <Segmented
+                  label={t.view}
+                  value={view}
+                  onChange={setView}
+                  className="shrink-0"
+                  options={[
+                    { value: "list", title: t.list, label: <><Rows size={17} aria-hidden /><span className="max-xl:sr-only">{t.list}</span></> },
+                    { value: "grid", title: t.grid, label: <><SquaresFour size={17} aria-hidden /><span className="max-xl:sr-only">{t.grid}</span></> },
+                  ]}
+                />
+              </div>
+            </>
           )}
         </div>
       </div>
+      <Tour
+        page="agenda"
+        enabled={!signedIn}
+        t={t.tour}
+        steps={[
+          t.tour.welcome,
+          { target: "notice", ...t.tour.notice },
+          { target: "days", ...t.tour.days },
+          { target: "favs", ...t.tour.favs },
+          { target: "search", ...t.tour.search },
+          { target: "rooms", ...t.tour.rooms },
+          { target: "format", ...t.tour.format },
+          { target: "view", ...t.tour.view },
+          { target: "content", ...t.tour.content },
+          { target: "favstar", ...t.tour.favStar },
+          { target: "tabs", ...t.tour.tabs },
+          { target: "lang", ...t.tour.lang },
+          { target: "howto", ...t.tour.end },
+        ]}
+      />
       {signedIn && gridOn && <p className="mt-3 text-[13px] text-muted">{t.dragHint}</p>}
 
-      <div className="mt-6" ref={reveal}>
+      <div className="mt-6" ref={reveal} data-tour="content">
         {groups.length === 0 && (!gridOn || (filtered && !editing)) ? (
           <div className={`${card} px-6 py-14 text-center`}>
             <p className="mx-auto max-w-md text-[15px] text-ink-2">{favMode && !filtered ? t.noFavs : filtered ? t.noResults : data.talks.length ? t.emptyDay : t.empty}</p>
@@ -326,10 +367,10 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
   );
 }
 
-function Select({ label, value, onChange, all, options }: { label: string; value: string; onChange: (v: string) => void; all: string; options: { value: string; label: string }[] }) {
+function Select({ label, value, onChange, all, options, tour }: { label: string; value: string; onChange: (v: string) => void; all: string; options: { value: string; label: string }[]; tour?: string }) {
   if (options.length < 2) return null;
   return (
-    <label className="relative min-w-0 flex-1 lg:flex-none">
+    <label className="relative min-w-0 flex-1 lg:flex-none" data-tour={tour}>
       <span className="sr-only">{label}</span>
       <select
         value={value}
@@ -360,6 +401,7 @@ function FavButton({ on, onClick, t, className = "" }: { on: boolean; onClick: (
         e.stopPropagation();
         onClick();
       }}
+      data-tour="favstar"
       aria-pressed={on}
       aria-label={on ? t.removeFav : t.addFav}
       title={on ? t.removeFav : t.addFav}

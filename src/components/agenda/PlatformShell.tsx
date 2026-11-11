@@ -7,6 +7,7 @@ import { LOGO_PATHS, LOGO_VIEWBOX } from "@/components/latimpactoLogo";
 import { agendaLoginPath, agendaPath, agendaSpeakersPath } from "@/lib/nav";
 import Account from "./Account";
 import EditMenu from "./Tools";
+import LangLink from "./LangLink";
 import { wrap } from "./width";
 
 type Tab = "agenda" | "speakers";
@@ -53,7 +54,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
             </span>
           </a>
 
-          <nav aria-label={t.title} className="mx-auto hidden rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] md:flex">
+          <nav aria-label={t.title} data-tour="tabs" className="mx-auto hidden rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] md:flex">
             {tabs.map((x) => (
               <Link
                 key={x.id}
@@ -71,12 +72,11 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
           <div className="ml-auto flex shrink-0 items-center gap-2 md:ml-0">
             {/* The editors' menu (only when signed in). */}
             <EditMenu t={t} lang={lang} tab={tab} />
-            <div className="flex items-center rounded-full bg-[rgb(118_118_128/0.12)] p-[3px]" role="group" aria-label={t.languages}>
+            <div className="flex items-center rounded-full bg-[rgb(118_118_128/0.12)] p-[3px]" role="group" aria-label={t.languages} data-tour="lang">
               {locales.map((l) => (
-                <a
+                <LangLink
                   key={l}
                   href={href(l)}
-                  hrefLang={l}
                   lang={l}
                   aria-current={l === lang ? "true" : undefined}
                   title={t.langNames[l]}
@@ -85,7 +85,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
                   }`}
                 >
                   {l}
-                </a>
+                </LangLink>
               ))}
             </div>
             <div className="hidden md:block">
@@ -108,6 +108,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
       {/* Phones: tab bar at the bottom */}
       <nav
         aria-label={t.title}
+        data-tour="tabs"
         style={glass}
         className="platform-chrome fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-[rgb(250_250_252/0.97)] px-2 pb-[env(safe-area-inset-bottom)] pt-1 backdrop-blur-xl backdrop-saturate-[1.8] md:hidden"
       >

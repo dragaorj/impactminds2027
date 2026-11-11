@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { ArrowDown, ArrowUp, DownloadSimple, FloppyDisk, GearSix, Info, PencilSimple, Plus, Star, Trash, UploadSimple, UsersThree, Warning, Wrench } from "@phosphor-icons/react";
+import { ArrowDown, ArrowUp, DownloadSimple, FloppyDisk, GearSix, Info, PencilSimple, Plus, ShareNetwork, Star, Trash, UploadSimple, UsersThree, Warning, Wrench } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { mlObject, toMin, type ConfigRow, type ML, type RawAgenda, type SpeakerRow, type TalkRow } from "@/lib/agendaShape";
 import { useAgenda } from "./store";
 import { Button, Segmented, Sheet, Switch, TriField, card, dayLabel, fieldBox } from "./ui";
 import { DaysPanel } from "./Editor";
 import TeamSheet from "./Team";
+import ShareSheet from "./Share";
 
 type T = Dict["agendaApp"];
 type Tab = "days" | "slots" | "rooms" | "formats" | "hubs" | "notice";
@@ -20,7 +21,7 @@ type Tab = "days" | "slots" | "rooms" | "formats" | "hubs" | "notice";
 export default function EditMenu({ t, lang, tab }: { t: T; lang: string; tab: "agenda" | "speakers" }) {
   const { profile, raw, data, signedIn, editing, busy, ask } = useAgenda();
   const [menu, setMenu] = useState(false);
-  const [sheet, setSheet] = useState<"manage" | "backup" | "wipe" | "team" | null>(null);
+  const [sheet, setSheet] = useState<"manage" | "backup" | "wipe" | "team" | "share" | null>(null);
   const box = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -128,6 +129,9 @@ export default function EditMenu({ t, lang, tab }: { t: T; lang: string; tab: "a
             <MenuItem icon={<Wrench size={18} />} onClick={go(() => setSheet("manage"))}>
               {t.manage}
             </MenuItem>
+            <MenuItem icon={<ShareNetwork size={18} />} onClick={go(() => setSheet("share"))}>
+              {t.share}
+            </MenuItem>
             <MenuItem icon={<DownloadSimple size={18} />} onClick={go(exportCsv)}>
               {t.exportCsv}
             </MenuItem>
@@ -149,6 +153,7 @@ export default function EditMenu({ t, lang, tab }: { t: T; lang: string; tab: "a
         </div>
       )}
       <ManageSheet open={sheet === "manage"} onClose={() => setSheet(null)} t={t} lang={lang} />
+      <ShareSheet open={sheet === "share"} onClose={() => setSheet(null)} t={t} lang={lang} />
       <BackupSheet open={sheet === "backup"} onClose={() => setSheet(null)} t={t} />
       {master && <WipeSheet open={sheet === "wipe"} onClose={() => setSheet(null)} t={t} />}
       {master && <TeamSheet open={sheet === "team"} onClose={() => setSheet(null)} t={t} lang={lang} />}
@@ -543,6 +548,7 @@ export function NoticeBox({ t }: { t: T }) {
   return (
     <>
       <div
+        data-tour="notice"
         className={`mt-5 flex gap-3 rounded-[16px] px-4 text-[14px] leading-relaxed sm:rounded-[18px] sm:text-[15px] ${has ? "items-start py-3" : "items-center py-2 sm:py-2.5"} ${
           has ? "bg-[rgb(201_162_77/0.12)] text-[#5f4610] ring-1 ring-[rgb(201_162_77/0.25)]" : "bg-surface text-muted ring-1 ring-dashed ring-[rgb(118_118_128/0.35)]"
         }`}
