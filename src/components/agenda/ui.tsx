@@ -183,13 +183,14 @@ export function Sheet({
 // "24 ago", "Ter" and the long form, from an ISO date, in the visitor's language.
 export function dayLabel(date: string, lang: string) {
   const d = new Date(`${date}T12:00:00Z`);
-  if (Number.isNaN(d.getTime())) return { weekday: "", day: date, long: date };
+  if (Number.isNaN(d.getTime())) return { weekday: "", day: date, num: date, long: date };
   const loc = lang === "pt" ? "pt-BR" : lang;
   const f = (o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(loc, { timeZone: "UTC", ...o }).format(d);
   const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
   return {
     weekday: cap(f({ weekday: "short" }).replace(".", "")),
     day: f({ day: "numeric", month: "short" }).replace(".", ""),
+    num: f({ day: "numeric" }),
     long: cap(f({ weekday: "long", day: "numeric", month: "long" })),
   };
 }
@@ -301,5 +302,23 @@ export function Switch({ checked, onChange, label }: { checked: boolean; onChang
         <span className={`absolute top-[2px] size-[27px] rounded-full bg-white shadow-[0_3px_8px_rgb(0_0_0/0.15),0_1px_1px_rgb(0_0_0/0.16)] transition-[left] duration-200 ${checked ? "left-[22px]" : "left-[2px]"}`} />
       </button>
     </div>
+  );
+}
+
+// Inside a search field, on the right: how many are shown ("13 palestrantes"),
+// or "3 de 13" while searching or filtering.
+export function SearchCount({ shown, total, one, many, of, filtered }: { shown: number; total: number; one: string; many: string; of: string; filtered: boolean }) {
+  return (
+    <span aria-live="polite" className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 whitespace-nowrap text-[13px] text-muted">
+      {filtered ? (
+        <>
+          <span className="font-semibold tabular-nums text-ink">{shown}</span> {of} <span className="tabular-nums">{total}</span>
+        </>
+      ) : (
+        <>
+          <span className="font-semibold tabular-nums text-ink">{total}</span> {total === 1 ? one : many}
+        </>
+      )}
+    </span>
   );
 }

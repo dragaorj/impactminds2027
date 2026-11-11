@@ -543,12 +543,20 @@ export function NoticeBox({ t }: { t: T }) {
   return (
     <>
       <div
-        className={`mt-5 flex items-start gap-3 rounded-[18px] px-4 py-3 text-[15px] leading-relaxed ${
+        className={`mt-5 flex gap-3 rounded-[16px] px-4 text-[14px] leading-relaxed sm:rounded-[18px] sm:text-[15px] ${has ? "items-start py-3" : "items-center py-2 sm:py-2.5"} ${
           has ? "bg-[rgb(201_162_77/0.12)] text-[#5f4610] ring-1 ring-[rgb(201_162_77/0.25)]" : "bg-surface text-muted ring-1 ring-dashed ring-[rgb(118_118_128/0.35)]"
         }`}
       >
-        <Info size={20} className={`mt-0.5 shrink-0 ${has ? "text-[#a07c26]" : "text-muted"}`} aria-hidden />
-        <span className={`flex-1 whitespace-pre-line ${has ? "" : "italic"}`}>{has ? data.notice : t.noNotice}</span>
+        <Info size={20} className={`${has ? "mt-0.5" : ""} shrink-0 ${has ? "text-[#a07c26]" : "text-muted"}`} aria-hidden />
+        {has ? (
+          <span className="flex-1 whitespace-pre-line">{data.notice}</span>
+        ) : (
+          // Empty: one short line (the full sentence from tablets up).
+          <span className="min-w-0 flex-1 truncate italic">
+            <span className="sm:hidden">{t.noNoticeShort}</span>
+            <span className="max-sm:hidden">{t.noNotice}</span>
+          </span>
+        )}
         {editing && (
           <button
             type="button"

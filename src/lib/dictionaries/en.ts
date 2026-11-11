@@ -365,6 +365,7 @@ const en: Dict = {
     saving: "Saving…",
     advanced: "Team and logs",
     platformBy: "Platform developed by",
+    sessionOne: "session", speakerOne: "speaker", ofTotal: "of", noNoticeShort: "No notice. Tap the pencil to add one.",
     team: "Team", teamLead: "Who can sign in and edit the agenda. The master sees and manages everyone.", logs: "Logs", logsLead: "Everything the team changed, newest first.", addMember: "Add person", editMember: "Edit person", fFirst: "First name", fLast: "Last name", fEmail: "Email", fPhone: "Phone", fPassword: "Access password", fPasswordHint: "The person signs in with it. At least 6 characters; everyone has their own.", genPassword: "Generate", showPassword: "Show password", hidePassword: "Hide password", copyPassword: "Copy password", roleLabel: "Role", roleEditor: "Editor", roleMaster: "Master", roleEditorHint: "Edits sessions, speakers and settings.", roleMasterHint: "Everything an editor does, plus team, logs and delete everything.", you: "you", onlineNow: "Online now", lastSeen: "Seen", never: "Never signed in", confirmDelMember: "Remove this person from the team? They will no longer be able to sign in.", passwordTaken: "That password already belongs to someone else. Use another.", passwordShort: "The password needs at least 6 characters.", clearLogs: "Clear logs", confirmClearLogs: "Delete all logs? This cannot be undone.", noLogs: "No logs yet.", refresh: "Refresh", masterLocked: "The main master cannot be removed or stop being master.",
     others: "Other speakers",
     addSpeaker: "Add speaker",

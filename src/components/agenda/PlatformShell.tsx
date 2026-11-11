@@ -7,8 +7,12 @@ import { LOGO_PATHS, LOGO_VIEWBOX } from "@/components/latimpactoLogo";
 import { agendaLoginPath, agendaPath, agendaSpeakersPath } from "@/lib/nav";
 import Account from "./Account";
 import EditMenu from "./Tools";
+import { wrap } from "./width";
 
 type Tab = "agenda" | "speakers";
+
+// The frosted bars: the blur also with Safari's own prefix (iPhone, iPad).
+const glass = { WebkitBackdropFilter: "blur(24px) saturate(1.8)", backdropFilter: "blur(24px) saturate(1.8)" } as const;
 
 // The agenda keeps its real size on every screen: the site's root size grows
 // with wide screens (for its own sections), the platform doesn't. A wide
@@ -32,8 +36,8 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
 
   return (
     <div className="platform min-h-[100dvh] font-sans">
-      <header className="platform-chrome sticky top-0 z-40 border-b border-line bg-[rgb(243_242_246/0.78)] backdrop-blur-xl backdrop-saturate-[1.8]">
-        <div className="mx-auto flex h-14 max-w-[1280px] min-[112.5rem]:max-w-[84vw] items-center gap-3 px-4 sm:h-16 sm:px-6">
+      <header style={glass} className="platform-chrome sticky top-0 z-40 border-b border-line bg-[rgb(243_242_246/0.78)] backdrop-blur-xl backdrop-saturate-[1.8]">
+        <div className={`${wrap} flex h-14 items-center gap-3 sm:h-16`}>
           <a href={`/${lang}`} aria-label={t.backToSite} className="flex min-w-0 shrink items-center gap-2.5 text-ink sm:gap-3">
             <svg viewBox={LOGO_VIEWBOX} className="h-[17px] w-auto shrink-0 text-brand sm:h-[18px]" aria-hidden>
               {LOGO_PATHS.map((d, i) => (
@@ -101,6 +105,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
       {/* Phones: tab bar at the bottom */}
       <nav
         aria-label={t.title}
+        style={glass}
         className="platform-chrome fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-[rgb(250_250_252/0.86)] px-2 pb-[env(safe-area-inset-bottom)] pt-1 backdrop-blur-xl backdrop-saturate-[1.8] md:hidden"
       >
         {tabs.map(({ id, label, href: h, Icon }) => (

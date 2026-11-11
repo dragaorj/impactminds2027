@@ -11,10 +11,11 @@ import { agendaViewPath, type AgendaView } from "@/lib/nav";
 import type { Locale } from "@/lib/i18n";
 import ShareButton from "./Share";
 import { NoticeBox } from "./Tools";
-import { Avatar, Button, ReadMore, Segmented, Sheet, Tag, card, dayLabel, norm } from "./ui";
+import { Avatar, Button, ReadMore, SearchCount, Segmented, Sheet, Tag, card, dayLabel, norm } from "./ui";
 import SpeakerDetail from "./SpeakerDetail";
 import { TalkForm } from "./Editor";
 import { useReveal } from "./motion";
+import { wrap } from "./width";
 
 type T = Dict["agendaApp"];
 const FAVS_KEY = "im-agenda-favs";
@@ -134,22 +135,41 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
   };
 
   return (
-    <div className={`mx-auto px-4 pb-16 pt-6 sm:px-6 sm:pt-10 ${gridOn ? "max-w-[max(1720px,84vw)]" : "max-w-[1180px] min-[112.5rem]:max-w-[84vw]"}`}>
-      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
-        <div>
-          <h1 className="text-[2rem] font-semibold leading-tight tracking-[-0.025em] sm:text-[2.5rem]">{t.title}</h1>
-          <p className="mt-1 text-[15px] text-muted">{t.subtitle}</p>
-        </div>
-        <p className="text-[15px] text-muted">
-          <span className="font-semibold tabular-nums text-ink">{data.talks.length}</span> {t.sessions}
-        </p>
-      </div>
+    <div className={`${wrap} pb-16 pt-6 sm:pt-10`}>
+      <h1 className="text-[2rem] font-semibold leading-tight tracking-[-0.025em] sm:text-[2.5rem]">{t.title}</h1>
+      <p className="mt-1 text-[15px] text-muted">{t.subtitle}</p>
 
       <NoticeBox t={t} />
 
+      {/* Phones: the days as one segmented control, full width, every day in
+          sight (short weekday over the date number); the favourites are a
+          star in the filters row below. */}
+      <div role="tablist" aria-label={t.day} className="mt-5 grid gap-1 rounded-[16px] bg-[rgb(118_118_128/0.12)] p-1 sm:hidden" style={{ gridTemplateColumns: `repeat(${days.length || 1}, minmax(0, 1fr))` }}>
+        {days.map((d) => {
+          const l = dayLabel(d.date, lang);
+          const on = !favMode && d.index === day;
+          return (
+            <button
+              key={d.index}
+              type="button"
+              role="tab"
+              aria-selected={on}
+              aria-label={d.date ? l.long : `${t.day} ${d.index + 1}`}
+              onClick={() => pickDay(d.index)}
+              className={`flex flex-col items-center rounded-[12px] py-1.5 transition-[background-color,box-shadow,color,transform] duration-200 active:scale-[0.97] ${
+                on ? "bg-brand text-brand-ink shadow-[0_6px_16px_-8px_rgb(91_42_134/0.7)]" : "text-ink"
+              }`}
+            >
+              <span className={`text-[11px] font-semibold uppercase tracking-[0.04em] ${on ? "text-white/75" : "text-muted"}`}>{d.date ? l.weekday : t.day}</span>
+              <span className="text-[19px] font-semibold leading-tight tabular-nums tracking-[-0.01em]">{d.date ? l.num : d.index + 1}</span>
+            </button>
+          );
+        })}
+      </div>
 
-      {/* Days, then the visitor's favourites */}
-      <div role="tablist" aria-label={t.day} className="no-scrollbar -mx-4 -mb-5 mt-3 flex gap-2.5 overflow-x-auto px-4 pb-6 pt-3 sm:-mx-6 sm:px-6">
+      {/* Wider screens: day cards, then the visitor's favourites (kept in
+          this browser). */}
+      <div role="tablist" aria-label={t.day} className="no-scrollbar -mx-6 -mb-5 mt-3 hidden gap-2.5 overflow-x-auto px-6 pb-6 pt-3 sm:flex">
         {days.map((d) => {
           const l = dayLabel(d.date, lang);
           const on = !favMode && d.index === day;
@@ -167,7 +187,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
             >
               <span className={`text-[13px] font-medium ${on ? "text-white/75" : "text-muted"}`}>{d.weekday || l.weekday}</span>
               <span className="mt-0.5 flex w-full items-baseline justify-between gap-3">
-                <span className="text-[17px] font-semibold tracking-[-0.01em]">{d.date ? l.day : `${t.day} ${d.index + 1}`}</span>
+                <span className="whitespace-nowrap text-[17px] font-semibold tracking-[-0.01em]">{d.date ? l.day : `${t.day} ${d.index + 1}`}</span>
                 <span className={`text-[13px] tabular-nums ${on ? "text-white/70" : "text-muted"}`}>{count}</span>
               </span>
             </button>
@@ -200,12 +220,28 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={t.search}
-            className="h-11 w-full rounded-full bg-[rgb(118_118_128/0.12)] pl-11 pr-4 text-[15px] text-ink outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-brand/35"
+            className="h-11 w-full rounded-full bg-[rgb(118_118_128/0.12)] pl-11 pr-28 text-[15px] text-ink outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-brand/35"
           />
+          {/* How many sessions are shown (of how many, when filtering). */}
+          <SearchCount shown={shown.length} total={dayTalks.length} one={t.sessionOne} many={t.sessions} of={t.ofTotal} filtered={filtered} />
         </label>
         <div className="flex gap-2.5">
           <Select label={t.room} value={room} onChange={setRoom} all={t.allRooms} options={roomsToday.map((r) => ({ value: r.id, label: r.name }))} />
           <Select label={t.format} value={format} onChange={setFormat} all={t.allFormats} options={formatsToday.map((f) => ({ value: f, label: f }))} />
+          {/* Phones: the favourites, a star beside the filters. */}
+          <button
+            type="button"
+            onClick={() => (favMode ? pickDay(day) : setFavMode(true))}
+            aria-pressed={favMode}
+            aria-label={`${t.favorites} (${favs.size})`}
+            title={t.favorites}
+            className={`flex h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[15px] font-medium transition-[background-color,color,transform] duration-200 active:scale-95 sm:hidden ${
+              favMode ? "bg-[#c9a24d] text-[#241800]" : "bg-[rgb(118_118_128/0.12)] text-ink"
+            }`}
+          >
+            <Star size={17} weight="fill" aria-hidden className={favMode ? "" : "text-[#c9a24d]"} />
+            <span className="tabular-nums">{favs.size}</span>
+          </button>
           <ShareButton t={t} />
           {!favMode && (
             <Segmented
@@ -589,7 +625,7 @@ function SessionDetail({
 
 export function Empty({ text }: { text: string }) {
   return (
-    <div className="mx-auto max-w-[1180px] px-4 py-24 sm:px-6">
+    <div className={`${wrap} py-24`}>
       <div className={`${card} mx-auto max-w-md px-8 py-14 text-center`}>
         <p className="text-[17px] text-ink-2">{text}</p>
       </div>

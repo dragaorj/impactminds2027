@@ -9,10 +9,11 @@ import { useAgenda, useAsked } from "./store";
 import { speakersViewPath, type SpeakersView } from "@/lib/nav";
 import type { Locale } from "@/lib/i18n";
 import ShareButton from "./Share";
-import { Avatar, Segmented, Sheet, card, norm } from "./ui";
+import { Avatar, SearchCount, Segmented, Sheet, card, norm } from "./ui";
 import SpeakerDetail, { preloadPhoto } from "./SpeakerDetail";
 import { useReveal } from "./motion";
 import { FeaturedOrder, SpeakerForm } from "./Editor";
+import { wrap } from "./width";
 
 type T = Dict["agendaApp"];
 
@@ -86,22 +87,15 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
   return (
     <div
       ref={reveal}
-      className="mx-auto max-w-[1280px] min-[112.5rem]:max-w-[84vw] px-4 pb-16 pt-6 sm:px-6 sm:pt-10"
+      className={`${wrap} pb-16 pt-6 sm:pt-10`}
       // A speaker under the pointer (or the finger, or the keyboard): their
       // large photos start loading, so opening and zooming are instant.
       onPointerOver={warm}
       onPointerDown={warm}
       onFocus={warm}
     >
-      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
-        <div>
-          <h1 className="text-[2rem] font-semibold leading-tight tracking-[-0.025em] sm:text-[2.5rem]">{t.speakers}</h1>
-          <p className="mt-1 text-[15px] text-muted">{t.subtitle}</p>
-        </div>
-        <p className="text-[15px] text-muted">
-          <span className="font-semibold tabular-nums text-ink">{data.speakers.length}</span> {t.speakers.toLowerCase()}
-        </p>
-      </div>
+      <h1 className="text-[2rem] font-semibold leading-tight tracking-[-0.025em] sm:text-[2.5rem]">{t.speakers}</h1>
+      <p className="mt-1 text-[15px] text-muted">{t.subtitle}</p>
 
 
       <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center">
@@ -113,8 +107,9 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={t.searchSpeakers}
-          className="h-11 w-full rounded-full bg-[rgb(118_118_128/0.12)] pl-11 pr-4 text-[15px] text-ink outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-brand/35"
+          className="h-11 w-full rounded-full bg-[rgb(118_118_128/0.12)] pl-11 pr-32 text-[15px] text-ink outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-brand/35"
         />
+        <SearchCount shown={list.length} total={shown.length} one={t.speakerOne} many={t.speakers.toLowerCase()} of={t.ofTotal} filtered={!!query} />
       </label>
         <Segmented
           label={t.featured}
@@ -156,7 +151,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
                 <Star size={14} weight="fill" className="text-[#c9a24d]" aria-hidden /> {t.featured}
               </h2>
               {mode === "cards" ? (
-                <ul className="mt-3 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 portrait:lg:grid-cols-3 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(17rem,1fr))]">
+                <ul className="mt-3 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5 portrait:lg:grid-cols-3 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(17rem,1fr))]">
                   {featured.map((s) => (
                     <li key={s.id} data-glide>
                       <FeaturedCard s={s} onOpen={() => setOpenId(s.id)} />
@@ -175,7 +170,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
               {mode !== "cards" ? (
                 <People list={others} mode={mode} onOpen={setOpenId} />
               ) : (
-              <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(13rem,1fr))]">
+              <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(13rem,1fr))]">
                 {others.map((s) => (
                   <li key={s.id} data-glide>
                     <button
