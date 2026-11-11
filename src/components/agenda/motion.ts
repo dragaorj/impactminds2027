@@ -19,20 +19,22 @@ export function useHydrated() {
   }, []);
 }
 
-// The container's [data-reveal] children enter whenever `key` changes.
+// The container's [data-glide] children enter whenever `key` changes.
 export function useReveal<E extends HTMLElement>(key: unknown) {
   const ref = useRef<E>(null);
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el || !hydrated || reduced()) return;
-    const items = el.querySelectorAll<HTMLElement>("[data-reveal]");
+    const items = el.querySelectorAll<HTMLElement>("[data-glide]");
     const targets = items.length ? Array.from(items).slice(0, 40) : [el];
     const tween = gsap.fromTo(
       targets,
       { autoAlpha: 0, y: 10, scale: 0.985 },
       { autoAlpha: 1, y: 0, scale: 1, duration: 0.42, ease: "power3.out", stagger: { each: 0.025, from: "start" }, clearProps: "opacity,visibility,transform" },
     );
-    return () => void tween.kill();
+    // Interrupted (the key changed again mid-way): back to normal at once,
+    // never left hidden.
+    return () => void tween.revert();
   }, [key]);
   return ref;
 }

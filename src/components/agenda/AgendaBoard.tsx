@@ -250,7 +250,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
               const x0 = talks[0];
               const d = favMode ? days.find((y) => y.index === x0.day) : undefined;
               return (
-                <li key={key} data-reveal className="grid gap-3 md:grid-cols-[6rem_1fr] md:gap-6">
+                <li key={key} data-glide className="grid gap-3 md:grid-cols-[6rem_1fr] md:gap-6">
                   <div className="flex items-baseline gap-2 md:sticky md:top-24 md:block md:self-start md:pt-4">
                     {d?.date && <p className="text-[13px] font-medium text-gold md:mb-1">{dayLabel(d.date, lang).weekday} · {dayLabel(d.date, lang).day}</p>}
                     <p className="text-[19px] font-semibold tabular-nums tracking-[-0.01em]">{x0.start}</p>

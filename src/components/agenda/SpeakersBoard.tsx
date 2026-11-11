@@ -158,7 +158,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
               {mode === "cards" ? (
                 <ul className="mt-3 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 portrait:lg:grid-cols-3 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(17rem,1fr))]">
                   {featured.map((s) => (
-                    <li key={s.id} data-reveal>
+                    <li key={s.id} data-glide>
                       <FeaturedCard s={s} onOpen={() => setOpenId(s.id)} />
                     </li>
                   ))}
@@ -177,7 +177,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
               ) : (
               <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(13rem,1fr))]">
                 {others.map((s) => (
-                  <li key={s.id} data-reveal>
+                  <li key={s.id} data-glide>
                     <button
                       type="button"
                       onClick={() => setOpenId(s.id)}
@@ -247,7 +247,7 @@ function People({ list, mode, featured = false, onOpen }: { list: AgendaSpeaker[
     return (
       <ul className={`mt-3 grid gap-3 sm:gap-4 ${featured ? "grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]" : "grid-cols-5 sm:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))]"}`}>
         {list.map((s) => (
-          <li key={s.id} data-reveal className="relative">
+          <li key={s.id} data-glide className="relative">
             <button
               type="button"
               onClick={() => onOpen(s.id)} data-photo={s.photo || undefined}
@@ -279,7 +279,7 @@ function People({ list, mode, featured = false, onOpen }: { list: AgendaSpeaker[
   return (
     <ul className={`${card} mt-3 overflow-hidden min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(28rem,1fr))] min-[112.5rem]:grid`}>
       {list.map((s) => (
-        <li key={s.id} data-reveal className="-mt-px border-t border-line">
+        <li key={s.id} data-glide className="-mt-px border-t border-line">
           <button type="button" onClick={() => onOpen(s.id)} data-photo={s.photo || undefined} className="flex w-full items-center gap-3.5 px-4 py-3 text-left transition-colors hover:bg-[rgb(118_118_128/0.06)]">
             <Avatar name={s.name} photo={s.photo} size={48} />
             <span className="min-w-0 flex-1">
