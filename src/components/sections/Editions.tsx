@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Image, { getImageProps } from "next/image";
 import { ArrowUpRight, FilePdf } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import Art from "../Art";
@@ -44,6 +44,31 @@ const FOCUS_2026 = [
   "62% 62%", // lounge
 ];
 const STEP_MS = 5000;
+const SIZES = "(min-width:1024px) 40vw, 60vw";
+
+// Fast galleries: the photos of the other editions are fetched ahead, in the
+// browser's idle time (the very files the gallery will ask for), so picking
+// an edition shows its photos at once. Each file only once.
+const warmed = new Set<string>();
+function warm(srcs: string[], high = false) {
+  for (const src of srcs) {
+    if (warmed.has(src)) continue;
+    warmed.add(src);
+    const { props } = getImageProps({ src, alt: "", fill: true, sizes: SIZES });
+    const img = new window.Image();
+    img.decoding = "async";
+    if (high) img.fetchPriority = "high";
+    if (props.sizes) img.sizes = props.sizes;
+    if (props.srcSet) img.srcset = props.srcSet;
+    img.src = props.src;
+  }
+}
+// An image already in the cache (loaded before the page woke up) shows at once.
+const reveal = (img: HTMLImageElement | null) => {
+  if (img?.complete && img.naturalWidth) img.setAttribute("data-ready", "");
+};
+// Safari lacks requestIdleCallback: a short timeout there.
+const idle = (fn: () => void) => (typeof window.requestIdleCallback === "function" ? window.requestIdleCallback(fn, { timeout: 2500 }) : setTimeout(fn, 400));
 
 // Photos and report per edition come from the page (lib/editions.ts finds
 // them by file name). On the editions page (asPage) the page's own heading
@@ -63,6 +88,33 @@ export default function Editions({
   const current = t.list[active];
   const report = media[active]?.report ?? null;
   const [tick, setTick] = useState(0);
+  const root = useRef<HTMLElement>(null);
+
+  // Near the screen: the other editions' photos load in the background, one
+  // edition after the other.
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        io.disconnect();
+        const queue = media.map((m) => m.photos.slice(0, 12)).filter((p) => p.length);
+        const next = () => {
+          const batch = queue.shift();
+          if (!batch) return;
+          warm(batch);
+          idle(next);
+        };
+        idle(next);
+      },
+      { rootMargin: "800px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [media]);
+  // Pointing at an edition: its photos at once.
+  const warmEdition = useCallback((i: number) => warm(media[i]?.photos.slice(0, 12) ?? [], true), [media]);
 
   useEffect(() => {
     if (viewing !== null || prefersReducedMotion()) return;
@@ -75,7 +127,7 @@ export default function Editions({
   }, [viewing]);
 
   return (
-    <section id="edicoes" className={asPage ? "relative pb-24 md:pb-36" : `${section} scroll-mt-20`} aria-labelledby={asPage ? undefined : "edicoes-title"} aria-label={asPage ? t.title : undefined}>
+    <section ref={root} id="edicoes" className={asPage ? "relative pb-24 md:pb-36" : `${section} scroll-mt-20`} aria-labelledby={asPage ? undefined : "edicoes-title"} aria-label={asPage ? t.title : undefined}>
       <div className={container}>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           {asPage ? (
@@ -130,8 +182,14 @@ export default function Editions({
                     src={src}
                     alt={`${current.city} ${current.year}, ${t.photos} ${i + 1}`}
                     fill
-                    sizes="(min-width:1024px) 40vw, 60vw"
-                    className="object-cover transition-transform duration-[1800ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.06]"
+                    sizes={SIZES}
+                    // The first tiles of the open edition first.
+                    priority={i < 4}
+                    // Each photo comes in softly once it is ready (none
+                    // painting in halfway).
+                    ref={reveal}
+                    onLoad={(e) => e.currentTarget.setAttribute("data-ready", "")}
+                    className="object-cover opacity-0 transition-[transform,opacity] duration-[1800ms,500ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.06] data-[ready]:opacity-100"
                     style={{ objectPosition: current.year === "2026" ? FOCUS_2026[i] : "50% 40%" }}
                   />
                   <span
@@ -171,6 +229,9 @@ export default function Editions({
                   disabled={empty}
                   aria-disabled={empty}
                   title={empty ? t.soon : undefined}
+                  onPointerEnter={() => warmEdition(i)}
+                  onFocus={() => warmEdition(i)}
+                  onTouchStart={() => warmEdition(i)}
                   onClick={() => {
                     setActive(i);
                     setViewing(null);
