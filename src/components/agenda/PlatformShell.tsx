@@ -59,6 +59,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
               <Link
                 key={x.id}
                 href={x.href}
+                data-tour={`tab-${x.id}`}
                 aria-current={x.id === tab ? "page" : undefined}
                 className={`flex h-9 items-center rounded-full px-5 text-sm font-medium transition-[background-color,box-shadow,color] ${
                   x.id === tab ? "bg-surface text-ink shadow-[0_1px_2px_rgb(0_0_0/0.06),0_3px_8px_-2px_rgb(0_0_0/0.12)]" : "text-ink-2 hover:text-ink"
@@ -116,6 +117,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
           <Link
             key={id}
             href={h}
+            data-tour={`tab-${id}`}
             aria-current={id === tab ? "page" : undefined}
             className={`flex flex-1 flex-col items-center gap-1 py-1.5 text-[11px] font-medium ${id === tab ? "text-brand" : "text-muted"}`}
           >

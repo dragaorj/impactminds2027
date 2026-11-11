@@ -151,8 +151,8 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
           { target: "search", ...t.tour.spkSearch },
           { target: "group", ...t.tour.group },
           { target: "view", ...t.tour.spkView },
-          { target: "content", ...t.tour.spkContent },
-          { target: "tabs", ...t.tour.spkTabs },
+          { target: "speaker", ...t.tour.spkContent },
+          { target: "tab-agenda", ...t.tour.spkTabs },
           { target: "lang", ...t.tour.lang },
           { target: "howto", ...t.tour.end },
         ]}
@@ -199,7 +199,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
                     <button
                       type="button"
                       onClick={() => setOpenId(s.id)}
-                      data-photo={s.photo || undefined}
+                      data-photo={s.photo || undefined} data-tour="speaker"
                       className={`${card} group flex h-full w-full flex-col items-center px-2 pb-3.5 pt-4 text-center sm:px-3 sm:pb-5 sm:pt-6 transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow)] active:scale-[0.985]`}
                     >
                       <Avatar name={s.name} photo={s.photo} size={80} />
@@ -235,7 +235,7 @@ function FeaturedCard({ s, onOpen }: { s: AgendaSpeaker; onOpen: () => void }) {
     <button
       type="button"
       onClick={onOpen}
-      data-photo={s.photo || undefined}
+      data-photo={s.photo || undefined} data-tour="speaker"
       className={`${card} group flex h-full w-full flex-col overflow-hidden text-left transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow)] active:scale-[0.985]`}
     >
       <span className="relative block aspect-[4/5] w-full overflow-hidden bg-brand-soft">
@@ -268,7 +268,7 @@ function People({ list, mode, featured = false, onOpen }: { list: AgendaSpeaker[
           <li key={s.id} data-glide className="relative">
             <button
               type="button"
-              onClick={() => onOpen(s.id)} data-photo={s.photo || undefined}
+              onClick={() => onOpen(s.id)} data-photo={s.photo || undefined} data-tour="speaker"
               aria-label={s.name}
               className="group relative block aspect-square w-full overflow-hidden rounded-full bg-brand-soft shadow-[var(--shadow-card)] ring-1 ring-line transition-transform duration-300 hover:scale-[1.04] focus-visible:scale-[1.04] active:scale-[0.97]"
             >
@@ -298,7 +298,7 @@ function People({ list, mode, featured = false, onOpen }: { list: AgendaSpeaker[
     <ul className={`${card} mt-3 overflow-hidden min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(28rem,1fr))] min-[112.5rem]:grid`}>
       {list.map((s) => (
         <li key={s.id} data-glide className="-mt-px border-t border-line">
-          <button type="button" onClick={() => onOpen(s.id)} data-photo={s.photo || undefined} className="flex w-full items-center gap-3.5 px-4 py-3 text-left transition-colors hover:bg-[rgb(118_118_128/0.06)]">
+          <button type="button" onClick={() => onOpen(s.id)} data-photo={s.photo || undefined} data-tour="speaker" className="flex w-full items-center gap-3.5 px-4 py-3 text-left transition-colors hover:bg-[rgb(118_118_128/0.06)]">
             <Avatar name={s.name} photo={s.photo} size={48} />
             <span className="min-w-0 flex-1">
               <span className="flex items-center gap-1.5">

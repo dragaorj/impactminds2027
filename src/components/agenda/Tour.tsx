@@ -34,9 +34,19 @@ function findTarget(name?: string): HTMLElement | null {
   return null;
 }
 
-// Where the free part of the screen ends: just above the card (at the
-// bottom on phones, in the middle on wider screens).
-const freeBottom = (card: HTMLElement | null) => (card ? card.getBoundingClientRect().top - 16 : window.innerHeight - 260);
+// The card's usual place ("home"): at the bottom on phones, from the middle
+// of the screen down on wider ones. Its top edge there:
+const homeTop = (cardH: number) => (window.innerWidth < 640 ? window.innerHeight - cardH - 12 : window.innerHeight / 2);
+// A control that stays put when the page scrolls (the phone tab bar).
+function isFixed(el: HTMLElement) {
+  for (let e: HTMLElement | null = el; e; e = e.parentElement) if (getComputedStyle(e).position === "fixed") return true;
+  return false;
+}
+const atEnd = () => Math.ceil(window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight - 2;
+// Where the card goes: home; just above a control fixed low on the screen
+// (the tab bar); or at the top when the control is low and the page cannot
+// scroll it any higher.
+type Place = { mode: "home" } | { mode: "above"; bottom: number } | { mode: "top" };
 
 // Reading time: longer texts stay longer.
 const duration = (s: TourStep) => Math.min(5.5, Math.max(2.8, (s.title.length + s.text.length) / 26));
@@ -47,6 +57,7 @@ export default function Tour({ page, steps, t, enabled }: { page: string; steps:
   const [i, setI] = useState(-1);
   const [box, setBox] = useState<Box>(null);
   const [paused, setPaused] = useState(false);
+  const [place, setPlace] = useState<Place>({ mode: "home" });
   const [hover, setHover] = useState(false);
   const card = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLSpanElement>(null);
@@ -86,16 +97,29 @@ export default function Tour({ page, steps, t, enabled }: { page: string; steps:
     return () => window.removeEventListener(EVENT, again);
   }, []);
 
-  // The light: on the step's control, within the part of the screen the
-  // card leaves free (between the top bar and the card). The page scrolls,
-  // gently, only when the control is not already in that part.
+  // The light: on the step's control, never under the card. The page
+  // scrolls, gently, only when the control is not already in the free part
+  // (between the top bar and the card); the card moves only when it would
+  // otherwise cover the control.
   const measure = useCallback(() => {
     const el = findTarget(step?.target);
-    if (!el) return setBox(null);
+    if (!el) {
+      setPlace({ mode: "home" });
+      return setBox(null);
+    }
     const r = el.getBoundingClientRect();
-    const bottomFree = freeBottom(card.current);
-    const top = Math.max(8, r.top - PAD);
-    const bottom = Math.min(bottomFree, r.bottom + PAD);
+    const vh = window.innerHeight;
+    const cardH = card.current?.offsetHeight ?? 220;
+    const home = homeTop(cardH);
+    let p: Place = { mode: "home" };
+    let top = Math.max(8, r.top - PAD);
+    let bottom = Math.min(vh - 8, r.bottom + PAD);
+    if (isFixed(el) && r.top > vh / 2) p = { mode: "above", bottom: vh - r.top + PAD + 28 };
+    else if (r.bottom + PAD > home - 12 && r.top > vh * 0.35 && atEnd()) {
+      p = { mode: "top" };
+      top = Math.max(top, (window.innerWidth < 640 ? 12 : 24) + cardH + 12);
+    } else bottom = Math.min(bottom, home - 12);
+    setPlace((old) => (old.mode === p.mode && (p.mode !== "above" || (old.mode === "above" && old.bottom === p.bottom)) ? old : p));
     const h = Math.max(0, bottom - top);
     const radius = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 14;
     setBox({ x: Math.max(4, r.left - PAD), y: top, w: Math.min(window.innerWidth - 8, r.width + PAD * 2), h, r: Math.min(radius + PAD, h / 2) });
@@ -103,12 +127,12 @@ export default function Tour({ page, steps, t, enabled }: { page: string; steps:
   useLayoutEffect(() => {
     if (!step) return;
     const el = findTarget(step.target);
-    if (el) {
+    if (el && !isFixed(el)) {
       const r = el.getBoundingClientRect();
-      const bottomFree = freeBottom(card.current);
-      const room = bottomFree - TOP;
-      if (r.top < TOP || r.bottom > bottomFree) {
-        // Big: its start at the top of the free part. Small: in its middle.
+      const free = homeTop(card.current?.offsetHeight ?? 220) - 16;
+      const room = free - TOP;
+      if (r.top < TOP || r.bottom > free) {
+        // Fits: in the middle of the free part. Bigger: its start at the top.
         const to = r.height > room ? r.top - TOP : r.top - TOP - (room - r.height) / 2;
         window.scrollBy({ top: to, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
       }
@@ -184,7 +208,16 @@ export default function Tour({ page, steps, t, enabled }: { page: string; steps:
         {/* The card: always in the same place for every step: at the bottom
             on phones (under the thumb), from the middle of the screen down on
             wider ones; the lit control always stays above it. */}
-        <div className="absolute inset-x-0 bottom-0 flex justify-center px-3 pb-[calc(12px+env(safe-area-inset-bottom))] sm:top-1/2 sm:bottom-auto sm:px-4 sm:pb-0">
+        <div
+          className={`absolute inset-x-0 flex justify-center px-3 sm:px-4 ${
+            place.mode === "home"
+              ? "bottom-0 pb-[calc(12px+env(safe-area-inset-bottom))] sm:top-1/2 sm:bottom-auto sm:pb-0"
+              : place.mode === "top"
+                ? "top-0 pt-3 sm:pt-6"
+                : ""
+          }`}
+          style={place.mode === "above" ? { bottom: place.bottom } : undefined}
+        >
           <div
             ref={card}
             onPointerEnter={() => setHover(true)}

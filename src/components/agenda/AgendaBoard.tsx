@@ -289,9 +289,9 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
           { target: "rooms", ...t.tour.rooms },
           { target: "format", ...t.tour.format },
           { target: "view", ...t.tour.view },
-          { target: "content", ...t.tour.content },
+          { target: "session", ...t.tour.content },
           { target: "favstar", ...t.tour.favStar },
-          { target: "tabs", ...t.tour.tabs },
+          { target: "tab-speakers", ...t.tour.tabs },
           { target: "lang", ...t.tour.lang },
           { target: "howto", ...t.tour.end },
         ]}
@@ -417,7 +417,7 @@ function SessionCard({ talk, speakers, fav, onFav, onOpen, t }: { talk: AgendaTa
   const names = speakers.map((s) => s.name);
   const shownNames = names.slice(0, 2).join(", ") + (names.length > 2 ? ` +${names.length - 2}` : "");
   return (
-    <div className={`${card} group relative flex w-full flex-col gap-3 overflow-hidden p-5 transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow)]`}>
+    <div data-tour="session" className={`${card} group relative flex w-full flex-col gap-3 overflow-hidden p-5 transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow)]`}>
       <button type="button" onClick={onOpen} className="absolute inset-0 z-0 rounded-[22px]" aria-label={talk.title} />
       <span className="pointer-events-none flex items-start justify-between gap-2">
         <span className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px] text-muted">
@@ -860,6 +860,7 @@ function GridView({
                     <button
                       key={x.id}
                       type="button"
+                      data-tour="session"
                       onPointerDown={editable ? (e) => startDrag(e, x) : undefined}
                       onClick={editable ? undefined : () => onOpen(x.id)}
                       title={x.title}
