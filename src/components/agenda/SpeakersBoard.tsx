@@ -78,7 +78,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, adminHref, fixedVie
   const open = data.speakers.find((s) => s.id === openId) ?? null;
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 pb-16 pt-6 sm:px-6 sm:pt-10">
+    <div className="mx-auto max-w-[1280px] min-[112.5rem]:max-w-[84vw] px-4 pb-16 pt-6 sm:px-6 sm:pt-10">
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
         <div>
           <h1 className="text-[2rem] font-semibold leading-tight tracking-[-0.025em] sm:text-[2.5rem]">{t.speakers}</h1>
@@ -143,7 +143,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, adminHref, fixedVie
                 <Star size={14} weight="fill" className="text-[#c9a24d]" aria-hidden /> {t.featured}
               </h2>
               {mode === "cards" ? (
-                <ul className="mt-3 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+                <ul className="mt-3 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 portrait:lg:grid-cols-3 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(17rem,1fr))]">
                   {featured.map((s) => (
                     <li key={s.id}>
                       <FeaturedCard s={s} onOpen={() => setOpenId(s.id)} />
@@ -162,7 +162,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, adminHref, fixedVie
               {mode !== "cards" ? (
                 <People list={others} mode={mode} onOpen={setOpenId} />
               ) : (
-              <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(13rem,1fr))]">
                 {others.map((s) => (
                   <li key={s.id}>
                     <button
@@ -230,7 +230,7 @@ function FeaturedCard({ s, onOpen }: { s: AgendaSpeaker; onOpen: () => void }) {
 function People({ list, mode, featured = false, onOpen }: { list: AgendaSpeaker[]; mode: "list" | "photos"; featured?: boolean; onOpen: (id: string) => void }) {
   if (mode === "photos")
     return (
-      <ul className={`mt-3 grid gap-3 sm:gap-4 ${featured ? "grid-cols-3 sm:grid-cols-4 lg:grid-cols-6" : "grid-cols-5 sm:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12"}`}>
+      <ul className={`mt-3 grid gap-3 sm:gap-4 ${featured ? "grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]" : "grid-cols-5 sm:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))]"}`}>
         {list.map((s) => (
           <li key={s.id} className="relative">
             <button
@@ -262,9 +262,9 @@ function People({ list, mode, featured = false, onOpen }: { list: AgendaSpeaker[
       </ul>
     );
   return (
-    <ul className={`${card} mt-3 overflow-hidden`}>
-      {list.map((s, i) => (
-        <li key={s.id} className={i ? "border-t border-line" : ""}>
+    <ul className={`${card} mt-3 overflow-hidden min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(28rem,1fr))] min-[112.5rem]:grid`}>
+      {list.map((s) => (
+        <li key={s.id} className="-mt-px border-t border-line">
           <button type="button" onClick={() => onOpen(s.id)} className="flex w-full items-center gap-3.5 px-4 py-3 text-left transition-colors hover:bg-[rgb(118_118_128/0.06)]">
             <Avatar name={s.name} photo={s.photo} size={48} />
             <span className="min-w-0 flex-1">

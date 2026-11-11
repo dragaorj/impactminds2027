@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getDictionary, htmlLang, locales, type Locale } from "@/lib/i18n";
 import { agendaAdminPath, agendaPath, agendaSpeakersPath, agendaViewPath, speakersViewPath, type AgendaView, type SpeakersView } from "@/lib/nav";
 import { getAgenda } from "@/lib/agenda";
-import PlatformShell from "./PlatformShell";
+import PlatformShell, { PlatformRootSize } from "./PlatformShell";
 import AgendaBoard, { Empty } from "./AgendaBoard";
 import SpeakersBoard from "./SpeakersBoard";
 import { AgendaProvider } from "./store";
@@ -66,6 +66,7 @@ export function LoginScreen({ lang }: { lang: Locale }) {
   return (
     <AgendaProvider initial={EMPTY} lang={lang}>
       <div className="platform min-h-[100dvh] font-sans">
+        <PlatformRootSize />
         <LoginPage t={t} lang={lang} />
       </div>
     </AgendaProvider>

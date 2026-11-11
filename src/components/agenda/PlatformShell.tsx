@@ -8,6 +8,14 @@ import Account from "./Account";
 
 type Tab = "agenda" | "speakers";
 
+// The agenda keeps its real size on every screen: the site's root size grows
+// with wide screens (for its own sections), the platform doesn't. A wide
+// screen gets more columns and wider areas, never bigger things. (A style of
+// the page itself: the shared stylesheet loses this rule.)
+export function PlatformRootSize() {
+  return <style dangerouslySetInnerHTML={{ __html: "html{font-size:calc(100% * var(--text-scale,1))!important}" }} />;
+}
+
 // The platform's frame. Wide screens: one quiet frosted bar (the Latimpacto
 // mark back to the site, the event's name, the two pages as an iOS segmented
 // control, the language, the team's sign-in). Phones: a slim top bar (mark,
@@ -22,11 +30,12 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
 
   return (
     <div className="platform min-h-[100dvh] font-sans">
+      <PlatformRootSize />
       {/* Embedded in another site (?embed=1): only the content, no bars. Set
           before the first paint, so the bars never flash. */}
       <script dangerouslySetInnerHTML={{ __html: "if(/[?&]embed=1/.test(location.search)){document.documentElement.setAttribute('data-embed','');var st=document.createElement('style');st.textContent='.platform-chrome{display:none!important}.platform-body{padding-bottom:0!important}';document.head.appendChild(st)}" }} />
       <header className="platform-chrome sticky top-0 z-40 border-b border-line bg-[rgb(243_242_246/0.78)] backdrop-blur-xl backdrop-saturate-[1.8]">
-        <div className="mx-auto flex h-14 max-w-[1280px] items-center gap-3 px-4 sm:h-16 sm:px-6">
+        <div className="mx-auto flex h-14 max-w-[1280px] min-[112.5rem]:max-w-[84vw] items-center gap-3 px-4 sm:h-16 sm:px-6">
           <a href={`/${lang}`} aria-label={t.backToSite} className="flex min-w-0 shrink items-center gap-2.5 text-ink sm:gap-3">
             <svg viewBox={LOGO_VIEWBOX} className="h-[17px] w-auto shrink-0 text-brand sm:h-[18px]" aria-hidden>
               {LOGO_PATHS.map((d, i) => (

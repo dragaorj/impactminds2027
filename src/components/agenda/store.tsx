@@ -3,6 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { Locale } from "@/lib/i18n";
 import { AGENDA_DB, FEATURED, dbHeaders, placeImages, placeImagesValue, fetchRaw, mlObject, normalize, toMin, type AgendaData, type ML, type RawAgenda, type SpeakerRow, type TalkRow } from "@/lib/agendaShape";
+import { compressImage } from "./compress";
+import { agendaChanged } from "@/lib/agendaActions";
 
 // The platform's shared state: what the pages show (the server's copy for
 // visitors; a live copy straight from the database for signed-in editors)
@@ -90,8 +92,10 @@ async function rpc<T = unknown>(fn: string, args: Record<string, unknown>): Prom
   return (text ? JSON.parse(text) : null) as T;
 }
 
-// Image upload to the agenda's public bucket, as the old admin does.
-async function uploadPhoto(file: File, folder = "speakers"): Promise<string> {
+// Image upload to the agenda's public bucket, as the old admin does; made
+// light first (cropped, resized, WebP).
+async function uploadPhoto(original: File, folder = "speakers"): Promise<string> {
+  const file = await compressImage(original, folder === "speakers" ? "speaker" : "place");
   const ext = file.type.includes("png") ? "png" : file.type.includes("webp") ? "webp" : "jpg";
   const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const res = await fetch(`${AGENDA_DB.url}/storage/v1/object/agenda/${path}`, {
@@ -176,7 +180,9 @@ export function AgendaProvider({ initial, lang, children }: { initial: AgendaDat
       try {
         await fn();
         rpc("sb_log", { p_token: token, p_action: what, p_detail: detail }).catch(() => {});
-        await refresh();
+        // This screen reads the database again, and the public pages drop
+        // their kept copy, so a reload never brings back the old version.
+        await Promise.all([refresh(), agendaChanged(token).catch(() => {})]);
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
         throw e;
@@ -287,9 +293,14 @@ export function AgendaProvider({ initial, lang, children }: { initial: AgendaDat
   const deleteTalk = useCallback(
     async (id: string) => {
       const t = raw?.talks.find((x) => x.id === id);
-      await run("Excluiu a sessão", mlObject(t?.title).pt ?? "", () => rpc("sb_delete_talk", { p_token: token, p_id: id }));
+      // Gone from the screen at once; back only if the delete fails.
+      setRaw((r) => (r ? { ...r, talks: r.talks.filter((x) => x.id !== id) } : r));
+      await run("Excluiu a sessão", mlObject(t?.title).pt ?? "", () => rpc("sb_delete_talk", { p_token: token, p_id: id })).catch((e) => {
+        void refresh();
+        throw e;
+      });
     },
-    [raw, run, token],
+    [raw, run, token, refresh],
   );
 
   const speakerDraft = useCallback(
@@ -345,9 +356,13 @@ export function AgendaProvider({ initial, lang, children }: { initial: AgendaDat
   const deleteSpeaker = useCallback(
     async (id: string) => {
       const s = raw?.speakers.find((x) => x.id === id);
-      await run("Excluiu o palestrante", s?.name ?? "", () => rpc("sb_delete_speaker", { p_token: token, p_id: id }));
+      setRaw((r) => (r ? { ...r, speakers: r.speakers.filter((x) => x.id !== id) } : r));
+      await run("Excluiu o palestrante", s?.name ?? "", () => rpc("sb_delete_speaker", { p_token: token, p_id: id })).catch((e) => {
+        void refresh();
+        throw e;
+      });
     },
-    [raw, run, token],
+    [raw, run, token, refresh],
   );
 
   // New order of the featured speakers: each one's position becomes its sort.
@@ -355,11 +370,13 @@ export function AgendaProvider({ initial, lang, children }: { initial: AgendaDat
     async (ids: string[]) => {
       setRaw((r) => (r ? { ...r, speakers: r.speakers.map((s) => (ids.includes(s.id) ? { ...s, sort: ids.indexOf(s.id) + 1 } : s)) } : r));
       await run("Reordenou os destaques", `${ids.length}`, async () => {
-        for (const [i, id] of ids.entries()) {
-          const s = raw?.speakers.find((x) => x.id === id);
-          if (!s || s.sort === i + 1) continue;
-          await rpc("sb_upsert_speaker", { p_token: token, p_s: { ...s, sort: i + 1 } });
-        }
+        // All at once, not one after the other.
+        await Promise.all(
+          ids.map((id, i) => {
+            const s = raw?.speakers.find((x) => x.id === id);
+            return !s || s.sort === i + 1 ? null : rpc("sb_upsert_speaker", { p_token: token, p_s: { ...s, sort: i + 1 } });
+          }),
+        );
       });
     },
     [raw, run, token],

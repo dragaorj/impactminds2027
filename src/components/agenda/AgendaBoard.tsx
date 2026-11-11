@@ -56,7 +56,7 @@ export default function AgendaBoard({ lang, t, adminHref, fixedView }: { lang: s
       setFavs(new Set(JSON.parse(localStorage.getItem(FAVS_KEY) || "[]")));
     } catch {}
     if (v === "grid" || v === "list") setView(v);
-    else if (window.matchMedia("(min-width: 1024px)").matches) setView("grid");
+    else if (window.matchMedia("(min-width: 1024px) and (orientation: landscape)").matches) setView("grid");
     const s = p.get("s");
     if (s) {
       const talk = data.talks.find((x) => x.id === s);
@@ -127,7 +127,7 @@ export default function AgendaBoard({ lang, t, adminHref, fixedView }: { lang: s
   };
 
   return (
-    <div className={`mx-auto px-4 pb-16 pt-6 sm:px-6 sm:pt-10 ${gridOn ? "max-w-[1720px]" : "max-w-[1180px]"}`}>
+    <div className={`mx-auto px-4 pb-16 pt-6 sm:px-6 sm:pt-10 ${gridOn ? "max-w-[max(1720px,84vw)]" : "max-w-[1180px] min-[112.5rem]:max-w-[84vw]"}`}>
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
         <div>
           <h1 className="text-[2rem] font-semibold leading-tight tracking-[-0.025em] sm:text-[2.5rem]">{t.title}</h1>
@@ -250,7 +250,7 @@ export default function AgendaBoard({ lang, t, adminHref, fixedView }: { lang: s
                     <p className="text-[19px] font-semibold tabular-nums tracking-[-0.01em]">{x0.start}</p>
                     <p className="text-[13px] tabular-nums text-muted md:mt-0.5">{x0.end}</p>
                   </div>
-                  <div className={`grid gap-3 ${talks.length > 1 ? "lg:grid-cols-2" : ""}`}>
+                  <div className={`grid gap-3 ${talks.length > 1 ? "lg:grid-cols-2" : ""} min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(26rem,1fr))]`}>
                     {talks.map((x) => (
                       <SessionCard key={x.id} talk={x} speakers={speakersOf(x)} fav={favs.has(x.id)} onFav={() => toggleFav(x.id)} onOpen={() => setOpenId(x.id)} t={t} />
                     ))}
