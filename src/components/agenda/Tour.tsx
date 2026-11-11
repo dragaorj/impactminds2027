@@ -47,7 +47,7 @@ const GAP = 16; // between the lit control and the card
 type Pos = { top: number; left: number; w: number; side: "below" | "above" | "none"; ax: number };
 
 // The same time for every step (the welcome, quicker).
-const duration = (first: boolean) => (first ? 2 : 3.6);
+const duration = (first: boolean) => (first ? 1.6 : 3);
 
 // The steps in the order they appear on screen, top to bottom, left to
 // right (as the page reads), on any screen size: the welcome first, the
