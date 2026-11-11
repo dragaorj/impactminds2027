@@ -29,7 +29,7 @@ const FAVS_KEY = "im-agenda-favs";
 // session", "Edit" on every session, and sessions drag to another time or
 // room in the grid. Day, view and open session live in the address.
 export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T; fixedView?: AgendaView }) {
-  const { data, editing, signedIn, moveTalk } = useAgenda();
+  const { data, editing, signedIn, profile, moveTalk } = useAgenda();
   const days = data.days.length ? data.days : [...new Set(data.talks.map((x) => x.day))].map((i) => ({ index: i, date: "", weekday: "" }));
   const [day, setDay] = useState(days[0]?.index ?? 0);
   const [favMode, setFavMode] = useState(false);
@@ -277,11 +277,28 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
         </div>
       </div>
       <Tour
-        page="agenda"
-        enabled={!signedIn}
+        // Viewing and editing each have their own first-visit tour.
+        page={signedIn ? "agenda-edit" : "agenda"}
+        enabled
         t={t.tour}
         steps={[
           t.tour.welcome,
+          ...(signedIn
+            ? [
+                { target: "gear", ...t.tour.gear },
+                { target: "menu-new", ...t.tour.menuNew },
+                { target: "menu-manage", ...t.tour.menuManage },
+                { target: "menu-share", ...t.tour.menuShare },
+                { target: "menu-csv", ...t.tour.menuCsv },
+                { target: "menu-backup", ...t.tour.menuBackup },
+                ...(profile?.role === "master"
+                  ? [
+                      { target: "menu-team", ...t.tour.menuTeam },
+                      { target: "menu-wipe", ...t.tour.menuWipe },
+                    ]
+                  : []),
+              ]
+            : []),
           { target: "notice", ...t.tour.notice },
           { target: "days", ...t.tour.days },
           { target: "favs", ...t.tour.favs },
@@ -293,7 +310,8 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
           { target: "favstar", ...t.tour.favStar },
           { target: "tab-speakers", ...t.tour.tabs },
           { target: "lang", ...t.tour.lang },
-          { target: "howto", ...t.tour.end },
+          { target: "howto", ...t.tour.help },
+          t.tour.bye,
         ]}
       />
       {signedIn && gridOn && <p className="mt-3 text-[13px] text-muted">{t.dragHint}</p>}

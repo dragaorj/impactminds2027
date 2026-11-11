@@ -26,7 +26,12 @@ export default function EditMenu({ t, lang, tab }: { t: T; lang: string; tab: "a
   const list = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!menu) return;
-    const close = (e: PointerEvent) => !box.current?.contains(e.target as Node) && setMenu(false);
+    // A click outside closes it, except on the guided tour (which opens it to
+    // show each option).
+    const close = (e: PointerEvent) => {
+      const t = e.target as Element;
+      if (!box.current?.contains(t) && !t.closest?.("[data-tour-open]")) setMenu(false);
+    };
     const esc = (e: KeyboardEvent) => e.key === "Escape" && setMenu(false);
     window.addEventListener("pointerdown", close);
     window.addEventListener("keydown", esc);
@@ -40,6 +45,12 @@ export default function EditMenu({ t, lang, tab }: { t: T; lang: string; tab: "a
       window.removeEventListener("keydown", esc);
     };
   }, [menu]);
+  // The guided tour opens it (and closes it after) to show each option.
+  useEffect(() => {
+    const set = (e: Event) => setMenu(!!(e as CustomEvent<boolean>).detail);
+    window.addEventListener("im:editmenu", set);
+    return () => window.removeEventListener("im:editmenu", set);
+  }, []);
   if (!signedIn || !profile) return null;
   const master = profile.role === "master";
   const name = `${profile.first ?? ""} ${profile.last ?? ""}`.trim();
@@ -87,6 +98,7 @@ export default function EditMenu({ t, lang, tab }: { t: T; lang: string; tab: "a
         onClick={() => setMenu((v) => !v)}
         aria-expanded={menu}
         aria-haspopup="menu"
+        data-tour="gear"
         aria-label={t.tools}
         title={t.tools}
         className={`relative grid size-9 place-items-center rounded-full transition-[background-color,color,transform] duration-200 active:scale-95 sm:size-10 ${menu ? "bg-brand text-brand-ink" : "bg-[rgb(118_118_128/0.12)] text-ink hover:bg-[rgb(118_118_128/0.18)]"}`}
@@ -113,38 +125,38 @@ export default function EditMenu({ t, lang, tab }: { t: T; lang: string; tab: "a
           </div>
           <div className={`border-t border-line pt-1.5 ${editing ? "" : "pointer-events-none opacity-50"}`} aria-busy={!editing}>
             {tab === "agenda" ? (
-              <MenuItem strong icon={<Plus size={18} weight="bold" />} onClick={go(() => ask("newTalk"))}>
+              <MenuItem tour="menu-new" strong icon={<Plus size={18} weight="bold" />} onClick={go(() => ask("newTalk"))}>
                 {t.newSession}
               </MenuItem>
             ) : (
               <>
-                <MenuItem strong icon={<Plus size={18} weight="bold" />} onClick={go(() => ask("newSpeaker"))}>
+                <MenuItem tour="menu-new-speaker" strong icon={<Plus size={18} weight="bold" />} onClick={go(() => ask("newSpeaker"))}>
                   {t.newSpeaker}
                 </MenuItem>
-                <MenuItem icon={<Star size={18} weight="fill" className="text-[#c9a24d]" />} onClick={go(() => ask("order"))}>
+                <MenuItem tour="menu-order" icon={<Star size={18} weight="fill" className="text-[#c9a24d]" />} onClick={go(() => ask("order"))}>
                   {t.orderFeatured}
                 </MenuItem>
               </>
             )}
-            <MenuItem icon={<Wrench size={18} />} onClick={go(() => setSheet("manage"))}>
+            <MenuItem tour="menu-manage" icon={<Wrench size={18} />} onClick={go(() => setSheet("manage"))}>
               {t.manage}
             </MenuItem>
-            <MenuItem icon={<ShareNetwork size={18} />} onClick={go(() => setSheet("share"))}>
+            <MenuItem tour="menu-share" icon={<ShareNetwork size={18} />} onClick={go(() => setSheet("share"))}>
               {t.share}
             </MenuItem>
-            <MenuItem icon={<DownloadSimple size={18} />} onClick={go(exportCsv)}>
+            <MenuItem tour="menu-csv" icon={<DownloadSimple size={18} />} onClick={go(exportCsv)}>
               {t.exportCsv}
             </MenuItem>
-            <MenuItem icon={<FloppyDisk size={18} />} onClick={go(() => setSheet("backup"))}>
+            <MenuItem tour="menu-backup" icon={<FloppyDisk size={18} />} onClick={go(() => setSheet("backup"))}>
               {t.backup}
             </MenuItem>
             {master && (
               <>
-                <MenuItem icon={<UsersThree size={18} />} onClick={go(() => setSheet("team"))}>
+                <MenuItem tour="menu-team" icon={<UsersThree size={18} />} onClick={go(() => setSheet("team"))}>
                   {t.advanced}
                 </MenuItem>
                 <div className="my-1.5 border-t border-line" />
-                <MenuItem danger icon={<Trash size={18} />} onClick={go(() => setSheet("wipe"))}>
+                <MenuItem tour="menu-wipe" danger icon={<Trash size={18} />} onClick={go(() => setSheet("wipe"))}>
                   {t.wipe}
                 </MenuItem>
               </>
@@ -161,11 +173,12 @@ export default function EditMenu({ t, lang, tab }: { t: T; lang: string; tab: "a
   );
 }
 
-function MenuItem({ icon, danger = false, strong = false, onClick, children }: { icon: React.ReactNode; danger?: boolean; strong?: boolean; onClick: () => void; children: React.ReactNode }) {
+function MenuItem({ icon, danger = false, strong = false, tour, onClick, children }: { icon: React.ReactNode; danger?: boolean; strong?: boolean; tour?: string; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
       type="button"
       role="menuitem"
+      data-tour={tour}
       onClick={onClick}
       className={`flex w-full items-center gap-3 rounded-[12px] px-3 py-2.5 text-left text-[15px] transition-colors ${danger ? "text-[#b42318] hover:bg-[#fdecec]" : strong ? "font-semibold text-brand hover:bg-brand-soft" : "text-ink hover:bg-[rgb(118_118_128/0.1)]"}`}
     >

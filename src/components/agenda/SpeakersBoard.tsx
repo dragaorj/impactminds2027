@@ -23,7 +23,7 @@ type T = Dict["agendaApp"];
 // zoom, bio, LinkedIn, sessions); ?s=<id> opens one directly. Signed in:
 // "New speaker", "Order featured" and "Edit" on every speaker.
 export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang: string; t: T; agendaHref: string; fixedView?: SpeakersView }) {
-  const { data, editing, signedIn } = useAgenda();
+  const { data, editing, signedIn, profile } = useAgenda();
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null | undefined>(undefined);
@@ -143,18 +143,37 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
       </div>
 
       <Tour
-        page="speakers"
-        enabled={!signedIn}
+        // Viewing and editing each have their own first-visit tour.
+        page={signedIn ? "speakers-edit" : "speakers"}
+        enabled
         t={t.tour}
         steps={[
           t.tour.spkWelcome,
+          ...(signedIn
+            ? [
+                { target: "gear", ...t.tour.gear },
+                { target: "menu-new-speaker", ...t.tour.menuNewSpeaker },
+                { target: "menu-order", ...t.tour.menuOrder },
+                { target: "menu-manage", ...t.tour.menuManage },
+                { target: "menu-share", ...t.tour.menuShare },
+                { target: "menu-csv", ...t.tour.menuCsv },
+                { target: "menu-backup", ...t.tour.menuBackup },
+                ...(profile?.role === "master"
+                  ? [
+                      { target: "menu-team", ...t.tour.menuTeam },
+                      { target: "menu-wipe", ...t.tour.menuWipe },
+                    ]
+                  : []),
+              ]
+            : []),
           { target: "search", ...t.tour.spkSearch },
           { target: "group", ...t.tour.group },
           { target: "view", ...t.tour.spkView },
           { target: "speaker", ...t.tour.spkContent },
           { target: "tab-agenda", ...t.tour.spkTabs },
           { target: "lang", ...t.tour.lang },
-          { target: "howto", ...t.tour.end },
+          { target: "howto", ...t.tour.help },
+          t.tour.bye,
         ]}
       />
 

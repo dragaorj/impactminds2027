@@ -3,20 +3,21 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
-import { ArrowLeft, ArrowRight, Pause, Play, Question, X } from "@phosphor-icons/react";
+import { CaretLeft, CaretRight, Pause, Play, Question, X } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 
 type TourT = Dict["agendaApp"]["tour"];
 export type TourStep = { target?: string; title: string; text: string };
 
 // A guided tour of the page. It plays by itself: the page dims, one control
-// at a time is lit (a soft cut-out gliding from one to the next) and a card,
-// always in the same place at the bottom of the screen, says what it does;
+// at a time is lit (a soft cut-out gliding from one to the next) and a card
+// beside it, gliding along with a small arrow pointing at it, says what it does;
 // a thin bar shows the time left on each step. Next / Back / Pause / Skip,
 // Esc and the arrow keys; pointing at the card pauses it.
-// First visit, viewing only (not signed in, not embedded): it starts on its
-// own. Seen once per page and device (kept in this browser); the "?" beside
-// the search plays it again.
+// First visit (viewing, and again the first time signed in to edit; never
+// embedded in another site): it starts on its own. Seen once per page, mode
+// and device (kept in this browser); the "?" beside the search plays it
+// again.
 
 const KEY = "im-agenda-tour-v1:";
 const EVENT = "im:agenda-tour";
@@ -34,22 +35,48 @@ function findTarget(name?: string): HTMLElement | null {
   return null;
 }
 
-// The card's usual place ("home"): at the bottom on phones, from the middle
-// of the screen down on wider ones. Its top edge there:
-const homeTop = (cardH: number) => (window.innerWidth < 640 ? window.innerHeight - cardH - 12 : window.innerHeight / 2);
 // A control that stays put when the page scrolls (the phone tab bar).
 function isFixed(el: HTMLElement) {
   for (let e: HTMLElement | null = el; e; e = e.parentElement) if (getComputedStyle(e).position === "fixed") return true;
   return false;
 }
-const atEnd = () => Math.ceil(window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight - 2;
-// Where the card goes: home; just above a control fixed low on the screen
-// (the tab bar); or at the top when the control is low and the page cannot
-// scroll it any higher.
-type Place = { mode: "home" } | { mode: "above"; bottom: number } | { mode: "top" };
+const GAP = 16; // between the lit control and the card
+// The card follows the lit control: under it, or over it when there is more
+// room there; always whole on the screen and never over the control; a small
+// arrow points at the control. Steps without a control: in the middle.
+type Pos = { top: number; left: number; w: number; side: "below" | "above" | "none"; ax: number };
 
-// Reading time: longer texts stay longer.
-const duration = (s: TourStep) => Math.min(5.5, Math.max(2.8, (s.title.length + s.text.length) / 26));
+// The same time for every step (the welcome, quicker).
+const duration = (first: boolean) => (first ? 2 : 3.6);
+
+// The steps in the order they appear on screen, top to bottom, left to
+// right (as the page reads), on any screen size: the welcome first, the
+// closing step last. The top bar comes first in its own order (the editors'
+// menu and each of its options, then the languages, then the tabs); a
+// control fixed at the bottom of a phone (the tab bar) comes last.
+function inOrder(steps: TourStep[]): TourStep[] {
+  const vh = window.innerHeight;
+  const gear = findTarget("gear");
+  const first = steps[0];
+  const end = steps[steps.length - 1];
+  const middle = steps
+    .slice(1, -1)
+    .map((s, index) => {
+      const menu = !!s.target?.startsWith("menu-");
+      const el = menu ? gear : findTarget(s.target);
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      const top = !!el.closest("header");
+      const y = top ? -1 : isFixed(el) && r.top > vh / 2 ? 1e9 : r.top + window.scrollY;
+      // The top bar: the editors' menu, then the languages, then the tabs.
+      const rank = menu || s.target === "gear" ? 0 : s.target === "lang" ? 1 : 2;
+      return { s, y, x: top ? rank : r.left, index };
+    })
+    .filter((x): x is { s: TourStep; y: number; x: number; index: number } => !!x)
+    .sort((a, b) => (Math.abs(a.y - b.y) > 20 ? a.y - b.y : a.x - b.x || a.index - b.index))
+    .map((x) => x.s);
+  return [first, ...middle, end].filter((x, k, all) => all.indexOf(x) === k);
+}
 
 type Box = { x: number; y: number; w: number; h: number; r: number } | null;
 
@@ -57,13 +84,24 @@ export default function Tour({ page, steps, t, enabled }: { page: string; steps:
   const [i, setI] = useState(-1);
   const [box, setBox] = useState<Box>(null);
   const [paused, setPaused] = useState(false);
-  const [place, setPlace] = useState<Place>({ mode: "home" });
+  const [pos, setPos] = useState<Pos | null>(null);
   const [hover, setHover] = useState(false);
   const card = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLSpanElement>(null);
   const timer = useRef<gsap.core.Tween | null>(null);
-  const live = steps.filter((s) => !s.target || typeof document === "undefined" || findTarget(s.target));
-  const step = i >= 0 ? live[i] : null;
+  const [live, setLive] = useState<TourStep[]>([]);
+  const step = i >= 0 ? (live[i] ?? null) : null;
+  const opened = useRef(false); // the tour opened the editors' menu
+  // The steps as the page gives them now (a new list on each render).
+  const stepsRef = useRef(steps);
+  useEffect(() => {
+    stepsRef.current = steps;
+  });
+  const start = useCallback(() => {
+    setLive(inOrder(stepsRef.current));
+    setPaused(false);
+    setI(0);
+  }, []);
   const last = i === live.length - 1;
 
   const finish = useCallback(() => {
@@ -74,8 +112,8 @@ export default function Tour({ page, steps, t, enabled }: { page: string; steps:
   }, [page]);
   const next = useCallback(() => setI((n) => (n + 1 < live.length ? n + 1 : (finish(), -1))), [live.length, finish]);
 
-  // First visit: starts after the page settles. Never when signed in or
-  // embedded in another site.
+  // First visit: starts after the page settles. Never when embedded in
+  // another site.
   useEffect(() => {
     if (!enabled || document.documentElement.hasAttribute("data-embed")) return;
     let seen: string | null = "1";
@@ -83,69 +121,92 @@ export default function Tour({ page, steps, t, enabled }: { page: string; steps:
       seen = localStorage.getItem(KEY + page);
     } catch {}
     if (seen) return;
-    const id = window.setTimeout(() => setI(0), 900);
+    const id = window.setTimeout(start, 900);
     return () => window.clearTimeout(id);
-  }, [enabled, page]);
+  }, [enabled, page, start]);
 
   // The "?" plays it again, from the start.
   useEffect(() => {
-    const again = () => {
-      setPaused(false);
-      setI(0);
-    };
-    window.addEventListener(EVENT, again);
-    return () => window.removeEventListener(EVENT, again);
-  }, []);
+    window.addEventListener(EVENT, start);
+    return () => window.removeEventListener(EVENT, start);
+  }, [start]);
 
-  // The light: on the step's control, never under the card. The page
-  // scrolls, gently, only when the control is not already in the free part
-  // (between the top bar and the card); the card moves only when it would
-  // otherwise cover the control.
+  // The editors' menu: opened for its options, closed again after them (and
+  // when the tour ends).
+  useEffect(() => {
+    const inMenu = !!step?.target?.startsWith("menu-");
+    if (inMenu !== opened.current) {
+      opened.current = inMenu;
+      window.dispatchEvent(new CustomEvent("im:editmenu", { detail: inMenu }));
+    }
+  }, [step]);
+
+  // The light on the step's control, and the card beside it.
   const measure = useCallback(() => {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const W = Math.min(380, vw - 24);
+    const cardH = card.current?.offsetHeight ?? 200;
     const el = findTarget(step?.target);
     if (!el) {
-      setPlace({ mode: "home" });
-      return setBox(null);
+      setBox(null);
+      setPos({ top: Math.max(12, (vh - cardH) / 2), left: (vw - W) / 2, w: W, side: "none", ax: 0 });
+      return;
     }
     const r = el.getBoundingClientRect();
-    const vh = window.innerHeight;
-    const cardH = card.current?.offsetHeight ?? 220;
-    const home = homeTop(cardH);
-    let p: Place = { mode: "home" };
-    let top = Math.max(8, r.top - PAD);
-    let bottom = Math.min(vh - 8, r.bottom + PAD);
-    if (isFixed(el) && r.top > vh / 2) p = { mode: "above", bottom: vh - r.top + PAD + 28 };
-    else if (r.bottom + PAD > home - 12 && r.top > vh * 0.35 && atEnd()) {
-      p = { mode: "top" };
-      top = Math.max(top, (window.innerWidth < 640 ? 12 : 24) + cardH + 12);
-    } else bottom = Math.min(bottom, home - 12);
-    setPlace((old) => (old.mode === p.mode && (p.mode !== "above" || (old.mode === "above" && old.bottom === p.bottom)) ? old : p));
+    const top = Math.max(8, r.top - PAD);
+    const bottom = Math.min(vh - 8, r.bottom + PAD);
     const h = Math.max(0, bottom - top);
     const radius = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 14;
-    setBox({ x: Math.max(4, r.left - PAD), y: top, w: Math.min(window.innerWidth - 8, r.width + PAD * 2), h, r: Math.min(radius + PAD, h / 2) });
+    const x = Math.max(4, r.left - PAD);
+    const w = Math.min(vw - 8, r.width + PAD * 2);
+    setBox({ x, y: top, w, h, r: Math.min(radius + PAD, h / 2) });
+    // Under or over: where it fits, the side with more room first.
+    const spaceBelow = vh - 12 - (bottom + GAP);
+    const spaceAbove = top - GAP - 12;
+    const below = spaceBelow >= cardH && (spaceBelow >= spaceAbove || spaceAbove < cardH);
+    const above = !below && spaceAbove >= cardH;
+    const side: Pos["side"] = below ? "below" : above ? "above" : spaceBelow >= spaceAbove ? "below" : "above";
+    const y = side === "below" ? Math.min(bottom + GAP, vh - 12 - cardH) : Math.max(12, top - GAP - cardH);
+    const cx = x + w / 2;
+    const left = Math.max(12, Math.min(cx - W / 2, vw - W - 12));
+    setPos({ top: y, left, w: W, side, ax: Math.max(24, Math.min(cx - left, W - 24)) });
   }, [step]);
   useLayoutEffect(() => {
     if (!step) return;
     const el = findTarget(step.target);
     if (el && !isFixed(el)) {
+      // Scrolls (gently) only when the control and the card cannot both be
+      // seen: the control then goes near the top, the card under it.
       const r = el.getBoundingClientRect();
-      const free = homeTop(card.current?.offsetHeight ?? 220) - 16;
-      const room = free - TOP;
-      if (r.top < TOP || r.bottom > free) {
-        // Fits: in the middle of the free part. Bigger: its start at the top.
-        const to = r.height > room ? r.top - TOP : r.top - TOP - (room - r.height) / 2;
-        window.scrollBy({ top: to, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      const vh = window.innerHeight;
+      const need = (card.current?.offsetHeight ?? 200) + GAP + 12;
+      const visible = r.top >= TOP && r.bottom <= vh - 12;
+      const room = Math.max(r.top - TOP, vh - r.bottom);
+      if (!visible || room < need) {
+        window.scrollBy({ top: r.top - TOP - 8, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
       }
     }
     measure();
     const id = requestAnimationFrame(measure);
+    const later = [window.setTimeout(measure, 120), window.setTimeout(measure, 380)];
     window.addEventListener("resize", measure);
     window.addEventListener("scroll", measure, true);
     return () => {
       cancelAnimationFrame(id);
+      later.forEach((x) => window.clearTimeout(x));
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", measure, true);
     };
+  }, [step, measure]);
+
+  // The card's own height changes with its text: placed again.
+  useLayoutEffect(() => {
+    const el = card.current;
+    if (!el || !step) return;
+    const ro = new ResizeObserver(() => measure());
+    ro.observe(el);
+    return () => ro.disconnect();
   }, [step, measure]);
 
   // The card's text changes softly at each step (the card itself stays).
@@ -160,7 +221,7 @@ export default function Tour({ page, steps, t, enabled }: { page: string; steps:
   // next one. Paused by the button or while the pointer is on the card.
   useEffect(() => {
     if (!step || !bar.current) return;
-    const tw = gsap.fromTo(bar.current, { scaleX: 0 }, { scaleX: 1, duration: duration(step), ease: "none", onComplete: next });
+    const tw = gsap.fromTo(bar.current, { scaleX: 0 }, { scaleX: 1, duration: duration(i === 0), ease: "none", onComplete: next });
     timer.current = tw;
     return () => {
       tw.kill();
@@ -205,24 +266,23 @@ export default function Tour({ page, steps, t, enabled }: { page: string; steps:
           }
         />
 
-        {/* The card: always in the same place for every step: at the bottom
-            on phones (under the thumb), from the middle of the screen down on
-            wider ones; the lit control always stays above it. */}
+        {/* The card, beside the lit control; it glides from one to the next. */}
         <div
-          className={`absolute inset-x-0 flex justify-center px-3 sm:px-4 ${
-            place.mode === "home"
-              ? "bottom-0 pb-[calc(12px+env(safe-area-inset-bottom))] sm:top-1/2 sm:bottom-auto sm:pb-0"
-              : place.mode === "top"
-                ? "top-0 pt-3 sm:pt-6"
-                : ""
-          }`}
-          style={place.mode === "above" ? { bottom: place.bottom } : undefined}
+          className="absolute transition-[top,left] duration-[520ms] ease-[cubic-bezier(0.32,0.72,0,1)]"
+          style={pos ? { top: pos.top, left: pos.left, width: pos.w } : { top: 0, left: 0, width: 360, visibility: "hidden" }}
         >
+          {pos && pos.side !== "none" && (
+            <span
+              aria-hidden
+              className={`absolute z-10 size-3.5 rotate-45 rounded-[3px] bg-surface transition-[left] duration-[520ms] ease-[cubic-bezier(0.32,0.72,0,1)] ${pos.side === "below" ? "-top-[6px]" : "-bottom-[6px]"}`}
+              style={{ left: pos.ax - 7 }}
+            />
+          )}
           <div
             ref={card}
             onPointerEnter={() => setHover(true)}
             onPointerLeave={() => setHover(false)}
-            className="relative w-full max-w-[440px] overflow-hidden rounded-[22px] bg-surface text-ink shadow-[0_30px_80px_-24px_rgb(0_0_0/0.55)] ring-1 ring-line"
+            className="relative w-full overflow-hidden rounded-[20px] bg-surface text-ink shadow-[0_30px_80px_-24px_rgb(0_0_0/0.55)] ring-1 ring-line"
           >
             {/* Time left on this step */}
             <span aria-hidden className="absolute inset-x-0 top-0 h-[3px] bg-[rgb(118_118_128/0.15)]">
@@ -255,31 +315,33 @@ export default function Tour({ page, steps, t, enabled }: { page: string; steps:
               <p data-step-text className="mt-1 min-h-[3em] text-[15px] leading-relaxed text-ink-2">
                 {step.text}
               </p>
-              <div className="mt-4 flex items-center gap-2">
-                {/* Progress dots */}
-                <div className="flex min-w-0 flex-1 items-center gap-1.5" aria-hidden>
-                  {live.map((_, k) => (
-                    <span key={k} className={`h-1.5 shrink-0 rounded-full transition-all duration-300 ${k === i ? "w-5 bg-brand" : k < i ? "w-1.5 bg-brand/40" : "w-1.5 bg-[rgb(118_118_128/0.3)]"}`} />
-                  ))}
-                </div>
+              {/* Progress dots: a line of their own, never under the buttons. */}
+              <div className="mt-4 flex flex-wrap items-center gap-1" aria-hidden>
+                {live.map((_, k) => (
+                  <span key={k} className={`h-1 shrink-0 rounded-full transition-all duration-300 ${k === i ? "w-4 bg-brand" : k < i ? "w-1 bg-brand/45" : "w-1 bg-[rgb(118_118_128/0.28)]"}`} />
+                ))}
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                {/* Back: quiet, white; Next: the one that stands out. */}
                 {i > 0 && (
                   <button
                     type="button"
                     onClick={() => setI(i - 1)}
                     aria-label={t.back}
                     title={t.back}
-                    className="grid size-10 shrink-0 place-items-center rounded-full text-ink-2 hover:bg-[rgb(118_118_128/0.1)] hover:text-ink"
+                    className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-surface pl-3 pr-4 text-[14px] font-medium text-ink-2 ring-1 ring-line shadow-[var(--shadow-card)] transition-[color,transform] hover:text-ink active:scale-[0.97]"
                   >
-                    <ArrowLeft size={17} />
+                    <CaretLeft size={15} weight="bold" aria-hidden /> {t.back}
                   </button>
                 )}
+                <span className="flex-1" />
                 <button
                   type="button"
                   onClick={next}
                   autoFocus
-                  className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-brand px-5 text-[14px] font-semibold text-brand-ink shadow-[0_8px_20px_-10px_rgb(91_42_134/0.7)] transition-transform active:scale-[0.97]"
+                  className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-brand pl-5 pr-4 text-[14px] font-semibold text-brand-ink shadow-[0_8px_20px_-10px_rgb(91_42_134/0.7)] transition-transform active:scale-[0.97]"
                 >
-                  {last ? t.done : t.next} {!last && <ArrowRight size={15} />}
+                  {last ? t.done : t.next} {!last && <CaretRight size={15} weight="bold" aria-hidden />}
                 </button>
               </div>
             </div>
