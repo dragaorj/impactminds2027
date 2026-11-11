@@ -17,10 +17,18 @@ export const links = {
   // Official 2026 agenda and speaker directory.
   agenda2026Page: "https://impactminds.app/",
   speakers2026Page: "https://impactminds.app/palestrantes",
-  // Sponsorship brochure for the 2027 edition (Portuguese).
-  sponsorBrochure: "/docs/impact-minds-2027-patrocinio.pdf",
-  // Full report of the 2026 edition (Portuguese).
-  report2026: "/docs/impact-minds-2026-relatorio.pdf",
+  // Sponsorship brochure for the 2027 edition, one per language.
+  sponsorBrochure: {
+    pt: "/docs/impact-minds-2027-patrocinio.pdf",
+    es: "https://drive.google.com/file/d/1bjCznSgOvUYNMZ9l-XhJLAFzA3B4RKcL/view",
+    en: "https://drive.google.com/file/d/1dp8CRHEZDfg0mTaBgdnkl8pHpocIvhEr/view",
+  },
+  // Full report of the 2026 edition (Manaus), one per language.
+  report2026: {
+    pt: "/docs/impact-minds-2026-relatorio.pdf",
+    es: "https://drive.google.com/file/d/1fs4vqVHgUib0Rl_3g44pJ9e3GCgt5PWd/view",
+    en: "https://drive.google.com/file/d/1fs4vqVHgUib0Rl_3g44pJ9e3GCgt5PWd/view",
+  },
   // TODO: full photo album (Flickr, Drive, etc.).
   allPhotos: "#fotos",
   albums: {
@@ -58,10 +66,22 @@ export const editionGalleries: string[][] = [
   [],
 ];
 
-// Full report per edition, same order (2026 first). null falls back to
-// public/docs/impact-minds-<year>-relatorio.pdf (lib/editions.ts); with no
-// file there the edition has no report button. A link here (e.g. Drive) wins.
-export const editionReports: (string | null)[] = [links.report2026, null, null, null, null];
+// Full report per edition and language, same order (2026 first). null falls
+// back to public/docs/impact-minds-<year>-relatorio.pdf (lib/editions.ts); with
+// no file there the edition has no report button. A link here (e.g. Drive)
+// wins. Medellín and Oaxaca have no Portuguese report: Portuguese gets the
+// Spanish one.
+export const editionReports: ({ pt: string; es: string; en: string } | null)[] = [
+  links.report2026,
+  // 2025 · Medellín
+  { pt: "https://drive.google.com/file/d/12TQaHFDBYCvsN3tZq8uwHL-wtlAGTxSH/view", es: "https://drive.google.com/file/d/12TQaHFDBYCvsN3tZq8uwHL-wtlAGTxSH/view", en: "https://drive.google.com/file/d/1hw5rZ7-ip1o_M031fE2V91mNFa1db3Fn/view" },
+  // 2024 · Oaxaca
+  { pt: "https://drive.google.com/file/d/1QkUi6aWA7XalMBIcnOmehUiKXINduvcu/view", es: "https://drive.google.com/file/d/1QkUi6aWA7XalMBIcnOmehUiKXINduvcu/view", en: "https://drive.google.com/file/d/1mkBlV9qQ6ms8rB9Z_VmYfpwz0H61aSg4/view" },
+  // 2023 · Rio de Janeiro
+  { pt: "https://drive.google.com/file/d/1qAgQro7Ogo3oKV9t10_I1eN3l3YZUCNy/view", es: "https://drive.google.com/file/d/15DXufkHBw75yEg8v07Qgpo9p8TQL2FeD/view", en: "https://drive.google.com/file/d/1Y-L8m9ZiQVrZfCyUM95Sxkk6PVujP_2n/view" },
+  // 2022 · Cartagena
+  null,
+];
 
 type Trilingual = { pt: string; es: string; en: string };
 // Photos are square portraits framed alike (eyes at 38%, chin at 63%), so the heads line up.
@@ -242,5 +262,5 @@ export const siteUrl = new URL(
   process.env.NEXT_PUBLIC_SITE_URL ||
     (process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "https://impactminds2027.vercel.app"),
+      : "https://www.impactmindsconference.com"),
 );

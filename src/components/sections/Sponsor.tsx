@@ -26,7 +26,7 @@ export default function Sponsor({ t, locale, lang }: { t: Dict["sponsor"]; local
           </H2>
           <p className="mt-5 max-w-[46ch] text-lg leading-relaxed text-ink-2">{t.text}</p>
           <div className="mt-9">
-            <Button href={readerHref(lang, links.sponsorBrochure)}>
+            <Button href={readerHref(lang, links.sponsorBrochure[lang])} external={links.sponsorBrochure[lang].startsWith("http")}>
               {t.cta}
             </Button>
           </div>

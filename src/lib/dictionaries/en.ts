@@ -364,6 +364,8 @@ const en: Dict = {
     dragHint: "Drag a session to change its time or room.",
     saving: "Saving…",
     advanced: "Team and logs",
+    myProfile: "My profile",
+    photoMasterOnly: "Only the master can change the team's photos.",
     platformBy: "Platform developed by",
     tour: {
       howTo: "How to use",

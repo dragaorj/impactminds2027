@@ -364,6 +364,8 @@ const es: Dict = {
     dragHint: "Arrastra una sesión para cambiar el horario o la sala.",
     saving: "Guardando…",
     advanced: "Equipo y registros",
+    myProfile: "Mi perfil",
+    photoMasterOnly: "Solo el master puede cambiar las fotos del equipo.",
     platformBy: "Plataforma desarrollada por",
     tour: {
       howTo: "Cómo usar",

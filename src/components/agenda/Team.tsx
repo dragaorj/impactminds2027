@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowClockwise, Camera, Copy, Eye, EyeSlash, Plus, ShieldCheck, Sparkle, Trash, UsersThree } from "@phosphor-icons/react";
+import { ArrowClockwise, Camera, Copy, Eye, EyeSlash, Plus, ShieldCheck, SignOut, Sparkle, Trash, UsersThree } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { useAgenda, type LogRow, type Member, type MemberDraft, type Online } from "./store";
 import { Avatar, Button, Field, Segmented, Sheet, card, fieldBox } from "./ui";
@@ -427,5 +427,137 @@ function LogsPanel({ t, lang }: { t: T; lang: string }) {
         </ol>
       )}
     </div>
+  );
+}
+
+// "My profile": who is signed in (photo, name, role) and Sign out. The master
+// changes their own photo here too (made light before it is uploaded); the
+// team's photos are the master's to change.
+export function ProfileSheet({ open, onClose, t }: { open: boolean; onClose: () => void; t: T }) {
+  const { profile, team, logout, editing } = useAgenda();
+  const [me, setMe] = useState<Member | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const input = useRef<HTMLInputElement>(null);
+  const master = profile?.role === "master";
+
+  // The master's own record (with the password the save keeps unchanged).
+  useEffect(() => {
+    if (!open || !master || !editing) return;
+    setErr("");
+    team
+      .list()
+      .then((l) => setMe(l.find((m) => m.id === profile?.id) ?? null))
+      .catch((e) => setErr(e instanceof Error ? e.message : String(e)));
+  }, [open, master, editing, team, profile?.id]);
+  useEffect(() => {
+    if (open) return;
+    setFile(null);
+    setPreview("");
+  }, [open]);
+  useEffect(() => () => void (preview && URL.revokeObjectURL(preview)), [preview]);
+
+  if (!profile) return null;
+  const name = `${profile.first ?? ""} ${profile.last ?? ""}`.trim();
+  const photo = preview || profile.photo || "";
+
+  const save = async () => {
+    if (!me || !file) return;
+    setBusy(true);
+    setErr("");
+    try {
+      await team.save({ id: me.id, first: me.first, last: me.last, email: me.email, phone: me.phone, photo: me.photo, token: me.token, role: me.role }, file);
+      setFile(null);
+      setPreview("");
+      onClose();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Sheet
+      open={open}
+      onClose={onClose}
+      label={t.myProfile}
+      closeLabel={t.close}
+      centered
+      footer={
+        <div className="flex items-center gap-2">
+          <Button
+            kind="quiet"
+            onClick={() => {
+              onClose();
+              logout();
+            }}
+          >
+            <SignOut size={17} /> {t.signOut}
+          </Button>
+          <span className="flex-1" />
+          {file ? (
+            <Button kind="primary" onClick={save} disabled={busy || !me}>
+              {busy ? t.saving : t.save}
+            </Button>
+          ) : (
+            <Button onClick={onClose}>{t.close}</Button>
+          )}
+        </div>
+      }
+    >
+      <div className="flex flex-col items-center px-5 pb-6 pt-2 text-center sm:px-7">
+        <h2 className="sr-only">{t.myProfile}</h2>
+        <button
+          type="button"
+          onClick={() => master && input.current?.click()}
+          disabled={!master}
+          aria-label={photo ? t.changePhoto : t.addPhoto}
+          className="group relative size-28 overflow-hidden rounded-full bg-brand-soft ring-1 ring-line transition-transform enabled:active:scale-[0.97]"
+        >
+          {photo ? (
+            <Image src={photo} alt="" fill sizes="112px" className="object-cover" unoptimized={!!preview} />
+          ) : (
+            <span className="grid size-full place-items-center">
+              <Avatar name={name || "?"} size={112} />
+            </span>
+          )}
+          {master && (
+            <span className="absolute inset-x-0 bottom-0 grid h-9 place-items-center bg-[rgb(29_20_38/0.55)] text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+              <Camera size={18} />
+            </span>
+          )}
+        </button>
+        <p className="mt-4 text-[20px] font-semibold tracking-tight">{name || "—"}</p>
+        <p className="mt-1 inline-flex items-center gap-1 text-[13px] font-semibold text-brand">
+          {master && <ShieldCheck size={14} weight="fill" />}
+          {master ? t.roleMaster : t.roleEditor}
+        </p>
+        {master ? (
+          <Button kind="quiet" className="mt-3" onClick={() => input.current?.click()}>
+            <Camera size={17} /> {photo ? t.changePhoto : t.addPhoto}
+          </Button>
+        ) : (
+          <p className="mt-3 text-[13px] text-muted">{t.photoMasterOnly}</p>
+        )}
+        <input
+          ref={input}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) {
+              setFile(f);
+              setPreview(URL.createObjectURL(f));
+            }
+            e.target.value = "";
+          }}
+        />
+        {err && <p className="mt-4 w-full rounded-[14px] bg-[#fdecec] px-4 py-3 text-sm text-[#b42318]">{err}</p>}
+      </div>
+    </Sheet>
   );
 }

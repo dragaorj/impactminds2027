@@ -159,19 +159,25 @@ export default function Editions({
           <div role="tablist" aria-label={t.choose} className="no-scrollbar mt-4 flex gap-2 overflow-x-auto pb-1">
             {t.list.map((e, i) => {
               const on = i === active;
+              // An edition without photos yet (2022, for now) shows, but
+              // cannot be picked; it turns on by itself once its photos are in.
+              const empty = !media[i]?.photos.length;
               return (
                 <button
                   key={e.year}
                   type="button"
                   role="tab"
                   aria-selected={on}
+                  disabled={empty}
+                  aria-disabled={empty}
+                  title={empty ? t.soon : undefined}
                   onClick={() => {
                     setActive(i);
                     setViewing(null);
                   }}
                   className={`group shrink-0 rounded-full px-5 py-3 text-left transition-[background-color,color,box-shadow] duration-300 ${
                     on ? "bg-brand text-brand-ink" : "btn-outline"
-                  }`}
+                  } disabled:pointer-events-none disabled:opacity-40`}
                 >
                   <span className="block font-display text-lg leading-none">{e.year}</span>
                   <span className={`mt-1 block text-xs ${on ? "text-brand-ink/80" : "text-muted group-hover:text-sun-ink/75 group-focus-visible:text-sun-ink/75"}`}>{e.city}</span>

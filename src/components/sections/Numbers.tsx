@@ -107,9 +107,11 @@ export default function Numbers({ t, locale, lang, show }: { t: Dict["numbers"];
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <WatchShow label={t.watch} />
-            {/* The full 2026 report (PDF, in Portuguese), in the site's reader. */}
+            {/* The full 2026 report in the visitor's language: the Portuguese PDF
+                in the site's reader, the others on Drive (a new tab). */}
             <a
-              href={readerHref(lang, links.report2026)}
+              href={readerHref(lang, links.report2026[lang])}
+              {...(links.report2026[lang].startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className="group inline-flex min-h-12 min-w-0 items-center gap-3 rounded-full py-1.5 pl-2 pr-5 text-left text-[0.9375rem] font-medium leading-snug btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-[0.98]"
             >
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-sun/15 text-gold transition-colors group-hover:bg-sun-ink/10 group-hover:text-sun-ink">

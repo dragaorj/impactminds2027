@@ -362,6 +362,8 @@ const pt = {
     dragHint: "Arraste uma sessão para mudar o horário ou a sala.",
     saving: "Salvando…",
     advanced: "Equipe e registros",
+    myProfile: "Meu perfil",
+    photoMasterOnly: "Só o master pode trocar fotos da equipe.",
     platformBy: "Plataforma desenvolvida pela",
     tour: {
       howTo: "Como usar",

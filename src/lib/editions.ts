@@ -26,7 +26,7 @@ export function editionMedia(years: string[], lang: Locale) {
           .map((f) => `/photos/editions/${year}/${f}`)
       : [];
     const pdf = `/docs/impact-minds-${year}-relatorio.pdf`;
-    const report = editionReports[i] ?? (fs.existsSync(path.join(PUBLIC, pdf)) ? pdf : null);
+    const report = editionReports[i]?.[lang] ?? (fs.existsSync(path.join(PUBLIC, pdf)) ? pdf : null);
     return {
       photos: editionGalleries[i]?.length ? editionGalleries[i] : found,
       // Our own PDFs open in the site's reader (same tab); outside links as they are.

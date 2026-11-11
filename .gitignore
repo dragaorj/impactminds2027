@@ -42,3 +42,7 @@ next-env.d.ts
 
 # Banco da agenda 2027: o script preenchido tem a senha do admin master (nunca no Git)
 supabase/agenda-2027.sql
+
+# Original photos waiting to be converted (npm run photos): never committed.
+/photos-inbox/
+/public/photos/editions/*/.converted

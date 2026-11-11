@@ -23,7 +23,7 @@ const googleSans = Google_Sans({
 });
 
 // Runs before first paint so theme and accessibility choices never flash.
-const prefsScript = `(function(){try{var d=document.documentElement;d.classList.add('js');try{if(sessionStorage.getItem('im-switch')!==null||document.prerendering)d.dataset.switch='1'}catch(e){}var m=window.matchMedia;var t=localStorage.getItem('im-theme');if(t!=='light')t='dark';d.dataset.theme=t;var a={};try{a=JSON.parse(localStorage.getItem('im-a11y')||'{}')}catch(e){}if(a.text)d.dataset.text=String(a.text);if(a.contrast)d.dataset.contrast='high';if(a.links)d.dataset.links='on';if(a.scrollbar)d.dataset.scrollbar='on';if(a.facts)d.dataset.facts='on';var n=navigator;if((n.hardwareConcurrency||8)<=4||(n.deviceMemory&&n.deviceMemory<=4))d.dataset.lite='1';if(a.motion||m('(prefers-reduced-motion: reduce)').matches)d.dataset.motion='reduce';}catch(e){}})();`;
+const prefsScript = `(function(){try{var d=document.documentElement;d.classList.add('js');try{if(sessionStorage.getItem('im-switch')!==null||document.prerendering)d.dataset.switch='1'}catch(e){}var m=window.matchMedia;var t=localStorage.getItem('im-theme');if(t!=='dark')t='light';d.dataset.theme=t;var a={};try{a=JSON.parse(localStorage.getItem('im-a11y')||'{}')}catch(e){}if(a.text)d.dataset.text=String(a.text);if(a.contrast)d.dataset.contrast='high';if(a.links)d.dataset.links='on';if(a.scrollbar)d.dataset.scrollbar='on';if(a.facts)d.dataset.facts='on';var n=navigator;if((n.hardwareConcurrency||8)<=4||(n.deviceMemory&&n.deviceMemory<=4))d.dataset.lite='1';if(a.motion||m('(prefers-reduced-motion: reduce)').matches)d.dataset.motion='reduce';}catch(e){}})();`;
 
 // A reload always starts at the hero: the browser's own scroll restoration is
 // off (and a #hash is dropped on reload), so only a language switch, which
@@ -32,6 +32,17 @@ const topScript = `(function(){try{if('scrollRestoration' in history)history.scr
 // A page prerendered for the language switch (Nav) only learns the scroll
 // position when it is shown (prerenderingchange).
 const restoreScript = `(function(){try{var y=sessionStorage.getItem('im-switch');if(y!==null)window.scrollTo({top:+y,behavior:'instant'});if(document.prerendering)document.addEventListener('prerenderingchange',function(){try{var v=sessionStorage.getItem('im-switch');sessionStorage.removeItem('im-switch');window.scrollTo({top:+v||0,behavior:'instant'})}catch(e){}},{once:true})}catch(e){}})();`;
+
+// The site's name, as search engines should show it.
+const SITE_NAME = "Impact Minds Conference";
+const siteJsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE_NAME,
+  alternateName: ["Impact Minds", "Impact Minds 2027"],
+  url: siteUrl.toString(),
+  publisher: { "@type": "Organization", name: "Latimpacto", url: "https://www.latimpacto.org" },
+});
 
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
@@ -48,13 +59,14 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
     alternates: {
       languages: { ...Object.fromEntries(locales.map((l) => [htmlLang[l], `/${l}`])), "x-default": "/en" },
     },
-    openGraph: { title: dict.meta.title, description: dict.meta.description, type: "website" },
+    applicationName: SITE_NAME,
+    openGraph: { title: dict.meta.title, description: dict.meta.description, type: "website", siteName: SITE_NAME },
     other: { google: "notranslate" },
   };
 }
 
 export const viewport: Viewport = {
-  themeColor: "#150b20",
+  themeColor: "#f3f1ee",
 };
 
 export default async function RootLayout({ children, params }: LayoutProps<"/[lang]">) {
@@ -67,12 +79,15 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
       // The site has its own languages: no browser translation prompt.
       translate="no"
       className={`${gloock.variable} ${googleSans.variable}`}
-      data-theme="dark"
+      data-theme="light"
       suppressHydrationWarning
     >
       <head>
         <InlineScript html={prefsScript} />
         <InlineScript html={topScript} />
+        {/* The site's name for search engines (Google shows it above each
+            result): Impact Minds Conference. */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: siteJsonLd }} />
       </head>
       <body className="min-h-[100dvh] overflow-x-clip">
         <PrefsSync lang={lang} />

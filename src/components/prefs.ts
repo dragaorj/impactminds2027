@@ -86,8 +86,9 @@ export function restorePrefs() {
   try {
     theme = localStorage.getItem("im-theme");
   } catch {}
-  // Dark is the site's default; light only when the visitor picked it.
-  if (theme !== "light") theme = "dark";
+  // Light is the site's default, on every device; dark only when the
+  // visitor picked it.
+  if (theme !== "dark") theme = "light";
   d.dataset.theme = theme;
   // Lite mode on modest hardware (also set before paint by the layout script).
   const n = navigator as Navigator & { deviceMemory?: number };
