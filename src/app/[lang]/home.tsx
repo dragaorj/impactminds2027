@@ -24,7 +24,6 @@ import OffscreenPause from "@/components/OffscreenPause";
 import Footer from "@/components/sections/Footer";
 import { privacyCopy, privacyPath } from "@/lib/privacy";
 import { getFeaturedSpeakers } from "@/lib/agenda";
-import { agendaPath } from "@/lib/nav";
 
 // The editorial hero's headline: a wide black sans played against an italic serif.
 const edSans = Archivo({
@@ -58,7 +57,7 @@ export default async function Home({ lang, hero = "editorial" }: { lang: Locale;
         <Hero variant={hero} t={t.hero} videoSrc={localVideo("header-3.mp4")} agendaLink={t.hero.agendaCta} speakerLabel={t.speakers.open} />
         <About t={t.about} videoSrc={localVideo("about.mp4")} />
         <Cartagena t={t.cartagena} />
-        <Agenda t={t.agenda} place={t.hero.eyebrow} dates={t.hero.dates} locale={locale} href={agendaPath(lang)} />
+        <Agenda t={t.agenda} place={t.hero.eyebrow} dates={t.hero.dates} locale={locale} />
         <Sponsor t={t.sponsor} locale={locale} lang={lang} />
         <Numbers
           t={t.numbers}

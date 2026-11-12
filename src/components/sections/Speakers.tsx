@@ -7,7 +7,6 @@ import type { Dict } from "@/lib/dictionaries/pt";
 import type { Locale } from "@/lib/i18n";
 import { links, speakers, type Speaker } from "@/lib/site";
 import { speakerBios } from "@/lib/speakerBios";
-import { agendaSpeakersPath } from "@/lib/nav";
 import Art from "../Art";
 import { H2, container, section } from "../ui";
 import { useDialogDismiss } from "../useDialogDismiss";
@@ -343,7 +342,9 @@ export default function Speakers({ t, lang, featured = [] }: { t: Dict["speakers
 
       <div className={`${container} mt-14`} data-reveal>
         <a
-          href={agendaSpeakersPath(lang)}
+          href="https://impactminds.app/palestrantes"
+          target="_blank"
+          rel="noopener noreferrer"
           className="group inline-flex h-12 items-center gap-3 rounded-full pl-6 pr-1.5 text-[0.9375rem] font-medium btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] active:scale-[0.98]"
         >
           {t.cta}
