@@ -43,7 +43,7 @@ export const mainNav = (lang: Locale, nav: Dict["nav"], onHome: boolean) => {
   const home = onHome ? "" : `/${lang}`;
   return [
     { href: `${home}#sobre`, label: nav.about },
-    { href: `${home}#cartagena`, label: nav.cartagena },
+    { href: `${home}#agenda-2027`, label: nav.agenda },
     { href: editionsPath(lang), label: nav.editions },
     { href: "#contato", label: nav.contact },
   ];
