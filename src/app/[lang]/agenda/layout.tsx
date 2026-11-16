@@ -16,14 +16,16 @@ export default async function AgendaLayout({ params, children }: LayoutProps<"/[
   return (
     <AgendaProvider initial={data ?? EMPTY} lang={lang}>
       <PlatformRootSize />
-      {/* Embedded in another site (?embed=1): only the content, no bars. Set
-          before the first paint, so the bars never flash. (Here, in the
-          layout, it runs once per visit: moving between pages never
-          renders it again.) */}
+      {/* Shared or embedded, set before the first paint (so nothing
+          flashes) and once per visit (moving between pages keeps it):
+          ?embed=1     only the page's content, no bars (in another site);
+          ?embed=tabs  the content and the Agenda / Speakers tabs only;
+          ?single=1    one page alone: no tabs, and no links into the other
+                       page (a speaker's sessions stay plain text). */}
       <script
         dangerouslySetInnerHTML={{
           __html:
-            "if(/[?&]embed=1/.test(location.search)){document.documentElement.setAttribute('data-embed','');var st=document.createElement('style');st.textContent='.platform-chrome{display:none!important}.platform-body{padding-bottom:0!important}';document.head.appendChild(st)}",
+            "(function(){var q=location.search,c='';if(/[?&]embed=1/.test(q)){document.documentElement.setAttribute('data-embed','');c+='.platform-chrome{display:none!important}.platform-body{padding-bottom:0!important}';}else if(/[?&]embed=tabs/.test(q)){document.documentElement.setAttribute('data-embed','');c+='.platform-top,.platform-foot,nav[data-tour=tabs]>:not([data-tour^=tab-]){display:none!important}';}if(/[?&]single=1/.test(q)){c+='[data-tour=tabs]{display:none!important}.platform-body{padding-bottom:0!important}[data-xlink]{pointer-events:none}';}if(c){var st=document.createElement('style');st.textContent=c;document.head.appendChild(st)}})()",
         }}
       />
       {children}

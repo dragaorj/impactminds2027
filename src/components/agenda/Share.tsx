@@ -9,6 +9,8 @@ import { Segmented, Sheet, fieldBox } from "./ui";
 
 type T = Dict["agendaApp"];
 type Screen = "agenda-list" | "agenda-grid" | "speakers-cards" | "speakers-list" | "speakers-photos";
+// What the link shows: both pages (with the tabs), or one page alone.
+type Scope = "both" | "agenda" | "speakers";
 
 const pathOf = (s: Screen, l: Locale) =>
   s === "agenda-list"
@@ -25,23 +27,36 @@ function currentScreen(): Screen {
   return /\/(grade|grilla|grid)$/.test(p) ? "agenda-grid" : "agenda-list";
 }
 
-// Share / embed (from the editors' gear menu): pick a screen of the
-// platform (the agenda as a list or a grid, the speakers as cards, a list or
-// photos) and a language; get its link and the code to embed it in another
-// site (the same link with ?embed=1: only the content, no bars).
+// Share / embed (from the editors' gear menu): pick what to show (the agenda
+// and the speakers with their tabs, the agenda alone or the speakers alone),
+// the screen it opens on and a language; get its link and the code to embed
+// it in another site.
+//   both:     link as is; embed ?embed=tabs (the content and the tabs only)
+//   one page: link ?single=1 (no tabs); embed ?embed=1&single=1 (no bars)
 export default function ShareSheet({ open, onClose, t, lang }: { open: boolean; onClose: () => void; t: T; lang: string }) {
   const [screen, setScreen] = useState<Screen>("agenda-list");
+  const [scope, setScope] = useState<Scope>("both");
   const [l, setL] = useState<Locale>(lang as Locale);
   const [done, setDone] = useState<"" | "link" | "code">("");
   useEffect(() => {
     if (!open) return;
     setScreen(currentScreen());
+    setScope("both");
     setL(lang as Locale);
     setDone("");
   }, [open, lang]);
 
-  const url = typeof window === "undefined" ? "" : `${location.origin}${pathOf(screen, l)}`;
-  const embed = url ? `<iframe src="${url}?embed=1" title="Impact Minds 2027" width="100%" height="900" style="border:0;border-radius:16px" loading="lazy"></iframe>` : "";
+  const base = typeof window === "undefined" ? "" : `${location.origin}${pathOf(screen, l)}`;
+  const url = base && scope !== "both" ? `${base}?single=1` : base;
+  const src = base && (scope === "both" ? `${base}?embed=tabs` : `${base}?embed=1&single=1`);
+  const embed = base ? `<iframe src="${src}" title="Impact Minds 2027" width="100%" height="900" style="border:0;border-radius:16px" loading="lazy"></iframe>` : "";
+  // One page alone: its own screens only (the screen moves over when needed).
+  const pick = (v: Scope) => {
+    setScope(v);
+    setDone("");
+    if (v === "agenda" && screen.startsWith("speakers")) setScreen("agenda-list");
+    if (v === "speakers" && screen.startsWith("agenda")) setScreen("speakers-cards");
+  };
   const copy = async (text: string, which: "link" | "code") => {
     try {
       await navigator.clipboard.writeText(text);
@@ -62,11 +77,28 @@ export default function ShareSheet({ open, onClose, t, lang }: { open: boolean; 
       <h2 className="text-2xl font-semibold tracking-tight">{t.share}</h2>
       <p className="mt-1.5 text-[15px] leading-relaxed text-ink-2">{t.shareLead}</p>
 
-      {/* Which screen */}
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        {[t.title, t.speakers].map((g) => (
+      {/* What to show */}
+      <div className="mt-5">
+        <span className="mb-1.5 block text-[13px] font-medium text-ink-2">{t.shareScope}</span>
+        <Segmented
+          label={t.shareScope}
+          value={scope}
+          onChange={pick}
+          className="w-full"
+          options={[
+            { value: "both", label: t.scopeBoth },
+            { value: "agenda", label: t.scopeAgenda },
+            { value: "speakers", label: t.scopeSpeakers },
+          ]}
+        />
+      </div>
+
+      {/* Which screen it opens on */}
+      <span className="mb-1.5 mt-4 block text-[13px] font-medium text-ink-2">{t.screen}</span>
+      <div className={`grid gap-4 ${scope === "both" ? "sm:grid-cols-2" : ""}`}>
+        {(scope === "both" ? [t.title, t.speakers] : [scope === "agenda" ? t.title : t.speakers]).map((g) => (
           <div key={g}>
-            <span className="mb-1.5 block text-[13px] font-medium text-ink-2">{g}</span>
+            <span className="mb-1.5 block text-[12px] text-muted">{g}</span>
             <div className="flex flex-wrap gap-1.5">
               {screens
                 .filter((s) => s.group === g)

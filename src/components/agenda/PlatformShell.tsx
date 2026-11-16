@@ -41,7 +41,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
   return (
     <div className="platform min-h-[100dvh] font-sans">
       <header style={glass} className="platform-chrome sticky top-0 z-40 border-b border-line bg-[rgb(232_230_238/0.97)] backdrop-blur-xl backdrop-saturate-[1.8]">
-        <div className={`${wrap} flex h-14 items-center gap-3 sm:h-16`}>
+        <div className={`${wrap} platform-top flex h-14 items-center gap-3 sm:h-16`}>
           <a href={`/${lang}`} aria-label={t.backToSite} className="flex min-w-0 shrink items-center gap-2.5 text-ink sm:gap-3">
             <svg viewBox={LOGO_VIEWBOX} className="h-[17px] w-auto shrink-0 text-brand sm:h-[18px]" aria-hidden>
               {LOGO_PATHS.map((d, i) => (
@@ -137,7 +137,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
 
       <div className="platform-body pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
         {children}
-        <footer className="platform-chrome border-t border-line px-4 py-6 text-center text-[13px] text-muted">
+        <footer className="platform-chrome platform-foot border-t border-line px-4 py-6 text-center text-[13px] text-muted">
           {t.platformBy}{" "}
           <a href="https://fyw.com.br/" target="_blank" rel="noopener noreferrer" className="font-semibold text-ink-2 transition-colors hover:text-brand">
             Fyw

@@ -101,7 +101,7 @@ export default function SpeakerDetail({
               const d = data.days.find((y) => y.index === x.day);
               return (
                 <li key={x.id}>
-                  <a href={`${agendaHref}?dia=${x.day}&s=${encodeURIComponent(x.id)}`} className="block rounded-[18px] bg-[rgb(118_118_128/0.07)] p-4 transition-colors hover:bg-[rgb(118_118_128/0.12)]">
+                  <a href={`${agendaHref}?dia=${x.day}&s=${encodeURIComponent(x.id)}`} data-xlink className="block rounded-[18px] bg-[rgb(118_118_128/0.07)] p-4 transition-colors hover:bg-[rgb(118_118_128/0.12)]">
                     <span className="block text-[15px] font-medium leading-snug text-ink">{x.title}</span>
                     <span className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-muted">
                       <span className="inline-flex items-center gap-1">
