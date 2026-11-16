@@ -10,8 +10,13 @@ export default function LangLink({ lang, ...rest }: React.AnchorHTMLAttributes<H
       {...rest}
       lang={lang}
       hrefLang={lang}
-      onClick={() => {
+      onClick={(e) => {
         document.cookie = `im-lang=${lang};path=/;max-age=31536000;samesite=lax`;
+        // A shared or embedded page stays so in the other language.
+        const now = new URLSearchParams(location.search);
+        const keep = new URLSearchParams();
+        for (const k of ["embed", "single"]) if (now.get(k)) keep.set(k, now.get(k)!);
+        if (keep.size) e.currentTarget.href = `${e.currentTarget.pathname}?${keep}`;
       }}
     />
   );

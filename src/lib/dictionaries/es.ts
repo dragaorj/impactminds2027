@@ -280,7 +280,7 @@ const es: Dict = {
     embedCode: "Código para incrustar",
     copy: "Copiar",
     copied: "¡Copiado!",
-    embedHint: "Incrustada, la página aparece sin las barras superiores. En \"Agenda y speakers\", quedan solo las pestañas para cambiar entre las dos.",
+    embedHint: "Incrustada, la página mantiene el logo y el selector de idioma, sin el acceso. En \"Agenda y speakers\", aparecen también las pestañas para cambiar entre las dos.",
     shareScope: "Qué mostrar",
     scopeBoth: "Agenda y speakers",
     scopeAgenda: "Solo la agenda",

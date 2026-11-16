@@ -278,7 +278,7 @@ const pt = {
     embedCode: "Código de incorporação",
     copy: "Copiar",
     copied: "Copiado!",
-    embedHint: "No embed, a página aparece sem as barras do topo. Em \"Agenda e palestrantes\", ficam só as abas para trocar entre as duas.",
+    embedHint: "No embed, a página mantém a logo e o seletor de idioma, sem o login. Em \"Agenda e palestrantes\", aparecem também as abas para trocar entre as duas.",
     shareScope: "O que mostrar",
     scopeBoth: "Agenda e palestrantes",
     scopeAgenda: "Só a agenda",

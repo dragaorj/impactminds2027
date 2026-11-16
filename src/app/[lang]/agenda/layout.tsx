@@ -18,14 +18,16 @@ export default async function AgendaLayout({ params, children }: LayoutProps<"/[
       <PlatformRootSize />
       {/* Shared or embedded, set before the first paint (so nothing
           flashes) and once per visit (moving between pages keeps it):
-          ?embed=1     only the page's content, no bars (in another site);
-          ?embed=tabs  the content and the Agenda / Speakers tabs only;
+          embedded (?embed=1 or ?embed=tabs): the top bar stays (the
+                       Latimpacto mark, the languages), without the sign-in;
+          ?embed=1     one page alone (as ?single=1);
+          ?embed=tabs  with the Agenda / Speakers tabs;
           ?single=1    one page alone: no tabs, and no links into the other
                        page (a speaker's sessions stay plain text). */}
       <script
         dangerouslySetInnerHTML={{
           __html:
-            "(function(){var q=location.search,c='';if(/[?&]embed=1/.test(q)){document.documentElement.setAttribute('data-embed','');c+='.platform-chrome{display:none!important}.platform-body{padding-bottom:0!important}';}else if(/[?&]embed=tabs/.test(q)){document.documentElement.setAttribute('data-embed','');c+='.platform-top,.platform-foot,nav[data-tour=tabs]>:not([data-tour^=tab-]){display:none!important}';}if(/[?&]single=1/.test(q)){c+='[data-tour=tabs]{display:none!important}.platform-body{padding-bottom:0!important}[data-xlink]{pointer-events:none}';}if(c){var st=document.createElement('style');st.textContent=c;document.head.appendChild(st)}})()",
+            "(function(){var q=location.search,c='';if(/[?&]embed=(1|tabs)/.test(q)){document.documentElement.setAttribute('data-embed','');c+='.platform-account,nav[data-tour=tabs]>:not([data-tour^=tab-]){display:none!important}';}if(/[?&](single|embed)=1/.test(q)){c+='[data-tour=tabs]{display:none!important}.platform-body{padding-bottom:0!important}[data-xlink]{pointer-events:none}';}if(c){var st=document.createElement('style');st.textContent=c;document.head.appendChild(st)}})()",
         }}
       />
       {children}

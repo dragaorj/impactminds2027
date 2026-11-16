@@ -280,7 +280,7 @@ const en: Dict = {
     embedCode: "Embed code",
     copy: "Copy",
     copied: "Copied!",
-    embedHint: "Embedded, the page shows without the top bars. With \"Agenda and speakers\", only the tabs to switch between them remain.",
+    embedHint: "Embedded, the page keeps the logo and the language switch, without the sign-in. With \"Agenda and speakers\", the tabs to switch between them show too.",
     shareScope: "What to show",
     scopeBoth: "Agenda and speakers",
     scopeAgenda: "Agenda only",

@@ -97,7 +97,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
                 </LangLink>
               ))}
             </div>
-            <div className="hidden md:block">
+            <div className="platform-account hidden md:block">
               <Account t={t} loginHref={agendaLoginPath(lang)} />
             </div>
           </div>

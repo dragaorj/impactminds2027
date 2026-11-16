@@ -31,8 +31,9 @@ function currentScreen(): Screen {
 // and the speakers with their tabs, the agenda alone or the speakers alone),
 // the screen it opens on and a language; get its link and the code to embed
 // it in another site.
-//   both:     link as is; embed ?embed=tabs (the content and the tabs only)
-//   one page: link ?single=1 (no tabs); embed ?embed=1&single=1 (no bars)
+//   both:     link as is; embed ?embed=tabs (with the tabs, no sign-in)
+//   one page: link ?single=1 (no tabs); embed ?embed=1&single=1 (no tabs,
+//             no sign-in). Embedded, the top bar keeps the mark and languages.
 export default function ShareSheet({ open, onClose, t, lang }: { open: boolean; onClose: () => void; t: T; lang: string }) {
   const [screen, setScreen] = useState<Screen>("agenda-list");
   const [scope, setScope] = useState<Scope>("both");
