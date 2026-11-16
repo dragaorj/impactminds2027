@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { reduced } from "./motion";
 import Image from "next/image";
 import { CaretDown, X } from "@phosphor-icons/react";
 
@@ -64,8 +66,32 @@ export function Segmented<V extends string>({
   className?: string;
   size?: "sm" | "md";
 }) {
+  // The chosen item's place, for the thumb that slides under it.
+  const box = useRef<HTMLDivElement>(null);
+  const [thumb, setThumb] = useState<{ x: number; w: number } | null>(null);
+  const first = useRef(true);
+  useLayoutEffect(() => {
+    const measure = () => {
+      const b = box.current?.querySelector<HTMLElement>("[aria-pressed=true]");
+      if (b) setThumb({ x: b.offsetLeft, w: b.offsetWidth });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (box.current) ro.observe(box.current);
+    return () => ro.disconnect();
+  }, [value, options.length]);
+  useEffect(() => {
+    if (thumb) first.current = false;
+  }, [thumb]);
   return (
-    <div role="group" aria-label={label} data-tour={tour} className={`chip flex rounded-full p-1 ${className}`}>
+    <div ref={box} role="group" aria-label={label} data-tour={tour} className={`chip relative flex rounded-full p-1 ${className}`}>
+      {thumb && (
+        <span
+          aria-hidden
+          className={`pointer-events-none absolute bottom-1 left-0 top-1 rounded-full bg-[var(--on)] shadow-[0_6px_14px_-8px_rgb(42_18_64/0.7)] ${first.current ? "" : "transition-[transform,width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"}`}
+          style={{ width: thumb.w, transform: `translateX(${thumb.x}px)` }}
+        />
+      )}
       {options.map((o) => {
         const on = o.value === value;
         return (
@@ -75,9 +101,9 @@ export function Segmented<V extends string>({
             aria-pressed={on}
             title={o.title}
             onClick={() => onChange(o.value)}
-            className={`flex min-w-0 flex-auto items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3.5 font-medium sm:px-4 transition-[background-color,box-shadow,color] duration-200 ${
+            className={`relative z-10 flex min-w-0 flex-auto items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3.5 font-medium sm:px-4 transition-colors duration-300 ${
               size === "sm" ? "h-8 text-[13px]" : "h-9 text-sm"
-            } ${on ? "bg-[var(--on)] text-[var(--on-ink)] shadow-[0_6px_14px_-8px_rgb(42_18_64/0.7)]" : "text-ink-2 hover:text-ink"}`}
+            } ${on ? (thumb ? "text-[var(--on-ink)]" : "bg-[var(--on)] text-[var(--on-ink)]") : "text-ink-2 hover:text-ink"}`}
           >
             {o.label}
           </button>
@@ -141,8 +167,23 @@ export function Sheet({
       // Opens at the top (the photo, the title), whatever got the focus.
       requestAnimationFrame(() => body.current?.scrollTo({ top: 0 }));
     }
-    if (!open && d.open) d.close();
-  }, [open]);
+    if (!open && d.open) {
+      if (reduced()) return d.close();
+      const wide = window.matchMedia("(min-width: 640px)").matches;
+      const to = centered ? { scale: 0.96, autoAlpha: 0 } : wide ? { x: 36, autoAlpha: 0 } : { y: 48, autoAlpha: 0 };
+      d.setAttribute("data-closing", "");
+      gsap.to(d, {
+        ...to,
+        duration: 0.28,
+        ease: "power2.in",
+        onComplete: () => {
+          d.close();
+          d.removeAttribute("data-closing");
+          gsap.set(d, { clearProps: "all" });
+        },
+      });
+    }
+  }, [open, centered]);
 
   const box = centered
     ? "m-auto max-h-[min(90dvh,54rem)] rounded-[28px]"

@@ -13,7 +13,7 @@ import { NewButton, NoticeBox } from "./Tools";
 import { Avatar, PageTitle, Button, ReadMore, SearchCount, Segmented, Sheet, Tag, card, dayLabel, norm } from "./ui";
 import SpeakerDetail from "./SpeakerDetail";
 import { TalkForm } from "./Editor";
-import { useReveal } from "./motion";
+import { settle, useReveal } from "./motion";
 import Tour, { HelpButton } from "./Tour";
 import { wrap } from "./width";
 
@@ -44,7 +44,13 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
   // first paint, on the server too: nothing switches after it loads.
   const [view, setView] = useState<"list" | "grid">(fixedView ?? "list");
   // The sessions glide in when the day, the view or a filter changes.
-  const reveal = useReveal<HTMLDivElement>(`${favMode ? "fav" : day}|${view}|${room}|${format}`);
+  // A later day slides in from the right, an earlier one from the left.
+  const prevDay = useRef(day);
+  const dir = favMode ? 0 : day > prevDay.current ? 1 : day < prevDay.current ? -1 : 0;
+  useEffect(() => {
+    prevDay.current = day;
+  }, [day]);
+  const reveal = useReveal<HTMLDivElement>(`${favMode ? "fav" : day}|${view}|${room}|${format}`, dir);
   const [favs, setFavs] = useState<Set<string>>(new Set());
   const [ready, setReady] = useState(false);
 
@@ -159,7 +165,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
                 aria-selected={on}
                 aria-label={`${d.date ? l.long : `${t.day} ${d.index + 1}`} (${count})`}
                 title={d.date ? l.long : undefined}
-                onClick={() => pickDay(d.index)}
+                onClick={(e) => (settle(e.currentTarget), pickDay(d.index))}
                 className={`flex h-[3.75rem] min-w-[3.75rem] flex-1 shrink-0 flex-col items-center justify-center rounded-[20px] px-3 leading-none transition-[background-color,color,box-shadow,transform] duration-200 active:scale-95 xl:h-12 xl:flex-none xl:flex-row xl:gap-1.5 xl:rounded-full xl:px-4 ${
                   on ? "bg-[var(--on)] text-[var(--on-ink)] shadow-[0_10px_22px_-12px_rgb(42_18_64/0.8)]" : "chip text-ink"
                 }`}
@@ -173,7 +179,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
           <button
             type="button"
             data-tour="favs"
-            onClick={() => (favMode ? pickDay(day) : setFavMode(true))}
+            onClick={(e) => (settle(e.currentTarget), favMode ? pickDay(day) : setFavMode(true))}
             aria-pressed={favMode}
             aria-label={`${t.favorites} (${favs.size})`}
             title={t.favorites}
@@ -392,7 +398,7 @@ function SessionCard({ talk, speakers, fav, onFav, onOpen, t }: { talk: AgendaTa
       data-tour="session"
       // The format's colour, as in the grid: a soft tint and a bar on the left.
       style={{ background: `color-mix(in srgb, ${c} 11%, white)`, boxShadow: `inset 4px 0 0 color-mix(in srgb, ${c} 75%, white), var(--shadow-card)` }}
-      className="group relative flex w-full flex-col gap-5 rounded-[24px] p-5 pl-6 transition-[box-shadow,transform,filter] duration-300 ease-out hover:-translate-y-0.5 hover:brightness-[1.01] sm:p-6 sm:pl-7"
+      className="group relative flex w-full flex-col gap-5 rounded-[24px] p-5 pl-6 transition-[box-shadow,transform,filter] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-[3px] hover:brightness-[1.015] active:translate-y-0 active:scale-[0.99] active:duration-150 sm:p-6 sm:pl-7"
     >
       <button type="button" onClick={onOpen} className="absolute inset-0 z-0 rounded-[24px]" aria-label={talk.title} />
       <span className="pointer-events-none flex items-start gap-4">
@@ -710,11 +716,13 @@ function GridView({
   const [folded, setFolded] = useState<Set<string>>(new Set());
   const [drag, setDrag] = useState<{ id: string; dx: number; dy: number; room: string; time: string } | null>(null);
   const colRefs = useRef(new Map<string, HTMLDivElement>());
+  // A room's name folds its column, but at least one room always stays
+  // open: the last open one does not fold.
   const fold = (id: string) =>
     setFolded((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
-      else next.add(id);
+      else if (cols.some((c) => c.room.id !== id && !next.has(c.room.id))) next.add(id);
       return next;
     });
 
@@ -745,7 +753,10 @@ function GridView({
   const height = (to - from) * PPM;
   const marks = Array.from({ length: (to - from) / 30 + 1 }, (_, i) => from + i * 30);
   // A room with sessions side by side gets room for each of them.
-  const template = cols.map(({ room, lanes }) => (folded.has(room.id) ? "3rem" : `minmax(${Math.max(15.5, lanes * 10.5)}rem, 1fr)`)).join(" ");
+  // Should every room shown end up folded (a filter left only folded ones),
+  // they all open again.
+  const shut = cols.length && cols.every((c) => folded.has(c.room.id)) ? new Set<string>() : folded;
+  const template = cols.map(({ room, lanes }) => (shut.has(room.id) ? "3rem" : `minmax(${Math.max(15.5, lanes * 10.5)}rem, 1fr)`)).join(" ");
 
   // Drag: the card follows the pointer; the room under it and the time at its
   // top edge (snapped) are where it lands. A press without movement opens it.
@@ -766,7 +777,7 @@ function GridView({
       let roomId = x.roomId;
       for (const [id, col] of colRefs.current) {
         const r = col.getBoundingClientRect();
-        if (ev.clientX >= r.left && ev.clientX <= r.right && !folded.has(id)) roomId = id;
+        if (ev.clientX >= r.left && ev.clientX <= r.right && !shut.has(id)) roomId = id;
       }
       const mins = Math.round((from + (startTop + dy) / PPM) / SNAP) * SNAP;
       last = { room: roomId, time: hhmm(Math.max(from, Math.min(to - 15, mins))) };
@@ -790,7 +801,7 @@ function GridView({
       <div className="grid min-w-full" style={{ gridTemplateColumns: `4.75rem ${template}`, width: "max-content" }}>
         <div className="sticky left-0 top-0 z-30 border-b border-line bg-surface" />
         {cols.map(({ room }) => {
-          const isFolded = folded.has(room.id);
+          const isFolded = shut.has(room.id);
           return (
             <button
               key={room.id}
@@ -821,7 +832,7 @@ function GridView({
         </div>
 
         {cols.map(({ room, placed, lanes }) => {
-          const isFolded = folded.has(room.id);
+          const isFolded = shut.has(room.id);
           const target = drag && drag.room === room.id;
           return (
             <div

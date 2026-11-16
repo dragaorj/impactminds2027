@@ -9,6 +9,7 @@ import Account from "./Account";
 import EditMenu from "./Tools";
 import LangLink from "./LangLink";
 import { wrap } from "./width";
+import TabMotion from "./TabMotion";
 
 type Tab = "agenda" | "speakers";
 
@@ -32,6 +33,16 @@ html{font-size:calc(100% * var(--text-scale,1))!important}
 background:radial-gradient(70rem 36rem at 0% -8%,rgb(236 226 247/.9),transparent 62%),radial-gradient(56rem 30rem at 100% -4%,rgb(248 238 222/.85),transparent 58%),#f1eff4}
 .platform .chip{background:var(--chip);box-shadow:inset 0 0 0 1px var(--chip-line),0 1px 2px rgb(42 18 64/.03)}
 .platform :is(button,a,label).chip:hover{background:var(--chip-hover)}
+.platform :is(button,a,label).chip{transition:background-color .3s,box-shadow .3s,color .3s,transform .5s cubic-bezier(.16,1,.3,1)}
+.platform-sheet[open]{animation:pf-sheet-in .5s cubic-bezier(.16,1,.3,1)}
+.platform-sheet[open][data-centered]{animation:pf-sheet-pop .45s cubic-bezier(.16,1,.3,1)}
+.platform-sheet[open]::backdrop{animation:pf-veil-in .35s ease-out}
+.platform-sheet[data-closing]::backdrop{opacity:0;transition:opacity .28s ease-in}
+@keyframes pf-sheet-in{from{transform:translateY(48px);opacity:0}}
+@media (min-width:640px){@keyframes pf-sheet-in{from{transform:translateX(36px);opacity:0}}}
+@keyframes pf-sheet-pop{from{transform:scale(.96) translateY(8px);opacity:0}}
+@keyframes pf-veil-in{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){.platform-sheet[open],.platform-sheet[open]::backdrop{animation:none}}
 `;
 export function PlatformRootSize() {
   return <style dangerouslySetInnerHTML={{ __html: THEME }} />;
@@ -124,17 +135,19 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
                 key={id}
                 href={h}
                 data-tour={`tab-${id}`}
+                data-tab-link={id}
                 aria-current={on ? "page" : undefined}
-                className={`group relative flex h-10 w-[13rem] min-w-0 items-center gap-2 rounded-t-[12px] px-3.5 text-[14px] transition-[background-color,color] duration-200 ${
+                className={`group relative flex h-10 w-[13rem] min-w-0 items-center gap-2 rounded-t-[12px] px-3.5 text-[14px] transition-[background-color,color] duration-300 ${
                   on
                     ? // The open tab: the page's own ground, its lower corners
                       // flaring out into the page (as a browser tab).
                       "z-10 bg-[#f1eff4] font-semibold text-ink shadow-[0_-1px_0_rgb(29_20_38/0.06),0_-6px_14px_-8px_rgb(29_20_38/0.22)] before:pointer-events-none before:absolute before:-left-3 before:bottom-0 before:size-3 before:bg-[radial-gradient(circle_at_0_0,transparent_11.5px,#f1eff4_12px)] after:pointer-events-none after:absolute after:-right-3 after:bottom-0 after:size-3 after:bg-[radial-gradient(circle_at_100%_0,transparent_11.5px,#f1eff4_12px)]"
-                    : "mb-1 h-9 rounded-[10px] bg-[rgb(255_255_255/0.45)] font-medium text-ink-2 ring-1 ring-[rgb(29_20_38/0.05)] hover:bg-[rgb(255_255_255/0.75)] hover:text-ink"
+                    : "bg-[rgb(255_255_255/0.45)] font-medium text-ink-2 shadow-[inset_0_0_0_1px_rgb(29_20_38/0.05)] hover:bg-[rgb(255_255_255/0.75)] hover:text-ink"
                 }`}
               >
                 <span
                   aria-hidden
+                  data-tab-icon
                   className={`grid size-6 shrink-0 place-items-center rounded-[7px] ${on ? "bg-brand text-brand-ink" : "bg-[rgb(118_118_128/0.14)] text-ink-2 group-hover:text-ink"}`}
                 >
                   <Icon size={14} weight={on ? "fill" : "bold"} />
@@ -147,7 +160,8 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
       </header>
 
       <div className="platform-body pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
-        {children}
+        <TabMotion tab={tab} />
+        <div className="platform-page">{children}</div>
         <footer className="platform-chrome platform-foot border-t border-line px-4 py-6 text-center text-[13px] text-muted">
           {t.platformBy}{" "}
           <a href="https://fyw.com.br/" target="_blank" rel="noopener noreferrer" className="font-semibold text-ink-2 transition-colors hover:text-brand">
@@ -162,6 +176,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
       <nav
         aria-label={t.title}
         data-tour="tabs"
+        data-pill
         style={glass}
         className="platform-chrome fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom))] left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-full bg-[rgb(29_20_38/0.9)] p-1.5 shadow-[0_22px_44px_-14px_rgb(29_20_38/0.6)] ring-1 ring-white/10 backdrop-blur-xl md:hidden"
       >
@@ -172,13 +187,14 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
               key={id}
               href={h}
               data-tour={`tab-${id}`}
+              data-tab-link={id}
               aria-current={on ? "page" : undefined}
               aria-label={label}
               className={`flex h-12 items-center justify-center gap-2 rounded-full text-[15px] font-medium transition-[background-color,color,padding] duration-300 ${
                 on ? "bg-[radial-gradient(circle_at_25%_20%,#8b52c2,#5b2a86)] px-5 text-white shadow-[0_8px_20px_-8px_rgb(91_42_134/0.9)] max-[20rem]:w-12 max-[20rem]:px-0" : "w-12 text-white/70 hover:bg-white/10 hover:text-white"
               }`}
             >
-              <Icon size={21} weight={on ? "fill" : "regular"} aria-hidden />
+              <Icon data-tab-icon size={21} weight={on ? "fill" : "regular"} aria-hidden />
               {on && <span className="max-[20rem]:sr-only">{label}</span>}
             </Link>
           );
