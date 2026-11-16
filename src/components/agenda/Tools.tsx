@@ -102,7 +102,7 @@ export default function EditMenu({ t, lang, tab }: { t: T; lang: string; tab: "a
         data-tour="gear"
         aria-label={t.tools}
         title={t.tools}
-        className={`relative grid size-9 place-items-center rounded-full transition-[background-color,color,transform] duration-200 active:scale-95 sm:size-10 ${menu ? "bg-brand text-brand-ink" : "bg-[rgb(118_118_128/0.12)] text-ink hover:bg-[rgb(118_118_128/0.18)]"}`}
+        className={`relative grid size-9 place-items-center rounded-full transition-[background-color,color,transform] duration-200 active:scale-95 sm:size-10 ${menu ? "bg-brand text-brand-ink" : "chip text-ink"}`}
       >
         <GearSix size={20} weight={menu ? "fill" : "regular"} className={`transition-transform duration-500 ease-out ${menu ? "rotate-90" : ""} ${busy ? "animate-spin" : ""}`} />
         {/* Editing: a small green light on the gear. */}
@@ -577,8 +577,8 @@ export function NoticeBox({ t }: { t: T }) {
     <>
       <div
         data-tour="notice"
-        className={`mt-5 flex gap-3 rounded-[16px] px-4 text-[14px] leading-relaxed sm:rounded-[18px] sm:text-[15px] ${has ? "items-start py-3" : "items-center py-2 sm:py-2.5"} ${
-          has ? "bg-[rgb(201_162_77/0.12)] text-[#5f4610] ring-1 ring-[rgb(201_162_77/0.25)]" : "bg-surface text-muted ring-1 ring-dashed ring-[rgb(118_118_128/0.35)]"
+        className={`mt-5 flex gap-3 rounded-[20px] px-4 text-[14px] leading-relaxed sm:text-[15px] ${has ? "items-start py-3" : "items-center py-2 sm:py-2.5"} ${
+          has ? "bg-[rgb(201_162_77/0.12)] text-[#5f4610] ring-1 ring-[rgb(201_162_77/0.25)]" : "bg-[rgb(255_255_255/0.55)] text-muted ring-1 ring-[var(--chip-line)]"
         }`}
       >
         <Info size={20} className={`${has ? "mt-0.5" : ""} shrink-0 ${has ? "text-[#a07c26]" : "text-muted"}`} aria-hidden />

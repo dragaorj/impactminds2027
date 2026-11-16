@@ -406,7 +406,7 @@ export function HelpButton({ label, hint, className = "" }: { label: string; hin
         title={label}
         aria-label={label}
         className={`relative grid size-10 place-items-center rounded-full transition-[background-color,color,transform] duration-200 active:scale-95 ${
-          tip ? "bg-brand text-brand-ink" : "bg-[rgb(118_118_128/0.12)] text-ink-2 hover:bg-[rgb(118_118_128/0.18)] hover:text-ink"
+          tip ? "bg-brand text-brand-ink" : "chip text-ink-2 hover:text-ink"
         }`}
       >
         <Question size={19} weight="bold" aria-hidden />

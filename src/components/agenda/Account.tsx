@@ -37,16 +37,14 @@ export default function Account({ t, compact = false, loginHref }: { t: Dict["ag
   if (compact) {
     return profile ? (
       <>
-        <button type="button" onClick={() => setOpen(true)} title={t.myProfile} className="flex flex-1 flex-col items-center gap-1 py-1.5 text-[11px] font-medium text-muted">
-          <Face size={28} />
-          {t.editMode}
+        <button type="button" onClick={() => setOpen(true)} title={t.myProfile} aria-label={t.myProfile} className="grid size-12 place-items-center rounded-full transition-colors hover:bg-white/10">
+          <Face size={32} />
         </button>
         <ProfileSheet open={open} onClose={() => setOpen(false)} t={t} />
       </>
     ) : (
-      <a href={loginHref} rel="nofollow" className="flex flex-1 flex-col items-center gap-1 py-1.5 text-[11px] font-medium text-muted">
-        <Key size={24} />
-        {t.login}
+      <a href={loginHref} rel="nofollow" aria-label={t.login} title={t.login} className="grid size-12 place-items-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white">
+        <Key size={21} />
       </a>
     );
   }

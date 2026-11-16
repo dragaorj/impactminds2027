@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { CalendarPlus, CaretRight, Clock, Door, Info, MagnifyingGlass, MapPin, PencilSimple, Rows, SquaresFour, Star, Translate, X } from "@phosphor-icons/react";
+import { CalendarPlus, CaretRight, Clock, Info, MagnifyingGlass, MapPin, PencilSimple, Rows, SlidersHorizontal, SquaresFour, Star, Translate, X } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import type { AgendaSpeaker, AgendaTalk } from "@/lib/agendaShape";
 import { hhmm, toMin } from "@/lib/agendaShape";
@@ -36,6 +36,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
   const [q, setQ] = useState("");
   const [room, setRoom] = useState("");
   const [format, setFormat] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
   const [speakerId, setSpeakerId] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null | undefined>(undefined); // undefined: closed; null: new
@@ -139,59 +140,36 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
 
       <NoticeBox t={t} />
 
-      {/* The toolbar: the days (a compact selector, like the view switch),
-          the favourites, search, rooms and the view (sharing is in the
-          editors' gear menu). Wide screens: one row. Phones and tablets: two
-          rows, search on top, then the days, the favourites star, rooms and
-          the view. */}
-      <div className="mt-5 flex flex-col gap-2.5 lg:flex-row lg:items-center">
-        <div className="flex gap-2 lg:contents">
-          <label className="relative min-w-0 flex-1 lg:order-3" data-tour="search">
-            <span className="sr-only">{t.search}</span>
-            <MagnifyingGlass size={17} aria-hidden className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
-            <input
-              type="search"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder={t.search}
-              className="h-11 w-full rounded-full bg-[rgb(118_118_128/0.12)] pl-11 pr-28 max-[24rem]:pr-14 text-[15px] text-ink outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-brand/35"
-            />
-            {/* How many sessions are shown (of how many, when filtering). */}
-            <SearchCount shown={shown.length} total={dayTalks.length} one={t.sessionOne} many={t.sessions} of={t.ofTotal} filtered={filtered} />
-          </label>
-          {/* New session (editors), right beside the search. */}
-          <NewButton t={t} tab="agenda" className="lg:order-7" />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2 lg:contents">
-          {/* The days. */}
-          <div role="tablist" aria-label={t.day} data-tour="days" className="flex min-w-[10.5rem] flex-1 rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] lg:order-1 lg:flex-none">
-            {days.map((d) => {
-              const l = dayLabel(d.date, lang);
-              const on = !favMode && d.index === day;
-              const count = data.talks.filter((x) => x.day === d.index).length;
-              return (
-                <button
-                  key={d.index}
-                  type="button"
-                  role="tab"
-                  aria-selected={on}
-                  aria-label={`${d.date ? l.long : `${t.day} ${d.index + 1}`} (${count})`}
-                  title={d.date ? l.long : undefined}
-                  onClick={() => pickDay(d.index)}
-                  className={`flex h-[38px] min-w-0 flex-1 flex-col items-center justify-center rounded-full px-2 leading-none transition-[background-color,box-shadow,color] duration-200 sm:flex-row sm:gap-1.5 sm:px-3.5 lg:flex-none ${
-                    on ? "bg-brand text-brand-ink shadow-[0_6px_16px_-8px_rgb(91_42_134/0.7)]" : "text-ink-2 hover:text-ink"
-                  }`}
-                >
-                  <span className={`text-[10px] font-semibold uppercase tracking-[0.04em] sm:text-[13px] sm:font-medium sm:normal-case sm:tracking-normal ${on ? "text-white/80" : "text-muted"}`}>
-                    {d.date ? l.weekday : t.day}
-                  </span>
-                  <span className="mt-0.5 text-[15px] font-semibold tabular-nums sm:mt-0 sm:text-[14px]">{d.date ? l.num : d.index + 1}</span>
-                </button>
-              );
-            })}
-          </div>
-          {/* Phones / tablets: the favourites, a star beside the days. */}
+      {/* The toolbar, mobile first. The days (and the favourites) as a row
+          of chips that scrolls sideways when it does not fit; then the
+          search, one "Filters" button (rooms and formats, in a panel), the
+          list / grid switch and, for editors, "New session". Wide screens:
+          everything on one row. */}
+      <div className="mt-6 flex flex-col gap-3 xl:flex-row xl:items-center">
+        <div role="tablist" aria-label={t.day} data-tour="days" className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 py-1 sm:-mx-6 sm:px-6 xl:mx-0 xl:shrink-0 xl:overflow-visible xl:px-0">
+          {days.map((d) => {
+            const l = dayLabel(d.date, lang);
+            const on = !favMode && d.index === day;
+            const count = data.talks.filter((x) => x.day === d.index).length;
+            return (
+              <button
+                key={d.index}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                aria-label={`${d.date ? l.long : `${t.day} ${d.index + 1}`} (${count})`}
+                title={d.date ? l.long : undefined}
+                onClick={() => pickDay(d.index)}
+                className={`flex h-[3.75rem] min-w-[3.75rem] flex-1 shrink-0 flex-col items-center justify-center rounded-[20px] px-3 leading-none transition-[background-color,color,box-shadow,transform] duration-200 active:scale-95 xl:h-12 xl:flex-none xl:flex-row xl:gap-1.5 xl:rounded-full xl:px-4 ${
+                  on ? "bg-[var(--on)] text-[var(--on-ink)] shadow-[0_10px_22px_-12px_rgb(42_18_64/0.8)]" : "chip text-ink"
+                }`}
+              >
+                <span className={`text-[11px] font-medium uppercase tracking-[0.06em] xl:text-[13px] xl:normal-case xl:tracking-normal ${on ? "text-white/70" : "text-muted"}`}>{d.date ? l.weekday : t.day}</span>
+                <span className="mt-1 text-[19px] font-semibold tabular-nums tracking-[-0.02em] xl:mt-0 xl:text-[15px]">{d.date ? l.num : d.index + 1}</span>
+              </button>
+            );
+          })}
+          {/* The favourites, as one more chip. */}
           <button
             type="button"
             data-tour="favs"
@@ -199,83 +177,81 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
             aria-pressed={favMode}
             aria-label={`${t.favorites} (${favs.size})`}
             title={t.favorites}
-            className={`flex h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[15px] font-medium transition-[background-color,color,transform] duration-200 active:scale-95 lg:hidden ${
-              favMode ? "bg-[#c9a24d] text-[#241800]" : "bg-[rgb(118_118_128/0.12)] text-ink"
+            className={`flex h-[3.75rem] min-w-[3.75rem] flex-1 shrink-0 flex-col items-center justify-center rounded-[20px] px-3 leading-none transition-[background-color,color,transform] duration-200 active:scale-95 xl:h-12 xl:flex-none xl:flex-row xl:gap-2 xl:rounded-full xl:px-4 ${
+              favMode ? "bg-[#c9a24d] text-[#241800] shadow-[0_10px_22px_-12px_rgb(160_120_40/0.9)]" : "chip text-ink"
             }`}
           >
             <Star size={17} weight="fill" aria-hidden className={favMode ? "" : "text-[#c9a24d]"} />
-            <span className="tabular-nums">{favs.size}</span>
+            <span className="mt-1 text-[15px] font-semibold tabular-nums xl:mt-0">{favs.size}</span>
           </button>
-          {/* Wide screens: the favourites beside the days. */}
-          <button
-            type="button"
-            data-tour="favs"
-            onClick={() => (favMode ? pickDay(day) : setFavMode(true))}
-            aria-pressed={favMode}
-            className={`h-11 shrink-0 items-center gap-2 lg:order-2 rounded-full px-4 text-[14px] font-medium transition-[background-color,color,transform] duration-200 active:scale-95 max-lg:hidden lg:flex ${
-              favMode ? "bg-[#c9a24d] text-[#241800]" : "bg-[rgb(118_118_128/0.12)] text-ink hover:bg-[rgb(118_118_128/0.18)]"
-            }`}
-          >
-            <Star size={16} weight="fill" aria-hidden className={favMode ? "" : "text-[#c9a24d]"} />
-            <span className="max-xl:sr-only">{t.favorites}</span>
-            <span className={`tabular-nums ${favMode ? "text-[#241800]/70" : "text-muted"}`}>{favs.size}</span>
-          </button>
+        </div>
 
-          {/* Rooms (and formats): full selects on wide screens, a small
-              button on phones (the native list opens on tap). */}
-          <div className="flex gap-2.5 max-lg:hidden lg:order-4" data-tour="rooms">
-            <Select label={t.room} value={room} onChange={setRoom} all={t.allRooms} options={roomsToday.map((r) => ({ value: r.id, label: r.name }))} />
-            <Select tour="format" label={t.format} value={format} onChange={setFormat} all={t.allFormats} options={formatsToday.map((f) => ({ value: f, label: f }))} />
-          </div>
-          {roomsToday.length > 1 && (
-            <label
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <label className="chip relative min-w-0 flex-1 rounded-full" data-tour="search">
+            <span className="sr-only">{t.search}</span>
+            <MagnifyingGlass size={18} aria-hidden className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
+            <input
+              type="search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder={t.search}
+              className="h-12 w-full rounded-full bg-transparent pl-11 pr-28 text-[15px] text-ink outline-none transition-shadow placeholder:text-muted focus:ring-2 focus:ring-brand/30 max-sm:pr-12"
+            />
+            {/* How many sessions are shown (of how many, when filtering). */}
+            <SearchCount shown={shown.length} total={dayTalks.length} one={t.sessionOne} many={t.sessions} of={t.ofTotal} filtered={filtered} />
+          </label>
+          {/* Rooms and formats, in one panel. A badge: how many are on. */}
+          {(roomsToday.length > 1 || formatsToday.length > 1) && (
+            <button
+              type="button"
               data-tour="rooms"
-              title={t.allRooms}
-              className={`relative grid size-11 shrink-0 place-items-center rounded-full transition-colors lg:hidden ${room ? "bg-brand-soft text-brand" : "bg-[rgb(118_118_128/0.12)] text-ink-2"}`}
+              onClick={() => setFiltersOpen(true)}
+              aria-label={t.filters}
+              title={t.filters}
+              className={`relative grid size-12 shrink-0 place-items-center rounded-full transition-[background-color,color,transform] duration-200 active:scale-95 ${room || format ? "bg-[var(--on)] text-[var(--on-ink)]" : "chip text-ink"}`}
             >
-              <span className="sr-only">{t.room}</span>
-              <Door size={18} weight={room ? "fill" : "regular"} aria-hidden />
-              {room && <span aria-hidden className="absolute right-1.5 top-1.5 size-2 rounded-full bg-brand ring-2 ring-[var(--bg)]" />}
-              <select value={room} onChange={(e) => setRoom(e.target.value)} className="absolute inset-0 cursor-pointer opacity-0">
-                <option value="">{t.allRooms}</option>
-                {roomsToday.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+              <SlidersHorizontal size={19} aria-hidden />
+              {(room || format) && <span aria-hidden className="absolute -right-0.5 -top-0.5 grid size-[18px] place-items-center rounded-full bg-[#c9a24d] text-[10px] font-bold text-[#241800] ring-2 ring-[var(--bg)]">{(room ? 1 : 0) + (format ? 1 : 0)}</span>}
+            </button>
           )}
-
           {!favMode && (
-            <>
-              {/* Phones / tablets: one button switches list ↔ grid. */}
-              <button
-                type="button"
-                data-tour="view"
-                onClick={() => setView(view === "grid" ? "list" : "grid")}
-                title={view === "grid" ? t.list : t.grid}
-                aria-label={view === "grid" ? t.list : t.grid}
-                className="grid size-11 shrink-0 place-items-center rounded-full bg-[rgb(118_118_128/0.12)] text-ink-2 transition-[background-color,color,transform] duration-200 hover:text-ink active:scale-95 lg:hidden"
-              >
-                {view === "grid" ? <Rows size={18} aria-hidden /> : <SquaresFour size={18} aria-hidden />}
-              </button>
-              <div className="max-lg:hidden lg:order-6" data-tour="view">
-                <Segmented
-                  label={t.view}
-                  value={view}
-                  onChange={setView}
-                  className="shrink-0"
-                  options={[
-                    { value: "list", title: t.list, label: <><Rows size={17} aria-hidden /><span className="max-xl:sr-only">{t.list}</span></> },
-                    { value: "grid", title: t.grid, label: <><SquaresFour size={17} aria-hidden /><span className="max-xl:sr-only">{t.grid}</span></> },
-                  ]}
-                />
-              </div>
-            </>
+            <button
+              type="button"
+              data-tour="view"
+              onClick={() => setView(view === "grid" ? "list" : "grid")}
+              title={view === "grid" ? t.list : t.grid}
+              aria-label={view === "grid" ? t.list : t.grid}
+              className="chip grid size-12 shrink-0 place-items-center rounded-full text-ink transition-transform duration-200 active:scale-95"
+            >
+              {view === "grid" ? <Rows size={19} aria-hidden /> : <SquaresFour size={19} aria-hidden />}
+            </button>
           )}
+          {/* New session (editors), right beside the search. */}
+          <NewButton t={t} tab="agenda" className="sm:h-12 max-sm:size-12" />
         </div>
       </div>
+
+      {/* Filters: rooms and formats as chips, in a panel. */}
+      <Sheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        label={t.filters}
+        closeLabel={t.close}
+        footer={
+          <div className="flex items-center justify-between gap-3">
+            <Button kind="quiet" onClick={() => (setRoom(""), setFormat(""))} disabled={!room && !format}>
+              {t.clear}
+            </Button>
+            <Button kind="primary" onClick={() => setFiltersOpen(false)}>
+              {shown.length} {shown.length === 1 ? t.sessionOne : t.sessions}
+            </Button>
+          </div>
+        }
+      >
+        <h2 className="font-display text-[1.75rem] leading-tight text-[var(--on)]">{t.filters}</h2>
+        <ChipGroup label={t.room} all={t.allRooms} value={room} onChange={setRoom} options={roomsToday.map((r) => ({ value: r.id, label: r.name }))} />
+        <ChipGroup tour="format" label={t.format} all={t.allFormats} value={format} onChange={setFormat} options={formatsToday.map((f) => ({ value: f, label: f }))} />
+      </Sheet>
       <Tour
         enabled
         t={t.tour}
@@ -336,18 +312,19 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
             onMove={(id, time, roomId) => moveTalk(id, { time, room: roomId })}
           />
         ) : (
-          <ol className="space-y-7">
+          <ol className="space-y-8">
             {groups.map(([key, talks]) => {
               const x0 = talks[0];
               const d = favMode ? days.find((y) => y.index === x0.day) : undefined;
               return (
-                <li key={key} data-glide className="grid gap-3 md:grid-cols-[6rem_1fr] md:gap-6">
-                  <div className="flex items-baseline gap-2 md:sticky md:top-24 md:block md:self-start md:pt-4">
-                    {d?.date && <p className="text-[13px] font-medium text-gold md:mb-1">{dayLabel(d.date, lang).weekday} · {dayLabel(d.date, lang).day}</p>}
-                    <p className="text-[19px] font-semibold tabular-nums tracking-[-0.01em]">{x0.start}</p>
-                    <p className="text-[13px] tabular-nums text-muted md:mt-0.5">{x0.end}</p>
-                  </div>
-                  <div className={`grid gap-3 ${talks.length > 1 ? "lg:grid-cols-2" : ""} min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(26rem,1fr))]`}>
+                <li key={key} data-glide>
+                  <h3 className="mb-3 flex items-baseline gap-2 px-1">
+                    {d?.date && <span className="text-[13px] font-medium text-gold">{dayLabel(d.date, lang).weekday} {dayLabel(d.date, lang).day} ·</span>}
+                    <span className="text-[15px] font-semibold tabular-nums text-[var(--on)]">{x0.start}</span>
+                    <span className="text-[13px] tabular-nums text-muted">– {x0.end}</span>
+                    {talks.length > 1 && <span className="ml-auto text-[12px] tabular-nums text-muted">{talks.length}</span>}
+                  </h3>
+                  <div className={`grid gap-3 ${talks.length > 1 ? "lg:grid-cols-2" : ""} min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(28rem,1fr))]`}>
                     {talks.map((x) => (
                       <SessionCard key={x.id} talk={x} speakers={speakersOf(x)} fav={favs.has(x.id)} onFav={() => toggleFav(x.id)} onOpen={() => setOpenId(x.id)} t={t} />
                     ))}
@@ -382,32 +359,6 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
   );
 }
 
-function Select({ label, value, onChange, all, options, tour }: { label: string; value: string; onChange: (v: string) => void; all: string; options: { value: string; label: string }[]; tour?: string }) {
-  if (options.length < 2) return null;
-  return (
-    <label className="relative min-w-0 flex-1 lg:flex-none" data-tour={tour}>
-      <span className="sr-only">{label}</span>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`h-11 w-full appearance-none truncate rounded-full pl-4 pr-10 text-[15px] outline-none transition-[box-shadow,background-color] focus:ring-2 focus:ring-brand/35 lg:w-auto lg:max-w-[11rem] xl:max-w-[15rem] ${
-          value ? "bg-brand-soft font-medium text-brand" : "bg-[rgb(118_118_128/0.12)] text-ink"
-        }`}
-      >
-        <option value="">{all}</option>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      <svg aria-hidden viewBox="0 0 12 12" className="pointer-events-none absolute right-4 top-1/2 size-3 -translate-y-1/2 text-muted">
-        <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </label>
-  );
-}
-
 function FavButton({ on, onClick, t, className = "" }: { on: boolean; onClick: () => void; t: T; className?: string }) {
   return (
     <button
@@ -429,47 +380,56 @@ function FavButton({ on, onClick, t, className = "" }: { on: boolean; onClick: (
   );
 }
 
+// A session, as in a calm calendar app: the format (with its colour), time
+// and room in small type, the title large, then who speaks (in a pill) and
+// the languages.
 function SessionCard({ talk, speakers, fav, onFav, onOpen, t }: { talk: AgendaTalk; speakers: AgendaSpeaker[]; fav: boolean; onFav: () => void; onOpen: () => void; t: T }) {
   const names = speakers.map((s) => s.name);
   const shownNames = names.slice(0, 2).join(", ") + (names.length > 2 ? ` +${names.length - 2}` : "");
+  const c = talk.formatColor || "#5b2a86";
   return (
-    <div data-tour="session" className={`${card} group relative flex w-full flex-col gap-3 overflow-hidden p-5 transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow)]`}>
-      <button type="button" onClick={onOpen} className="absolute inset-0 z-0 rounded-[22px]" aria-label={talk.title} />
-      <span className="pointer-events-none flex items-start justify-between gap-2">
-        <span className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px] text-muted">
-          {talk.format && <Tag color={talk.formatColor}>{talk.format}</Tag>}
-          {talk.room && (
-            <span className="inline-flex items-center gap-1">
-              <MapPin size={14} aria-hidden /> {talk.room}
-            </span>
-          )}
-          <span className="inline-flex items-center gap-1 tabular-nums">
-            <Clock size={14} aria-hidden /> {talk.start}–{talk.end}
+    <div
+      data-tour="session"
+      // The format's colour, as in the grid: a soft tint and a bar on the left.
+      style={{ background: `color-mix(in srgb, ${c} 11%, white)`, boxShadow: `inset 4px 0 0 color-mix(in srgb, ${c} 75%, white), var(--shadow-card)` }}
+      className="group relative flex w-full flex-col gap-5 rounded-[24px] p-5 pl-6 transition-[box-shadow,transform,filter] duration-300 ease-out hover:-translate-y-0.5 hover:brightness-[1.01] sm:p-6 sm:pl-7"
+    >
+      <button type="button" onClick={onOpen} className="absolute inset-0 z-0 rounded-[24px]" aria-label={talk.title} />
+      <span className="pointer-events-none flex items-start gap-4">
+        <span className="min-w-0 flex-1">
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px] text-muted">
+            {talk.format && (
+              <span className="text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ color: `color-mix(in srgb, ${c} 80%, black)` }}>
+                {talk.format}
+              </span>
+            )}
+            <span className="tabular-nums">{talk.start}–{talk.end}</span>
+            {talk.room && <span>· {talk.room}</span>}
           </span>
+          <span className="mt-1.5 block text-[18px] font-semibold leading-snug tracking-[-0.015em] text-ink transition-colors group-hover:text-brand">{talk.title}</span>
         </span>
-        <FavButton on={fav} onClick={onFav} t={t} className="pointer-events-auto relative z-10 -mr-2 -mt-2" />
+        <FavButton on={fav} onClick={onFav} t={t} className="pointer-events-auto relative z-10 -mr-2 -mt-1.5" />
       </span>
-      <span className="pointer-events-none text-[17px] font-semibold leading-snug tracking-[-0.01em] text-ink transition-colors group-hover:text-brand">{talk.title}</span>
       {(speakers.length > 0 || talk.pending || talk.langs.length > 0) && (
         <span className="pointer-events-none flex items-center justify-between gap-3">
           {speakers.length > 0 ? (
-            <span className="flex min-w-0 items-center gap-2.5">
+            <span className="flex min-w-0 items-center gap-2 rounded-full bg-white/75 py-1 pl-1 pr-3.5">
               <span className="flex -space-x-2">
-                {speakers.slice(0, 4).map((s) => (
-                  <Avatar key={s.id} name={s.name} photo={s.photo} size={30} ring />
+                {speakers.slice(0, 3).map((s) => (
+                  <Avatar key={s.id} name={s.name} photo={s.photo} size={28} ring />
                 ))}
               </span>
-              <span className="truncate text-[13px] text-ink-2">{shownNames}</span>
+              <span className="truncate text-[13px] font-medium text-ink-2">{shownNames}</span>
             </span>
           ) : talk.pending ? (
-            <span className="text-[13px] italic text-muted">{t.pending}</span>
+            <span className="rounded-full bg-white/75 px-3.5 py-1.5 text-[13px] italic text-muted">{t.pending}</span>
           ) : (
             <span />
           )}
           {talk.langs.length > 0 && (
             <span className="flex shrink-0 gap-1">
               {talk.langs.map((l) => (
-                <span key={l} className="rounded-md bg-[rgb(118_118_128/0.1)] px-1.5 py-0.5 text-[11px] font-semibold uppercase text-ink-2">
+                <span key={l} className="grid h-7 min-w-8 place-items-center rounded-full px-2 text-[11px] font-semibold uppercase text-ink-2 bg-white/60 ring-1 ring-[var(--chip-line)]">
                   {l}
                 </span>
               ))}
@@ -477,6 +437,34 @@ function SessionCard({ talk, speakers, fav, onFav, onOpen, t }: { talk: AgendaTa
           )}
         </span>
       )}
+    </div>
+  );
+}
+
+// A set of chips to pick one of (or "all").
+function ChipGroup({ label, all, value, onChange, options, tour }: { label: string; all: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[]; tour?: string }) {
+  if (options.length < 2) return null;
+  const item = (v: string, text: string) => {
+    const on = value === v;
+    return (
+      <button
+        key={v || "all"}
+        type="button"
+        aria-pressed={on}
+        onClick={() => onChange(v)}
+        className={`h-10 rounded-full px-4 text-[14px] font-medium transition-[background-color,color,transform] duration-200 active:scale-95 ${on ? "bg-[var(--on)] text-[var(--on-ink)]" : "chip text-ink-2 hover:text-ink"}`}
+      >
+        {text}
+      </button>
+    );
+  };
+  return (
+    <div className="mt-6" data-tour={tour}>
+      <p className="mb-2.5 text-[13px] font-medium text-muted">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        {item("", all)}
+        {options.map((o) => item(o.value, o.label))}
+      </div>
     </div>
   );
 }

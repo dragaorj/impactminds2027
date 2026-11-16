@@ -8,7 +8,7 @@ import { CaretDown, X } from "@phosphor-icons/react";
 // a quiet ground, hairline borders, gentle shadows, large radii, clear type
 // (titles semibold and tight, text at a comfortable 15px, secondary in grey).
 
-export const card = "rounded-[22px] bg-surface shadow-[var(--shadow-card)] ring-1 ring-line";
+export const card = "rounded-[24px] bg-surface shadow-[var(--shadow-card)]";
 
 const initials = (name: string) =>
   name
@@ -65,7 +65,7 @@ export function Segmented<V extends string>({
   size?: "sm" | "md";
 }) {
   return (
-    <div role="group" aria-label={label} data-tour={tour} className={`flex rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] ${className}`}>
+    <div role="group" aria-label={label} data-tour={tour} className={`chip flex rounded-full p-1 ${className}`}>
       {options.map((o) => {
         const on = o.value === value;
         return (
@@ -77,7 +77,7 @@ export function Segmented<V extends string>({
             onClick={() => onChange(o.value)}
             className={`flex min-w-0 flex-auto items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3.5 font-medium sm:px-4 transition-[background-color,box-shadow,color] duration-200 ${
               size === "sm" ? "h-8 text-[13px]" : "h-9 text-sm"
-            } ${on ? "bg-surface text-ink shadow-[0_1px_2px_rgb(0_0_0/0.06),0_3px_8px_-2px_rgb(0_0_0/0.12)]" : "text-ink-2 hover:text-ink"}`}
+            } ${on ? "bg-[var(--on)] text-[var(--on-ink)] shadow-[0_6px_14px_-8px_rgb(42_18_64/0.7)]" : "text-ink-2 hover:text-ink"}`}
           >
             {o.label}
           </button>
@@ -314,11 +314,11 @@ export function SearchCount({ shown, total, one, many, of, filtered }: { shown: 
     <span aria-live="polite" className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 whitespace-nowrap text-[13px] text-muted">
       {filtered ? (
         <>
-          <span className="font-semibold tabular-nums text-ink">{shown}</span><span className="max-[24rem]:hidden"> {of}</span><span className="min-[24.0625rem]:hidden">/</span><span className="max-[24rem]:hidden"> </span><span className="tabular-nums">{total}</span>
+          <span className="font-semibold tabular-nums text-ink">{shown}</span><span className="max-sm:hidden"> {of}</span><span className="sm:hidden">/</span><span className="max-sm:hidden"> </span><span className="tabular-nums">{total}</span>
         </>
       ) : (
         <>
-          <span className="font-semibold tabular-nums text-ink">{total}</span><span className="max-[24rem]:hidden"> {total === 1 ? one : many}</span>
+          <span className="font-semibold tabular-nums text-ink">{total}</span><span className="max-sm:hidden"> {total === 1 ? one : many}</span>
         </>
       )}
     </span>

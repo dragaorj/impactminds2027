@@ -98,22 +98,22 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
       <PageTitle title={t.speakers} subtitle={t.subtitle} aside={<HelpButton label={t.tour.howTo} hint={t.tour.hint} />} />
 
 
-      <div className="mt-6 flex flex-col gap-2.5 lg:flex-row lg:items-center">
+      <div className="mt-6 flex flex-col gap-3 lg:flex-row lg:items-center">
       <div className="flex gap-2 lg:contents">
-      <label className="relative block min-w-0 flex-1 lg:max-w-xl" data-tour="search">
+      <label className="chip relative block min-w-0 flex-1 rounded-full lg:max-w-xl" data-tour="search">
         <span className="sr-only">{t.searchSpeakers}</span>
-        <MagnifyingGlass size={17} aria-hidden className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
+        <MagnifyingGlass size={18} aria-hidden className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
         <input
           type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={t.searchSpeakers}
-          className="h-11 w-full rounded-full bg-[rgb(118_118_128/0.12)] pl-11 pr-32 max-[24rem]:pr-14 text-[15px] text-ink outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-brand/35"
+          className="h-12 w-full rounded-full bg-transparent pl-11 pr-32 max-sm:pr-12 text-[15px] text-ink outline-none transition-shadow placeholder:text-muted focus:ring-2 focus:ring-brand/30"
         />
         <SearchCount shown={list.length} total={shown.length} one={t.speakerOne} many={t.speakers.toLowerCase()} of={t.ofTotal} filtered={!!query} />
       </label>
       {/* New speaker (editors), right beside the search. */}
-      <NewButton t={t} tab="speakers" />
+      <NewButton t={t} tab="speakers" className="sm:h-12 max-sm:size-12" />
       </div>
         {/* Phones: all filters on one compact row (as on the agenda). */}
         <div className="flex flex-wrap items-center gap-2 lg:contents">
@@ -188,7 +188,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
         <>
           {featured.length > 0 && (
             <section className="mt-8" aria-labelledby="featured-title" data-tour="content">
-              <h2 id="featured-title" className="flex items-center gap-2 text-[13px] font-semibold text-muted">
+              <h2 id="featured-title" className="flex items-center gap-2 px-1 text-[15px] font-semibold text-[var(--on)]">
                 <Star size={14} weight="fill" className="text-[#c9a24d]" aria-hidden /> {t.featured}
               </h2>
               {mode === "cards" ? (
@@ -207,7 +207,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
 
           {/* Everyone else, below a plain line (no heading), smaller. */}
           {others.length > 0 && (
-            <section className={featured.length > 0 ? "mt-10 border-t border-line pt-8" : "mt-8"} aria-label={t.others} data-tour="content">
+            <section className={featured.length > 0 ? "mt-12" : "mt-8"} aria-label={t.others} data-tour="content">
               {mode !== "cards" ? (
                 <People list={others} mode={mode} onOpen={setOpenId} />
               ) : (
@@ -316,7 +316,7 @@ function People({ list, mode, featured = false, onOpen }: { list: AgendaSpeaker[
     <ul className={`${card} mt-3 overflow-hidden min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(28rem,1fr))] min-[112.5rem]:grid`}>
       {list.map((s) => (
         <li key={s.id} data-glide className="-mt-px border-t border-line">
-          <button type="button" onClick={() => onOpen(s.id)} data-photo={s.photo || undefined} data-tour="speaker" className="flex w-full items-center gap-3.5 px-4 py-3 text-left transition-colors hover:bg-[rgb(118_118_128/0.06)]">
+          <button type="button" onClick={() => onOpen(s.id)} data-photo={s.photo || undefined} data-tour="speaker" className="flex w-full items-center gap-4 px-4 py-3.5 text-left transition-colors hover:bg-[var(--chip-hover)] sm:px-5">
             <Avatar name={s.name} photo={s.photo} size={48} />
             <span className="min-w-0 flex-1">
               <span className="flex items-center gap-1.5">

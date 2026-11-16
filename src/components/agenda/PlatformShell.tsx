@@ -22,8 +22,19 @@ const glass = { WebkitBackdropFilter: "blur(24px) saturate(1.8)", backdropFilter
 // with wide screens (for its own sections), the platform doesn't. A wide
 // screen gets more columns and wider areas, never bigger things. (A style of
 // the page itself: the shared stylesheet loses this rule.)
+// The platform's theme lives here too, for the same reason: the soft ground
+// with its ambient light, white pill controls (.chip) and the deep plum of
+// the selected state.
+const THEME = `
+html{font-size:calc(100% * var(--text-scale,1))!important}
+.platform{--bg:#f1eff4;--bg-2:#e9e6ee;--chip:#fff;--chip-line:rgb(42 18 64/.07);--chip-hover:#faf9fc;--on:#2a1240;--on-ink:#fff;
+--shadow-card:0 1px 2px rgb(42 18 64/.04),0 12px 32px -20px rgb(42 18 64/.18);--shadow:0 2px 4px rgb(42 18 64/.05),0 24px 48px -24px rgb(42 18 64/.28);
+background:radial-gradient(70rem 36rem at 0% -8%,rgb(236 226 247/.9),transparent 62%),radial-gradient(56rem 30rem at 100% -4%,rgb(248 238 222/.85),transparent 58%),#f1eff4}
+.platform .chip{background:var(--chip);box-shadow:inset 0 0 0 1px var(--chip-line),0 1px 2px rgb(42 18 64/.03)}
+.platform :is(button,a,label).chip:hover{background:var(--chip-hover)}
+`;
 export function PlatformRootSize() {
-  return <style dangerouslySetInnerHTML={{ __html: "html{font-size:calc(100% * var(--text-scale,1))!important}" }} />;
+  return <style dangerouslySetInnerHTML={{ __html: THEME }} />;
 }
 
 // The platform's frame. Wide screens: one quiet frosted bar (the Latimpacto
@@ -40,7 +51,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
 
   return (
     <div className="platform min-h-[100dvh] font-sans">
-      <header style={glass} className="platform-chrome sticky top-0 z-40 border-b border-line bg-[rgb(232_230_238/0.97)] backdrop-blur-xl backdrop-saturate-[1.8]">
+      <header style={glass} className="platform-chrome sticky top-0 z-40 border-b border-line bg-[rgb(241_239_244/0.82)] backdrop-blur-xl md:bg-[rgb(232_230_238/0.97)] backdrop-saturate-[1.8]">
         <div className={`${wrap} platform-top flex h-14 items-center gap-3 sm:h-16`}>
           <a href={`/${lang}`} aria-label={t.backToSite} className="flex min-w-0 shrink items-center gap-2.5 text-ink sm:gap-3">
             <svg viewBox={LOGO_VIEWBOX} className="h-[17px] w-auto shrink-0 text-brand sm:h-[18px]" aria-hidden>
@@ -63,7 +74,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
             <details className="group relative min-[20rem]:hidden" data-tour="lang">
               <summary
                 aria-label={t.languages}
-                className="grid h-9 min-w-11 cursor-pointer list-none place-items-center rounded-full bg-[rgb(118_118_128/0.12)] px-3 text-xs font-semibold uppercase text-ink group-open:bg-surface group-open:shadow-[0_1px_2px_rgb(0_0_0/0.06),0_2px_6px_-2px_rgb(0_0_0/0.12)] [&::-webkit-details-marker]:hidden"
+                className="chip grid h-9 min-w-11 cursor-pointer list-none place-items-center rounded-full px-3 text-xs font-semibold uppercase text-ink group-open:bg-surface group-open:shadow-[0_1px_2px_rgb(0_0_0/0.06),0_2px_6px_-2px_rgb(0_0_0/0.12)] [&::-webkit-details-marker]:hidden"
               >
                 {lang}
               </summary>
@@ -81,7 +92,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
                 ))}
               </div>
             </details>
-            <div className="flex items-center rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] max-[20rem]:hidden" role="group" aria-label={t.languages} data-tour="lang">
+            <div className="chip flex items-center rounded-full p-[3px] max-[20rem]:hidden" role="group" aria-label={t.languages} data-tour="lang">
               {locales.map((l) => (
                 <LangLink
                   key={l}
@@ -90,7 +101,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
                   aria-current={l === lang ? "true" : undefined}
                   title={t.langNames[l]}
                   className={`grid h-8 min-w-9 place-items-center rounded-full px-2 text-xs font-semibold uppercase transition-[background-color,color] ${
-                    l === lang ? "bg-surface text-ink shadow-[0_1px_2px_rgb(0_0_0/0.06),0_2px_6px_-2px_rgb(0_0_0/0.12)]" : "text-muted hover:text-ink"
+                    l === lang ? "bg-[var(--on)] text-[var(--on-ink)]" : "text-muted hover:text-ink"
                   }`}
                 >
                   {l}
@@ -118,7 +129,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
                   on
                     ? // The open tab: the page's own ground, its lower corners
                       // flaring out into the page (as a browser tab).
-                      "z-10 bg-[rgb(243_242_246)] font-semibold text-ink shadow-[0_-1px_0_rgb(29_20_38/0.06),0_-6px_14px_-8px_rgb(29_20_38/0.22)] before:pointer-events-none before:absolute before:-left-3 before:bottom-0 before:size-3 before:bg-[radial-gradient(circle_at_0_0,transparent_11.5px,rgb(243_242_246)_12px)] after:pointer-events-none after:absolute after:-right-3 after:bottom-0 after:size-3 after:bg-[radial-gradient(circle_at_100%_0,transparent_11.5px,rgb(243_242_246)_12px)]"
+                      "z-10 bg-[#f1eff4] font-semibold text-ink shadow-[0_-1px_0_rgb(29_20_38/0.06),0_-6px_14px_-8px_rgb(29_20_38/0.22)] before:pointer-events-none before:absolute before:-left-3 before:bottom-0 before:size-3 before:bg-[radial-gradient(circle_at_0_0,transparent_11.5px,#f1eff4_12px)] after:pointer-events-none after:absolute after:-right-3 after:bottom-0 after:size-3 after:bg-[radial-gradient(circle_at_100%_0,transparent_11.5px,#f1eff4_12px)]"
                     : "mb-1 h-9 rounded-[10px] bg-[rgb(255_255_255/0.45)] font-medium text-ink-2 ring-1 ring-[rgb(29_20_38/0.05)] hover:bg-[rgb(255_255_255/0.75)] hover:text-ink"
                 }`}
               >
@@ -145,25 +156,33 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
         </footer>
       </div>
 
-      {/* Phones: tab bar at the bottom */}
+      {/* Phones: a floating dark pill at the bottom, within thumb's reach:
+          the open page in a purple capsule with its name, the other page
+          and the account as round icons. */}
       <nav
         aria-label={t.title}
         data-tour="tabs"
         style={glass}
-        className="platform-chrome fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-[rgb(250_250_252/0.97)] px-2 pb-[env(safe-area-inset-bottom)] pt-1 backdrop-blur-xl backdrop-saturate-[1.8] md:hidden"
+        className="platform-chrome fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom))] left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-full bg-[rgb(29_20_38/0.9)] p-1.5 shadow-[0_22px_44px_-14px_rgb(29_20_38/0.6)] ring-1 ring-white/10 backdrop-blur-xl md:hidden"
       >
-        {tabs.map(({ id, label, href: h, Icon }) => (
-          <Link
-            key={id}
-            href={h}
-            data-tour={`tab-${id}`}
-            aria-current={id === tab ? "page" : undefined}
-            className={`flex flex-1 flex-col items-center gap-1 py-1.5 text-[11px] font-medium ${id === tab ? "text-brand" : "text-muted"}`}
-          >
-            <Icon size={24} weight={id === tab ? "fill" : "regular"} aria-hidden />
-            {label}
-          </Link>
-        ))}
+        {tabs.map(({ id, label, href: h, Icon }) => {
+          const on = id === tab;
+          return (
+            <Link
+              key={id}
+              href={h}
+              data-tour={`tab-${id}`}
+              aria-current={on ? "page" : undefined}
+              aria-label={label}
+              className={`flex h-12 items-center justify-center gap-2 rounded-full text-[15px] font-medium transition-[background-color,color,padding] duration-300 ${
+                on ? "bg-[radial-gradient(circle_at_25%_20%,#8b52c2,#5b2a86)] px-5 text-white shadow-[0_8px_20px_-8px_rgb(91_42_134/0.9)] max-[20rem]:w-12 max-[20rem]:px-0" : "w-12 text-white/70 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              <Icon size={21} weight={on ? "fill" : "regular"} aria-hidden />
+              {on && <span className="max-[20rem]:sr-only">{label}</span>}
+            </Link>
+          );
+        })}
         <Account t={t} compact loginHref={agendaLoginPath(lang)} />
       </nav>
     </div>
