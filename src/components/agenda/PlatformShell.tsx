@@ -30,7 +30,15 @@ const THEME = `
 html{font-size:calc(100% * var(--text-scale,1))!important}
 .platform{--bg:#f1eff4;--bg-2:#e9e6ee;--chip:#fff;--chip-line:rgb(42 18 64/.07);--chip-hover:#faf9fc;--on:#2a1240;--on-ink:#fff;
 --shadow-card:0 1px 2px rgb(42 18 64/.04),0 12px 32px -20px rgb(42 18 64/.18);--shadow:0 2px 4px rgb(42 18 64/.05),0 24px 48px -24px rgb(42 18 64/.28);
-background:radial-gradient(70rem 36rem at 0% -8%,rgb(236 226 247/.9),transparent 62%),radial-gradient(56rem 30rem at 100% -4%,rgb(248 238 222/.85),transparent 58%),#f1eff4}
+--ambient:radial-gradient(70rem 36rem at 0% -8%,rgb(236 226 247/.9),transparent 62%),radial-gradient(56rem 30rem at 100% -4%,rgb(248 238 222/.85),transparent 58%),#f1eff4;
+background:var(--ambient);background-attachment:fixed}
+/* The open tab wears the page's very ground (pinned to the screen, as the
+   page's is), so the two meet with no seam; its lower corners flare out
+   into the page, cut by a mask. */
+.platform .pf-tab-on{background:var(--ambient);background-attachment:fixed}
+.platform .pf-tab-on::before,.platform .pf-tab-on::after{content:"";position:absolute;bottom:0;width:12px;height:12px;pointer-events:none;background:var(--ambient);background-attachment:fixed}
+.platform .pf-tab-on::before{left:-12px;-webkit-mask:radial-gradient(circle at 0 0,transparent 11.5px,#000 12px);mask:radial-gradient(circle at 0 0,transparent 11.5px,#000 12px)}
+.platform .pf-tab-on::after{right:-12px;-webkit-mask:radial-gradient(circle at 100% 0,transparent 11.5px,#000 12px);mask:radial-gradient(circle at 100% 0,transparent 11.5px,#000 12px)}
 .platform .chip{background:var(--chip);box-shadow:inset 0 0 0 1px var(--chip-line),0 1px 2px rgb(42 18 64/.03)}
 .platform :is(button,a,label).chip:hover{background:var(--chip-hover)}
 .platform :is(button,a,label).chip{transition:background-color .3s,box-shadow .3s,color .3s,transform .5s cubic-bezier(.16,1,.3,1)}
@@ -62,7 +70,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
 
   return (
     <div className="platform min-h-[100dvh] font-sans">
-      <header style={glass} className="platform-chrome sticky top-0 z-40 border-b border-line bg-[rgb(241_239_244/0.82)] backdrop-blur-xl md:bg-[rgb(232_230_238/0.97)] backdrop-saturate-[1.8]">
+      <header style={glass} className="platform-chrome sticky top-0 z-40 border-b border-line bg-[rgb(241_239_244/0.82)] backdrop-blur-xl md:border-b-0 md:bg-[rgb(232_230_238/0.97)] backdrop-saturate-[1.8]">
         <div className={`${wrap} platform-top flex h-14 items-center gap-3 sm:h-16`}>
           <a href={`/${lang}`} aria-label={t.backToSite} className="flex min-w-0 shrink items-center gap-2.5 text-ink sm:gap-3">
             <svg viewBox={LOGO_VIEWBOX} className="h-[17px] w-auto shrink-0 text-brand sm:h-[18px]" aria-hidden>
@@ -137,18 +145,18 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
                 data-tour={`tab-${id}`}
                 data-tab-link={id}
                 aria-current={on ? "page" : undefined}
-                className={`group relative flex h-10 w-[13rem] min-w-0 items-center gap-2 rounded-t-[12px] px-3.5 text-[14px] transition-[background-color,color] duration-300 ${
+                className={`group relative flex h-10 w-[13rem] min-w-0 items-center gap-2 rounded-t-[12px] px-3.5 text-[14px] transition-[background-color,color,opacity] duration-300 ${
                   on
                     ? // The open tab: the page's own ground, its lower corners
                       // flaring out into the page (as a browser tab).
-                      "z-10 bg-[#f1eff4] font-semibold text-ink shadow-[0_-1px_0_rgb(29_20_38/0.06),0_-6px_14px_-8px_rgb(29_20_38/0.22)] before:pointer-events-none before:absolute before:-left-3 before:bottom-0 before:size-3 before:bg-[radial-gradient(circle_at_0_0,transparent_11.5px,#f1eff4_12px)] after:pointer-events-none after:absolute after:-right-3 after:bottom-0 after:size-3 after:bg-[radial-gradient(circle_at_100%_0,transparent_11.5px,#f1eff4_12px)]"
-                    : "bg-[rgb(255_255_255/0.45)] font-medium text-ink-2 shadow-[inset_0_0_0_1px_rgb(29_20_38/0.05)] hover:bg-[rgb(255_255_255/0.75)] hover:text-ink"
+                      "pf-tab-on z-10 font-semibold text-ink shadow-[0_-1px_0_rgb(29_20_38/0.06),0_-6px_14px_-8px_rgb(29_20_38/0.22)]"
+                    : "font-medium text-ink-2 opacity-55 hover:bg-[rgb(255_255_255/0.4)] hover:opacity-100"
                 }`}
               >
                 <span
                   aria-hidden
                   data-tab-icon
-                  className={`grid size-6 shrink-0 place-items-center rounded-[7px] ${on ? "bg-brand text-brand-ink" : "bg-[rgb(118_118_128/0.14)] text-ink-2 group-hover:text-ink"}`}
+                  className={`grid size-6 shrink-0 place-items-center rounded-[7px] ${on ? "bg-brand text-brand-ink" : "text-ink-2 group-hover:text-ink"}`}
                 >
                   <Icon size={14} weight={on ? "fill" : "bold"} />
                 </span>
