@@ -336,7 +336,7 @@ export function PageTitle({ title, subtitle, aside }: { title: string; subtitle:
   return (
     <div className="flex items-center justify-between gap-4 max-[24rem]:block sm:block">
       <div className="flex min-w-0 items-center gap-3">
-        <h1 className="text-[2rem] font-semibold leading-tight tracking-[-0.025em] max-[24rem]:text-[1.75rem] sm:text-[2.5rem]">{title}</h1>
+        <h1 className="font-display text-[2.125rem] font-normal leading-[1.05] tracking-[-0.01em] text-[#2a1240] max-[24rem]:text-[1.875rem] sm:text-[2.75rem]">{title}</h1>
         {aside}
       </div>
       <p className="text-right text-[12px] leading-snug text-muted max-[24rem]:mt-1 max-[24rem]:text-left sm:mt-1 sm:text-left sm:text-[15px]">

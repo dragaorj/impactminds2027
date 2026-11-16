@@ -105,7 +105,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
         {/* Tablets and wider: the two pages as browser-style tabs along the
             bar's lower edge; the open one takes the page's own ground and
             joins the page below. (Phones: the tab bar at the bottom.) */}
-        <nav aria-label={t.title} data-tour="tabs" className={`${wrap} -mb-px hidden items-end gap-1 md:flex`}>
+        <nav aria-label={t.title} data-tour="tabs" className={`${wrap} -mb-px hidden items-end gap-1.5 md:flex`}>
           {tabs.map(({ id, label, href: h, Icon }) => {
             const on = id === tab;
             return (
@@ -114,14 +114,21 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
                 href={h}
                 data-tour={`tab-${id}`}
                 aria-current={on ? "page" : undefined}
-                className={`relative flex h-11 min-w-[10rem] items-center gap-2.5 rounded-t-[14px] px-5 text-[15px] font-medium transition-[background-color,color] duration-200 ${
+                className={`group relative flex h-10 w-[13rem] min-w-0 items-center gap-2 rounded-t-[12px] px-3.5 text-[14px] transition-[background-color,color] duration-200 ${
                   on
-                    ? "z-10 border border-b-0 border-line bg-[rgb(243_242_246)] text-ink shadow-[0_-4px_12px_-6px_rgb(29_20_38/0.18)]"
-                    : "text-ink-2 hover:bg-[rgb(118_118_128/0.1)] hover:text-ink"
+                    ? // The open tab: the page's own ground, its lower corners
+                      // flaring out into the page (as a browser tab).
+                      "z-10 bg-[rgb(243_242_246)] font-semibold text-ink shadow-[0_-1px_0_rgb(29_20_38/0.06),0_-6px_14px_-8px_rgb(29_20_38/0.22)] before:pointer-events-none before:absolute before:-left-3 before:bottom-0 before:size-3 before:bg-[radial-gradient(circle_at_0_0,transparent_11.5px,rgb(243_242_246)_12px)] after:pointer-events-none after:absolute after:-right-3 after:bottom-0 after:size-3 after:bg-[radial-gradient(circle_at_100%_0,transparent_11.5px,rgb(243_242_246)_12px)]"
+                    : "mb-1 h-9 rounded-[10px] bg-[rgb(255_255_255/0.45)] font-medium text-ink-2 ring-1 ring-[rgb(29_20_38/0.05)] hover:bg-[rgb(255_255_255/0.75)] hover:text-ink"
                 }`}
               >
-                <Icon size={18} weight={on ? "fill" : "regular"} className={on ? "text-brand" : ""} aria-hidden />
-                {label}
+                <span
+                  aria-hidden
+                  className={`grid size-6 shrink-0 place-items-center rounded-[7px] ${on ? "bg-brand text-brand-ink" : "bg-[rgb(118_118_128/0.14)] text-ink-2 group-hover:text-ink"}`}
+                >
+                  <Icon size={14} weight={on ? "fill" : "bold"} />
+                </span>
+                <span className="truncate">{label}</span>
               </Link>
             );
           })}

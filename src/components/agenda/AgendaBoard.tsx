@@ -165,7 +165,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
 
         <div className="flex flex-wrap items-center gap-2 lg:contents">
           {/* The days. */}
-          <div role="tablist" aria-label={t.day} data-tour="days" className="flex min-w-[13rem] flex-1 rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] lg:order-1 lg:flex-none">
+          <div role="tablist" aria-label={t.day} data-tour="days" className="flex min-w-[10.5rem] flex-1 rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] lg:order-1 lg:flex-none">
             {days.map((d) => {
               const l = dayLabel(d.date, lang);
               const on = !favMode && d.index === day;
