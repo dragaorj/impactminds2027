@@ -12,6 +12,7 @@ import { Avatar, PageTitle, SearchCount, Segmented, Sheet, card, norm } from "./
 import SpeakerDetail, { preloadPhoto } from "./SpeakerDetail";
 import { useReveal } from "./motion";
 import Tour, { HelpButton } from "./Tour";
+import { NewButton } from "./Tools";
 import { FeaturedOrder, SpeakerForm } from "./Editor";
 import { wrap } from "./width";
 
@@ -94,12 +95,12 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
       onPointerDown={warm}
       onFocus={warm}
     >
-      <PageTitle title={t.speakers} subtitle={t.subtitle} />
+      <PageTitle title={t.speakers} subtitle={t.subtitle} aside={<HelpButton label={t.tour.howTo} hint={t.tour.hint} />} />
 
 
-      <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center">
-      <div className="flex gap-2 sm:contents">
-      <label className="relative block min-w-0 flex-1 sm:max-w-xl" data-tour="search">
+      <div className="mt-6 flex flex-col gap-2.5 lg:flex-row lg:items-center">
+      <div className="flex gap-2 lg:contents">
+      <label className="relative block min-w-0 flex-1 lg:max-w-xl" data-tour="search">
         <span className="sr-only">{t.searchSpeakers}</span>
         <MagnifyingGlass size={17} aria-hidden className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
         <input
@@ -107,21 +108,21 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={t.searchSpeakers}
-          className="h-11 w-full rounded-full bg-[rgb(118_118_128/0.12)] pl-11 pr-32 text-[15px] text-ink outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-brand/35"
+          className="h-11 w-full rounded-full bg-[rgb(118_118_128/0.12)] pl-11 pr-32 max-[24rem]:pr-14 text-[15px] text-ink outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-brand/35"
         />
         <SearchCount shown={list.length} total={shown.length} one={t.speakerOne} many={t.speakers.toLowerCase()} of={t.ofTotal} filtered={!!query} />
       </label>
-      {/* "How to use": the guided tour again. */}
-      <HelpButton label={t.tour.howTo} hint={t.tour.hint} />
+      {/* New speaker (editors), right beside the search. */}
+      <NewButton t={t} tab="speakers" />
       </div>
         {/* Phones: all filters on one compact row (as on the agenda). */}
-        <div className="flex items-center gap-2 sm:contents">
+        <div className="flex flex-wrap items-center gap-2 lg:contents">
         <Segmented
           label={t.featured}
           tour="group"
           value={group}
           onChange={setGroup}
-          className="min-w-0 flex-1 sm:ml-auto sm:flex-none sm:shrink-0"
+          className="min-w-[12.5rem] flex-1 lg:ml-auto lg:flex-none lg:shrink-0"
           options={[
             { value: "all", label: t.all },
             { value: "featured", label: <><Star size={15} weight="fill" className="shrink-0 text-[#c9a24d]" aria-hidden />{t.featured}</> },
@@ -150,7 +151,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
           ...(signedIn
             ? [
                 { target: "gear", ...t.tour.gear },
-                { target: "menu-new-speaker", ...t.tour.menuNewSpeaker },
+                { target: "new-speaker", ...t.tour.menuNewSpeaker },
                 { target: "menu-order", ...t.tour.menuOrder },
                 { target: "menu-manage", ...t.tour.menuManage },
                 { target: "menu-share", ...t.tour.menuShare },

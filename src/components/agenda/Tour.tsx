@@ -405,17 +405,18 @@ export function HelpButton({ label, hint, className = "" }: { label: string; hin
         }}
         title={label}
         aria-label={label}
-        className={`relative grid size-11 place-items-center rounded-full transition-[background-color,color,transform] duration-200 active:scale-95 ${
+        className={`relative grid size-10 place-items-center rounded-full transition-[background-color,color,transform] duration-200 active:scale-95 ${
           tip ? "bg-brand text-brand-ink" : "bg-[rgb(118_118_128/0.12)] text-ink-2 hover:bg-[rgb(118_118_128/0.18)] hover:text-ink"
         }`}
       >
         <Question size={19} weight="bold" aria-hidden />
       </button>
       {tip && (
-        // Under the button, its right edge on the button's (always inside
-        // the screen: the button sits at the end of its row).
-        <span ref={bubble} role="status" className="absolute right-0 top-full z-30 mt-2.5 whitespace-nowrap rounded-[12px] bg-ink px-3 py-2 text-[13px] font-medium text-white shadow-[0_12px_30px_-10px_rgb(0_0_0/0.45)]">
-          <span aria-hidden className="absolute -top-1 right-4 size-2.5 rotate-45 rounded-[2px] bg-ink" />
+        // Under the button, its left edge on the button's (always inside
+        // the screen: the button sits beside the page title; on very narrow
+        // screens it opens to the left instead).
+        <span ref={bubble} role="status" className="absolute left-0 top-full z-30 mt-2.5 whitespace-nowrap max-[24rem]:left-auto max-[24rem]:right-0 rounded-[12px] bg-ink px-3 py-2 text-[13px] font-medium text-white shadow-[0_12px_30px_-10px_rgb(0_0_0/0.45)]">
+          <span aria-hidden className="absolute -top-1 left-4 max-[24rem]:left-auto max-[24rem]:right-4 size-2.5 rotate-45 rounded-[2px] bg-ink" />
           {hint}
         </span>
       )}

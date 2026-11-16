@@ -14,8 +14,8 @@ import ShareSheet from "./Share";
 type T = Dict["agendaApp"];
 type Tab = "days" | "slots" | "rooms" | "formats" | "hubs" | "notice";
 
-// The editors' menu, behind a gear in the top bar (phones too): new
-// session / new speaker and the speakers' order (on their page), Manage
+// The editors' menu, behind a gear in the top bar (phones too), with the
+// purple "New session" / "New speaker" button beside it; the speakers' order (on their page), Manage
 // (days, times, rooms, formats, hubs, notice), CSV export, backup, the team
 // and logs and delete everything (master only). Shown only when signed in.
 export default function EditMenu({ t, lang, tab }: { t: T; lang: string; tab: "agenda" | "speakers" }) {
@@ -91,6 +91,7 @@ export default function EditMenu({ t, lang, tab }: { t: T; lang: string; tab: "a
     download(new Blob([csv], { type: "text/csv;charset=utf-8" }), `agenda-impact-minds-2027-${new Date().toISOString().slice(0, 10)}.csv`);
   };
 
+  const speakers = tab === "speakers";
   return (
     <div ref={box} className="relative">
       <button
@@ -124,19 +125,10 @@ export default function EditMenu({ t, lang, tab }: { t: T; lang: string; tab: "a
             </span>
           </div>
           <div className={`border-t border-line pt-1.5 ${editing ? "" : "pointer-events-none opacity-50"}`} aria-busy={!editing}>
-            {tab === "agenda" ? (
-              <MenuItem tour="menu-new" strong icon={<Plus size={18} weight="bold" />} onClick={go(() => ask("newTalk"))}>
-                {t.newSession}
+            {speakers && (
+              <MenuItem tour="menu-order" icon={<Star size={18} weight="fill" className="text-[#c9a24d]" />} onClick={go(() => ask("order"))}>
+                {t.orderFeatured}
               </MenuItem>
-            ) : (
-              <>
-                <MenuItem tour="menu-new-speaker" strong icon={<Plus size={18} weight="bold" />} onClick={go(() => ask("newSpeaker"))}>
-                  {t.newSpeaker}
-                </MenuItem>
-                <MenuItem tour="menu-order" icon={<Star size={18} weight="fill" className="text-[#c9a24d]" />} onClick={go(() => ask("order"))}>
-                  {t.orderFeatured}
-                </MenuItem>
-              </>
             )}
             <MenuItem tour="menu-manage" icon={<Wrench size={18} />} onClick={go(() => setSheet("manage"))}>
               {t.manage}
@@ -170,6 +162,29 @@ export default function EditMenu({ t, lang, tab }: { t: T; lang: string; tab: "a
       {master && <WipeSheet open={sheet === "wipe"} onClose={() => setSheet(null)} t={t} />}
       {master && <TeamSheet open={sheet === "team"} onClose={() => setSheet(null)} t={t} lang={lang} />}
     </div>
+  );
+}
+
+// New session / new speaker: the editors' main action, in the brand purple,
+// right beside the search (a round "+" on narrow screens). Signed in only.
+export function NewButton({ t, tab, className = "" }: { t: T; tab: "agenda" | "speakers"; className?: string }) {
+  const { signedIn, profile, editing, ask } = useAgenda();
+  if (!signedIn || !profile) return null;
+  const speakers = tab === "speakers";
+  const label = speakers ? t.newSpeaker : t.newSession;
+  return (
+    <button
+      type="button"
+      onClick={() => ask(speakers ? "newSpeaker" : "newTalk")}
+      disabled={!editing}
+      data-tour={speakers ? "new-speaker" : "new"}
+      aria-label={label}
+      title={label}
+      className={`flex size-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-brand text-[15px] font-semibold text-brand-ink shadow-[0_8px_20px_-8px_rgb(91_33_182/0.65)] transition-[transform,filter,opacity] duration-200 hover:brightness-110 active:scale-95 disabled:opacity-50 sm:w-auto sm:pl-4 sm:pr-5 ${className}`}
+    >
+      <Plus size={18} weight="bold" aria-hidden />
+      <span className="max-sm:sr-only">{label}</span>
+    </button>
   );
 }
 

@@ -314,11 +314,11 @@ export function SearchCount({ shown, total, one, many, of, filtered }: { shown: 
     <span aria-live="polite" className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 whitespace-nowrap text-[13px] text-muted">
       {filtered ? (
         <>
-          <span className="font-semibold tabular-nums text-ink">{shown}</span> {of} <span className="tabular-nums">{total}</span>
+          <span className="font-semibold tabular-nums text-ink">{shown}</span><span className="max-[24rem]:hidden"> {of}</span><span className="min-[24.0625rem]:hidden">/</span><span className="max-[24rem]:hidden"> </span><span className="tabular-nums">{total}</span>
         </>
       ) : (
         <>
-          <span className="font-semibold tabular-nums text-ink">{total}</span> {total === 1 ? one : many}
+          <span className="font-semibold tabular-nums text-ink">{total}</span><span className="max-[24rem]:hidden"> {total === 1 ? one : many}</span>
         </>
       )}
     </span>
@@ -328,12 +328,18 @@ export function SearchCount({ shown, total, one, many, of, filtered }: { shown: 
 // A page's title with the place and dates. Phones: the two side by side (the
 // place and the dates on two short lines at the right), saving a line;
 // wider screens: the line under the title.
-export function PageTitle({ title, subtitle }: { title: string; subtitle: string }) {
+// The page's title, with an optional control beside it (the "?" guide), and
+// the place and dates: at the right on phones, under it on wider screens,
+// and under it again on very narrow screens.
+export function PageTitle({ title, subtitle, aside }: { title: string; subtitle: string; aside?: React.ReactNode }) {
   const [place, dates] = subtitle.split(" · ");
   return (
-    <div className="flex items-center justify-between gap-4 sm:block">
-      <h1 className="text-[2rem] font-semibold leading-tight tracking-[-0.025em] sm:text-[2.5rem]">{title}</h1>
-      <p className="text-right text-[12px] leading-snug text-muted sm:mt-1 sm:text-left sm:text-[15px]">
+    <div className="flex items-center justify-between gap-4 max-[24rem]:block sm:block">
+      <div className="flex min-w-0 items-center gap-3">
+        <h1 className="text-[2rem] font-semibold leading-tight tracking-[-0.025em] max-[24rem]:text-[1.75rem] sm:text-[2.5rem]">{title}</h1>
+        {aside}
+      </div>
+      <p className="text-right text-[12px] leading-snug text-muted max-[24rem]:mt-1 max-[24rem]:text-left sm:mt-1 sm:text-left sm:text-[15px]">
         <span className="max-sm:block">{place}</span>
         {dates && (
           <>

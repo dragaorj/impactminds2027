@@ -40,7 +40,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
 
   return (
     <div className="platform min-h-[100dvh] font-sans">
-      <header style={glass} className="platform-chrome sticky top-0 z-40 border-b border-line bg-[rgb(243_242_246/0.97)] backdrop-blur-xl backdrop-saturate-[1.8]">
+      <header style={glass} className="platform-chrome sticky top-0 z-40 border-b border-line bg-[rgb(232_230_238/0.97)] backdrop-blur-xl backdrop-saturate-[1.8]">
         <div className={`${wrap} flex h-14 items-center gap-3 sm:h-16`}>
           <a href={`/${lang}`} aria-label={t.backToSite} className="flex min-w-0 shrink items-center gap-2.5 text-ink sm:gap-3">
             <svg viewBox={LOGO_VIEWBOX} className="h-[17px] w-auto shrink-0 text-brand sm:h-[18px]" aria-hidden>
@@ -48,32 +48,40 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
                 <path key={i} d={d} fill="currentColor" />
               ))}
             </svg>
-            <span aria-hidden className="h-4 w-px shrink-0 bg-[rgb(29_20_38/0.14)]" />
-            <span className="truncate text-[15px] font-semibold tracking-[-0.01em]">
+            <span aria-hidden className="h-4 w-px shrink-0 bg-[rgb(29_20_38/0.14)] max-[20rem]:hidden" />
+            <span className="truncate text-[15px] font-semibold tracking-[-0.01em] max-[20rem]:hidden">
               Impact Minds <span className="text-gold">2027</span>
             </span>
           </a>
 
-          <nav aria-label={t.title} data-tour="tabs" className="mx-auto hidden rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] md:flex">
-            {tabs.map((x) => (
-              <Link
-                key={x.id}
-                href={x.href}
-                data-tour={`tab-${x.id}`}
-                aria-current={x.id === tab ? "page" : undefined}
-                className={`flex h-9 items-center rounded-full px-5 text-sm font-medium transition-[background-color,box-shadow,color] ${
-                  x.id === tab ? "bg-surface text-ink shadow-[0_1px_2px_rgb(0_0_0/0.06),0_3px_8px_-2px_rgb(0_0_0/0.12)]" : "text-ink-2 hover:text-ink"
-                }`}
-              >
-                {x.label}
-              </Link>
-            ))}
-          </nav>
 
-          <div className="ml-auto flex shrink-0 items-center gap-2 md:ml-0">
+          <div className="ml-auto flex shrink-0 items-center gap-2">
             {/* The editors' menu (only when signed in). */}
             <EditMenu t={t} lang={lang} tab={tab} />
-            <div className="flex items-center rounded-full bg-[rgb(118_118_128/0.12)] p-[3px]" role="group" aria-label={t.languages} data-tour="lang">
+            {/* Very narrow screens: the language as one small button that
+                opens the three (no room for all of them side by side). */}
+            <details className="group relative min-[20rem]:hidden" data-tour="lang">
+              <summary
+                aria-label={t.languages}
+                className="grid h-9 min-w-11 cursor-pointer list-none place-items-center rounded-full bg-[rgb(118_118_128/0.12)] px-3 text-xs font-semibold uppercase text-ink group-open:bg-surface group-open:shadow-[0_1px_2px_rgb(0_0_0/0.06),0_2px_6px_-2px_rgb(0_0_0/0.12)] [&::-webkit-details-marker]:hidden"
+              >
+                {lang}
+              </summary>
+              <div className="absolute right-0 top-full z-50 mt-2 flex flex-col rounded-[16px] bg-surface p-1 shadow-[0_18px_40px_-16px_rgb(29_20_38/0.4)] ring-1 ring-line">
+                {locales.map((l) => (
+                  <LangLink
+                    key={l}
+                    href={href(l)}
+                    lang={l}
+                    aria-current={l === lang ? "true" : undefined}
+                    className={`whitespace-nowrap rounded-[12px] px-3 py-2 text-[14px] ${l === lang ? "bg-brand-soft font-semibold text-brand" : "text-ink hover:bg-[rgb(118_118_128/0.1)]"}`}
+                  >
+                    {t.langNames[l]}
+                  </LangLink>
+                ))}
+              </div>
+            </details>
+            <div className="flex items-center rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] max-[20rem]:hidden" role="group" aria-label={t.languages} data-tour="lang">
               {locales.map((l) => (
                 <LangLink
                   key={l}
@@ -94,6 +102,30 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
             </div>
           </div>
         </div>
+        {/* Tablets and wider: the two pages as browser-style tabs along the
+            bar's lower edge; the open one takes the page's own ground and
+            joins the page below. (Phones: the tab bar at the bottom.) */}
+        <nav aria-label={t.title} data-tour="tabs" className={`${wrap} -mb-px hidden items-end gap-1 md:flex`}>
+          {tabs.map(({ id, label, href: h, Icon }) => {
+            const on = id === tab;
+            return (
+              <Link
+                key={id}
+                href={h}
+                data-tour={`tab-${id}`}
+                aria-current={on ? "page" : undefined}
+                className={`relative flex h-11 min-w-[10rem] items-center gap-2.5 rounded-t-[14px] px-5 text-[15px] font-medium transition-[background-color,color] duration-200 ${
+                  on
+                    ? "z-10 border border-b-0 border-line bg-[rgb(243_242_246)] text-ink shadow-[0_-4px_12px_-6px_rgb(29_20_38/0.18)]"
+                    : "text-ink-2 hover:bg-[rgb(118_118_128/0.1)] hover:text-ink"
+                }`}
+              >
+                <Icon size={18} weight={on ? "fill" : "regular"} className={on ? "text-brand" : ""} aria-hidden />
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
       </header>
 
       <div className="platform-body pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">

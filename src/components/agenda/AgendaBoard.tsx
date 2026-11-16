@@ -9,7 +9,7 @@ import { hhmm, toMin } from "@/lib/agendaShape";
 import { useAgenda, useAsked } from "./store";
 import { agendaViewPath, type AgendaView } from "@/lib/nav";
 import type { Locale } from "@/lib/i18n";
-import { NoticeBox } from "./Tools";
+import { NewButton, NoticeBox } from "./Tools";
 import { Avatar, PageTitle, Button, ReadMore, SearchCount, Segmented, Sheet, Tag, card, dayLabel, norm } from "./ui";
 import SpeakerDetail from "./SpeakerDetail";
 import { TalkForm } from "./Editor";
@@ -135,7 +135,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
 
   return (
     <div className={`${wrap} pb-16 pt-6 sm:pt-10`}>
-      <PageTitle title={t.title} subtitle={t.subtitle} />
+      <PageTitle title={t.title} subtitle={t.subtitle} aside={<HelpButton label={t.tour.howTo} hint={t.tour.hint} />} />
 
       <NoticeBox t={t} />
 
@@ -154,18 +154,18 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder={t.search}
-              className="h-11 w-full rounded-full bg-[rgb(118_118_128/0.12)] pl-11 pr-28 text-[15px] text-ink outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-brand/35"
+              className="h-11 w-full rounded-full bg-[rgb(118_118_128/0.12)] pl-11 pr-28 max-[24rem]:pr-14 text-[15px] text-ink outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-brand/35"
             />
             {/* How many sessions are shown (of how many, when filtering). */}
             <SearchCount shown={shown.length} total={dayTalks.length} one={t.sessionOne} many={t.sessions} of={t.ofTotal} filtered={filtered} />
           </label>
-          {/* "How to use": the guided tour again. */}
-          <HelpButton label={t.tour.howTo} hint={t.tour.hint} className="lg:order-7" />
+          {/* New session (editors), right beside the search. */}
+          <NewButton t={t} tab="agenda" className="lg:order-7" />
         </div>
 
-        <div className="flex items-center gap-2 lg:contents">
+        <div className="flex flex-wrap items-center gap-2 lg:contents">
           {/* The days. */}
-          <div role="tablist" aria-label={t.day} data-tour="days" className="flex min-w-0 flex-1 rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] lg:order-1 lg:flex-none">
+          <div role="tablist" aria-label={t.day} data-tour="days" className="flex min-w-[13rem] flex-1 rounded-full bg-[rgb(118_118_128/0.12)] p-[3px] lg:order-1 lg:flex-none">
             {days.map((d) => {
               const l = dayLabel(d.date, lang);
               const on = !favMode && d.index === day;
@@ -284,7 +284,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
           ...(signedIn
             ? [
                 { target: "gear", ...t.tour.gear },
-                { target: "menu-new", ...t.tour.menuNew },
+                { target: "new", ...t.tour.menuNew },
                 { target: "menu-manage", ...t.tour.menuManage },
                 { target: "menu-share", ...t.tour.menuShare },
                 { target: "menu-csv", ...t.tour.menuCsv },
