@@ -66,8 +66,8 @@ export default function About({ t, videoSrc }: { t: Dict["about"]; videoSrc?: st
                   <Icon size="1.125rem" weight="light" />
                 </span>
                 <span className="block">
-                  <span className="mt-4 block font-display text-xl text-ink lg:mt-0">{p.title}</span>
-                  <span className="mt-1.5 block text-sm leading-snug text-ink-2">{p.text}</span>
+                  <span className="mt-4 block font-display text-2xl text-ink lg:mt-0 lg:text-[1.75rem]">{p.title}</span>
+                  <span className="mt-2 block text-base leading-relaxed text-ink-2 lg:text-lg">{p.text}</span>
                 </span>
               </li>
             );

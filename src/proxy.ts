@@ -16,7 +16,7 @@ function redirect(request: NextRequest, pathname: string) {
 // the agenda platform and the document reader. Anything else is a page of the
 // earlier site (Conference, FAQ, Conheça Manaus, Speakers…): it answers
 // "410 Gone", so search engines drop it from their results for good.
-const PAGE = /^(\/(edicoes|privacy|agenda(\/.*)?|documento\/.+))?\/?$/;
+const PAGE = /^(\/(edicoes|faq|privacy|agenda(\/.*)?|documento\/.+))?\/?$/;
 const gone = () =>
   new NextResponse("This page no longer exists. Impact Minds Conference: /en", {
     status: 410,

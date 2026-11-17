@@ -12,6 +12,7 @@ const es: Dict = {
     agenda2026: "Agenda Académica 2026",
     speakers2026: "Ponentes 2026",
     editions: "Ediciones anteriores",
+    faq: "FAQ",
     about: "Impact Minds",
     cartagena: "Cartagena 2027",
     agenda: "Fechas 2027",
@@ -49,8 +50,8 @@ const es: Dict = {
     editorial: {
       kicker: ["Impact Minds", "Connecting Us", "2026 · Manaus"],
       // Landscape screens: four wide lines; portrait: more, shorter ones.
-      lines: [[{ text: "Gracias por todo", serif: true }, { text: "Manaus," }], [{ text: "2026" }, { text: "fue un éxito.", serif: true }], [{ text: "Nos vemos en", serif: true }, { text: "Cartagena," }], [{ text: "del", serif: true }, { text: "24 al 27" }, { text: "de agosto de", serif: true }, { text: "2027." }]],
-      tall: [[{ text: "Gracias por todo", serif: true }], [{ text: "Manaus," }], [{ text: "2026" }, { text: "fue un", serif: true }], [{ text: "éxito.", serif: true }], [{ text: "Nos vemos en", serif: true }], [{ text: "Cartagena," }], [{ text: "del", serif: true }, { text: "24 al 27" }], [{ text: "de agosto de", serif: true }, { text: "2027." }]],
+      lines: [[{ text: "Gracias por ser parte de", serif: true }], [{ text: "Impact Minds 2026." }], [{ text: "Nos vemos en", serif: true }, { text: "Cartagena" }], [{ text: "del", serif: true }, { text: "24 al 27" }, { text: "de agosto de", serif: true }, { text: "2027." }]],
+      tall: [[{ text: "Gracias por ser", serif: true }], [{ text: "parte de", serif: true }], [{ text: "Impact Minds" }], [{ text: "2026." }], [{ text: "Nos vemos en", serif: true }], [{ text: "Cartagena" }], [{ text: "del", serif: true }, { text: "24 al 27" }], [{ text: "de agosto de", serif: true }, { text: "2027." }]],
       when: ["Impact Minds", "24 al 27 de agosto", "2027 · Colombia"],
     },
     eyebrow: "Cartagena, Colombia",
@@ -100,7 +101,7 @@ const es: Dict = {
     speakers: "speakers",
     fieldVisits: "visitas de campo realizadas",
     connections: "conexiones generadas, en promedio, por cada organización presente",
-    reconnect: "la probabilidad de volver a interactuar con estas 13 organizaciones",
+    reconnect: "la probabilidad de volver a interactuar con estas 11 organizaciones",
     comeBack: "Probabilidad de volver a participar en Impact Minds",
     footnote: "* En una escala de 0 a 10. Encuesta realizada a los participantes de la Conferencia 2026.",
     report: "Accede al informe completo de Impact Minds 2026",
@@ -247,7 +248,7 @@ const es: Dict = {
     cta: "Conoce las oportunidades de patrocinio",
     growthLabel: "más participantes desde 2022",
     stats: [
-      { value: "+240", label: "miembros en la red Latimpacto" },
+      { value: "+220", label: "miembros en la red Latimpacto" },
       { value: "100 mi", label: "de alcance potencial en medios" },
     ],
     benefitsTitle: "Lo que encuentra tu organización",
@@ -658,14 +659,14 @@ const es: Dict = {
     name: "Latimpacto",
     tagline: "La red latinoamericana con alcance global",
     facts: [
-      { value: "+240", label: "miembros que invierten en la región con una perspectiva de impacto" },
+      { value: "+220", label: "miembros que invierten en la región con una perspectiva de impacto" },
       { value: "América Latina y el Caribe", label: "movilizando capital para la generación de impacto" },
       { value: "De la filantropía a las finanzas sostenibles", label: "actores, conocimiento y capital a lo largo del continuo de capital" },
     ],
     "title": "Sobre Latimpacto",
     "paragraphs": [
       "Latimpacto es la red latinoamericana con alcance global que busca maximizar la movilización de capital destinado a generar impacto en América Latina y el Caribe. Articula actores, conocimiento y capital a lo largo del continuo de capital, desde la filantropía de riesgo y la inversión de impacto hasta las finanzas sostenibles.",
-      "Reúne a más de 240 miembros, entre familias, family offices, empresas, fundaciones donantes, organizaciones multilaterales, instituciones académicas y aceleradoras que invierten en la región con una perspectiva de impacto."
+      "Reúne a más de 220 miembros, entre familias, family offices, empresas, fundaciones donantes, organizaciones multilaterales, instituciones académicas y aceleradoras que invierten en la región con una perspectiva de impacto."
     ],
     "cta": "Conoce Latimpacto",
     "mapAlt": "Mapa de América Latina y el Caribe con la red de Latimpacto: las ciudades conectadas con Cartagena, sede de Impact Minds 2027",
@@ -686,7 +687,7 @@ const es: Dict = {
   },
   footer: {
     closing: "Nos vemos en Cartagena en 2027",
-    about: "Latimpacto es la red latinoamericana con alcance global que busca maximizar la movilización de capital para el impacto en América Latina y el Caribe. Reúne a más de 240 miembros, entre familias, family offices, empresas, fundaciones, organizaciones multilaterales, instituciones académicas y aceleradoras.",
+    about: "Latimpacto es la red latinoamericana con alcance global que busca maximizar la movilización de capital para el impacto en América Latina y el Caribe. Reúne a más de 220 miembros, entre familias, family offices, empresas, fundaciones, organizaciones multilaterales, instituciones académicas y aceleradoras.",
     visit: "Conoce Latimpacto",
     follow: "Sigue a Latimpacto",
     rights: "Todos los derechos reservados.",

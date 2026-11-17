@@ -17,6 +17,7 @@ import Events from "@/components/sections/Events";
 import Visits from "@/components/sections/Visits";
 import Agenda from "@/components/sections/Agenda";
 import Partners from "@/components/sections/Partners";
+import FaqTeaser from "@/components/sections/FaqTeaser";
 import Sponsor from "@/components/sections/Sponsor";
 import Carbon from "@/components/sections/Carbon";
 import AboutLatimpacto from "@/components/sections/AboutLatimpacto";
@@ -56,6 +57,7 @@ export default async function Home({ lang, hero = "editorial" }: { lang: Locale;
       <main id="conteudo" tabIndex={-1} className="w-full max-w-full overflow-x-clip outline-none">
         <Hero variant={hero} t={t.hero} videoSrc={localVideo("header-3.mp4")} agendaLink={t.hero.agendaCta} speakerLabel={t.speakers.open} />
         <About t={t.about} videoSrc={localVideo("about.mp4")} />
+        <AboutLatimpacto t={t.latimpacto} />
         <Cartagena t={t.cartagena} />
         <Agenda t={t.agenda} place={t.hero.eyebrow} dates={t.hero.dates} locale={locale} />
         <Sponsor t={t.sponsor} locale={locale} lang={lang} />
@@ -72,7 +74,7 @@ export default async function Home({ lang, hero = "editorial" }: { lang: Locale;
         <Visits t={t.visits} />
         <Carbon t={t.carbon} locale={locale} />
         <Partners t={t.partners} />
-        <AboutLatimpacto t={t.latimpacto} />
+        <FaqTeaser lang={lang} />
       </main>
       <Footer t={t.footer} contact={t.contact} hero={t.hero} nav={t.nav} lang={lang} onHome privacy={{ href: privacyPath(lang), label: p.navLabel }} />
       <BackToTop label={t.footer.backToTop} />

@@ -45,6 +45,7 @@ export const mainNav = (lang: Locale, nav: Dict["nav"], onHome: boolean) => {
     { href: `${home}#sobre`, label: nav.about },
     { href: `${home}#agenda-2027`, label: nav.agenda },
     { href: editionsPath(lang), label: nav.editions },
+    { href: `/${lang}/faq`, label: nav.faq },
     { href: "#contato", label: nav.contact },
   ];
 };

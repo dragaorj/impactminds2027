@@ -11,6 +11,7 @@ const pages: ((l: Locale) => string)[] = [
   (l) => editionsPath(l),
   (l) => agendaPath(l),
   (l) => agendaSpeakersPath(l),
+  (l) => `/${l}/faq`,
   (l) => `/${l}/privacy`,
 ];
 
