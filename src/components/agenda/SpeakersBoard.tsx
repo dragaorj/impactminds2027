@@ -98,9 +98,23 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
       <PageTitle title={t.speakers} subtitle={t.subtitle} aside={<HelpButton label={t.tour.howTo} hint={t.tour.hint} />} />
 
 
-      <div className="mt-6 flex flex-col gap-3 lg:flex-row lg:items-center">
-      <div className="flex gap-2 lg:contents">
-      <label className="chip relative block min-w-0 flex-1 rounded-full lg:max-w-xl" data-tour="search">
+      {/* The toolbar, in the agenda's order: the group (all / featured) as the
+          days, then the search, the view and, for editors, "New speaker".
+          Phones: the group on top, the rest on one row. */}
+      <div className="mt-6 flex flex-col gap-3 xl:flex-row xl:items-center">
+        <Segmented
+          label={t.featured}
+          tour="group"
+          value={group}
+          onChange={setGroup}
+          className="w-full xl:w-auto xl:shrink-0"
+          options={[
+            { value: "all", label: t.all },
+            { value: "featured", label: <><Star size={15} weight="fill" className="shrink-0 text-[#c9a24d]" aria-hidden />{t.featured}</> },
+          ]}
+        />
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+      <label className="chip relative block min-w-0 flex-1 rounded-full" data-tour="search">
         <span className="sr-only">{t.searchSpeakers}</span>
         <MagnifyingGlass size={18} aria-hidden className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
         <input
@@ -112,22 +126,6 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
         />
         <SearchCount shown={list.length} total={shown.length} one={t.speakerOne} many={t.speakers.toLowerCase()} of={t.ofTotal} filtered={!!query} />
       </label>
-      {/* New speaker (editors), right beside the search. */}
-      <NewButton t={t} tab="speakers" className="sm:h-12 max-sm:size-12" />
-      </div>
-        {/* Phones: all filters on one compact row (as on the agenda). */}
-        <div className="flex flex-wrap items-center gap-2 lg:contents">
-        <Segmented
-          label={t.featured}
-          tour="group"
-          value={group}
-          onChange={setGroup}
-          className="min-w-[12.5rem] flex-1 lg:ml-auto lg:flex-none lg:shrink-0"
-          options={[
-            { value: "all", label: t.all },
-            { value: "featured", label: <><Star size={15} weight="fill" className="shrink-0 text-[#c9a24d]" aria-hidden />{t.featured}</> },
-          ]}
-        />
         <Segmented
           label={t.view}
           tour="view"
@@ -140,6 +138,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
             { value: "photos", title: t.photos, label: <><GridFour size={17} aria-hidden /><span className="max-md:sr-only">{t.photos}</span></> },
           ]}
         />
+      <NewButton t={t} tab="speakers" className="sm:h-12 max-sm:size-12" />
         </div>
       </div>
 

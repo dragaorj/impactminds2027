@@ -372,10 +372,11 @@ export function SearchCount({ shown, total, one, many, of, filtered }: { shown: 
 // The page's title, with an optional control beside it (the "?" guide), and
 // the place and dates: at the right on phones, under it on wider screens,
 // and under it again on very narrow screens.
-export function PageTitle({ title, subtitle, aside }: { title: string; subtitle: string; aside?: React.ReactNode }) {
+export function PageTitle({ title, subtitle, aside, side }: { title: string; subtitle: string; aside?: React.ReactNode; side?: React.ReactNode }) {
   const [place, dates] = subtitle.split(" · ");
   return (
-    <div className="flex items-center justify-between gap-4 max-[24rem]:block sm:block">
+    <div className="lg:flex lg:items-center lg:gap-10">
+    <div className="flex items-center justify-between gap-4 max-[24rem]:block sm:block lg:shrink-0">
       <div className="flex min-w-0 items-center gap-3">
         <h1 className="font-display text-[2.125rem] font-normal leading-[1.05] tracking-[-0.01em] text-[#2a1240] max-[24rem]:text-[1.875rem] sm:text-[2.75rem]">{title}</h1>
         {aside}
@@ -389,6 +390,8 @@ export function PageTitle({ title, subtitle, aside }: { title: string; subtitle:
           </>
         )}
       </p>
+    </div>
+    {side}
     </div>
   );
 }

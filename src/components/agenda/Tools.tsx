@@ -568,7 +568,7 @@ export { dayLabel };
 // The notice for everyone, as on the old admin: shown to visitors where the
 // edit bar sits for editors; editors see it on top with a pencil (or an
 // empty line inviting them to write one), and write it in PT, ES and EN.
-export function NoticeBox({ t }: { t: T }) {
+export function NoticeBox({ t, className = "" }: { t: T; className?: string }) {
   const { data, signedIn: editing } = useAgenda();
   const [open, setOpen] = useState(false);
   if (!editing && !data.notice) return null;
@@ -577,7 +577,7 @@ export function NoticeBox({ t }: { t: T }) {
     <>
       <div
         data-tour="notice"
-        className={`mt-5 flex gap-3 rounded-[20px] px-4 text-[14px] leading-relaxed sm:text-[15px] ${has ? "items-start py-3" : "items-center py-2 sm:py-2.5"} ${
+        className={`mt-5 flex gap-3 rounded-[20px] px-4 ${className} text-[14px] leading-relaxed sm:text-[15px] ${has ? "items-start py-3" : "items-center py-2 sm:py-2.5"} ${
           has ? "bg-[rgb(201_162_77/0.12)] text-[#5f4610] ring-1 ring-[rgb(201_162_77/0.25)]" : "bg-[rgb(255_255_255/0.55)] text-muted ring-1 ring-[var(--chip-line)]"
         }`}
       >

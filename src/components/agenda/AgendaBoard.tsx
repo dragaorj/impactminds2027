@@ -142,9 +142,12 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
 
   return (
     <div className={`${wrap} pb-16 pt-6 sm:pt-10`}>
-      <PageTitle title={t.title} subtitle={t.subtitle} aside={<HelpButton label={t.tour.howTo} hint={t.tour.hint} />} />
-
-      <NoticeBox t={t} />
+      <PageTitle
+        title={t.title}
+        subtitle={t.subtitle}
+        aside={<HelpButton label={t.tour.howTo} hint={t.tour.hint} />}
+        side={<NoticeBox t={t} className="lg:mt-0 lg:min-w-0 lg:flex-1" />}
+      />
 
       {/* The toolbar, mobile first. The days (and the favourites) as a row
           of chips that scrolls sideways when it does not fit; then the
