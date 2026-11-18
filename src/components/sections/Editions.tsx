@@ -8,6 +8,7 @@ import Art from "../Art";
 import Lightbox from "../Lightbox";
 import { prefersReducedMotion } from "../prefs";
 import { H2, container, section } from "../ui";
+import FOCUS from "@/lib/photo-focus.json";
 
 // A true bento: twelve tiles of different shapes on a 6x4 grid (the areas
 // live in globals.css, .editions-bento). Every few seconds the column and row
@@ -27,22 +28,25 @@ const ROWS = [
   "1fr 0.9fr 0.8fr 1.3fr",
 ];
 const AREAS = "abcdefghijkl";
-// Focal point per tile (object-position) for the 2026 photos, chosen so faces
-// stay in frame however narrow or wide the tile gets during the animation.
-const FOCUS_2026 = [
-  "45% 50%", // group on stage
-  "72% 40%", // speaker at the lectern
-  "45% 25%", // conversation
-  "55% 45%", // panel under the banner
-  "40% 42%", // two speakers
-  "50% 55%", // group at the backdrop
-  "50% 35%", // seated talk
-  "58% 42%", // panel by the cube
-  "45% 55%", // circle of chairs
-  "50% 68%", // stage panel
-  "40% 32%", // audience
-  "62% 62%", // lounge
-];
+// The same layout as .editions-bento's grid-template-areas, to know which
+// column and row tracks each tile spans.
+const MAP = ["aabcde", "ffbgdh", "ffigjh", "kkilll"];
+const spans = (letter: string) => ({
+  cols: [0, 1, 2, 3, 4, 5].filter((c) => MAP.some((row) => row[c] === letter)),
+  rows: [0, 1, 2, 3].filter((r) => MAP[r].includes(letter)),
+});
+// The photo in focus opens up: the tracks under it grow, so it takes more of
+// the grid and the others narrow to make room (fr sizes are shares).
+function grow(now: string, keep: number[], by: number) {
+  return now
+    .split(" ")
+    .map((v, i) => (keep.includes(i) ? parseFloat(v) * by : parseFloat(v)).toFixed(3) + "fr")
+    .join(" ");
+}
+// Focal point per photo (object-position), from the faces found in each one
+// (scripts: a face finder run over public/photos/editions, then checked by eye),
+// so heads and faces stay in frame however narrow or wide a tile gets.
+const focusOf = (src: string) => (FOCUS as Record<string, string>)[src] ?? "50% 30%";
 const STEP_MS = 5000;
 const SIZES = "(min-width:1024px) 40vw, 60vw";
 
@@ -87,7 +91,25 @@ export default function Editions({
   const photos = media[active]?.photos ?? [];
   const current = t.list[active];
   const report = media[active]?.report ?? null;
-  const [tick, setTick] = useState(0);
+  const [tracks, setTracks] = useState({ n: 0, cols: COLS[0], rows: ROWS[1] });
+  // The photo under the pointer (after a short rest, so passing over the
+  // grid does not set it off): it opens up and the cycle waits.
+  const [focus, setFocus] = useState<number | null>(null);
+  const focusRef = useRef<number | null>(null);
+  focusRef.current = focus;
+  const rest = useRef<number | undefined>(undefined);
+  const pending = useRef<number | null>(null);
+  const point = (i: number | null) => {
+    if (pending.current === i) return;
+    pending.current = i;
+    window.clearTimeout(rest.current);
+    rest.current = window.setTimeout(() => setFocus(i), i === null ? 140 : 180);
+  };
+  useEffect(() => () => window.clearTimeout(rest.current), []);
+  useEffect(() => setFocus(null), [active]);
+  const shown = focus === null
+    ? tracks
+    : { cols: grow(tracks.cols, spans(AREAS[focus]).cols, 3.4), rows: grow(tracks.rows, spans(AREAS[focus]).rows, 2.8) };
   const root = useRef<HTMLElement>(null);
 
   // Near the screen: the other editions' photos load in the background, one
@@ -121,7 +143,11 @@ export default function Editions({
     // No reflow work while the grid is off screen or the tab is hidden.
     const id = window.setInterval(() => {
       if (document.hidden || document.getElementById("edicoes")?.hasAttribute("data-idle")) return;
-      setTick((n) => n + 1);
+      if (focusRef.current !== null) return;
+      setTracks((t) => {
+        const n = t.n + 1;
+        return { n, cols: COLS[n % COLS.length], rows: ROWS[(n + 1) % ROWS.length] };
+      });
     }, STEP_MS);
     return () => window.clearInterval(id);
   }, [viewing]);
@@ -164,13 +190,22 @@ export default function Editions({
           <ul
             key={active}
             className="editions-bento mt-12 md:mt-16"
-            style={{ "--cols": COLS[tick % COLS.length], "--rows": ROWS[(tick + 1) % ROWS.length] } as React.CSSProperties}
+            style={{ "--cols": shown.cols, "--rows": shown.rows } as React.CSSProperties}
+            data-focus={focus === null ? undefined : ""}
+            onPointerLeave={() => point(null)}
           >
             {photos.slice(0, 12).map((src, i) => (
               <li
                 key={src}
                 className="group relative min-h-0 min-w-0 overflow-hidden rounded-[1.25rem] bg-block ring-1 ring-line transition-shadow duration-500 hover:ring-sun/60 md:rounded-[1.5rem] animate-[menuIn_0.9s_var(--ease-out-expo)_both] motion-reduce:animate-none"
                 style={{ gridArea: AREAS[i], animationDelay: `${i * 45}ms` } as React.CSSProperties}
+                data-on={focus === i ? "" : undefined}
+                // Only a real move of the mouse picks a photo: when the grid
+                // reshapes, another tile sliding under a still pointer does not
+                // steal the focus.
+                onPointerMove={(e) => {
+                  if (e.pointerType === "mouse" && (e.movementX || e.movementY)) point(i);
+                }}
               >
                 <button
                   type="button"
@@ -189,13 +224,15 @@ export default function Editions({
                     // painting in halfway).
                     ref={reveal}
                     onLoad={(e) => e.currentTarget.setAttribute("data-ready", "")}
-                    className="object-cover opacity-0 transition-[transform,opacity] duration-[1800ms,500ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.06] data-[ready]:opacity-100"
-                    style={{ objectPosition: current.year === "2026" ? FOCUS_2026[i] : "50% 40%" }}
+                    className="object-cover opacity-0 data-[ready]:opacity-100"
+                    style={{ objectPosition: focusOf(src) }}
                   />
                   <span
                     aria-hidden
                     className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(34_14_52/0)_55%,rgb(34_14_52/0.45))] opacity-60 transition-opacity duration-700 group-hover:opacity-0"
                   />
+                  {/* The speakers' lilac wash, on the photos out of focus. */}
+                  <span aria-hidden className="editions-wash pointer-events-none absolute inset-0" />
                 </button>
               </li>
             ))}

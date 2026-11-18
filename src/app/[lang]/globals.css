@@ -567,6 +567,36 @@ html:not([data-scrollbar="on"]) *::-webkit-scrollbar { display: none; }
   }
 }
 html[data-motion="reduce"] .editions-bento { transition: none; }
+/* Pointing at a photo (data-focus, set in Editions.tsx): it opens up and
+   comes slowly closer in full colour, while the others narrow, soften and
+   take the speakers' light lilac wash. The grid eases faster here than in
+   its idle cycle, on a long ease-out, so nothing snaps. */
+.editions-bento[data-focus] {
+  transition:
+    grid-template-columns 1.3s cubic-bezier(0.22, 1, 0.36, 1),
+    grid-template-rows 1.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.editions-bento img {
+  transition:
+    scale 1.6s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 1s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.5s ease;
+}
+.editions-wash {
+  background: #cdb8ec;
+  mix-blend-mode: color;
+  opacity: 0;
+  transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.editions-bento > li[data-on] img { scale: 1.05; }
+.editions-bento[data-focus] > li:not([data-on]) img {
+  filter: grayscale(1) brightness(1.42) contrast(0.66) blur(1.5px);
+  scale: 1.03;
+}
+.editions-bento[data-focus] > li:not([data-on]) .editions-wash { opacity: 0.8; }
+html[data-motion="reduce"] .editions-bento img { transition: opacity 0.5s ease, filter 0.5s ease; }
+html[data-motion="reduce"] .editions-bento > li img { scale: 1 !important; }
+html[data-motion="reduce"] .editions-bento[data-focus] { transition: none; }
 
 /* Survey rating dots: a soft gold pulse keeps travelling along each row. */
 @keyframes dotWave {

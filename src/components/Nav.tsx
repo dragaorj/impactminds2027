@@ -638,7 +638,6 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
                             onClick={() => setMenuOpen(false)}
                             className="group flex items-center gap-4 rounded-[1.5rem] px-4 py-3.5 text-ink transition-colors duration-500 hover:bg-sun/10 focus-visible:bg-sun/10 active:bg-sun/10"
                           >
-                            <span className="self-start pt-1 font-display text-sm tabular-nums text-gold">{String(i + 1).padStart(2, "0")}</span>
                             <span className="flex-1 font-display text-[1.625rem] leading-tight transition-[translate,color] duration-500 ease-[var(--ease-spring)] group-hover:translate-x-1 group-hover:text-gold group-focus-visible:text-gold">
                               {item.label}
                             </span>
