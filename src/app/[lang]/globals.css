@@ -950,7 +950,7 @@ html[data-motion="reduce"] .faces > .face { transition: none; animation: none !i
   position: absolute;
   bottom: calc(100% + 0.6rem);
   left: 50%;
-  z-index: 2;
+  z-index: 70;
   translate: -50% 4px;
   white-space: nowrap;
   border-radius: 999px;
@@ -1050,3 +1050,19 @@ html[data-menu-open] .consent-ui { opacity: 0; pointer-events: none; }
 }
 html[data-motion="reduce"] .tm-card:hover,
 html[data-motion="reduce"] ul:has(.tm-card:hover) .tm-card:not(:hover) { transform: none; }
+
+/* Cards on the home page (numbers, pillars, the four days, launches): on
+   hover they rise a few pixels and a faint gold edge and soft shadow bloom,
+   slowly, with a long ease-out. The CSS translate property is used, so it
+   composes with GSAP's reveal transforms instead of fighting them. */
+.lift {
+  transition: translate 0.9s var(--ease-out-expo), box-shadow 0.9s var(--ease-out-expo);
+}
+@media (hover: hover) {
+  .lift:hover {
+    translate: 0 -4px;
+    box-shadow: 0 0 0 1px rgb(201 162 77 / 0.45), 0 26px 50px -30px rgb(74 42 110 / 0.3);
+  }
+}
+html[data-motion="reduce"] .lift:hover { translate: none; }
+@media (prefers-reduced-motion: reduce) { .lift:hover { translate: none; } }

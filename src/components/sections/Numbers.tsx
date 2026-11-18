@@ -90,7 +90,7 @@ function MiniNetwork() {
 // title breaks after the edition so "em números" gets its own gold line.
 export default function Numbers({ t, locale, lang, show }: { t: Dict["numbers"]; locale: string; lang: Locale; show: ShowCopy }) {
   const label = "mt-3 max-w-[24ch] text-[0.9375rem] leading-snug";
-  const card = "transition-[transform,box-shadow] duration-500 ease-[var(--ease-spring)] hover:-translate-y-1 hover:ring-sun/50";
+  const card = "lift";
   const [titleHead, titleTail] = t.title.split(/(?<=2026)\s/);
 
   return (

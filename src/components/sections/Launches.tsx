@@ -18,7 +18,7 @@ export default function Launches({ t, locale }: { t: Dict["launches"]; locale: s
 
         <div className="mt-14 grid gap-3 md:mt-20 lg:grid-cols-3 lg:gap-4">
           {t.items.map((item) => (
-            <Bezel key={item.title} inner="bg-surface">
+            <Bezel key={item.title} className="lift" inner="bg-surface">
               <article data-reveal className="flex h-full flex-col gap-8 p-7 md:p-9">
                 <div className="flex-1">
                   <span className="inline-block rounded-full bg-sun/15 px-3 py-1 text-xs font-medium text-gold ring-1 ring-gold/25">

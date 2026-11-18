@@ -60,7 +60,7 @@ export default function About({ t, videoSrc }: { t: Dict["about"]; videoSrc?: st
                 key={p.title}
                 data-stagger-item
                 data-nosplit
-                className="group rounded-[1.5rem] bg-surface/70 p-5 ring-1 ring-line transition-[transform,box-shadow] duration-500 ease-[var(--ease-spring)] hover:-translate-y-1 hover:ring-sun/50 lg:flex lg:items-start lg:gap-5 lg:p-6"
+                className="group rounded-[1.5rem] bg-surface/70 p-5 ring-1 ring-line lift lg:flex lg:items-start lg:gap-5 lg:p-6"
               >
                 <span className="grid size-10 shrink-0 place-items-center rounded-full bg-sun/15 text-gold ring-1 ring-gold/25 lg:size-12">
                   <Icon size="1.125rem" weight="light" />

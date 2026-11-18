@@ -29,7 +29,7 @@ export default function Sponsor({ t, lang }: { t: Dict["sponsor"]; locale: strin
         </div>
 
         {/* What a sponsor gets. */}
-        <Bezel className="xl:col-span-7" inner="bg-surface">
+        <Bezel className="lift xl:col-span-7" inner="bg-surface">
           <div className="px-7 py-8 md:px-10 md:py-10" data-reveal data-nosplit>
             <p className="text-xs font-medium uppercase tracking-[0.16em] text-gold md:text-sm">{t.benefitsTitle}</p>
             <ol className="mt-4 divide-y divide-line">

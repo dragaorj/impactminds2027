@@ -35,7 +35,7 @@ export default function AboutLatimpacto({ t }: { t: Dict["latimpacto"] }) {
           </div>
         </div>
 
-        <Bezel className="xl:col-span-6" inner="bg-surface">
+        <Bezel className="lift xl:col-span-6" inner="bg-surface">
           <dl className="grid divide-y divide-line px-7 md:px-10" data-reveal data-nosplit>
             {t.facts.map((f) => (
               <div key={f.value} className="py-7 md:py-8">

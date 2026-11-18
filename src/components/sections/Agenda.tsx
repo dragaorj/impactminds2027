@@ -61,7 +61,7 @@ export default function Agenda({
                 data-stagger-dot
                 className="absolute left-[1.4rem] top-7 grid size-3 -translate-x-1/2 place-items-center rounded-full bg-[#E2C985] shadow-[0_0_0_6px_rgb(226_201_133/0.15)] lg:left-8 lg:top-[1.4rem] lg:-translate-y-1/2"
               />
-              <article data-stagger-item className="group h-full rounded-[2rem] bg-ink/[0.04] p-1.5 ring-1 ring-line dark:bg-white/[0.06] dark:ring-white/12">
+              <article data-stagger-item className="lift group h-full rounded-[2rem] bg-ink/[0.04] p-1.5 ring-1 ring-line dark:bg-white/[0.06] dark:ring-white/12">
                 <div className="flex h-full flex-col rounded-[calc(2rem-6px)] bg-surface p-6 shadow-[inset_0_1px_1px_rgb(255_255_255/0.08)] dark:bg-[rgb(255_255_255/0.035)] md:p-7">
                   <p className="text-xs font-medium uppercase tracking-[0.16em] text-gold dark:text-[#E2C985]" data-nosplit>
                     {weekday(i)}
