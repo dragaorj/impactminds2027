@@ -167,7 +167,7 @@ export default function Hero({
     <a
       href="#sobre"
       // Down to "What is Impact Minds", right under the hero.
-      className={`shimmer group flex items-center gap-2 rounded-full sm:gap-3 bg-white font-medium text-[#2A1240] transition-[transform,background-color] duration-500 ease-[var(--ease-spring)] hover:bg-[#D9B865] active:scale-[0.98] ${size}`}
+      className={`shimmer group flex items-center gap-2 rounded-full sm:gap-3 bg-white font-medium text-[#2A1240] transition-[transform,background-color] duration-700 ease-[var(--ease-out-expo)] hover:bg-[#D9B865] active:scale-[0.98] ${size}`}
     >
       {/* Phones: the label centred in the room left of the arrow, its size
           following the button's own width (cqi) so it never pushes the arrow

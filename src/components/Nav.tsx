@@ -295,11 +295,20 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
       const host = (e.target as Element).closest?.("[data-tip-off]");
       if (host && !host.contains(e.relatedTarget as Node | null)) host.removeAttribute("data-tip-off");
     };
+    const onOver = (e: PointerEvent) => {
+      const b = (e.target as Element).closest?.<HTMLElement>(".btn-solid, .btn-light, .btn-outline");
+      if (!b || b.contains(e.relatedTarget as Node | null)) return;
+      const r = b.getBoundingClientRect();
+      b.style.setProperty("--fx", `${e.clientX - r.left}px`);
+      b.style.setProperty("--fy", `${e.clientY - r.top}px`);
+    };
     document.addEventListener("pointerdown", onDown, true);
     document.addEventListener("pointerout", onOut, true);
+    document.addEventListener("pointerover", onOver, true);
     return () => {
       document.removeEventListener("pointerdown", onDown, true);
       document.removeEventListener("pointerout", onOut, true);
+      document.removeEventListener("pointerover", onOver, true);
     };
   }, []);
   const [langOpen, setLangOpen] = useState(false);
@@ -331,8 +340,9 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
       panelBtnRef.current?.focus();
     };
     const onClick = (e: MouseEvent) => {
-      const t = e.target as Node;
+      const t = e.target as Element;
       if (panelOpen && !panelRef.current?.contains(t) && !panelBtnRef.current?.contains(t)) setPanelOpen(false);
+      if (menuOpen && !document.getElementById("mobile-menu")?.contains(t) && !t.closest?.('[aria-controls="mobile-menu"]')) setMenuOpen(false);
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("mousedown", onClick);
@@ -467,7 +477,7 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
         data-hero={sub ? undefined : ""}
       >
         <div
-          className={`mx-auto flex h-16 items-center justify-between gap-3 rounded-full py-2 transition-[max-width,padding,background-color,box-shadow,backdrop-filter] duration-700 ease-[var(--ease-out-expo)] ${
+          className={`relative z-[2] mx-auto flex h-16 items-center justify-between gap-3 rounded-full py-2 transition-[max-width,padding,background-color,box-shadow,backdrop-filter] duration-700 ease-[var(--ease-out-expo)] ${
             // At the top the bar is see-through, so the logo and the menu icon sit
             // right on the page's own gutter (the edges every section lines up to);
             // once scrolled the pill takes its padding back.
@@ -580,12 +590,12 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
           </div>
         </div>
         {menuOpen && (
-          <div className={`mx-auto mt-2 flex justify-end ${scrolled ? "max-w-[30rem]" : "max-w-full"}`}>
+          <div className={`pointer-events-none mx-auto mt-2 flex justify-end ${scrolled ? "max-w-[30rem]" : "max-w-full"}`}>
             {/* Double-bezel glass card that drops under the bar, same material,
                 with a faint gold glow in its corner. */}
             <div
               id="mobile-menu"
-              className="w-full origin-top-right animate-[menuDrop_0.55s_var(--ease-out-expo)_both] rounded-[2rem] bg-surface/90 p-1.5 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:max-w-[30rem]"
+              className="pointer-events-auto w-full origin-top-right animate-[menuDrop_0.55s_var(--ease-out-expo)_both] rounded-[2rem] bg-surface/90 p-1.5 shadow-[var(--shadow)] ring-1 ring-line backdrop-blur-xl backdrop-saturate-150 sm:max-w-[30rem]"
             >
               <div className="relative isolate overflow-hidden rounded-[calc(2rem-6px)] bg-ink/[0.03] px-2 pb-2 pt-5 shadow-[inset_0_1px_1px_rgb(255_255_255/0.08)]">
                 <span

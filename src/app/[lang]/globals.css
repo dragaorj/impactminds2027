@@ -156,6 +156,9 @@
   --font-display: var(--font-gloock), Georgia, serif;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  /* Every hover transition without its own timing eases in gently. */
+  --default-transition-duration: 500ms;
+  --default-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Text size steps from the accessibility panel scale every rem on the page. */
@@ -705,14 +708,44 @@ html[data-motion="reduce"] .speaker-toggle { display: none; }
 .preloader { display: none; }
 html.js:not([data-motion="reduce"]) .preloader { display: flex; }
 
-/* Button colour states shared by every CTA (hover and keyboard focus). */
+/* Button colour states shared by every CTA (hover and keyboard focus).
+   The gold never swaps in at once: a soft circle grows from the point where
+   the pointer comes in (--fx/--fy, set by Nav) until it fills the button,
+   while the text colour eases across; leaving, it shrinks back. */
 .btn-solid { background: var(--brand); color: var(--brand-ink); }
-.btn-solid:hover, .btn-solid:focus-visible { background: var(--sun); color: var(--sun-ink); }
 .btn-light { background: var(--block-ink); color: var(--block); }
-.btn-light:hover, .btn-light:focus-visible { background: var(--sun); color: var(--sun-ink); }
 .btn-outline { color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
-.btn-outline:hover, .btn-outline:focus-visible { background: var(--sun); color: var(--sun-ink); box-shadow: inset 0 0 0 1px var(--sun); }
-.btn-solid .bg-brand-ink\/15 { transition: background-color 0.3s; }
+.btn-solid:is(:hover, :focus-visible) { background: var(--brand); }
+.btn-light:is(:hover, :focus-visible) { background: var(--block-ink); }
+.btn-outline:is(:hover, :focus-visible) { background: transparent; box-shadow: inset 0 0 0 1px var(--sun); }
+.btn-solid, .btn-light, .btn-outline {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition: color 0.7s var(--ease-out-expo), box-shadow 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+}
+.btn-solid::after, .btn-light::after, .btn-outline::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: var(--fx, 50%);
+  top: var(--fy, 50%);
+  width: calc(240% + 6rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--sun);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.btn-solid:is(:hover, :focus-visible), .btn-light:is(:hover, :focus-visible), .btn-outline:is(:hover, :focus-visible) { color: var(--sun-ink); }
+.btn-solid:is(:hover, :focus-visible)::after, .btn-light:is(:hover, :focus-visible)::after, .btn-outline:is(:hover, :focus-visible)::after {
+  transform: translate(-50%, -50%) scale(1);
+  transition-duration: 1.1s;
+}
+.btn-solid .bg-brand-ink\/15 { transition: background-color 0.7s var(--ease-out-expo); }
+html[data-motion="reduce"] :is(.btn-solid, .btn-light, .btn-outline)::after { transition: none; }
+@media (prefers-reduced-motion: reduce) { :is(.btn-solid, .btn-light, .btn-outline)::after { transition: none; } }
 
 /* Hero CTA: a light sweeps around the border and a soft ring pulses out. */
 @property --sweep { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
