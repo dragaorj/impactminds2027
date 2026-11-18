@@ -19,16 +19,16 @@
   Violeta   #8E63C6  geometric tiles
   Lavanda   #C9B5E6  soft tiles and fills
   Oro       #C9A24D  line-art, "CARTAGENA, COLOMBIA"
-  Tinta     #2A1240  text
+  Tinta     #4A2A6E  text (a lighter plum, so the page stays airy)
 */
 :root {
   --bg: #f3f1ee;
   --bg-2: #ebe6ef;
   --surface: #fbfaf8;
-  --ink: #2a1240;
-  --ink-2: #4a3560;
-  --muted: #6b5a7e;
-  --line: rgb(42 18 64 / 0.12);
+  --ink: #4a2a6e;
+  --ink-2: #67587a;
+  --muted: #766687;
+  --line: rgb(74 42 110 / 0.11);
   --brand: #5b2a86;
   --brand-ink: #fbf8ff;
   --brand-soft: #e6dcf3;

@@ -28,8 +28,7 @@ export default function Cartagena({ t }: { t: Dict["cartagena"] }) {
             <CalendarBlank aria-hidden className="size-[0.8em] shrink-0" weight="light" />
             {t.dates}
           </p>
-          <p className="mt-8 flex items-center gap-4 font-display text-xl leading-snug text-ink-2 md:text-2xl">
-            <span aria-hidden className="h-px w-10 shrink-0 bg-gold/60" />
+          <p className="mt-8 font-display text-xl leading-snug text-brand md:text-2xl">
             {t.title}
           </p>
           <div className="mt-8 max-w-[62ch] space-y-5 text-lg leading-relaxed text-ink-2">

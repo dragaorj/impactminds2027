@@ -150,7 +150,7 @@ export default function SpeakerFaces({ label }: { label: string }) {
           }}
           className="face group/face relative size-7 shrink-0 cursor-pointer rounded-full sm:size-8"
         >
-          <span className="face-in absolute inset-0 overflow-hidden rounded-full bg-[#2a1240] ring-2 ring-[#2a1240]">
+          <span className="face-in absolute inset-0 overflow-hidden rounded-full bg-[#4a2a6e] ring-2 ring-[#4a2a6e]">
             <Image src={f.photo!} alt="" fill sizes={SIZES} className="scale-[1.24] object-cover object-[50%_30%]" />
           </span>
           {/* Name tooltip, above the circle. */}

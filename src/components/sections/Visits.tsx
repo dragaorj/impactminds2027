@@ -280,7 +280,6 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
                   <span aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,rgb(34_14_52/0.35),rgb(34_14_52/0)_30%,rgb(34_14_52/0)_45%,rgb(34_14_52/0.9))]" />
                   <span className="absolute left-5 top-5 flex items-center gap-3 font-display text-lg tabular-nums text-[#E2C985] lg:left-6 lg:top-6">
                     {pad(i + 1)}
-                    <span aria-hidden className="h-px w-8 bg-[linear-gradient(90deg,#E2C985,transparent)] opacity-70" />
                   </span>
                   <span
                     aria-hidden
