@@ -1,11 +1,28 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import { ArrowLeft, ArrowRight, X } from "@phosphor-icons/react";
 import { useDialogDismiss } from "./useDialogDismiss";
 
 export type LightboxItem = { src: string; title: string; subtitle?: string };
+
+// The size the viewer shows a photo at (its sizes attribute).
+const SIZES = "(min-width:1024px) 80vw, 100vw";
+// Fetches a photo at the viewer's full size ahead of a click (the very file
+// the viewer will ask for), so it opens sharp at once. Each file only once.
+const warmed = new Set<string>();
+export function warmLarge(src: string, high = false) {
+  if (typeof window === "undefined" || warmed.has(src)) return;
+  warmed.add(src);
+  const { props } = getImageProps({ src, alt: "", fill: true, sizes: SIZES });
+  const img = new window.Image();
+  img.decoding = "async";
+  if (high) img.fetchPriority = "high";
+  if (props.sizes) img.sizes = props.sizes;
+  if (props.srcSet) img.srcset = props.srcSet;
+  img.src = props.src;
+}
 type Labels = { label: string; close: string; prev: string; next: string };
 
 const navBtn =
@@ -23,11 +40,16 @@ export default function Lightbox({
   index,
   onIndex,
   labels,
+  thumbSizes,
 }: {
   items: LightboxItem[];
   index: number | null;
   onIndex: (i: number | null) => void;
   labels: Labels;
+  // The sizes attribute the page's own thumbnails use: the copy it already
+  // holds shows at once under the full-size photo, which fades in over it
+  // as soon as it is in (no wait, no blank frame, no loss of sharpness).
+  thumbSizes?: string;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   // Aspect ratio per photo, learned from the preloads below, so each photo
@@ -95,7 +117,6 @@ export default function Lightbox({
   // Closes on a click outside the photo or on a scroll gesture.
   useDialogDismiss(dialog, index !== null, close);
   const ratio = (item && ratios[item.src]) ?? 1.5;
-  const SIZES = "(min-width:1024px) 80vw, 100vw";
 
   return (
     <>
@@ -147,13 +168,31 @@ export default function Lightbox({
               }`}
               style={{ aspectRatio: ratio, width: `min(100cqw, calc(100cqh * ${ratio}))` }}
             >
+              {thumbSizes && (
+                <Image
+                  src={item.src}
+                  alt=""
+                  aria-hidden
+                  fill
+                  sizes={thumbSizes}
+                  className="object-cover"
+                  onLoad={(e) => remember(item.src, e.currentTarget)}
+                />
+              )}
               <Image
                 src={item.src}
                 alt={item.subtitle ? `${item.title}: ${item.subtitle}` : item.title}
                 fill
                 sizes={SIZES}
-                className="object-cover"
-                onLoad={(e) => remember(item.src, e.currentTarget)}
+                priority
+                ref={(img) => {
+                  if (img?.complete && img.naturalWidth) img.setAttribute("data-ready", "");
+                }}
+                className={`object-cover ${thumbSizes ? "opacity-0 transition-opacity duration-300 data-[ready]:opacity-100" : ""}`}
+                onLoad={(e) => {
+                  e.currentTarget.setAttribute("data-ready", "");
+                  remember(item.src, e.currentTarget);
+                }}
               />
             </div>
           </div>

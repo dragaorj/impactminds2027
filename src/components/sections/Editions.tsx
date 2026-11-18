@@ -5,7 +5,7 @@ import Image, { getImageProps } from "next/image";
 import { ArrowUpRight, FilePdf } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import Art from "../Art";
-import Lightbox from "../Lightbox";
+import Lightbox, { warmLarge } from "../Lightbox";
 import { prefersReducedMotion } from "../prefs";
 import { H2, container, section } from "../ui";
 import FOCUS from "@/lib/photo-focus.json";
@@ -107,6 +107,36 @@ export default function Editions({
   };
   useEffect(() => () => window.clearTimeout(rest.current), []);
   useEffect(() => setFocus(null), [active]);
+  // A photo the pointer rests on is fetched at full size right away.
+  useEffect(() => {
+    if (focus !== null && photos[focus]) warmLarge(photos[focus], true);
+  }, [focus, photos]);
+  // Once the grid is near the screen, the open edition's photos are fetched
+  // at full size in idle time too (not on data saver or slow networks), so
+  // any of them opens sharp at the first click.
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const net = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    if (net?.saveData || /2g/.test(net?.effectiveType ?? "")) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        io.disconnect();
+        const queue = photos.slice(0, 12);
+        const next = () => {
+          const src = queue.shift();
+          if (!src) return;
+          warmLarge(src);
+          idle(next);
+        };
+        idle(next);
+      },
+      { rootMargin: "200px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [photos]);
   const shown = focus === null
     ? tracks
     : { cols: grow(tracks.cols, spans(AREAS[focus]).cols, 3.4), rows: grow(tracks.rows, spans(AREAS[focus]).rows, 2.8) };
@@ -291,6 +321,7 @@ export default function Editions({
         index={viewing}
         onIndex={setViewing}
         labels={{ label: t.title, close: t.close, prev: t.prev, next: t.next }}
+        thumbSizes={SIZES}
       />
     </section>
   );

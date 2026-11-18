@@ -84,6 +84,7 @@ export default function Events({ t }: { t: Dict["events"] }) {
           if (i !== null) setActive(i);
         }}
         labels={{ label: t.title, close: t.close, prev: t.prev, next: t.next }}
+        thumbSizes="(min-width:1024px) 60vw, 100vw"
       />
     </section>
   );

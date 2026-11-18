@@ -313,6 +313,7 @@ export default function Visits({ t }: { t: Dict["visits"] }) {
         index={viewing}
         onIndex={setViewing}
         labels={{ label: t.title, close: t.close, prev: t.prev, next: t.next }}
+        thumbSizes="(min-width:1024px) 50vw, (min-width:640px) 46vw, 80vw"
       />
     </section>
   );
