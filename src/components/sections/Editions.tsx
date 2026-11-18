@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image, { getImageProps } from "next/image";
 import { ArrowUpRight, FilePdf } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
@@ -141,6 +141,25 @@ export default function Editions({
     ? tracks
     : { cols: grow(tracks.cols, spans(AREAS[focus]).cols, 3.4), rows: grow(tracks.rows, spans(AREAS[focus]).rows, 2.8) };
   const root = useRef<HTMLElement>(null);
+  // The open tab's paper is one shape that glides from tab to tab (its place
+  // and width follow the open tab, measured on every resize).
+  const tabsRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const list = tabsRef.current;
+    if (!list) return;
+    const place = () => {
+      const tab = list.children[active + 1] as HTMLElement | undefined;
+      if (!tab) return;
+      list.style.setProperty("--x", `${tab.offsetLeft}px`);
+      list.style.setProperty("--w", `${tab.offsetWidth}px`);
+    };
+    place();
+    // Only glide once it has a place: no slide in from the corner on load.
+    requestAnimationFrame(() => list.setAttribute("data-ready", ""));
+    const ro = new ResizeObserver(place);
+    ro.observe(list);
+    return () => ro.disconnect();
+  }, [active]);
 
   // Near the screen: the other editions' photos load in the background, one
   // edition after the other.
@@ -186,40 +205,62 @@ export default function Editions({
     <section ref={root} id="edicoes" className={asPage ? "relative pb-24 md:pb-36" : `${section} scroll-mt-20`} aria-labelledby={asPage ? undefined : "edicoes-title"} aria-label={asPage ? t.title : undefined}>
       <div className={container}>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          {asPage ? (
-            <p className="font-display text-3xl text-brand md:text-4xl" aria-live="polite" data-nosplit>
-              {current.city} <span className="text-terra">{current.year}</span>
-            </p>
-          ) : (
-            <H2 id="edicoes-title">{t.title}</H2>
-          )}
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3" data-nosplit>
-            {!asPage && (
-              <p className="font-display text-2xl text-brand md:text-3xl" aria-live="polite">
-                {current.city} <span className="text-terra">{current.year}</span>
-              </p>
-            )}
-            {/* The edition's full report (PDF), when there is one. */}
-            {report && (
-              <a
-                href={report}
-                {...(report.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                className="group inline-flex min-h-12 items-center gap-3 rounded-full py-1.5 pl-2 pr-5 text-[0.9375rem] font-medium uppercase tracking-[0.06em] btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-[0.98]"
-              >
-                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-sun/15 text-gold transition-colors group-hover:bg-sun-ink/10 group-hover:text-sun-ink">
-                  <FilePdf size="1.05rem" weight="light" />
-                </span>
-                {t.report} {current.year}
-                <ArrowUpRight size="1rem" className="shrink-0" />
-              </a>
-            )}
-          </div>
+          {!asPage && <H2 id="edicoes-title">{t.title}</H2>}
+          <p className={`font-display text-brand ${asPage ? "text-3xl md:text-4xl" : "text-2xl md:text-3xl"}`} aria-live="polite" data-nosplit>
+            {current.city} <span className="text-terra">{current.year}</span>
+          </p>
         </div>
 
+        {/* The editions as folder tabs: the one open is joined to the folder
+            body below it (same paper, a gold edge on top, soft inward curves
+            at its feet); the others sit a little lower, behind, and rise on
+            hover. The body holds the photos. */}
+        <div className="folder mt-10 md:mt-14">
+          <p className="sr-only">{t.choose}</p>
+          <div ref={tabsRef} role="tablist" aria-label={t.choose} className="folder-tabs relative z-[1] -mb-px grid grid-cols-5 items-end">
+            <span aria-hidden className="folder-paper" />
+            {t.list.map((e, i) => {
+              const on = i === active;
+              // An edition without photos yet shows, but cannot be picked; it
+              // turns on by itself once its photos are in.
+              const empty = !media[i]?.photos.length;
+              return (
+                <button
+                  key={e.year}
+                  type="button"
+                  role="tab"
+                  aria-selected={on}
+                  disabled={empty}
+                  aria-disabled={empty}
+                  title={empty ? t.soon : undefined}
+                  onPointerEnter={() => warmEdition(i)}
+                  onFocus={() => warmEdition(i)}
+                  onTouchStart={() => warmEdition(i)}
+                  onClick={() => {
+                    setActive(i);
+                    setViewing(null);
+                  }}
+                  className={`folder-tab group relative flex min-w-0 items-center justify-center text-left ${
+                    on ? "folder-tab-on" : ""
+                  } disabled:pointer-events-none disabled:opacity-40`}
+                >
+                  <span className="folder-tab-year relative z-[3] font-display text-[0.8125rem] leading-none min-[24rem]:text-[1.0625rem] sm:text-[1.375rem]">{e.year}</span>
+                  {/* Beside the year, the city over its country (on phones the
+                      five years share the row and the heading names the place). */}
+                  <span className="folder-tab-city relative z-[3] hidden flex-col whitespace-nowrap text-[0.6875rem] leading-[1.2] xl:flex" aria-hidden={on || undefined}>
+                    {e.city.split(/,\s*/).map((part, k, all) => (
+                      <span key={part}>{k < all.length - 1 ? `${part},` : part}</span>
+                    ))}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="folder-body p-1.5 min-[24rem]:p-2 sm:p-3 md:p-4">
         {photos.length ? (
           <ul
             key={active}
-            className="editions-bento mt-12 md:mt-16"
+            className="editions-bento"
             style={{ "--cols": shown.cols, "--rows": shown.rows } as React.CSSProperties}
             data-focus={focus === null ? undefined : ""}
             onPointerLeave={() => point(null)}
@@ -270,7 +311,7 @@ export default function Editions({
         ) : (
           <div
             key={active}
-            className="mt-12 grid min-h-[22rem] place-items-center rounded-[2rem] bg-bg-2 px-6 text-center ring-1 ring-line md:mt-16"
+            className="grid min-h-[22rem] place-items-center rounded-[1.5rem] bg-bg-2 px-6 text-center"
           >
             <div className="flex flex-col items-center gap-5">
               <Art name="bloom" className="w-12 !visible" />
@@ -278,41 +319,24 @@ export default function Editions({
             </div>
           </div>
         )}
-
-        <div className="mt-10">
-          <p className="text-sm text-muted">{t.choose}</p>
-          <div role="tablist" aria-label={t.choose} className="no-scrollbar mt-4 flex gap-2 overflow-x-auto pb-1">
-            {t.list.map((e, i) => {
-              const on = i === active;
-              // An edition without photos yet (2022, for now) shows, but
-              // cannot be picked; it turns on by itself once its photos are in.
-              const empty = !media[i]?.photos.length;
-              return (
-                <button
-                  key={e.year}
-                  type="button"
-                  role="tab"
-                  aria-selected={on}
-                  disabled={empty}
-                  aria-disabled={empty}
-                  title={empty ? t.soon : undefined}
-                  onPointerEnter={() => warmEdition(i)}
-                  onFocus={() => warmEdition(i)}
-                  onTouchStart={() => warmEdition(i)}
-                  onClick={() => {
-                    setActive(i);
-                    setViewing(null);
-                  }}
-                  className={`group shrink-0 rounded-full px-5 py-3 text-left transition-[background-color,color,box-shadow] duration-300 ${
-                    on ? "bg-brand text-brand-ink" : "btn-outline"
-                  } disabled:pointer-events-none disabled:opacity-40`}
-                >
-                  <span className="block font-display text-lg leading-none">{e.year}</span>
-                  <span className={`mt-1 block text-xs ${on ? "text-brand-ink/80" : "text-muted group-hover:text-sun-ink/75 group-focus-visible:text-sun-ink/75"}`}>{e.city}</span>
-                </button>
-              );
-            })}
           </div>
+        </div>
+
+        {/* The edition's full report (PDF), when there is one, under the photos. */}
+        <div className="mt-6 flex justify-end empty:hidden md:mt-8" data-nosplit>
+          {report && (
+            <a
+              href={report}
+              {...(report.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              className="group inline-flex min-h-12 items-center gap-3 rounded-full py-1.5 pl-2 pr-5 text-[0.9375rem] font-medium uppercase tracking-[0.06em] btn-outline transition-[transform,background-color,color] duration-500 ease-[var(--ease-spring)] hover:bg-sun hover:text-sun-ink active:scale-[0.98]"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-sun/15 text-gold transition-colors group-hover:bg-sun-ink/10 group-hover:text-sun-ink">
+                <FilePdf size="1.05rem" weight="light" />
+              </span>
+              {t.report} {current.year}
+              <ArrowUpRight size="1rem" className="shrink-0" />
+            </a>
+          )}
         </div>
       </div>
 
