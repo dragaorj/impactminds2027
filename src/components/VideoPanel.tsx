@@ -45,27 +45,34 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
   const wanted = useRef(false);
   const lightboxOpen = useRef(false);
 
-  // The YouTube player (its script, iframe and stream, over 2 MB, plus its
-  // cookies) is only set up once the visitor starts using the page (the
-  // first scroll, tap or key; the panel sits below the full-screen hero, so
-  // nobody sees it before that) or the panel shows on screen. The opening
-  // load stays light; until the video plays the poster shows, as before.
+  // The YouTube player is set up early, so the loop is already running (and
+  // revealed) by the time the visitor reaches the section: right after the
+  // page has loaded (once the browser is idle), or sooner if the visitor starts
+  // scrolling or the panel comes within two screens.
   const [near, setNear] = useState(false);
   useEffect(() => {
     const el = holder.current;
     if (src || !el) return;
     const kinds = ["scroll", "wheel", "touchstart", "pointerdown", "keydown"] as const;
+    let idleId = 0;
     const go = () => {
       setNear(true);
       stop();
     };
-    const io = new IntersectionObserver(([e]) => e.isIntersecting && go());
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && go(), { rootMargin: "200% 0px" });
+    const soon = () => {
+      idleId = window.setTimeout(go, 600);
+    };
     const stop = () => {
       io.disconnect();
       kinds.forEach((k) => window.removeEventListener(k, go));
+      window.removeEventListener("load", soon);
+      window.clearTimeout(idleId);
     };
     io.observe(el);
     kinds.forEach((k) => window.addEventListener(k, go, { passive: true, once: true }));
+    if (document.readyState === "complete") soon();
+    else window.addEventListener("load", soon, { once: true });
     return stop;
   }, [src]);
 
@@ -112,7 +119,9 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
             if (e.data === 3 && revealed) return;
             window.clearTimeout(timer);
             if (e.data === 1) {
-              timer = window.setTimeout(() => setStarted(true), revealed ? 3500 : 4000);
+              // The poster lifts once playback is steady (YouTube's own start chrome
+              // is gone by then); short, as the loop started before the section.
+              timer = window.setTimeout(() => setStarted(true), revealed ? 1500 : 2000);
               revealed = true;
             } else if (e.data === -1 || e.data === 0 || e.data === 2 || e.data === 3) {
               setStarted(false);
