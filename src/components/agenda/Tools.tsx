@@ -216,6 +216,15 @@ function download(blob: Blob, name: string) {
 function ManageSheet({ open, onClose, t, lang }: { open: boolean; onClose: () => void; t: T; lang: string }) {
   const [tab, setTab] = useState<Tab>("days");
   const { raw } = useAgenda();
+  // Every tab stays mounted while the panel is open, so what was typed in one
+  // (and not saved yet) is still there after a look at another. A new opening
+  // starts fresh from what is saved (session).
+  const [session, setSession] = useState(0);
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) setSession((n) => n + 1);
+  }
   const c = raw?.config ?? {};
   const label = (x: string, n?: number) => (n === undefined ? x : `${x} (${n})`);
   return (
@@ -238,13 +247,13 @@ function ManageSheet({ open, onClose, t, lang }: { open: boolean; onClose: () =>
           ]}
         />
       </div>
-      <div className="mt-5">
-        {tab === "days" && <DaysPanel t={t} lang={lang} onDone={onClose} />}
-        {tab === "slots" && <SlotsPanel t={t} />}
-        {tab === "rooms" && <RoomsPanel t={t} />}
-        {tab === "formats" && <FormatsPanel t={t} />}
-        {tab === "hubs" && <HubsPanel t={t} />}
-        {tab === "notice" && <NoticePanel t={t} />}
+      <div key={session} className="mt-5">
+        <div hidden={tab !== "days"}><DaysPanel t={t} lang={lang} onDone={onClose} /></div>
+        <div hidden={tab !== "slots"}><SlotsPanel t={t} /></div>
+        <div hidden={tab !== "rooms"}><RoomsPanel t={t} /></div>
+        <div hidden={tab !== "formats"}><FormatsPanel t={t} /></div>
+        <div hidden={tab !== "hubs"}><HubsPanel t={t} /></div>
+        <div hidden={tab !== "notice"}><NoticePanel t={t} /></div>
       </div>
     </Sheet>
   );
