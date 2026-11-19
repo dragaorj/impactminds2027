@@ -380,7 +380,7 @@ export default function Hero({
   // first fold and the wave into the next section only shows once scrolling.
   // The content itself is laid out in the always-visible height (svh/dvh).
   return (
-    <section ref={root} id="top" className="wave-b relative isolate min-h-[calc(100lvh+var(--wave))] overflow-hidden bg-[#1c0c2c] text-white">
+    <section ref={root} id="top" className="wave-b wave-to-2 relative isolate min-h-[calc(100lvh+var(--wave))] overflow-hidden bg-[#1c0c2c] text-white">
       <div className="hero-media absolute inset-0 -z-10" aria-label={t.videoLabel} role="img">
         {/* The self-hosted loop shows its own poster (the thumbnail through the
             image optimiser, a fraction of the original's weight); the separate

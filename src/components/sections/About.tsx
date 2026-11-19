@@ -11,7 +11,7 @@ import { H2, container, section } from "../ui";
 // on the right, and the three pillars the conference connects in a row below.
 export default function About({ t, videoSrc }: { t: Dict["about"]; videoSrc?: string }) {
   return (
-    <section id="sobre" className={`${section} bg-bg-2 wave-y`} aria-labelledby="sobre-title">
+    <section id="sobre" className={`${section} bg-bg-2 wave-b`} aria-labelledby="sobre-title">
       <Art name="bloom" className="pointer-events-none absolute bottom-[calc(var(--wave)+0.5rem)] right-[1vw] hidden w-14 lg:block" />
       <div className={`${container} grid gap-10 md:gap-14 xl:grid-cols-12 xl:gap-x-12 xl:gap-y-14`}>
         <div className="xl:col-span-5 xl:self-center">
