@@ -224,7 +224,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
             aria-label={`${t.favorites} (${favs.size})`}
             title={t.favorites}
             className={`flex h-[3.75rem] min-w-[3.75rem] flex-1 shrink-0 flex-col items-center justify-center rounded-[20px] px-3 leading-none transition-[background-color,color,transform] duration-200 active:scale-95 xl:h-12 xl:flex-none xl:flex-row xl:gap-2 xl:rounded-full xl:px-4 ${
-              favMode ? "bg-[#c9a24d] text-[#241800] shadow-[0_10px_22px_-12px_rgb(160_120_40/0.9)]" : "chip text-ink"
+              favMode ? "bg-[#c9a24d] text-[#241800] shadow-[0_1px_2px_rgb(0_0_0/0.05)]" : "chip text-ink"
             }`}
           >
             <Star size={17} weight="fill" aria-hidden className={favMode ? "" : "text-[#a8832f]"} />

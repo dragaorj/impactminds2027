@@ -111,7 +111,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
                 ))}
               </div>
             </details>
-            <div className="chip flex items-center rounded-full p-[3px] max-[20rem]:hidden" role="group" aria-label={t.languages} data-tour="lang">
+            <div className="chip flex items-center rounded-full p-0.5 max-[20rem]:hidden" role="group" aria-label={t.languages} data-tour="lang">
               {locales.map((l) => (
                 <LangLink
                   key={l}
@@ -199,7 +199,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
               aria-current={on ? "page" : undefined}
               aria-label={label}
               className={`flex h-12 items-center justify-center gap-2 rounded-full text-[15px] font-medium transition-[background-color,color,padding] duration-300 ${
-                on ? "bg-[radial-gradient(circle_at_25%_20%,#8b52c2,#5b2a86)] px-5 text-white shadow-[0_8px_20px_-8px_rgb(91_42_134/0.9)] max-[20rem]:w-12 max-[20rem]:px-0" : "w-12 text-white/70 hover:bg-white/10 hover:text-white"
+                on ? "bg-brand px-5 text-white max-[20rem]:w-12 max-[20rem]:px-0" : "w-12 text-white/70 hover:bg-white/10 hover:text-white"
               }`}
             >
               <Icon data-tab-icon size={21} weight={on ? "fill" : "regular"} aria-hidden />

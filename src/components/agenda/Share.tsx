@@ -76,7 +76,6 @@ export default function ShareSheet({ open, onClose, t, lang }: { open: boolean; 
   return (
     <Sheet centered open={open} onClose={onClose} label={t.share} closeLabel={t.close}>
       <h2 className="text-2xl font-semibold tracking-tight">{t.share}</h2>
-      <p className="mt-1.5 text-[15px] leading-relaxed text-ink-2">{t.shareLead}</p>
 
       {/* What to show */}
       <div className="mt-5">
@@ -154,7 +153,6 @@ export default function ShareSheet({ open, onClose, t, lang }: { open: boolean; 
           </div>
         </div>
       ))}
-      <p className="mt-3 text-[13px] text-muted">{t.embedHint}</p>
     </Sheet>
   );
 }

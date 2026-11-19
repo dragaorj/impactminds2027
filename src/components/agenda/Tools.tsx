@@ -180,7 +180,7 @@ export function NewButton({ t, tab, className = "" }: { t: T; tab: "agenda" | "s
       data-tour={speakers ? "new-speaker" : "new"}
       aria-label={label}
       title={label}
-      className={`flex size-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-brand text-[15px] font-semibold text-brand-ink shadow-[0_8px_20px_-8px_rgb(91_33_182/0.65)] transition-[transform,filter,opacity] duration-200 hover:brightness-110 active:scale-95 disabled:opacity-50 sm:w-auto sm:pl-4 sm:pr-5 ${className}`}
+      className={`flex size-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-brand text-[15px] font-semibold text-brand-ink shadow-[0_1px_2px_rgb(0_0_0/0.05)] transition-[transform,filter,opacity] duration-200 hover:brightness-110 active:scale-95 disabled:opacity-50 sm:w-auto sm:pl-4 sm:pr-5 ${className}`}
     >
       <Plus size={18} weight="bold" aria-hidden />
       <span className="max-sm:sr-only">{label}</span>

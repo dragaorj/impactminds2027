@@ -608,8 +608,7 @@ export function DaysPanel({ t, lang, onDone }: { t: T; lang: string; onDone: () 
   };
   return (
     <div>
-      <p className="text-[15px] text-ink-2">{t.daysHint}</p>
-      <ol className="mt-4 space-y-2">
+      <ol className="space-y-2">
         {dates.map((d, i) => (
           <li key={i} className={`${card} flex items-center gap-3 p-2.5 pl-4`}>
             <span className="w-14 shrink-0 text-[13px] font-semibold text-muted">
@@ -617,7 +616,12 @@ export function DaysPanel({ t, lang, onDone }: { t: T; lang: string; onDone: () 
             </span>
             <input type="date" value={d} onChange={(e) => setDates(dates.map((x, j) => (j === i ? e.target.value : x)))} className={`${fieldBox} h-11 flex-1 tabular-nums`} />
             <span className="hidden w-24 shrink-0 truncate text-[13px] text-muted sm:block">{/^\d{4}-\d{2}-\d{2}$/.test(d) ? dayLabel(d, lang).weekday : ""}</span>
-            <span className="w-10 shrink-0 text-right text-[13px] tabular-nums text-muted">{i < data.days.length ? count(i) : 0}</span>
+            <span className="w-20 shrink-0 text-right text-[13px] tabular-nums text-muted">
+              {(() => {
+                const n = i < data.days.length ? count(i) : 0;
+                return `${n} ${n === 1 ? t.sessionOne : t.sessions}`;
+              })()}
+            </span>
             <button type="button" onClick={() => remove(i)} aria-label={t.del} className="grid size-9 shrink-0 place-items-center rounded-full text-muted hover:bg-[#fdecec] hover:text-[#b42318]">
               <Trash size={16} />
             </button>

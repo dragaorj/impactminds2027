@@ -302,7 +302,7 @@ export default function Tour({ steps, t, enabled }: { steps: TourStep[]; t: Tour
               <span ref={bar} className="block h-full origin-left bg-brand" style={{ transform: "scaleX(0)" }} />
             </span>
 
-            <div className="p-5 pt-[18px]">
+            <div className="p-5">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-[12px] font-semibold tabular-nums text-brand">
                   {i + 1} {t.of} {live.length}
@@ -334,7 +334,7 @@ export default function Tour({ steps, t, enabled }: { steps: TourStep[]; t: Tour
               <div className="mt-4 flex items-center gap-3">
                 <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1" aria-hidden>
                   {live.map((_, k) => (
-                    <span key={k} className={`h-1 shrink-0 rounded-full transition-all duration-300 ${k === i ? "w-4 bg-brand" : k < i ? "w-1 bg-brand/45" : "w-1 bg-[rgb(118_118_128/0.28)]"}`} />
+                    <span key={k} className={`h-1 shrink-0 rounded-full transition-[width,background-color] duration-300 ${k === i ? "w-4 bg-brand" : k < i ? "w-1 bg-brand/45" : "w-1 bg-[rgb(118_118_128/0.28)]"}`} />
                   ))}
                 </div>
                 <button
@@ -353,7 +353,7 @@ export default function Tour({ steps, t, enabled }: { steps: TourStep[]; t: Tour
                   autoFocus
                   aria-label={last ? t.done : t.next}
                   title={last ? t.done : t.next}
-                  className="grid size-10 shrink-0 place-items-center rounded-full bg-brand text-brand-ink shadow-[0_8px_20px_-10px_rgb(91_42_134/0.7)] transition-transform active:scale-95"
+                  className="grid size-10 shrink-0 place-items-center rounded-full bg-brand text-brand-ink shadow-[0_1px_2px_rgb(0_0_0/0.05)] transition-transform active:scale-95"
                 >
                   {last ? <Check size={17} weight="bold" aria-hidden /> : <CaretRight size={17} weight="bold" aria-hidden />}
                 </button>

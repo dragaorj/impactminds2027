@@ -120,7 +120,7 @@ export function Button({
   ...rest
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { kind?: "primary" | "secondary" | "quiet" | "danger" }) {
   const look = {
-    primary: "bg-brand text-brand-ink shadow-[0_8px_20px_-10px_rgb(91_42_134/0.7)] hover:brightness-110",
+    primary: "bg-brand text-brand-ink shadow-[0_1px_2px_rgb(0_0_0/0.05)] hover:brightness-110",
     secondary: "bg-surface text-ink ring-1 ring-line shadow-[var(--shadow-card)] hover:bg-[#fbfafc]",
     quiet: "text-ink-2 hover:bg-[rgb(118_118_128/0.1)] hover:text-ink",
     danger: "bg-[#fdecec] text-[#b42318] hover:bg-[#fbdcdc]",

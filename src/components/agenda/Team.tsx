@@ -396,8 +396,7 @@ function LogsPanel({ t, lang }: { t: T; lang: string }) {
     <>
       {confirmEl}
     <div className="mt-6">
-      <p className="text-[15px] leading-relaxed text-ink-2">{t.logsLead}</p>
-      <div className="mt-4 flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t.search} className={`${fieldBox} h-11 min-w-0 flex-1 rounded-full`} />
         <Button kind="quiet" onClick={() => void load()} aria-label={t.refresh}>
           <ArrowClockwise size={17} />
