@@ -67,7 +67,7 @@ export default function SpeakerDetail({
         )}
         {s.featured && (
           <span className="mt-4 inline-flex items-center gap-1 rounded-full bg-[rgb(201_162_77/0.16)] px-2.5 py-1 text-xs font-semibold text-[#7a5a12]">
-            <Star size={12} weight="fill" className="text-[#c9a24d]" aria-hidden /> {t.fFeatured}
+            <Star size={12} weight="fill" className="text-[#a8832f]" aria-hidden /> {t.fFeatured}
           </span>
         )}
         <h2 className={`${s.featured ? "mt-2" : "mt-4"} text-[1.5rem] font-semibold leading-tight tracking-[-0.02em]`}>{s.name}</h2>

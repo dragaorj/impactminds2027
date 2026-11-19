@@ -62,8 +62,9 @@ const GAP = 16; // between the lit control and the card
 // arrow points at the control. Steps without a control: in the middle.
 type Pos = { top: number; left: number; w: number; side: "below" | "above" | "none"; ax: number };
 
-// The same time for every step (the welcome, quicker).
-const duration = (first: boolean) => (first ? 1.6 : 3);
+// Each step stays as long as it takes to read it (about 0.35 s a word, at
+// least 4 s; the welcome, at least 2.5 s).
+const duration = (first: boolean, text = "") => Math.max(first ? 2.5 : 4, 1.5 + text.split(/\s+/).filter(Boolean).length * 0.35);
 
 // The steps in the order they appear on screen, top to bottom, left to
 // right (as the page reads), on any screen size: the welcome first, the
@@ -131,7 +132,7 @@ export default function Tour({ steps, t, enabled }: { steps: TourStep[]; t: Tour
   // First visit: starts after the page settles. Never when embedded in
   // another site.
   useEffect(() => {
-    if (!enabled || document.documentElement.hasAttribute("data-embed")) return;
+    if (!enabled || document.documentElement.hasAttribute("data-embed") || /[?&]single=1/.test(location.search)) return;
     if (seenBefore()) return;
     const id = window.setTimeout(start, 900);
     return () => window.clearTimeout(id);
@@ -233,7 +234,7 @@ export default function Tour({ steps, t, enabled }: { steps: TourStep[]; t: Tour
   // next one. Paused by the button or while the pointer is on the card.
   useEffect(() => {
     if (!step || !bar.current) return;
-    const tw = gsap.fromTo(bar.current, { scaleX: 0 }, { scaleX: 1, duration: duration(i === 0), ease: "none", onComplete: next });
+    const tw = gsap.fromTo(bar.current, { scaleX: 0 }, { scaleX: 1, duration: duration(i === 0, `${step.title} ${step.text}`), ease: "none", onComplete: next });
     timer.current = tw;
     return () => {
       tw.kill();
@@ -312,12 +313,13 @@ export default function Tour({ steps, t, enabled }: { steps: TourStep[]; t: Tour
                     onClick={() => setPaused((p) => !p)}
                     aria-label={paused ? t.play : t.pause}
                     title={paused ? t.play : t.pause}
-                    className="grid size-8 place-items-center rounded-full text-muted hover:bg-[rgb(118_118_128/0.12)] hover:text-ink"
+                    className="grid size-11 place-items-center rounded-full text-ink-2 hover:bg-[rgb(118_118_128/0.12)] hover:text-ink"
                   >
                     {paused ? <Play size={15} weight="fill" /> : <Pause size={15} weight="fill" />}
                   </button>
-                  <button type="button" onClick={finish} aria-label={t.skip} title={t.skip} className="grid size-8 place-items-center rounded-full text-muted hover:bg-[rgb(118_118_128/0.12)] hover:text-ink">
-                    <X size={16} />
+                  <button type="button" onClick={finish} className="inline-flex h-11 items-center gap-1.5 rounded-full px-3.5 text-[14px] font-medium text-ink-2 hover:bg-[rgb(118_118_128/0.12)] hover:text-ink">
+                    {t.skip}
+                    <X size={14} aria-hidden />
                   </button>
                 </div>
               </div>

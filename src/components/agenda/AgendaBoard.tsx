@@ -38,6 +38,13 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
   const [format, setFormat] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
+  // The note after moving a session (with Undo), gone after a few seconds.
+  const [notice, setNotice] = useState<{ text: string; undo?: () => void; error?: boolean } | null>(null);
+  useEffect(() => {
+    if (!notice) return;
+    const id = window.setTimeout(() => setNotice(null), notice.error ? 9000 : 7000);
+    return () => window.clearTimeout(id);
+  }, [notice]);
   const [speakerId, setSpeakerId] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null | undefined>(undefined); // undefined: closed; null: new
   // The view in the address (/agenda/grade, /agenda/lista) is drawn from the
@@ -190,7 +197,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
               favMode ? "bg-[#c9a24d] text-[#241800] shadow-[0_10px_22px_-12px_rgb(160_120_40/0.9)]" : "chip text-ink"
             }`}
           >
-            <Star size={17} weight="fill" aria-hidden className={favMode ? "" : "text-[#c9a24d]"} />
+            <Star size={17} weight="fill" aria-hidden className={favMode ? "" : "text-[#a8832f]"} />
             <span className="mt-1 text-[15px] font-semibold tabular-nums xl:mt-0">{favs.size}</span>
           </button>
         </div>
@@ -298,6 +305,30 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
         ]}
       />
       {signedIn && gridOn && <p className="mt-3 text-[13px] text-muted">{t.dragHint}</p>}
+      {/* After a move: where it went, with Undo (or, if it failed, where it stayed). */}
+      <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-24 z-50 flex justify-center px-4 md:bottom-8">
+        {notice && (
+          <div
+            role={notice.error ? "alert" : "status"}
+            className={`pointer-events-auto flex max-w-[34rem] items-center gap-3 rounded-full py-2 pl-5 pr-2 text-[14px] text-white shadow-[var(--shadow)] ${notice.error ? "bg-[#8c1d18]" : "bg-[#1d1426]"}`}
+          >
+            <span className="min-w-0">{notice.text}</span>
+            {notice.undo && (
+              <button
+                type="button"
+                onClick={() => {
+                  notice.undo?.();
+                  setNotice(null);
+                }}
+                className="h-10 shrink-0 rounded-full bg-white/15 px-4 font-semibold hover:bg-white/25"
+              >
+                {t.undo}
+              </button>
+            )}
+            {!notice.undo && <span className="w-3" />}
+          </div>
+        )}
+      </div>
 
       <div className="mt-6" ref={reveal} data-tour="content">
         {groups.length === 0 && (!gridOn || (filtered && !editing)) ? (
@@ -318,7 +349,19 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
             onOpen={setOpenId}
             t={t}
             editable={editing}
-            onMove={(id, time, roomId) => moveTalk(id, { time, room: roomId })}
+            onMove={(id, time, roomId) => {
+              const was = data.talks.find((x) => x.id === id);
+              const roomName = (rid: string) => data.rooms.find((r) => r.id === rid)?.name ?? "";
+              const fill = (s: string, tm: string, rid: string) => s.replace("{time}", tm).replace("{room}", roomName(rid));
+              moveTalk(id, { time, room: roomId })
+                .then(() =>
+                  setNotice({
+                    text: fill(t.moved, time, roomId),
+                    undo: was ? () => void moveTalk(id, { time: was.start, room: was.roomId }).catch(() => {}) : undefined,
+                  }),
+                )
+                .catch(() => was && setNotice({ text: fill(t.moveFailed, was.start, was.roomId), error: true }));
+            }}
           />
         ) : (
           <ol className="space-y-8">
@@ -381,7 +424,7 @@ function FavButton({ on, onClick, t, className = "" }: { on: boolean; onClick: (
       aria-label={on ? t.removeFav : t.addFav}
       title={on ? t.removeFav : t.addFav}
       className={`grid size-9 shrink-0 place-items-center rounded-full transition-[color,background-color,transform] duration-200 active:scale-90 ${
-        on ? "text-[#c9a24d]" : "text-[rgb(29_20_38/0.25)] hover:bg-[rgb(118_118_128/0.1)] hover:text-[#c9a24d]"
+        on ? "text-[#a8832f]" : "text-ink-2 hover:bg-[rgb(118_118_128/0.1)] hover:text-[#a8832f]"
       } ${className}`}
     >
       <Star size={19} weight={on ? "fill" : "regular"} aria-hidden />
@@ -568,7 +611,7 @@ function SessionDetail({
             fav ? "bg-[rgb(201_162_77/0.16)] text-[#7a5a12]" : "bg-[rgb(118_118_128/0.12)] text-ink hover:bg-[rgb(118_118_128/0.18)]"
           }`}
         >
-          <Star size={16} weight={fav ? "fill" : "regular"} aria-hidden className="text-[#c9a24d]" />
+          <Star size={16} weight={fav ? "fill" : "regular"} aria-hidden className="text-[#a8832f]" />
           {fav ? t.removeFav : t.addFav}
         </button>
       </div>
@@ -763,18 +806,52 @@ function GridView({
 
   // Drag: the card follows the pointer; the room under it and the time at its
   // top edge (snapped) are where it lands. A press without movement opens it.
+  // On touch the card only lifts after a short press (about 0.4 s) without
+  // moving: a swipe before that scrolls the grid as usual.
   const startDrag = (e: React.PointerEvent, x: AgendaTalk) => {
     if (!editable || e.button !== 0) return;
-    // No text selection or native drag while moving a card.
-    e.preventDefault();
+    const touch = e.pointerType === "touch";
+    // No text selection or native drag while moving a card (mouse/pen).
+    if (!touch) e.preventDefault();
     const sx = e.clientX;
     const sy = e.clientY;
     const startTop = (toMin(x.start) - from) * PPM;
     let moved = false;
+    let armed = !touch;
+    let scrolled = false;
     let last = { room: x.roomId, time: x.start };
+    const hold = touch
+      ? window.setTimeout(() => {
+          armed = true;
+          navigator.vibrate?.(10);
+          setDrag({ id: x.id, dx: 0, dy: 0, ...last });
+        }, 400)
+      : 0;
+    // Once lifted, the finger moves the card, not the page.
+    const blockScroll = (ev: TouchEvent) => armed && ev.preventDefault();
+    if (touch) window.addEventListener("touchmove", blockScroll, { passive: false });
+    const cleanup = () => {
+      window.clearTimeout(hold);
+      window.removeEventListener("pointermove", onMoveEv);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onCancel);
+      window.removeEventListener("touchmove", blockScroll);
+    };
+    const onCancel = () => {
+      cleanup();
+      setDrag(null);
+    };
     const onMoveEv = (ev: PointerEvent) => {
       const dx = ev.clientX - sx;
       const dy = ev.clientY - sy;
+      if (!armed) {
+        // Moved before the press was long enough: it is a scroll.
+        if (Math.hypot(dx, dy) > 8) {
+          scrolled = true;
+          cleanup();
+        }
+        return;
+      }
       if (!moved && Math.hypot(dx, dy) < 5) return;
       moved = true;
       let roomId = x.roomId;
@@ -787,14 +864,15 @@ function GridView({
       setDrag({ id: x.id, dx, dy, ...last });
     };
     const onUp = () => {
-      window.removeEventListener("pointermove", onMoveEv);
-      window.removeEventListener("pointerup", onUp);
+      cleanup();
       setDrag(null);
+      if (scrolled) return;
       if (!moved) return onOpen(x.id);
       if (last.room !== x.roomId || last.time !== x.start) onMove(x.id, last.time, last.room);
     };
     window.addEventListener("pointermove", onMoveEv);
     window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onCancel);
   };
 
   return (
@@ -811,6 +889,7 @@ function GridView({
               type="button"
               onClick={() => fold(room.id)}
               aria-expanded={!isFolded}
+              aria-label={`${isFolded ? t.expand : t.collapse}: ${room.name}`}
               title={`${isFolded ? t.expand : t.collapse}: ${room.name}`}
               className={`sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-l border-line bg-[rgb(255_255_255/0.97)] backdrop-blur transition-colors hover:bg-[#f8f7fa] ${
                 isFolded ? "justify-center px-0" : "px-4 text-left"
@@ -880,10 +959,10 @@ function GridView({
                       type="button"
                       data-tour="session"
                       onPointerDown={editable ? (e) => startDrag(e, x) : undefined}
-                      onClick={editable ? undefined : () => onOpen(x.id)}
+                      onClick={editable ? (ev) => ev.detail === 0 && onOpen(x.id) : () => onOpen(x.id)}
                       title={x.title}
                       className={`group absolute flex overflow-hidden rounded-[14px] px-3 text-left transition-[box-shadow,transform] duration-150 ${
-                        editable ? "cursor-grab touch-none select-none active:cursor-grabbing" : ""
+                        editable ? "cursor-grab select-none [-webkit-touch-callout:none] active:cursor-grabbing" : ""
                       } ${dragging ? "z-30 opacity-90 shadow-[0_20px_40px_-12px_rgb(29_20_38/0.45)]" : "hover:z-10 hover:-translate-y-px hover:shadow-[var(--shadow)]"} ${
                         short ? "flex-row items-center gap-2" : "flex-col gap-1 py-2.5"
                       }`}
@@ -899,7 +978,7 @@ function GridView({
                     >
                       <span className={`flex items-center justify-between gap-2 text-xs tabular-nums text-muted ${short ? "shrink-0" : ""}`}>
                         <span className="inline-flex items-center gap-1">
-                          {favs.has(x.id) && <Star size={12} weight="fill" aria-label={t.favorites} className="text-[#c9a24d]" />}
+                          {favs.has(x.id) && <Star size={12} weight="fill" aria-label={t.favorites} className="text-[#a8832f]" />}
                           {short || narrow ? x.start : `${x.start}–${x.end}`}
                         </span>
                         {h >= 90 && !narrow && x.format && (

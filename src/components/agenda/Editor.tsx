@@ -7,7 +7,7 @@ import type { Dict } from "@/lib/dictionaries/pt";
 import { useAgenda, type SpeakerDraft, type TalkDraft } from "./store";
 import { MAX_PLACE_IMAGES, localPhoto } from "@/lib/agendaShape";
 import { LOGO_PATHS, LOGO_VIEWBOX } from "@/components/latimpactoLogo";
-import { Avatar, Button, Field, Segmented, Sheet, Switch, TriField, card, dayLabel, fieldBox, norm } from "./ui";
+import { Avatar, Button, Field, Segmented, Sheet, SheetCancel, Switch, TriField, card, dayLabel, fieldBox, norm } from "./ui";
 
 type T = Dict["agendaApp"];
 
@@ -100,10 +100,14 @@ export function TalkForm({ id, open, onClose, t, lang }: { id: string | null | u
   const [d, setD] = useState<TalkDraft>(() => talkDraft(id ?? undefined));
   const [err, setErr] = useState("");
   const [q, setQ] = useState("");
+  // What the form opened with, to tell unsaved changes.
+  const [opened, setOpened] = useState("");
   // A fresh draft each time the form opens.
   useEffect(() => {
     if (open) {
-      setD(talkDraft(id ?? undefined));
+      const fresh = talkDraft(id ?? undefined);
+      setOpened(JSON.stringify(fresh));
+      setD(fresh);
       setErr("");
       setQ("");
       setMq("");
@@ -147,6 +151,8 @@ export function TalkForm({ id, open, onClose, t, lang }: { id: string | null | u
       onClose={onClose}
       label={id ? t.edit : t.newSession}
       closeLabel={t.close}
+      dirty={open && JSON.stringify(d) !== opened}
+      discard={{ ask: t.discardAsk, keep: t.keepEditing, discard: t.discard }}
       footer={
         <div className="flex items-center gap-2">
           {d.id && (
@@ -155,9 +161,7 @@ export function TalkForm({ id, open, onClose, t, lang }: { id: string | null | u
             </Button>
           )}
           <span className="flex-1 text-sm text-[#b42318]">{err}</span>
-          <Button kind="quiet" onClick={onClose}>
-            {t.cancel}
-          </Button>
+          <SheetCancel>{t.cancel}</SheetCancel>
           <Button kind="primary" onClick={save} disabled={busy || uploading}>
             {busy ? t.saving : t.save}
           </Button>
@@ -379,9 +383,12 @@ export function SpeakerForm({ id, open, onClose, t }: { id: string | null | unde
   const [preview, setPreview] = useState("");
   const [err, setErr] = useState("");
   const input = useRef<HTMLInputElement>(null);
+  const [opened, setOpened] = useState("");
   useEffect(() => {
     if (open) {
-      setD(speakerDraft(id ?? undefined));
+      const fresh = speakerDraft(id ?? undefined);
+      setOpened(JSON.stringify(fresh));
+      setD(fresh);
       setFile(null);
       setPreview("");
       setErr("");
@@ -415,6 +422,8 @@ export function SpeakerForm({ id, open, onClose, t }: { id: string | null | unde
       onClose={onClose}
       label={id ? t.edit : t.newSpeaker}
       closeLabel={t.close}
+      dirty={open && (!!file || JSON.stringify(d) !== opened)}
+      discard={{ ask: t.discardAsk, keep: t.keepEditing, discard: t.discard }}
       footer={
         <div className="flex items-center gap-2">
           {d.id && (
@@ -423,9 +432,7 @@ export function SpeakerForm({ id, open, onClose, t }: { id: string | null | unde
             </Button>
           )}
           <span className="flex-1 text-sm text-[#b42318]">{err}</span>
-          <Button kind="quiet" onClick={onClose}>
-            {t.cancel}
-          </Button>
+          <SheetCancel>{t.cancel}</SheetCancel>
           <Button kind="primary" onClick={save} disabled={busy}>
             {busy ? t.saving : t.save}
           </Button>
@@ -510,9 +517,7 @@ export function FeaturedOrder({ open, onClose, t }: { open: boolean; onClose: ()
       closeLabel={t.close}
       footer={
         <div className="flex justify-end gap-2">
-          <Button kind="quiet" onClick={onClose}>
-            {t.cancel}
-          </Button>
+          <SheetCancel>{t.cancel}</SheetCancel>
           <Button kind="primary" onClick={save} disabled={busy}>
             {busy ? t.saving : t.save}
           </Button>

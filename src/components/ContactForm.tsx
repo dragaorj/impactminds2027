@@ -1,38 +1,56 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowRight, CheckCircle } from "@phosphor-icons/react";
+import { useRef, useState } from "react";
+import { ArrowRight, ArrowUpRight, CheckCircle, WarningCircle } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { CONTACT_EMAIL } from "@/lib/site";
 
-type Status = "idle" | "sending" | "sent" | "error" | "invalid";
+type Status = "idle" | "sending" | "sent" | "error";
+type Field = "name" | "email" | "message";
 
 const field =
-  "w-full rounded-[1.25rem] bg-ink/5 px-4 py-3 text-base text-ink ring-1 ring-line outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-sun/60";
+  "w-full rounded-[1.25rem] bg-ink/5 px-4 py-3 text-base text-ink ring-1 ring-line outline-none transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-gold aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-danger";
 
 // Web3Forms access key issued to the conference inbox. It is public by design
 // (it only lets this form send to that inbox) and its free plan only accepts
 // submissions from the browser, so the form posts there directly. It lives
 // here in the code; NEXT_PUBLIC_WEB3FORMS_KEY, if set, takes over.
 const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY || "825f5f09-ad19-48f6-b62d-26d6b5662127";
+const SUBJECT = "Mensagem do site ImpactMindsConference";
+
+const check = (name: Field, value: string) =>
+  name === "email" ? /^\S+@\S+\.\S+$/.test(value.trim()) : value.trim().length > 0;
 
 // Name, email and message, sent to the conference team: through Web3Forms when
-// its key is set, otherwise /api/contact (Resend). If neither can send, the
-// visitor's mail app opens with the message ready, and the address is shown,
-// so nothing is lost.
+// its key is set, otherwise /api/contact (Resend). Each field says what is
+// missing right under it. If sending fails, the message stays in the form and
+// the visitor can choose to send it from their own mail app (never opened
+// for them) or write to the address shown.
 export default function ContactForm({ t }: { t: Dict["contact"] }) {
   const [status, setStatus] = useState<Status>("idle");
+  const [errors, setErrors] = useState<Partial<Record<Field, boolean>>>({});
+  const [mailto, setMailto] = useState("");
+  const form = useRef<HTMLFormElement>(null);
+  const message: Record<Field, string> = { name: t.nameMissing, email: t.emailInvalid, message: t.messageMissing };
+
+  // A field that was flagged clears as soon as it is right.
+  const recheck = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.currentTarget;
+    if (errors[name as Field] && check(name as Field, value)) setErrors((m) => ({ ...m, [name]: false }));
+  };
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = e.currentTarget;
-    const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
-    if (!data.name?.trim() || !/^\S+@\S+\.\S+$/.test(data.email ?? "") || !data.message?.trim()) {
-      setStatus("invalid");
+    const el = e.currentTarget;
+    const data = Object.fromEntries(new FormData(el)) as Record<string, string>;
+    const found = (["name", "email", "message"] as Field[]).filter((k) => !check(k, data[k] ?? ""));
+    setErrors(Object.fromEntries(found.map((k) => [k, true])));
+    if (found.length) {
+      (el.elements.namedItem(found[0]) as HTMLElement | null)?.focus();
+      setStatus("idle");
       return;
     }
     setStatus("sending");
-    const subject = "Mensagem do site ImpactMindsConference";
     try {
       const res = WEB3FORMS_KEY
         ? await fetch("https://api.web3forms.com/submit", {
@@ -40,7 +58,7 @@ export default function ContactForm({ t }: { t: Dict["contact"] }) {
             headers: { "Content-Type": "application/json", Accept: "application/json" },
             body: JSON.stringify({
               access_key: WEB3FORMS_KEY,
-              subject,
+              subject: SUBJECT,
               from_name: "Site Impact Minds",
               name: data.name,
               email: data.email,
@@ -56,34 +74,53 @@ export default function ContactForm({ t }: { t: Dict["contact"] }) {
           });
       const out = await res.json().catch(() => ({}));
       if (!res.ok || out.success === false) throw new Error(String(res.status));
-      form.reset();
+      el.reset();
       setStatus("sent");
     } catch {
+      // The message stays in the fields; sending it by mail is the visitor's call.
+      const body = `${data.message.trim()}\n\n${data.name.trim()} · ${data.email.trim()}`;
+      setMailto(`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(SUBJECT)}&body=${encodeURIComponent(body)}`);
       setStatus("error");
-      // Hand the message to the visitor's mail app, ready to send.
-      const body = `${data.message.trim()}
-
-${data.name.trim()} · ${data.email.trim()}`;
-      window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
   };
 
+  const input = (name: Field, extra: Record<string, unknown>, multiline = false) => {
+    const props = {
+      name,
+      required: true,
+      onInput: recheck,
+      "aria-invalid": errors[name] || undefined,
+      "aria-describedby": errors[name] ? `contact-${name}-error` : undefined,
+      ...extra,
+    };
+    return (
+      <>
+        {multiline ? <textarea {...props} rows={4} className={`${field} resize-y`} /> : <input {...props} className={field} />}
+        {errors[name] && (
+          <span id={`contact-${name}-error`} className="flex items-center gap-1.5 text-sm text-danger">
+            <WarningCircle size="1rem" weight="fill" aria-hidden className="shrink-0" />
+            {message[name]}
+          </span>
+        )}
+      </>
+    );
+  };
+
   return (
-    <form onSubmit={submit} noValidate className="grid gap-3" data-nosplit>
+    <form ref={form} onSubmit={submit} noValidate className="grid gap-3" data-nosplit>
       <p className="text-sm font-medium text-ink">{t.title}</p>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="grid gap-1.5 text-sm text-ink-2">
-          {t.name}
-          <input name="name" autoComplete="name" required className={field} />
-        </label>
-        <label className="grid gap-1.5 text-sm text-ink-2">
-          {t.email}
-          <input name="email" type="email" autoComplete="email" required className={field} />
-        </label>
-      </div>
+      {/* One column, in the order people think: who, how to answer, what. */}
+      <label className="grid gap-1.5 text-sm text-ink-2">
+        {t.name}
+        {input("name", { autoComplete: "name" })}
+      </label>
+      <label className="grid gap-1.5 text-sm text-ink-2">
+        {t.email}
+        {input("email", { type: "email", autoComplete: "email", inputMode: "email" })}
+      </label>
       <label className="grid gap-1.5 text-sm text-ink-2">
         {t.message}
-        <textarea name="message" rows={4} required className={`${field} resize-y`} />
+        {input("message", {}, true)}
       </label>
       {/* Honeypot: hidden from people, filled in by bots (the API drops those). */}
       <input name="company" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
@@ -101,22 +138,35 @@ ${data.name.trim()} · ${data.email.trim()}`;
         <p role="status" aria-live="polite" className="text-sm leading-snug">
           {status === "sent" && (
             <span className="inline-flex items-center gap-2 text-ink">
-              <CheckCircle size="1.125rem" weight="fill" className="text-gold" />
+              <CheckCircle size="1.125rem" weight="fill" className="text-brand" />
               {t.sent}
-            </span>
-          )}
-          {status === "invalid" && <span className="text-ink-2">{t.invalid}</span>}
-          {status === "error" && (
-            <span className="text-ink-2">
-              {t.error}{" "}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-ink underline decoration-gold/70 underline-offset-[3px]">
-                {CONTACT_EMAIL}
-              </a>
-              .
             </span>
           )}
         </p>
       </div>
+      {status === "error" && (
+        <div role="alert" className="grid gap-3 rounded-[1.25rem] bg-danger/[0.06] p-4 text-sm text-ink ring-1 ring-danger/25">
+          <p className="flex items-start gap-2">
+            <WarningCircle size="1.125rem" weight="fill" aria-hidden className="mt-px shrink-0 text-danger" />
+            {t.error}
+          </p>
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <a
+              href={mailto}
+              className="inline-flex min-h-11 items-center gap-2 rounded-full px-4 font-medium btn-outline"
+            >
+              {t.mailApp}
+              <ArrowUpRight size="0.9375rem" aria-hidden />
+            </a>
+            <span className="text-ink-2">
+              {t.orWrite}{" "}
+              <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-ink underline decoration-gold/70 underline-offset-[3px]">
+                {CONTACT_EMAIL}
+              </a>
+            </span>
+          </p>
+        </div>
+      )}
     </form>
   );
 }

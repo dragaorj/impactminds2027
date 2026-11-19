@@ -45,6 +45,9 @@ export default function About({ t, videoSrc }: { t: Dict["about"]; videoSrc?: st
               videoLabel: t.videoLabel,
               play: t.play,
               pause: t.pause,
+              videoError: t.videoError,
+              retry: t.retry,
+              onYouTube: t.onYouTube,
             }}
           />
         </div>

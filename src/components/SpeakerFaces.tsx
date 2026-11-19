@@ -106,7 +106,8 @@ export default function SpeakerFaces({ label }: { label: string }) {
     if (prefersReducedMotion() || POOL.length <= COUNT) return;
     const id = window.setInterval(() => {
       // Paused while the tab is hidden or the hero is scrolled away.
-      if (document.hidden || openRef.current || hoverRef.current || window.scrollY > window.innerHeight) return;
+      // Also stops at once if reduce motion is switched on meanwhile.
+      if (prefersReducedMotion() || document.hidden || openRef.current || hoverRef.current || window.scrollY > window.innerHeight) return;
       setFaces((f) => (f.row.length > COUNT || !f.queue.length ? f : { row: [...f.row, f.queue[0]], queue: f.queue.slice(1) }));
     }, STEP_MS);
     return () => window.clearInterval(id);

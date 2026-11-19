@@ -17,7 +17,7 @@ import TypeLine from "./TypeLine";
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 // The two corner captions (signature top left, dates bottom right).
-const ED_CAPTION = "text-[0.625rem] font-medium uppercase leading-[1.75] tracking-[0.24em] text-white/80 sm:text-[0.6875rem] lg:text-xs";
+const ED_CAPTION = "text-xs font-medium uppercase leading-[1.75] tracking-[0.24em] text-white/80 sm:text-[0.6875rem] lg:text-xs";
 
 // The background loop stays muted and chrome-less. With a self-hosted file
 // (videoSrc) it plays in a native <video>, which has no player chrome at all;
@@ -172,7 +172,7 @@ export default function Hero({
       {/* Phones: the label centred in the room left of the arrow, its size
           following the button's own width (cqi) so it never pushes the arrow
           out; on the narrowest screens it wraps to two balanced lines. */}
-      <span className="max-sm:min-w-0 max-sm:flex-1 max-sm:text-balance max-sm:text-center max-sm:text-[clamp(0.6875rem,calc(9.2cqi_-_6px),0.8125rem)] max-sm:leading-[1.15]">{t.cta}</span>
+      <span className="max-sm:min-w-0 max-sm:flex-1 max-sm:text-balance max-sm:text-center max-sm:text-[clamp(0.75rem,calc(9.2cqi_-_6px),0.8125rem)] max-sm:leading-[1.15]">{t.cta}</span>
       <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#2A1240] sm:size-11 text-white transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-y-0.5 group-hover:scale-105">
         <ArrowDown size="1rem" />
       </span>
@@ -260,7 +260,7 @@ export default function Hero({
             >
               {t.facts.map((f, i) => (
                 <div key={f.label} className={`flex flex-col-reverse items-center justify-start px-1 sm:px-2 ${i > 0 ? "border-l border-white/15" : ""}`}>
-                  <dt className="mt-1 text-[0.625rem] leading-tight text-white/75 sm:text-[0.8125rem]">{f.label}</dt>
+                  <dt className="mt-1 text-xs leading-tight text-white/75 sm:text-[0.8125rem]">{f.label}</dt>
                   <dd className="font-display text-base leading-none sm:text-[1.65rem]">{f.value}</dd>
                 </div>
               ))}
@@ -452,7 +452,7 @@ export default function Hero({
                 A fixed min-height keeps the layout still while the text changes length. */}
             <TypeLine
               phrases={t.typed}
-              className="hero-typed mt-[clamp(0.625rem,1.5vw,1.6rem)] block min-h-[1.15em] text-[clamp(1.35rem,3.6vw,3.25rem)] text-[#D9B865]"
+              className="hero-typed mt-[clamp(0.75rem,1.5vw,1.6rem)] block min-h-[1.15em] text-[clamp(1.35rem,3.6vw,3.25rem)] text-[#D9B865]"
             />
           </h1>
           <div className="hero-out-down w-full sm:w-auto">

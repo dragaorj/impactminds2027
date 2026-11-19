@@ -191,7 +191,8 @@ export default function Editions({
     if (viewing !== null || prefersReducedMotion()) return;
     // No reflow work while the grid is off screen or the tab is hidden.
     const id = window.setInterval(() => {
-      if (document.hidden || document.getElementById("edicoes")?.hasAttribute("data-idle")) return;
+      // Reduce motion switched on meanwhile: the grid stops reshaping at once.
+      if (prefersReducedMotion() || document.hidden || document.getElementById("edicoes")?.hasAttribute("data-idle")) return;
       if (focusRef.current !== null) return;
       setTracks((t) => {
         const n = t.n + 1;
@@ -268,7 +269,7 @@ export default function Editions({
             {photos.slice(0, 12).map((src, i) => (
               <li
                 key={src}
-                className="group relative min-h-0 min-w-0 overflow-hidden rounded-[1.25rem] bg-block ring-1 ring-line transition-shadow duration-500 hover:ring-sun/60 md:rounded-[1.5rem] animate-[menuIn_0.9s_var(--ease-out-expo)_both] motion-reduce:animate-none"
+                className="group relative min-h-0 min-w-0 overflow-hidden rounded-[1.25rem] bg-block ring-1 ring-line transition-shadow duration-500 hover:ring-sun/60 md:rounded-[1.5rem] animate-[menuIn_0.9s_var(--ease-out-expo)_both]"
                 style={{ gridArea: AREAS[i], animationDelay: `${i * 45}ms` } as React.CSSProperties}
                 data-on={focus === i ? "" : undefined}
                 // Only a real move of the mouse picks a photo: when the grid

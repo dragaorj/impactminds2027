@@ -27,7 +27,7 @@
   --surface: #fbfaf8;
   --ink: #4a2a6e;
   --ink-2: #67587a;
-  --muted: #766687;
+  --muted: #6b5d7d;
   --line: rgb(74 42 110 / 0.11);
   --brand: #5b2a86;
   --brand-ink: #fbf8ff;
@@ -42,7 +42,9 @@
   --lavender: #c9b5e6;
   /* Gold as text on the light page: deep enough for 4.5:1 on the surface
      (the decorative --sun fill stays bright). */
-  --gold: #8a6619;
+  --gold: #7a5a14;
+  /* Errors only (never decoration): red with 6:1 on the paper. */
+  --danger: #b3261e;
   --art: #b8913c;
   --art-opacity: 0.55;
   --shadow: 0 30px 80px -40px rgb(62 26 94 / 0.35);
@@ -69,6 +71,7 @@
   --terra-ink: #170827;
   --lavender: #6e559a;
   --gold: #d9b865;
+  --danger: #f2b8b5;
   --art: #d9b865;
   --art-opacity: 0.4;
   --shadow: 0 30px 80px -40px rgb(0 0 0 / 0.6);
@@ -105,7 +108,7 @@
   --surface: #ffffff;
   --ink: #1d1426;
   --ink-2: #4d4459;
-  --muted: #8b8397;
+  --muted: #6e6679;
   --line: rgb(29 20 38 / 0.07);
   --brand: #5b2a86;
   --brand-ink: #ffffff;
@@ -151,6 +154,7 @@
   --color-terra-ink: var(--terra-ink);
   --color-lavender: var(--lavender);
   --color-gold: var(--gold);
+  --color-danger: var(--danger);
   --color-sun-ink: var(--sun-ink);
   --font-sans: var(--font-gsans), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-gloock), Georgia, serif;
@@ -172,10 +176,11 @@ html[data-text="3"] { --text-scale: 1.25; }
    screen, like a browser zoom, so a section (the numbers grid, about 68rem from
    its title to its last row, with room for the menu) always fits the screen
    in one view. The height sets it; the width caps it, so the content column
-   never outgrows a narrow window. Phones and portrait screens keep 16px:
-   their sections stack and scroll. */
+   never outgrows a narrow window. It never goes below 16px, so text stays
+   readable on laptops (a short screen scrolls a little more instead).
+   Phones and portrait screens keep 16px: their sections stack and scroll. */
 @media (min-width: 1024px) and (orientation: landscape) {
-  html { font-size: calc(var(--text-scale) * clamp(11px, min(100svh / 68, 100vw / 90), 24px)); }
+  html { font-size: calc(var(--text-scale) * clamp(16px, min(100svh / 68, 100vw / 90), 24px)); }
 }
 html[data-motion="reduce"] { scroll-behavior: auto; }
 
@@ -201,10 +206,18 @@ body {
 
 ::selection { background: var(--brand); color: var(--brand-ink); }
 
+/* Keyboard focus: a ring with at least 3:1 against the page (the deep text
+   gold on light grounds; the bright gold over the dark video and blocks). */
 :focus-visible {
-  outline: 3px solid var(--sun);
+  outline: 3px solid var(--gold);
   outline-offset: 3px;
 }
+[data-theme="dark"] :focus-visible,
+.bg-block :focus-visible,
+#top :focus-visible,
+dialog:not(.platform-sheet) :focus-visible { outline-color: var(--sun); }
+/* The agenda platform (always light): its own purple, about 9:1. */
+.platform :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 /* Focus targets that are not controls (main, the skip link's target, takes
    focus with tabindex -1): no ring, or a gold line shows along its edge. */
 [tabindex="-1"]:focus-visible { outline: none; }
@@ -365,7 +378,7 @@ html[data-motion="reduce"] .icon-person { animation: none; }
 html[data-motion="reduce"] .type-caret { animation: none; }
 
 /* The carbon figure turns gold once its count lands. */
-.carbon-value:has([data-done]) { color: var(--sun); }
+.carbon-value:has([data-done]) { color: var(--gold); }
 
 /* Loop animations stop while their section is off screen (MotionGate sets
    data-idle), so only what is visible costs anything. */
@@ -443,6 +456,16 @@ html.js:not([data-motion="reduce"]) [data-hero] {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Reduce motion (the site's switch or the system's): panels, menus and the
+   photo viewer still appear, but by a plain fade, never a slide. */
+html[data-motion="reduce"] :is([class*="animate-[menuIn"], [class*="animate-[menuDrop"], [class*="animate-[menuItem"], [class*="animate-[lightbox"]) {
+  animation-name: fadeIn !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  :is([class*="animate-[menuIn"], [class*="animate-[menuDrop"], [class*="animate-[menuItem"], [class*="animate-[lightbox"]) {
+    animation-name: fadeIn !important;
+  }
+}
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -1039,6 +1062,10 @@ html[data-motion="reduce"] .wave-b::after { animation: none; }
   .faces-pill[data-open] .faces-clip { width: calc(5 * 2rem + 4 * 0.45rem); }
 }
 .faces > .face + .face { margin-left: -0.625rem; }
+/* Spread out (tapped or hovered), each face takes a 44px-tall target that
+   reaches halfway into the gap on each side, so neighbours never overlap. */
+.faces > .face::before { content: ""; position: absolute; inset: -8px -0.225rem; }
+.faces-pill:not([data-open]):not(:hover) .faces > .face::before { inset: 0; }
 .faces > .face {
   transition: margin-left 0.5s var(--ease-spring), scale 0.4s var(--ease-spring), box-shadow 0.4s ease;
 }

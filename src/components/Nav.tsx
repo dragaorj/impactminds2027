@@ -328,16 +328,38 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
   }, []);
   const panelRef = useRef<HTMLDivElement>(null);
   const panelBtnRef = useRef<HTMLButtonElement>(null);
+  const menuBtnRef = useRef<HTMLButtonElement>(null);
 
   const items = mainNav(lang, nav, !sub);
 
+  // Keyboard: an opened menu or panel takes the focus (its first control),
+  // Tab stays inside it and its button, and closing hands the focus back to
+  // the button that opened it.
+  const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  useEffect(() => {
+    const box = menuOpen ? document.getElementById("mobile-menu") : panelOpen ? panelRef.current : null;
+    if (!box) return;
+    const id = requestAnimationFrame(() => box.querySelector<HTMLElement>(FOCUSABLE)?.focus({ preventScroll: true }));
+    return () => cancelAnimationFrame(id);
+  }, [menuOpen, panelOpen]);
+
   useEffect(() => {
     if (!panelOpen && !menuOpen) return;
+    const opener = menuOpen ? menuBtnRef.current : panelBtnRef.current;
+    const box = menuOpen ? document.getElementById("mobile-menu") : panelRef.current;
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Tab" && box && opener) {
+        const list = [opener, ...box.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((el) => el.offsetParent !== null);
+        const i = list.indexOf(document.activeElement as HTMLElement);
+        const next = e.shiftKey ? (i <= 0 ? list.length - 1 : i - 1) : i === -1 || i === list.length - 1 ? 0 : i + 1;
+        e.preventDefault();
+        list[next]?.focus();
+        return;
+      }
       if (e.key !== "Escape") return;
       setPanelOpen(false);
       setMenuOpen(false);
-      panelBtnRef.current?.focus();
+      opener?.focus();
     };
     const onClick = (e: MouseEvent) => {
       const t = e.target as Element;
@@ -554,6 +576,7 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
             </a>
 
             <button
+              ref={menuBtnRef}
               type="button"
               className={`${btn} group relative ${scrolled ? "" : "-mr-0.5 sm:-mr-2.5"}`}
               aria-label={menuOpen ? nav.closeMenu : nav.openMenu}
@@ -566,7 +589,7 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
               }}
             >
               <span aria-hidden className="fab-tip fab-tip-below">
-                {nav.openMenu}
+                {menuOpen ? nav.closeMenu : nav.openMenu}
               </span>
               {/* Three equal rounded lines; open, the outer two fold into an X. */}
               <span aria-hidden className="relative flex h-3.5 w-[1.375rem] flex-col justify-between">

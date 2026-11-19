@@ -16,6 +16,9 @@ type Labels = {
   videoLabel: string;
   play: string;
   pause: string;
+  videoError: string;
+  retry: string;
+  onYouTube: string;
 };
 
 const pill =
@@ -31,6 +34,9 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
   const native = useRef<NativeLoopHandle>(null);
   const player = useRef<YTPlayer | null>(null);
   const [ready, setReady] = useState(false);
+  // The player never got ready (YouTube blocked, no network): the sound
+  // button goes away instead of staying greyed out; the poster stays.
+  const [stuck, setStuck] = useState(false);
   const [muted, setMuted] = useState(true);
   const [started, setStarted] = useState(false);
   const [open, setOpen] = useState(false);
@@ -68,6 +74,7 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
     let cancelled = false;
     let timer = 0;
     let revealed = false;
+    const giveUp = window.setTimeout(() => !cancelled && setStuck(true), 12000);
     const host = holder.current;
     const mount = document.createElement("div");
     host?.appendChild(mount);
@@ -75,6 +82,13 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
     // It keeps playing off screen too: every resume after a pause makes
     // YouTube flash its title and controls, so the loop is never paused.
     wanted.current = autoplay;
+    // Reduce motion switched on in the site's panel: the loop stops now.
+    const onMotion = () => {
+      if (!prefersReducedMotion()) return;
+      wanted.current = false;
+      player.current?.pauseVideo();
+    };
+    window.addEventListener("im:motion", onMotion);
 
     loadYouTube().then((YT) => {
       if (cancelled) return;
@@ -85,6 +99,8 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
         events: {
           onReady: (e: { target: YTPlayer }) => {
             e.target.mute();
+            window.clearTimeout(giveUp);
+            setStuck(false);
             setReady(true);
             if (wanted.current) e.target.playVideo();
           },
@@ -126,6 +142,8 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
     );
 
     return () => {
+      window.clearTimeout(giveUp);
+      window.removeEventListener("im:motion", onMotion);
       stopWatchdog();
       stopLoop();
       cancelled = true;
@@ -188,10 +206,12 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
 
       {/* Controls sit under the video, never over the picture. */}
       <div className="mt-4 flex flex-wrap items-center gap-3">
+        {!(stuck && !ready && !src) && (
         <button type="button" onClick={toggleSound} disabled={!ready && !src} aria-pressed={!muted} className={pill}>
           <span className={pillIcon}>{muted ? <SpeakerSlash size="0.95rem" /> : <SpeakerHigh size="0.95rem" />}</span>
           {muted ? labels.soundOn : labels.soundOff}
         </button>
+        )}
         <button type="button" onClick={openFull} aria-haspopup="dialog" className={pill}>
           <span className={pillIcon}>
             <ArrowsOut size="0.95rem" />
@@ -212,6 +232,9 @@ export default function VideoPanel({ videoId, src, labels }: { videoId: string; 
           pause: labels.pause,
           soundOn: labels.soundOn,
           soundOff: labels.soundOff,
+          videoError: labels.videoError,
+          retry: labels.retry,
+          onYouTube: labels.onYouTube,
         }}
       />
     </>

@@ -8,7 +8,7 @@ import { readConsent, saveConsent } from "./consent";
 
 const LEAVE_MS = 500;
 
-const btn = "h-10 whitespace-nowrap rounded-full px-3 text-sm font-medium transition-colors duration-300 sm:h-7 sm:text-[0.6875rem]";
+const btn = "h-10 whitespace-nowrap rounded-full px-3 text-sm font-medium transition-colors duration-300 sm:h-9 sm:text-xs";
 
 // LGPD notice, kept small and discreet: necessary cookies always on, optional
 // ones only on "Accept". A slim frosted pill in the bottom-left corner, the
@@ -70,7 +70,7 @@ export default function CookieConsent({ t, privacyHref }: { t: PrivacyCopy["bann
       }`}
     >
       {/* One line everywhere: on phones the type scales with the screen. */}
-      <p className="flex items-center gap-2 whitespace-nowrap text-[clamp(0.625rem,3.05vw,0.8125rem)] leading-snug text-white/80 sm:text-xs sm:text-white/75">
+      <p className="flex items-center gap-2 whitespace-nowrap text-[clamp(0.75rem,3.05vw,0.8125rem)] leading-snug text-white/80 sm:text-xs sm:text-white/75">
         <Cookie aria-hidden size="1em" weight="light" className="shrink-0 text-[#D9B865] max-sm:size-[1.15em]" />
         <span>
           {t.textShort}{" "}

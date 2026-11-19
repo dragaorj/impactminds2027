@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { reduced } from "./motion";
 import Image from "next/image";
@@ -134,6 +134,18 @@ export function Button({
   );
 }
 
+// Closing a sheet from inside it (its Cancel button) goes through the same
+// guard as the X, Esc and the veil.
+const SheetClose = createContext<() => void>(() => {});
+export function SheetCancel({ children }: { children: React.ReactNode }) {
+  const close = useContext(SheetClose);
+  return (
+    <Button kind="quiet" onClick={close}>
+      {children}
+    </Button>
+  );
+}
+
 // Detail panel. Default: slides in from the right on wide screens (a floating
 // card), up from the bottom on phones. centered: a card in the middle of the
 // screen. A native <dialog> (focus trap, Esc, inert page), closed by the
@@ -147,6 +159,8 @@ export function Sheet({
   wide = false,
   footer,
   children,
+  dirty = false,
+  discard,
 }: {
   open: boolean;
   onClose: () => void;
@@ -156,9 +170,14 @@ export function Sheet({
   wide?: boolean;
   footer?: React.ReactNode;
   children: React.ReactNode;
+  // With unsaved changes, closing asks first (keep editing is the default).
+  dirty?: boolean;
+  discard?: { ask: string; keep: string; discard: string };
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const body = useRef<HTMLDivElement>(null);
+  const [asking, setAsking] = useState(false);
+  const requestClose = () => (dirty && discard ? setAsking(true) : onClose());
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
@@ -194,7 +213,14 @@ export function Sheet({
       ref={ref}
       aria-label={label}
       onClose={onClose}
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      onCancel={(e) => {
+        // Esc: same guard as the X.
+        if (dirty && discard) {
+          e.preventDefault();
+          setAsking(true);
+        }
+      }}
+      onClick={(e) => e.target === e.currentTarget && requestClose()}
       data-centered={centered ? "" : undefined}
       className={`platform-sheet max-w-none overflow-hidden bg-surface p-0 text-ink shadow-[0_30px_80px_-24px_rgb(28_20_36/0.4)] backdrop:bg-[rgb(28_20_36/0.24)] backdrop:backdrop-blur-[3px] ${box}`}
       style={centered ? { width: `min(${wide ? "40rem" : "34rem"}, calc(100vw - 1.5rem))` } : undefined}
@@ -204,7 +230,7 @@ export function Sheet({
           {!centered && <span aria-hidden className="absolute left-1/2 top-2 h-[5px] w-9 -translate-x-1/2 rounded-full bg-[rgb(118_118_128/0.3)] sm:hidden" />}
           <button
             type="button"
-            onClick={onClose}
+            onClick={requestClose}
             aria-label={closeLabel}
             className="grid size-9 place-items-center rounded-full bg-[rgb(118_118_128/0.12)] text-ink-2 transition-colors hover:bg-[rgb(118_118_128/0.2)] hover:text-ink"
           >
@@ -217,8 +243,27 @@ export function Sheet({
         >
           {children}
         </div>
-        {footer && <div className="shrink-0 border-t border-line bg-surface px-6 py-4 sm:px-7">{footer}</div>}
+        {footer && (
+          <div className="shrink-0 border-t border-line bg-surface px-6 py-4 sm:px-7">
+            <SheetClose.Provider value={requestClose}>{footer}</SheetClose.Provider>
+          </div>
+        )}
       </div>
+      {asking && discard && (
+        <div role="alertdialog" aria-label={discard.ask} className="absolute inset-0 z-10 grid place-items-end bg-[rgb(28_20_36/0.32)] p-3 sm:place-items-center">
+          <div className="w-full max-w-sm rounded-[24px] bg-surface p-5 shadow-[var(--shadow)]">
+            <p className="text-[17px] font-semibold tracking-tight">{discard.ask}</p>
+            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button kind="danger" onClick={() => (setAsking(false), onClose())}>
+                {discard.discard}
+              </Button>
+              <Button autoFocus kind="primary" onClick={() => setAsking(false)}>
+                {discard.keep}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </dialog>
   );
 }

@@ -150,7 +150,7 @@ export default function PlatformShell({ lang, tab, t, children }: { lang: Locale
                     ? // The open tab: the page's own ground, its lower corners
                       // flaring out into the page (as a browser tab).
                       "pf-tab-on z-10 font-semibold text-ink shadow-[0_-1px_0_rgb(29_20_38/0.06),0_-6px_14px_-8px_rgb(29_20_38/0.22)]"
-                    : "font-medium text-ink-2 opacity-55 hover:bg-[rgb(255_255_255/0.4)] hover:opacity-100"
+                    : "font-medium text-ink-2 hover:bg-[rgb(255_255_255/0.4)] hover:text-ink"
                 }`}
               >
                 <span

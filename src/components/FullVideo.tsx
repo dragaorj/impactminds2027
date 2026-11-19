@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Pause, Play, SpeakerHigh, SpeakerSlash, X } from "@phosphor-icons/react";
+import { ArrowUpRight, Pause, Play, SpeakerHigh, SpeakerSlash, WarningCircle, X } from "@phosphor-icons/react";
 import { loadYouTube, type YTPlayer } from "./youtube";
 
 type Labels = {
@@ -12,6 +12,9 @@ type Labels = {
   pause: string;
   soundOn: string;
   soundOff: string;
+  videoError: string;
+  retry: string;
+  onYouTube: string;
 };
 
 const ctrl =
@@ -42,6 +45,9 @@ export default function FullVideo({
   const [playing, setPlaying] = useState(false);
   const [steady, setSteady] = useState(false);
   const [muted, setMuted] = useState(false);
+  // YouTube blocked or offline: say so, with a retry and a link to YouTube.
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     const d = dialog.current;
@@ -57,6 +63,9 @@ export default function FullVideo({
     const host = holder.current;
     const mount = document.createElement("div");
     host?.appendChild(mount);
+    let ready = false;
+    // Nothing ready after 12 s (script blocked, no network): a failure.
+    const giveUp = window.setTimeout(() => !ready && !cancelled && setFailed(true), 12000);
 
     loadYouTube().then((YT) => {
       if (cancelled) return;
@@ -74,7 +83,9 @@ export default function FullVideo({
           playsinline: 1,
         },
         events: {
+          onError: () => !cancelled && setFailed(true),
           onReady: (e: { target: YTPlayer }) => {
+            ready = true;
             e.target.unMute();
             e.target.setVolume(85);
             e.target.playVideo();
@@ -92,14 +103,16 @@ export default function FullVideo({
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
+      window.clearTimeout(giveUp);
       player.current?.destroy();
       player.current = null;
       if (host) host.innerHTML = "";
       setPlaying(false);
       setSteady(false);
       setMuted(false);
+      setFailed(false);
     };
-  }, [open, videoId, src]);
+  }, [open, videoId, src, attempt]);
 
   const togglePlay = () => {
     const v = video.current;
@@ -187,6 +200,34 @@ export default function FullVideo({
             <Play size="1.75rem" weight="fill" className="translate-x-0.5" />
           </span>
         </button>
+        {failed && (
+          <div role="alert" className="absolute inset-0 z-20 grid place-items-center bg-[rgb(20_8_30/0.82)] p-6 text-center text-white backdrop-blur-sm">
+            <div className="grid justify-items-center gap-4">
+              <p className="flex items-center gap-2 text-base">
+                <WarningCircle size="1.25rem" weight="fill" aria-hidden className="shrink-0 text-[#E2C985]" />
+                {labels.videoError}
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAttempt((a) => a + 1)}
+                  className="inline-flex h-11 items-center rounded-full bg-white px-5 text-sm font-medium text-[#2A1240]"
+                >
+                  {labels.retry}
+                </button>
+                <a
+                  href={`https://www.youtube.com/watch?v=${videoId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-11 items-center gap-2 rounded-full px-5 text-sm font-medium ring-1 ring-white/40"
+                >
+                  {labels.onYouTube}
+                  <ArrowUpRight size="0.95rem" aria-hidden />
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">

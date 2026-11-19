@@ -343,9 +343,16 @@ export function AgendaProvider({ initial, lang, children }: { initial: AgendaDat
   const moveTalk = useCallback(
     async (id: string, patch: { day?: number; time?: string; room?: string }) => {
       const d = { ...talkDraft(id), ...patch };
-      // Shown in place right away; the database confirms behind.
+      const before = raw?.talks.find((t) => t.id === id);
+      // Shown in place right away; the database confirms behind. If it fails,
+      // the session goes back where it was (and the caller says so).
       setRaw((r) => (r ? { ...r, talks: r.talks.map((t) => (t.id === id ? { ...t, day: d.day, time: d.time, room: d.room } : t)) } : r));
-      await saveTalk(d);
+      try {
+        await saveTalk(d);
+      } catch (e) {
+        if (before) setRaw((r) => (r ? { ...r, talks: r.talks.map((t) => (t.id === id ? before : t)) } : r));
+        throw e;
+      }
     },
     [talkDraft, saveTalk],
   );
