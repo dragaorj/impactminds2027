@@ -7,7 +7,7 @@ import type { Dict } from "@/lib/dictionaries/pt";
 import { useAgenda, type SpeakerDraft, type TalkDraft } from "./store";
 import { MAX_PLACE_IMAGES, localPhoto } from "@/lib/agendaShape";
 import { LOGO_PATHS, LOGO_VIEWBOX } from "@/components/latimpactoLogo";
-import { Avatar, Button, Field, Segmented, Sheet, SheetCancel, Switch, TriField, card, dayLabel, fieldBox, norm } from "./ui";
+import { Avatar, Button, Field, Segmented, Sheet, SheetCancel, Switch, friendly, useConfirm, TriField, card, dayLabel, fieldBox, norm } from "./ui";
 
 type T = Dict["agendaApp"];
 
@@ -80,6 +80,7 @@ export function LoginPage({ t, lang }: { t: T; lang: string }) {
 
 export function TalkForm({ id, open, onClose, t, lang }: { id: string | null | undefined; open: boolean; onClose: () => void; t: T; lang: string }) {
   const { talkDraft, saveTalk, deleteTalk, data, raw, busy, uploadImage } = useAgenda();
+  const [confirmEl, ask] = useConfirm(t.cancel);
   const [uploading, setUploading] = useState(false);
   const imgInput = useRef<HTMLInputElement>(null);
   const addImages = async (files: FileList | null) => {
@@ -92,7 +93,7 @@ export function TalkForm({ id, open, onClose, t, lang }: { id: string | null | u
       for (const file of [...files].slice(0, room)) urls.push(await uploadImage(file));
       setD((x) => ({ ...x, images: [...x.images, ...urls].slice(0, MAX_PLACE_IMAGES) }));
     } catch (e) {
-      setErr(e instanceof Error ? e.message : String(e));
+      setErr(friendly(e, t));
     } finally {
       setUploading(false);
     }
@@ -136,16 +137,18 @@ export function TalkForm({ id, open, onClose, t, lang }: { id: string | null | u
       await saveTalk(d);
       onClose();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : String(e));
+      setErr(friendly(e, t));
     }
   };
   const remove = async () => {
-    if (!d.id || !confirm(t.confirmDelTalk)) return;
+    if (!d.id || !(await ask(t.confirmDelTalk, t.delTalkOk))) return;
     await deleteTalk(d.id);
     onClose();
   };
 
   return (
+    <>
+      {confirmEl}
     <Sheet
       open={open}
       onClose={onClose}
@@ -371,6 +374,7 @@ export function TalkForm({ id, open, onClose, t, lang }: { id: string | null | u
         {!raw && <p className="text-sm text-muted">…</p>}
       </div>
     </Sheet>
+    </>
   );
 }
 
@@ -378,6 +382,7 @@ export function TalkForm({ id, open, onClose, t, lang }: { id: string | null | u
 
 export function SpeakerForm({ id, open, onClose, t }: { id: string | null | undefined; open: boolean; onClose: () => void; t: T }) {
   const { speakerDraft, saveSpeaker, deleteSpeaker, busy } = useAgenda();
+  const [confirmEl, ask] = useConfirm(t.cancel);
   const [d, setD] = useState<SpeakerDraft>(() => speakerDraft(id ?? undefined));
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
@@ -407,16 +412,18 @@ export function SpeakerForm({ id, open, onClose, t }: { id: string | null | unde
       await saveSpeaker(d, file);
       onClose();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : String(e));
+      setErr(friendly(e, t));
     }
   };
   const remove = async () => {
-    if (!d.id || !confirm(t.confirmDelSpeaker)) return;
+    if (!d.id || !(await ask(t.confirmDelSpeaker, t.delSpeakerOk))) return;
     await deleteSpeaker(d.id);
     onClose();
   };
 
   return (
+    <>
+      {confirmEl}
     <Sheet
       open={open}
       onClose={onClose}
@@ -482,6 +489,7 @@ export function SpeakerForm({ id, open, onClose, t }: { id: string | null | unde
         <TriField label={t.fBio} value={d.bio} onChange={(v) => set("bio", v)} multiline langsLabel={t.languages} />
       </div>
     </Sheet>
+    </>
   );
 }
 

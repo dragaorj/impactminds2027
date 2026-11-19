@@ -8,7 +8,7 @@ import type { AgendaSpeaker } from "@/lib/agendaShape";
 import { useAgenda, useAsked } from "./store";
 import { speakersViewPath, type SpeakersView } from "@/lib/nav";
 import type { Locale } from "@/lib/i18n";
-import { Avatar, PageTitle, SearchCount, Segmented, Sheet, card, norm } from "./ui";
+import { Avatar, PageTitle, SearchCount, Segmented, Sheet, card, norm, useBackCloses } from "./ui";
 import SpeakerDetail, { preloadPhoto } from "./SpeakerDetail";
 import { useReveal } from "./motion";
 import Tour, { HelpButton } from "./Tour";
@@ -27,6 +27,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
   const { data, editing, signedIn, profile } = useAgenda();
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
+  useBackCloses(!!openId, () => setOpenId(null));
   const [editId, setEditId] = useState<string | null | undefined>(undefined);
   const [ordering, setOrdering] = useState(false);
   // Three ways to browse: cards, a list (name, role, organisation) and a
@@ -122,7 +123,7 @@ export default function SpeakersBoard({ lang, t, agendaHref, fixedView }: { lang
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={t.searchSpeakers}
-          className="h-12 w-full rounded-full bg-transparent pl-11 pr-32 max-sm:pr-12 text-[15px] text-ink outline-none transition-shadow placeholder:text-muted focus:ring-2 focus:ring-brand/30"
+          className="h-12 w-full rounded-full bg-transparent pl-11 pr-32 max-sm:pr-12 text-base text-ink outline-none transition-shadow placeholder:text-muted focus:ring-2 focus:ring-brand/70"
         />
         <SearchCount shown={list.length} total={shown.length} one={t.speakerOne} many={t.speakers.toLowerCase()} of={t.ofTotal} filtered={!!query} />
       </label>

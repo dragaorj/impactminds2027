@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus } from "@phosphor-icons/react";
 import type { FaqBlock, FaqItem } from "@/lib/faq";
 import { FAQ_EMAIL } from "@/lib/faq";
@@ -62,6 +62,18 @@ function Answer({ blocks, sponsorHref }: { blocks: FaqBlock[]; sponsorHref: stri
 // in place with a soft glide (several can be open at once).
 export default function FaqList({ items, sponsorHref }: { items: FaqItem[]; sponsorHref: string }) {
   const [open, setOpen] = useState<Set<number>>(new Set([0]));
+  // Arriving with #q-5 (a question picked on the home page): that question
+  // opens and comes into view.
+  useEffect(() => {
+    const m = /^#q-(\d+)$/.exec(location.hash);
+    if (!m) return;
+    const i = Number(m[1]);
+    const id = requestAnimationFrame(() => {
+      setOpen(new Set([i]));
+      document.getElementById(`q-${i}`)?.scrollIntoView({ block: "start" });
+    });
+    return () => cancelAnimationFrame(id);
+  }, []);
   const toggle = (i: number) =>
     setOpen((prev) => {
       const next = new Set(prev);
@@ -75,8 +87,8 @@ export default function FaqList({ items, sponsorHref }: { items: FaqItem[]; spon
         const on = open.has(i);
         const id = `faq-${i}`;
         return (
-          <li key={it.q}>
-            <h3>
+          <li key={it.q} id={`q-${i}`} className="scroll-mt-28">
+            <h2>
               <button
                 type="button"
                 aria-expanded={on}
@@ -97,7 +109,7 @@ export default function FaqList({ items, sponsorHref }: { items: FaqItem[]; spon
                   <Plus size="1rem" weight="bold" />
                 </span>
               </button>
-            </h3>
+            </h2>
             <div id={id} role="region" className={`grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${on ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
               <div className="overflow-hidden">
                 <div className="pb-8 pl-[calc(2ch+1rem)] pr-2 md:pl-[calc(2ch+1.5rem)] md:pr-16">

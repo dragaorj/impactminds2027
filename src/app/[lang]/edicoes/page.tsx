@@ -48,7 +48,7 @@ export default async function EditionsPage({ params }: PageProps<"/[lang]/edicoe
         </section>
         <Editions t={t.editions} media={editionMedia(t.editions.list.map((e) => e.year), lang)} asPage />
       </main>
-      <Footer t={t.footer} contact={t.contact} hero={t.hero} nav={t.nav} lang={lang} privacy={{ href: privacyPath(lang), label: p.navLabel }} />
+      <Footer t={t.footer} contact={t.contact} hero={t.hero} nav={t.nav} lang={lang} sub="/edicoes" privacy={{ href: privacyPath(lang), label: p.navLabel }} />
       <BackToTop label={t.footer.backToTop} />
       <ScrollFx />
     </>

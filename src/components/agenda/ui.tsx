@@ -268,6 +268,80 @@ export function Sheet({
   );
 }
 
+// A question before something that cannot be undone, in the platform's own
+// card (not the browser's OK/Cancel): the risky action in red, and "Cancel",
+// the safe one, as the main button. ask(text, okLabel) resolves to true/false.
+export function useConfirm(cancel: string) {
+  const [req, setReq] = useState<{ text: string; ok: string; done: (v: boolean) => void } | null>(null);
+  const answer = (v: boolean) => {
+    req?.done(v);
+    setReq(null);
+  };
+  const ask = (text: string, ok: string) => new Promise<boolean>((done) => setReq({ text, ok, done }));
+  const el = (
+    <Sheet centered open={!!req} onClose={() => answer(false)} label={req?.text ?? ""} closeLabel={cancel}>
+      <p className="text-[18px] font-semibold leading-snug tracking-tight">{req?.text}</p>
+      <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <Button kind="danger" onClick={() => answer(true)}>
+          {req?.ok}
+        </Button>
+        <Button kind="primary" autoFocus onClick={() => answer(false)}>
+          {cancel}
+        </Button>
+      </div>
+    </Sheet>
+  );
+  return [el, ask] as const;
+}
+
+// Errors in plain words: a network or server code becomes "couldn't save,
+// your changes are still here"; a file too large says so. Messages the
+// platform wrote itself pass through.
+export function friendly(e: unknown, t: { saveFailed: string; photoTooBig: string }) {
+  const m = e instanceof Error ? e.message : String(e);
+  if (/413|too large|payload/i.test(m)) return t.photoTooBig;
+  if (/^(erro|error|foto|photo)?[\s:]*\d{3}\b|failed to fetch|networkerror|load failed|fetch/i.test(m)) return t.saveFailed;
+  return m;
+}
+
+// The browser Back button (and Android's back gesture) closes an open session
+// or speaker instead of leaving the platform: opening one adds a step to the
+// history; Back takes it away and closes; closing on screen takes it away too.
+export function useBackCloses(open: boolean, close: () => void) {
+  const pushed = useRef(false);
+  const closeRef = useRef(close);
+  useEffect(() => {
+    closeRef.current = close;
+  });
+  useEffect(() => {
+    if (open && !pushed.current) {
+      history.pushState({ ...(history.state ?? {}), sheet: 1 }, "", location.href);
+      pushed.current = true;
+    } else if (!open && pushed.current) {
+      pushed.current = false;
+      if (history.state?.sheet) history.back();
+    }
+  }, [open]);
+  useEffect(() => {
+    const onPop = () => {
+      if (pushed.current) {
+        pushed.current = false;
+        closeRef.current();
+        return;
+      }
+      // Back from a closed sheet's step: drop the stale ?s= from the address.
+      const p = new URLSearchParams(location.search);
+      if (p.has("s")) {
+        p.delete("s");
+        const qs = p.toString();
+        history.replaceState(history.state, "", `${location.pathname}${qs ? `?${qs}` : ""}`);
+      }
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+}
+
 // "24 ago", "Ter" and the long form, from an ISO date, in the visitor's language.
 export function dayLabel(date: string, lang: string) {
   const d = new Date(`${date}T12:00:00Z`);
@@ -317,7 +391,7 @@ export function ReadMore({ text, more, less, className = "" }: { text: string; m
 // ------------------------------------------------------------- form fields
 
 export const fieldBox =
-  "w-full rounded-[14px] bg-[rgb(118_118_128/0.08)] px-4 text-[15px] text-ink outline-none ring-1 ring-transparent transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-brand/35";
+  "w-full rounded-[14px] bg-[rgb(118_118_128/0.08)] px-4 text-base text-ink outline-none ring-1 ring-transparent transition-[box-shadow,background-color] placeholder:text-muted focus:bg-surface focus:ring-2 focus:ring-brand/70";
 
 export function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (

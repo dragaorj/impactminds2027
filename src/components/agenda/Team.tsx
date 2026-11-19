@@ -5,7 +5,7 @@ import Image from "next/image";
 import { ArrowClockwise, Camera, Copy, Eye, EyeSlash, Plus, ShieldCheck, SignOut, Sparkle, Trash, UsersThree } from "@phosphor-icons/react";
 import type { Dict } from "@/lib/dictionaries/pt";
 import { useAgenda, type LogRow, type Member, type MemberDraft, type Online } from "./store";
-import { Avatar, Button, Field, Segmented, Sheet, card, fieldBox } from "./ui";
+import { Avatar, Button, Field, Segmented, Sheet, card, fieldBox, friendly, useConfirm } from "./ui";
 
 type T = Dict["agendaApp"];
 
@@ -148,6 +148,7 @@ const newPassword = () => {
 };
 
 function MemberForm({ member, others, onClose, onSaved, t }: { member: Member | "new" | null; others: Member[]; onClose: () => void; onSaved: () => void; t: T }) {
+  const [confirmEl, ask] = useConfirm(t.cancel);
   const { team, profile } = useAgenda();
   const blank: MemberDraft = { first: "", last: "", email: "", phone: "", photo: "", token: "", role: "editor" };
   const [d, setD] = useState<MemberDraft>(blank);
@@ -188,19 +189,19 @@ function MemberForm({ member, others, onClose, onSaved, t }: { member: Member | 
       await team.save({ ...d, role: locked ? "master" : d.role }, file);
       onSaved();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : String(e));
+      setErr(friendly(e, t));
     } finally {
       setBusy(false);
     }
   };
   const remove = async () => {
-    if (!d.id || locked || d.id === profile?.id || !confirm(t.confirmDelMember)) return;
+    if (!d.id || locked || d.id === profile?.id || !(await ask(t.confirmDelMember, t.delMemberOk))) return;
     setBusy(true);
     try {
       await team.remove(d.id);
       onSaved();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : String(e));
+      setErr(friendly(e, t));
     } finally {
       setBusy(false);
     }
@@ -216,6 +217,8 @@ function MemberForm({ member, others, onClose, onSaved, t }: { member: Member | 
   const photo = preview || d.photo;
   const name = `${d.first} ${d.last}`.trim();
   return (
+    <>
+      {confirmEl}
     <Sheet
       open={!!member}
       onClose={onClose}
@@ -345,6 +348,7 @@ function MemberForm({ member, others, onClose, onSaved, t }: { member: Member | 
         {err && <p className="mt-4 rounded-[14px] bg-[#fdecec] px-4 py-3 text-sm text-[#b42318]">{err}</p>}
       </div>
     </Sheet>
+    </>
   );
 }
 
@@ -359,6 +363,7 @@ function IconBtn({ label, onClick, children }: { label: string; onClick: () => v
 // ------------------------------------------------------------------- logs
 
 function LogsPanel({ t, lang }: { t: T; lang: string }) {
+  const [confirmEl, ask] = useConfirm(t.cancel);
   const { team } = useAgenda();
   const [rows, setRows] = useState<LogRow[] | null>(null);
   const [error, setError] = useState("");
@@ -375,7 +380,7 @@ function LogsPanel({ t, lang }: { t: T; lang: string }) {
   useEffect(() => void load(), [load]);
 
   const clear = async () => {
-    if (!confirm(t.confirmClearLogs)) return;
+    if (!(await ask(t.confirmClearLogs, t.clearLogsOk))) return;
     try {
       await team.clearLogs();
       await load();
@@ -388,6 +393,8 @@ function LogsPanel({ t, lang }: { t: T; lang: string }) {
   const shown = (rows ?? []).filter((r) => !s || `${r.who} ${r.action} ${r.detail}`.toLowerCase().includes(s));
 
   return (
+    <>
+      {confirmEl}
     <div className="mt-6">
       <p className="text-[15px] leading-relaxed text-ink-2">{t.logsLead}</p>
       <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -427,6 +434,7 @@ function LogsPanel({ t, lang }: { t: T; lang: string }) {
         </ol>
       )}
     </div>
+    </>
   );
 }
 
@@ -451,7 +459,7 @@ export function ProfileSheet({ open, onClose, t }: { open: boolean; onClose: () 
     team
       .list()
       .then((l) => setMe(l.find((m) => m.id === profile?.id) ?? null))
-      .catch((e) => setErr(e instanceof Error ? e.message : String(e)));
+      .catch((e) => setErr(friendly(e, t)));
   }, [open, master, editing, team, profile?.id]);
   useEffect(() => {
     if (open) return;
@@ -474,7 +482,7 @@ export function ProfileSheet({ open, onClose, t }: { open: boolean; onClose: () 
       setPreview("");
       onClose();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : String(e));
+      setErr(friendly(e, t));
     } finally {
       setBusy(false);
     }

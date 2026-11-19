@@ -7,7 +7,8 @@ import { Button, container, section } from "../ui";
 // its questions as a preview.
 export default function FaqTeaser({ lang }: { lang: Locale }) {
   const f = faqCopy[lang];
-  const preview = [f.items[1], f.items[5], f.items[7]].filter(Boolean);
+  // Each preview opens its own question on the FAQ page (#q-n).
+  const preview = [1, 5, 7].filter((i) => f.items[i]).map((i) => ({ ...f.items[i], i }));
   return (
     <section id="faq" className={`${section} scroll-mt-20`} aria-labelledby="faq-title">
       <div className={`${container} grid gap-10 xl:grid-cols-12 xl:items-center xl:gap-12`}>
@@ -25,7 +26,7 @@ export default function FaqTeaser({ lang }: { lang: Locale }) {
           {preview.map((it) => (
             <li key={it.q}>
               <a
-                href={`${faqPath(lang)}`}
+                href={`${faqPath(lang)}#q-${it.i}`}
                 className="group flex items-center justify-between gap-6 rounded-[1.5rem] bg-surface/70 px-6 py-5 ring-1 ring-line transition-[transform,box-shadow,background-color] duration-500 ease-[var(--ease-spring)] hover:-translate-y-0.5 hover:bg-surface hover:ring-sun/50 md:px-7 md:py-6"
               >
                 <span className="font-display text-[clamp(1.125rem,1.7vw,1.5rem)] leading-snug text-ink transition-colors group-hover:text-brand">{it.q}</span>

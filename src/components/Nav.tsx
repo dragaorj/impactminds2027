@@ -659,7 +659,9 @@ export default function Nav({ lang, nav, controls, sub = "" }: Props) {
                           <a
                             href={item.href}
                             onClick={() => setMenuOpen(false)}
-                            className="group flex items-center gap-4 rounded-[1.5rem] px-4 py-3.5 text-ink transition-colors duration-500 hover:bg-sun/10 focus-visible:bg-sun/10 active:bg-sun/10"
+                            // The page you are on: marked (not only by colour) and announced.
+                            aria-current={sub && item.href === `/${lang}${sub}` ? "page" : undefined}
+                            className="group flex items-center gap-4 rounded-[1.5rem] px-4 py-3.5 text-ink transition-colors duration-500 hover:bg-sun/10 focus-visible:bg-sun/10 active:bg-sun/10 aria-[current=page]:bg-sun/15 aria-[current=page]:text-brand"
                           >
                             <span className="flex-1 font-display text-[1.625rem] leading-tight transition-[translate,color] duration-500 ease-[var(--ease-spring)] group-hover:translate-x-1 group-hover:text-gold group-focus-visible:text-gold">
                               {item.label}

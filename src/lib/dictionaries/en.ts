@@ -24,7 +24,7 @@ const en: Dict = {
     navTab: "Navigation",
   },
   controls: {
-    cookies: "Reset cookies",
+    cookies: "Cookie preferences",
     language: "Language",
     scrollbar: "Show scrollbar",
     facts: "Show event info bar",
@@ -68,7 +68,7 @@ const en: Dict = {
     ],
     dates: "August 24 to 27, 2027",
     agendaCta: "2027 Dates",
-    launch: "Official launch in March 2027",
+    launch: "Official launch on March 1, 2027",
     cta: "Discover Impact Minds",
     watch: "Watch the video with sound",
     close: "Close video",
@@ -137,7 +137,7 @@ const en: Dict = {
       "Its cultural richness and its place as a meeting point between territories and communities offer a unique stage for the next edition of Impact Minds: connecting people, experiences and solutions that reflect the potential of Colombia and the whole region.",
       "From Cartagena, Impact Minds will keep strengthening a community that believes in the power of connections and collective action to transform Latin America.",
     ],
-    launch: "Official launch in March 2027",
+    launch: "Official launch on March 1, 2027",
     photos: [
       "Street in Cartagena's Old City with the Santa Catalina Cathedral in the distance",
       "Getsemaní street with colourful umbrellas and street art",
@@ -341,13 +341,20 @@ const en: Dict = {
     discard: "Discard",
     del: "Delete",
     confirmDelTalk: "Delete this session? This can't be undone.",
+    delTalkOk: "Delete session",
+    delSpeakerOk: "Delete speaker",
+    delMemberOk: "Remove person",
+    clearLogsOk: "Clear logs",
+    restoreOk: "Replace everything",
+    saveFailed: "We couldn't save right now. Your changes are still here; try again.",
+    photoTooBig: "The image is too large. Pick a smaller photo.",
     confirmDelSpeaker: "Delete this speaker? They leave every session. This can't be undone.",
     editMode: "Edit mode",
     signOut: "Sign out",
-    token: "Access token",
+    token: "Access password",
     loginTitle: "Sign in to the agenda",
-    loginLead: "Use the team token to edit the agenda and the speakers.",
-    loginError: "Invalid token. Check it and try again.",
+    loginLead: "Use your access password to edit the agenda and the speakers.",
+    loginError: "Invalid access password. Check it and try again.",
     signedAs: "Editing as",
     fTitle: "Title",
     fDesc: "Description",
@@ -466,6 +473,19 @@ const en: Dict = {
     day: "Day",
     room: "Room",
     format: "Format",
+    period: "Time of day",
+    allDay: "All day",
+    morning: "Morning",
+    afternoon: "Afternoon",
+    evening: "Evening",
+    language: "Language",
+    allLangs: "All languages",
+    speaker: "Speaker",
+    allSpeakers: "All speakers",
+    sortBy: "Sort by",
+    byTime: "Time",
+    byRoom: "Room",
+    byTitle: "Title, A to Z",
     subtitle: "Cartagena, Colombia · August 24–27, 2027",
     langNames: {
       pt: "Português",
@@ -514,7 +534,7 @@ const en: Dict = {
         "tag": "Culture Fund",
         "title": "Second cohort",
         "paragraphs": [
-          "In partnership with the SURA Foundation, Latimpacto is preparing the second edition of the Culture Latin America Call (2026–2027), which will select 10 binational projects from eight countries, with funding of up to USD 100,000 per project. The new cohort builds on the first edition, which supported 15 binational projects in seven countries, combining funding and capacity building."
+          "In partnership with the SURA Foundation, Latimpacto is preparing the second edition of the Culture Latin America Call (2026-2027), which will select 10 binational projects from eight countries, with funding of up to USD 100K per project. The new cohort builds on the first edition, which supported 15 binational projects in seven countries, combining funding and capacity building."
         ],
         "countries": "Brazil, Chile, Colombia, Mexico, Panama, Peru, Dominican Republic and Uruguay.",
         "figure": "USD 100K",
@@ -524,7 +544,7 @@ const en: Dict = {
         "tag": "Democracy and citizenship",
         "title": "#PensarConOtros",
         "paragraphs": [
-          "Grupo SURA, the SURA Foundation and the Bolívar Davivienda Foundation, with Latimpacto's support, launched the sixth edition of #PensarConOtros, which seeks to select and fund 10 initiatives in 11 Latin American countries. The call, open until October 22, 2026, will support projects that build citizens' capacities to take part in public affairs and women's participation in democracy, with grants of up to USD 50,000 per initiative."
+          "Grupo SURA, the SURA Foundation and the Bolívar Davivienda Foundation, with Latimpacto's support, launched the sixth edition of #PensarConOtros, which seeks to select and fund 10 initiatives in 11 Latin American countries. The call, open until October 22, 2026, will support projects that build citizens' capacities to take part in public affairs and women's participation in democracy, with grants of up to USD 50K per initiative."
         ],
         "countries": "Colombia, Chile, Mexico, Panama, Peru, Brazil, Uruguay, Dominican Republic, El Salvador, Honduras and Costa Rica.",
         "figure": "USD 50K",
@@ -534,7 +554,7 @@ const en: Dict = {
         "tag": "Bioeconomy from the territories",
         "title": "Entre Selvas: Living Territories",
         "paragraphs": [
-          "Latimpacto moves forward with Entre Selvas: Living Territories, a three-year initiative to strengthen the socio-bioeconomy in the Chocó–Amazon corridor. The project aims to strengthen at least 24 initiatives, provide catalytic funding to at least eight and connect public, private, philanthropic and community actors. The long-term goal is to turn capacity building and market connections into greater capital mobilization, including structuring a Catalytic Bioeconomy Fund for Colombia."
+          "Latimpacto moves forward with Entre Selvas: Living Territories, a three-year initiative to strengthen the socio-bioeconomy in the Chocó-Amazon corridor. The project aims to strengthen at least 24 initiatives, provide catalytic funding to at least eight and connect public, private, philanthropic and community actors. The long-term goal is to turn capacity building and market connections into greater capital mobilization, including structuring a Catalytic Bioeconomy Fund for Colombia."
         ],
         "figure": "24",
         "figureLabel": "initiatives strengthened"

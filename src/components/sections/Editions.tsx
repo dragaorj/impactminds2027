@@ -87,6 +87,23 @@ export default function Editions({
   asPage?: boolean;
 }) {
   const [active, setActive] = useState(0);
+  // On the editions page the open edition lives in the address (?ano=2024),
+  // so a reload, the back button or a shared link opens the same one.
+  useEffect(() => {
+    if (!asPage) return;
+    const year = new URLSearchParams(location.search).get("ano");
+    const i = t.list.findIndex((e) => e.year === year);
+    if (i > 0 && media[i]?.photos.length) setActive(i);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const pick = (i: number) => {
+    setActive(i);
+    if (!asPage) return;
+    const url = new URL(location.href);
+    if (i === 0) url.searchParams.delete("ano");
+    else url.searchParams.set("ano", t.list[i].year);
+    history.replaceState(history.state, "", url);
+  };
   const [viewing, setViewing] = useState<number | null>(null);
   const photos = media[active]?.photos ?? [];
   const current = t.list[active];
@@ -238,7 +255,7 @@ export default function Editions({
                   onFocus={() => warmEdition(i)}
                   onTouchStart={() => warmEdition(i)}
                   onClick={() => {
-                    setActive(i);
+                    pick(i);
                     setViewing(null);
                   }}
                   className={`folder-tab group relative flex min-w-0 items-center justify-center text-left ${

@@ -6,7 +6,7 @@ import { ArrowDown, ArrowUp, DownloadSimple, FloppyDisk, GearSix, Info, PencilSi
 import type { Dict } from "@/lib/dictionaries/pt";
 import { mlObject, toMin, type ConfigRow, type ML, type RawAgenda, type SpeakerRow, type TalkRow } from "@/lib/agendaShape";
 import { useAgenda } from "./store";
-import { Button, Segmented, Sheet, Switch, TriField, card, dayLabel, fieldBox } from "./ui";
+import { Button, Segmented, Sheet, Switch, TriField, card, dayLabel, fieldBox, useConfirm } from "./ui";
 import { DaysPanel } from "./Editor";
 import TeamSheet from "./Team";
 import ShareSheet from "./Share";
@@ -484,6 +484,7 @@ function fromLegacy(b: Record<string, unknown>): RawAgenda | null {
 }
 
 function BackupSheet({ open, onClose, t }: { open: boolean; onClose: () => void; t: T }) {
+  const [confirmEl, ask] = useConfirm(t.cancel);
   const { raw, restore, busy } = useAgenda();
   const [msg, setMsg] = useState("");
   const input = useRef<HTMLInputElement>(null);
@@ -496,7 +497,7 @@ function BackupSheet({ open, onClose, t }: { open: boolean; onClose: () => void;
       const b = JSON.parse(await file.text());
       const data: RawAgenda | null = b.config && Array.isArray(b.talks) && Array.isArray(b.speakers) ? { config: b.config, talks: b.talks, speakers: b.speakers } : fromLegacy(b);
       if (!data) return setMsg(t.badFile);
-      if (!confirm(t.restoreConfirm)) return;
+      if (!(await ask(t.restoreConfirm, t.restoreOk))) return;
       await restore(data);
       setMsg(t.restored);
     } catch {
@@ -504,6 +505,8 @@ function BackupSheet({ open, onClose, t }: { open: boolean; onClose: () => void;
     }
   };
   return (
+    <>
+      {confirmEl}
     <Sheet centered open={open} onClose={onClose} label={t.backupTitle} closeLabel={t.close}>
       <span className="grid size-14 place-items-center rounded-[18px] bg-brand-soft text-brand">
         <FloppyDisk size={26} />
@@ -521,6 +524,7 @@ function BackupSheet({ open, onClose, t }: { open: boolean; onClose: () => void;
       </div>
       {msg && <p className="mt-4 text-center text-sm text-ink-2">{msg}</p>}
     </Sheet>
+    </>
   );
 }
 

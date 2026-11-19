@@ -20,6 +20,7 @@ export default function Footer({
   contact,
   lang,
   onHome = false,
+  sub = "",
 }: {
   t: Dict["footer"];
   contact: Dict["contact"];
@@ -28,6 +29,8 @@ export default function Footer({
   privacy: { href: string; label: string };
   lang: Locale;
   onHome?: boolean;
+  // The page shown ("/edicoes", "/faq"): its link is marked as current.
+  sub?: string;
 }) {
   // Two lines, broken before the city: "Nos vemos em" / "Cartagena em 2027".
   const cut = t.closing.indexOf("Cartagena");
@@ -84,7 +87,8 @@ export default function Footer({
                   <li key={item.href} className="border-b border-line last:border-b-0">
                     <a
                       href={item.href}
-                      className="group flex items-center justify-between gap-4 py-3.5 text-ink transition-colors duration-300 hover:text-gold"
+                      aria-current={sub && item.href === `/${lang}${sub}` ? "page" : undefined}
+                      className="group flex items-center justify-between gap-4 py-3.5 text-ink transition-colors duration-300 hover:text-gold aria-[current=page]:font-semibold aria-[current=page]:text-brand"
                     >
                       {item.label}
                       <ArrowUpRight
@@ -126,7 +130,7 @@ export default function Footer({
         {/* data-nosplit: at the very bottom of the page a scroll-triggered line
             reveal may never fire, so the credits are always shown as is. */}
         <div data-nosplit className="mt-10 flex flex-col items-center gap-2 border-t border-line pt-8 text-center text-sm text-muted">
-          <p>© 2026 Impact&nbsp;Minds: Standing Together. Latimpacto. {t.rights}</p>
+          <p>© 2026 Impact&nbsp;Minds. Latimpacto. {t.rights}</p>
           <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
             <a href={privacy.href} className="underline decoration-line underline-offset-[3px] transition-colors hover:text-gold">
               {privacy.label}

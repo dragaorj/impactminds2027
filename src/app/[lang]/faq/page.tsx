@@ -67,7 +67,7 @@ export default async function FaqPage({ params }: PageProps<"/[lang]/faq">) {
           </div>
         </section>
       </main>
-      <Footer t={t.footer} contact={t.contact} hero={t.hero} nav={t.nav} lang={lang} privacy={{ href: privacyPath(lang), label: p.navLabel }} />
+      <Footer t={t.footer} contact={t.contact} hero={t.hero} nav={t.nav} lang={lang} sub="/faq" privacy={{ href: privacyPath(lang), label: p.navLabel }} />
       <BackToTop label={t.footer.backToTop} />
       <ScrollFx />
     </>

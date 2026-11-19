@@ -10,7 +10,7 @@ import { useAgenda, useAsked } from "./store";
 import { agendaViewPath, type AgendaView } from "@/lib/nav";
 import type { Locale } from "@/lib/i18n";
 import { NewButton, NoticeBox } from "./Tools";
-import { Avatar, PageTitle, Button, ReadMore, SearchCount, Segmented, Sheet, Tag, card, dayLabel, norm } from "./ui";
+import { Avatar, PageTitle, Button, ReadMore, SearchCount, Segmented, Sheet, Tag, card, dayLabel, fieldBox, norm, useBackCloses } from "./ui";
 import SpeakerDetail from "./SpeakerDetail";
 import { TalkForm } from "./Editor";
 import { settle, useReveal } from "./motion";
@@ -36,8 +36,17 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
   const [q, setQ] = useState("");
   const [room, setRoom] = useState("");
   const [format, setFormat] = useState("");
+  // More ways to narrow the day: time of day, language, a speaker; and, in
+  // the list, the order (by time, by room, or by title).
+  const [period, setPeriod] = useState<"" | "morning" | "afternoon" | "evening">("");
+  const [langF, setLangF] = useState("");
+  const [speakerF, setSpeakerF] = useState("");
+  const [sort, setSort] = useState<"time" | "room" | "title">("time");
+  const clearFilters = () => (setRoom(""), setFormat(""), setPeriod(""), setLangF(""), setSpeakerF(""));
+  const active = [room, format, period, langF, speakerF].filter(Boolean).length;
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
+  useBackCloses(!!openId, () => setOpenId(null));
   // The note after moving a session (with Undo), gone after a few seconds.
   const [notice, setNotice] = useState<{ text: string; undo?: () => void; error?: boolean } | null>(null);
   useEffect(() => {
@@ -57,7 +66,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
   useEffect(() => {
     prevDay.current = day;
   }, [day]);
-  const reveal = useReveal<HTMLDivElement>(`${favMode ? "fav" : day}|${view}|${room}|${format}`, dir);
+  const reveal = useReveal<HTMLDivElement>(`${favMode ? "fav" : day}|${view}|${room}|${format}|${period}|${langF}|${speakerF}|${sort}`, dir);
   const [favs, setFavs] = useState<Set<string>>(new Set());
   const [ready, setReady] = useState(false);
 
@@ -120,24 +129,45 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
   const shown = dayTalks.filter((x) => {
     if (room && x.roomId !== room) return false;
     if (format && x.format !== format) return false;
+    if (period) {
+      const h = Number(x.start.slice(0, 2));
+      const p = h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
+      if (p !== period) return false;
+    }
+    if (langF && !x.langs.includes(langF)) return false;
+    if (speakerF && !x.speakerIds.includes(speakerF)) return false;
     if (!query) return true;
     const names = x.speakerIds.map((id) => spk.get(id)?.name ?? "").join(" ");
     return norm(`${x.title} ${x.room} ${x.format} ${names}`).includes(query);
   });
   const groups = useMemo(() => {
     const m = new Map<string, AgendaTalk[]>();
-    for (const x of shown) {
-      const key = favMode ? `${x.day}|${x.start}` : x.start;
+    const list =
+      sort === "time"
+        ? shown
+        : [...shown].sort((a, b) =>
+            sort === "room"
+              ? a.room.localeCompare(b.room, lang, { numeric: true }) || a.start.localeCompare(b.start)
+              : a.title.localeCompare(b.title, lang),
+          );
+    for (const x of list) {
+      const key =
+        sort === "room" ? `room|${x.room}` : sort === "title" ? `title|${(x.title.trim()[0] ?? "#").toLocaleUpperCase(lang)}` : favMode ? `${x.day}|${x.start}` : x.start;
       m.set(key, [...(m.get(key) ?? []), x]);
     }
     return [...m.entries()];
-  }, [shown, favMode]);
+  }, [shown, favMode, sort, lang]);
 
   // Every room, empty ones too, for everyone: the grid always has its full
   // shape (and editors can drop a session anywhere).
   const roomsToday = data.rooms;
   const formatsToday = [...new Set(dayTalks.map((x) => x.format).filter(Boolean))];
-  const filtered = !!(q || room || format);
+  const langsToday = [...new Set(dayTalks.flatMap((x) => x.langs))];
+  const speakersToday = [...new Set(dayTalks.flatMap((x) => x.speakerIds))]
+    .map((id) => spk.get(id))
+    .filter(Boolean)
+    .sort((a, b) => a!.name.localeCompare(b!.name, lang)) as AgendaSpeaker[];
+  const filtered = !!(q || active);
   const open = data.talks.find((x) => x.id === openId) ?? null;
   const openSpeaker = speakerId ? spk.get(speakerId) : undefined;
   const gridOn = view === "grid" && !favMode;
@@ -211,23 +241,24 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder={t.search}
-              className="h-12 w-full rounded-full bg-transparent pl-11 pr-28 text-[15px] text-ink outline-none transition-shadow placeholder:text-muted focus:ring-2 focus:ring-brand/30 max-sm:pr-12"
+              className="h-12 w-full rounded-full bg-transparent pl-11 pr-28 text-base text-ink outline-none transition-shadow placeholder:text-muted focus:ring-2 focus:ring-brand/70 max-sm:pr-12"
             />
             {/* How many sessions are shown (of how many, when filtering). */}
             <SearchCount shown={shown.length} total={dayTalks.length} one={t.sessionOne} many={t.sessions} of={t.ofTotal} filtered={filtered} />
           </label>
           {/* Rooms and formats, in one panel. A badge: how many are on. */}
-          {(roomsToday.length > 1 || formatsToday.length > 1) && (
+          {(
+
             <button
               type="button"
               data-tour="rooms"
               onClick={() => setFiltersOpen(true)}
               aria-label={t.filters}
               title={t.filters}
-              className={`relative grid size-12 shrink-0 place-items-center rounded-full transition-[background-color,color,transform] duration-200 active:scale-95 ${room || format ? "bg-[var(--on)] text-[var(--on-ink)]" : "chip text-ink"}`}
+              className={`relative grid size-12 shrink-0 place-items-center rounded-full transition-[background-color,color,transform] duration-200 active:scale-95 ${active ? "bg-[var(--on)] text-[var(--on-ink)]" : "chip text-ink"}`}
             >
               <SlidersHorizontal size={19} aria-hidden />
-              {(room || format) && <span aria-hidden className="absolute -right-0.5 -top-0.5 grid size-[18px] place-items-center rounded-full bg-[#c9a24d] text-[10px] font-bold text-[#241800] ring-2 ring-[var(--bg)]">{(room ? 1 : 0) + (format ? 1 : 0)}</span>}
+              {active > 0 && <span aria-hidden className="absolute -right-0.5 -top-0.5 grid size-[18px] place-items-center rounded-full bg-[#c9a24d] text-[10px] font-bold text-[#241800] ring-2 ring-[var(--bg)]">{active}</span>}
             </button>
           )}
           {!favMode && (
@@ -255,7 +286,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
         closeLabel={t.close}
         footer={
           <div className="flex items-center justify-between gap-3">
-            <Button kind="quiet" onClick={() => (setRoom(""), setFormat(""))} disabled={!room && !format}>
+            <Button kind="quiet" onClick={clearFilters} disabled={!active}>
               {t.clear}
             </Button>
             <Button kind="primary" onClick={() => setFiltersOpen(false)}>
@@ -267,6 +298,43 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
         <h2 className="font-display text-[1.75rem] leading-tight text-[var(--on)]">{t.filters}</h2>
         <ChipGroup label={t.room} all={t.allRooms} value={room} onChange={setRoom} options={roomsToday.map((r) => ({ value: r.id, label: r.name }))} />
         <ChipGroup tour="format" label={t.format} all={t.allFormats} value={format} onChange={setFormat} options={formatsToday.map((f) => ({ value: f, label: f }))} />
+        <ChipGroup
+          label={t.period}
+          all={t.allDay}
+          value={period}
+          onChange={(v) => setPeriod(v as typeof period)}
+          options={[
+            { value: "morning", label: t.morning },
+            { value: "afternoon", label: t.afternoon },
+            { value: "evening", label: t.evening },
+          ]}
+        />
+        <ChipGroup label={t.language} all={t.allLangs} value={langF} onChange={setLangF} options={langsToday.map((l) => ({ value: l, label: t.langNames[l as keyof T["langNames"]] ?? l }))} min={1} />
+        {speakersToday.length > 1 && (
+          <label className="mt-6 block">
+            <span className="mb-2.5 block text-[13px] font-medium text-muted">{t.speaker}</span>
+            <select value={speakerF} onChange={(e) => setSpeakerF(e.target.value)} className={`${fieldBox} h-12 appearance-none pr-10`}>
+              <option value="">{t.allSpeakers}</option>
+              {speakersToday.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        {view === "list" && (
+          <ChipGroup
+            label={t.sortBy}
+            all={t.byTime}
+            value={sort === "time" ? "" : sort}
+            onChange={(v) => setSort((v || "time") as typeof sort)}
+            options={[
+              { value: "room", label: t.byRoom },
+              { value: "title", label: t.byTitle },
+            ]}
+          />
+        )}
       </Sheet>
       <Tour
         enabled
@@ -335,7 +403,7 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
           <div className={`${card} px-6 py-14 text-center`}>
             <p className="mx-auto max-w-md text-[15px] text-ink-2">{favMode && !filtered ? t.noFavs : filtered ? t.noResults : data.talks.length ? t.emptyDay : t.empty}</p>
             {filtered && (
-              <Button onClick={() => (setQ(""), setRoom(""), setFormat(""))} className="mt-4">
+              <Button onClick={() => (setQ(""), clearFilters())} className="mt-4">
                 <X size={14} aria-hidden /> {t.clear}
               </Button>
             )}
@@ -370,12 +438,19 @@ export default function AgendaBoard({ lang, t, fixedView }: { lang: string; t: T
               const d = favMode ? days.find((y) => y.index === x0.day) : undefined;
               return (
                 <li key={key} data-glide>
+                  {sort !== "time" ? (
+                  <h3 className="mb-3 flex items-baseline gap-2 px-1">
+                    <span className="text-[15px] font-semibold text-[var(--on)]">{key.slice(key.indexOf("|") + 1)}</span>
+                    {talks.length > 1 && <span className="ml-auto text-[12px] tabular-nums text-muted">{talks.length}</span>}
+                  </h3>
+                  ) : (
                   <h3 className="mb-3 flex items-baseline gap-2 px-1">
                     {d?.date && <span className="text-[13px] font-medium text-gold">{dayLabel(d.date, lang).weekday} {dayLabel(d.date, lang).day} ·</span>}
                     <span className="text-[15px] font-semibold tabular-nums text-[var(--on)]">{x0.start}</span>
                     <span className="text-[13px] tabular-nums text-muted">– {x0.end}</span>
                     {talks.length > 1 && <span className="ml-auto text-[12px] tabular-nums text-muted">{talks.length}</span>}
                   </h3>
+                  )}
                   <div className={`grid gap-3 ${talks.length > 1 ? "lg:grid-cols-2" : ""} min-[112.5rem]:grid-cols-[repeat(auto-fill,minmax(28rem,1fr))]`}>
                     {talks.map((x) => (
                       <SessionCard key={x.id} talk={x} speakers={speakersOf(x)} fav={favs.has(x.id)} onFav={() => toggleFav(x.id)} onOpen={() => setOpenId(x.id)} t={t} />
@@ -494,8 +569,24 @@ function SessionCard({ talk, speakers, fav, onFav, onOpen, t }: { talk: AgendaTa
 }
 
 // A set of chips to pick one of (or "all").
-function ChipGroup({ label, all, value, onChange, options, tour }: { label: string; all: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[]; tour?: string }) {
-  if (options.length < 2) return null;
+function ChipGroup({
+  label,
+  all,
+  value,
+  onChange,
+  options,
+  tour,
+  min = 2,
+}: {
+  label: string;
+  all: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  tour?: string;
+  min?: number;
+}) {
+  if (options.length < min) return null;
   const item = (v: string, text: string) => {
     const on = value === v;
     return (

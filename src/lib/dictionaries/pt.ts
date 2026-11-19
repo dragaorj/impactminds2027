@@ -22,7 +22,7 @@ const pt = {
     navTab: "Navegação",
   },
   controls: {
-    cookies: "Redefinir cookies",
+    cookies: "Preferências de cookies",
     language: "Idioma",
     scrollbar: "Mostrar barra de rolagem",
     facts: "Mostrar barra de informações do evento",
@@ -60,13 +60,13 @@ const pt = {
     speakersPillShort: "220+ palestrantes",
     facts: [
       { value: "Cartagena", label: "Colômbia" },
-      { value: "24–27", label: "agosto de 2027" },
+      { value: "24 a 27", label: "agosto de 2027" },
       { value: "580", label: "participantes em 2026" },
       { value: "33", label: "países representados" },
     ],
     dates: "24 a 27 de agosto de 2027",
     agendaCta: "Datas 2027",
-    launch: "Lançamento oficial em março de 2027",
+    launch: "Lançamento oficial em 1º de março de 2027",
     cta: "Conheça a Impact Minds",
     watch: "Assistir ao vídeo com som",
     close: "Fechar vídeo",
@@ -128,14 +128,14 @@ const pt = {
   cartagena: {
     kicker: "Impact Minds 2027",
     place: "Cartagena, Colômbia",
-    dates: "24 – 27 de agosto de 2027",
-    title: "Onde o Impacto Conecta a América Latina",
+    dates: "24 a 27 de agosto de 2027",
+    title: "Onde o impacto conecta a América Latina",
     paragraphs: [
       "Cartagena é uma cidade onde convergem história, diversidade e uma profunda conexão com o Caribe, tornando-se um cenário estratégico para impulsionar conversas sobre impacto, desenvolvimento sustentável e inovação social na América Latina.",
       "Sua riqueza cultural e sua posição como ponto de encontro entre diferentes territórios e comunidades oferecem um cenário único para a próxima edição da Impact Minds: conectar atores, experiências e soluções que reflitam o potencial da Colômbia e de toda a região.",
       "A partir de Cartagena, a Impact Minds seguirá fortalecendo uma comunidade que acredita no poder das conexões e da ação coletiva para transformar a América Latina.",
     ],
-    launch: "Lançamento oficial em março de 2027",
+    launch: "Lançamento oficial em 1º de março de 2027",
     photos: [
       "Rua do Centro Histórico de Cartagena com a Catedral de Santa Catalina ao fundo",
       "Rua de Getsemaní com guarda-chuvas coloridos e arte urbana",
@@ -204,7 +204,7 @@ const pt = {
     edition: "Palestrante · Impact Minds 2026",
   },
   connections: {
-    title: "As Quatro Conexões-Chave",
+    title: "As quatro conexões-chave",
     p1: "Em 2026, a Impact Minds teve como fio condutor o Connecting Us, um convite para ir além da colaboração e fortalecer conexões com propósito.",
     p2: "Ao longo da edição, conectamos intenções, capital, atores e sistemas, aproximando diferentes setores, instrumentos financeiros e estratégias para impulsionar ações capazes de gerar impacto sistêmico.",
     p3: "Mais do que reunir uma comunidade, o Connecting Us reforçou a importância de conectar melhor para transformar não apenas projetos, mas os sistemas que moldam nossas realidades.",
@@ -260,7 +260,7 @@ const pt = {
     ],
   },
   carbon: {
-    title: "A Impact Minds é um evento Carbono Neutro",
+    title: "A Impact Minds é um evento carbono neutro",
     text: "Adotamos medidas e compensamos nossa pegada de carbono para garantir uma experiência mais sustentável, graças ao nosso parceiro estratégico The Carbon Sink.",
     label: "Toneladas de CO₂ compensadas na última conferência",
     value: "638,79",
@@ -339,13 +339,20 @@ const pt = {
     discard: "Descartar",
     del: "Excluir",
     confirmDelTalk: "Excluir esta sessão? Não dá para desfazer.",
+    delTalkOk: "Excluir sessão",
+    delSpeakerOk: "Excluir palestrante",
+    delMemberOk: "Remover pessoa",
+    clearLogsOk: "Apagar registros",
+    restoreOk: "Substituir tudo",
+    saveFailed: "Não conseguimos salvar agora. Suas alterações continuam aqui; tente de novo.",
+    photoTooBig: "A imagem é grande demais. Escolha uma foto menor.",
     confirmDelSpeaker: "Excluir este palestrante? Ele sai de todas as sessões. Não dá para desfazer.",
     editMode: "Modo edição",
     signOut: "Sair",
-    token: "Token de acesso",
+    token: "Senha de acesso",
     loginTitle: "Entrar na agenda",
-    loginLead: "Use o token da equipe para editar a agenda e os palestrantes.",
-    loginError: "Token inválido. Confira e tente de novo.",
+    loginLead: "Use a sua senha de acesso para editar a agenda e os palestrantes.",
+    loginError: "Senha de acesso inválida. Confira e tente de novo.",
     signedAs: "Editando como",
     fTitle: "Título",
     fDesc: "Descrição",
@@ -464,6 +471,19 @@ const pt = {
     day: "Dia",
     room: "Sala",
     format: "Formato",
+    period: "Período",
+    allDay: "O dia todo",
+    morning: "Manhã",
+    afternoon: "Tarde",
+    evening: "Noite",
+    language: "Idioma",
+    allLangs: "Todos os idiomas",
+    speaker: "Palestrante",
+    allSpeakers: "Todos os palestrantes",
+    sortBy: "Ordenar por",
+    byTime: "Horário",
+    byRoom: "Sala",
+    byTitle: "Título, de A a Z",
     subtitle: "Cartagena, Colômbia · 24 a 27 de agosto de 2027",
     langNames: {
       pt: "Português",
@@ -512,7 +532,7 @@ const pt = {
         "tag": "Fundo Cultura",
         "title": "Segunda turma",
         "paragraphs": [
-          "Em parceria com a Fundação SURA, a Latimpacto prepara a segunda edição da Chamada Cultura Latinoamérica (2026–2027), que selecionará 10 projetos binacionais de oito países, com financiamento de até USD 100.000 por projeto. A nova turma dá continuidade à primeira edição, que apoiou 15 projetos binacionais em sete países, combinando financiamento e fortalecimento de capacidades."
+          "Em parceria com a Fundação SURA, a Latimpacto prepara a segunda edição da Chamada Cultura Latinoamérica (2026-2027), que selecionará 10 projetos binacionais de oito países, com financiamento de até USD 100 mil por projeto. A nova turma dá continuidade à primeira edição, que apoiou 15 projetos binacionais em sete países, combinando financiamento e fortalecimento de capacidades."
         ],
         "countries": "Brasil, Chile, Colômbia, México, Panamá, Peru, República Dominicana e Uruguai.",
         "figure": "USD 100 mil",
@@ -522,7 +542,7 @@ const pt = {
         "tag": "Democracia e cidadania",
         "title": "#PensarConOtros",
         "paragraphs": [
-          "O Grupo SURA, a Fundação SURA e a Fundação Bolívar Davivienda, com o apoio da Latimpacto, lançaram a sexta edição de #PensarConOtros, que busca selecionar e financiar 10 iniciativas em 11 países da América Latina. A chamada, aberta até 22 de outubro de 2026, apoiará projetos voltados ao desenvolvimento de capacidades cidadãs para a participação em assuntos públicos e à participação das mulheres na democracia, com aportes de até USD 50.000 por iniciativa."
+          "O Grupo SURA, a Fundação SURA e a Fundação Bolívar Davivienda, com o apoio da Latimpacto, lançaram a sexta edição de #PensarConOtros, que busca selecionar e financiar 10 iniciativas em 11 países da América Latina. A chamada, aberta até 22 de outubro de 2026, apoiará projetos voltados ao desenvolvimento de capacidades cidadãs para a participação em assuntos públicos e à participação das mulheres na democracia, com aportes de até USD 50 mil por iniciativa."
         ],
         "countries": "Colômbia, Chile, México, Panamá, Peru, Brasil, Uruguai, República Dominicana, El Salvador, Honduras e Costa Rica.",
         "figure": "USD 50 mil",
@@ -532,7 +552,7 @@ const pt = {
         "tag": "Bioeconomia a partir dos territórios",
         "title": "Entre Selvas: Territórios Vivos",
         "paragraphs": [
-          "A Latimpacto avança com o Entre Selvas: Territórios Vivos, uma iniciativa de três anos para fortalecer a sociobioeconomia no corredor Chocó–Amazônia. O projeto busca fortalecer pelo menos 24 iniciativas, oferecer financiamento catalítico a pelo menos oito e conectar atores públicos, privados, filantrópicos e comunitários. A proposta de longo prazo é transformar o aprimoramento de capacidades e as conexões com o mercado em maior mobilização de capital, incluindo a estruturação de um Fundo Catalítico de Bioeconomia para a Colômbia."
+          "A Latimpacto avança com o Entre Selvas: Territórios Vivos, uma iniciativa de três anos para fortalecer a sociobioeconomia no corredor Chocó-Amazônia. O projeto busca fortalecer pelo menos 24 iniciativas, oferecer financiamento catalítico a pelo menos oito e conectar atores públicos, privados, filantrópicos e comunitários. A proposta de longo prazo é transformar o aprimoramento de capacidades e as conexões com o mercado em maior mobilização de capital, incluindo a estruturação de um Fundo Catalítico de Bioeconomia para a Colômbia."
         ],
         "figure": "24",
         "figureLabel": "iniciativas fortalecidas"

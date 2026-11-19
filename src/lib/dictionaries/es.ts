@@ -24,7 +24,7 @@ const es: Dict = {
     navTab: "Navegación",
   },
   controls: {
-    cookies: "Restablecer cookies",
+    cookies: "Preferencias de cookies",
     language: "Idioma",
     scrollbar: "Mostrar barra de desplazamiento",
     facts: "Mostrar barra de información del evento",
@@ -62,13 +62,13 @@ const es: Dict = {
     speakersPillShort: "220+ ponentes",
     facts: [
       { value: "Cartagena", label: "Colombia" },
-      { value: "24–27", label: "agosto de 2027" },
+      { value: "24 a 27", label: "agosto de 2027" },
       { value: "580", label: "participantes en 2026" },
       { value: "33", label: "países representados" },
     ],
     dates: "24 al 27 de agosto de 2027",
     agendaCta: "Fechas 2027",
-    launch: "Lanzamiento oficial en marzo de 2027",
+    launch: "Lanzamiento oficial el 1 de marzo de 2027",
     cta: "Conoce Impact Minds",
     watch: "Ver el video con sonido",
     close: "Cerrar video",
@@ -130,14 +130,14 @@ const es: Dict = {
   cartagena: {
     kicker: "Impact Minds 2027",
     place: "Cartagena, Colombia",
-    dates: "24 – 27 de agosto de 2027",
+    dates: "24 a 27 de agosto de 2027",
     title: "Donde el impacto conecta a América Latina",
     paragraphs: [
       "Cartagena es una ciudad donde convergen historia, diversidad y una profunda conexión con el Caribe, lo que la convierte en un escenario estratégico para impulsar conversaciones sobre impacto, desarrollo sostenible e innovación social en América Latina.",
       "Su riqueza cultural y su posición como punto de encuentro entre distintos territorios y comunidades ofrecen un escenario único para la próxima edición de Impact Minds: conectar actores, experiencias y soluciones que reflejen el potencial de Colombia y de toda la región.",
       "Desde Cartagena, Impact Minds seguirá fortaleciendo una comunidad que cree en el poder de las conexiones y de la acción colectiva para transformar América Latina.",
     ],
-    launch: "Lanzamiento oficial en marzo de 2027",
+    launch: "Lanzamiento oficial el 1 de marzo de 2027",
     photos: [
       "Calle del Centro Histórico de Cartagena con la Catedral de Santa Catalina al fondo",
       "Calle de Getsemaní con sombrillas de colores y arte urbano",
@@ -262,7 +262,7 @@ const es: Dict = {
     ],
   },
   carbon: {
-    title: "Impact Minds es un evento Carbono Neutro",
+    title: "Impact Minds es un evento carbono neutro",
     text: "Adoptamos medidas y compensamos nuestra huella de carbono para garantizar una experiencia más sostenible, gracias a nuestro socio estratégico The Carbon Sink.",
     label: "Toneladas de CO₂ compensadas en la última conferencia",
     value: "638,79",
@@ -341,13 +341,20 @@ const es: Dict = {
     discard: "Descartar",
     del: "Eliminar",
     confirmDelTalk: "¿Eliminar esta sesión? No se puede deshacer.",
+    delTalkOk: "Eliminar sesión",
+    delSpeakerOk: "Eliminar ponente",
+    delMemberOk: "Quitar persona",
+    clearLogsOk: "Borrar registros",
+    restoreOk: "Reemplazar todo",
+    saveFailed: "No pudimos guardar ahora. Tus cambios siguen aquí; inténtalo de nuevo.",
+    photoTooBig: "La imagen es demasiado grande. Elige una foto más liviana.",
     confirmDelSpeaker: "¿Eliminar este ponente? Sale de todas las sesiones. No se puede deshacer.",
     editMode: "Modo edición",
     signOut: "Salir",
-    token: "Token de acceso",
+    token: "Contraseña de acceso",
     loginTitle: "Ingresar a la agenda",
-    loginLead: "Usa el token del equipo para editar la agenda y los ponentes.",
-    loginError: "Token inválido. Revísalo e inténtalo de nuevo.",
+    loginLead: "Usa tu contraseña de acceso para editar la agenda y los ponentes.",
+    loginError: "Contraseña de acceso inválida. Revísala e inténtalo de nuevo.",
     signedAs: "Editando como",
     fTitle: "Título",
     fDesc: "Descripción",
@@ -466,6 +473,19 @@ const es: Dict = {
     day: "Día",
     room: "Sala",
     format: "Formato",
+    period: "Momento del día",
+    allDay: "Todo el día",
+    morning: "Mañana",
+    afternoon: "Tarde",
+    evening: "Noche",
+    language: "Idioma",
+    allLangs: "Todos los idiomas",
+    speaker: "Ponente",
+    allSpeakers: "Todos los ponentes",
+    sortBy: "Ordenar por",
+    byTime: "Horario",
+    byRoom: "Sala",
+    byTitle: "Título, de la A a la Z",
     subtitle: "Cartagena, Colombia · 24 al 27 de agosto de 2027",
     langNames: {
       pt: "Português",
@@ -514,7 +534,7 @@ const es: Dict = {
         "tag": "Fondo Cultura",
         "title": "Segunda cohorte",
         "paragraphs": [
-          "En alianza con la Fundación SURA, Latimpacto prepara la segunda edición de la Convocatoria Cultura Latinoamérica (2026–2027), que seleccionará 10 proyectos binacionales de ocho países, con financiamiento de hasta USD 100.000 por proyecto. La nueva cohorte da continuidad a la primera edición, que apoyó 15 proyectos binacionales en siete países, combinando financiamiento y fortalecimiento de capacidades."
+          "En alianza con la Fundación SURA, Latimpacto prepara la segunda edición de la Convocatoria Cultura Latinoamérica (2026-2027), que seleccionará 10 proyectos binacionales de ocho países, con financiamiento de hasta USD 100 mil por proyecto. La nueva cohorte da continuidad a la primera edición, que apoyó 15 proyectos binacionales en siete países, combinando financiamiento y fortalecimiento de capacidades."
         ],
         "countries": "Brasil, Chile, Colombia, México, Panamá, Perú, República Dominicana y Uruguay.",
         "figure": "USD 100 mil",
@@ -524,7 +544,7 @@ const es: Dict = {
         "tag": "Democracia y ciudadanía",
         "title": "#PensarConOtros",
         "paragraphs": [
-          "Grupo SURA, la Fundación SURA y la Fundación Bolívar Davivienda, con el apoyo de Latimpacto, lanzaron la sexta edición de #PensarConOtros, que busca seleccionar y financiar 10 iniciativas en 11 países de América Latina. La convocatoria, abierta hasta el 22 de octubre de 2026, apoyará proyectos orientados al desarrollo de capacidades ciudadanas para la participación en asuntos públicos y a la participación de las mujeres en la democracia, con aportes de hasta USD 50.000 por iniciativa."
+          "Grupo SURA, la Fundación SURA y la Fundación Bolívar Davivienda, con el apoyo de Latimpacto, lanzaron la sexta edición de #PensarConOtros, que busca seleccionar y financiar 10 iniciativas en 11 países de América Latina. La convocatoria, abierta hasta el 22 de octubre de 2026, apoyará proyectos orientados al desarrollo de capacidades ciudadanas para la participación en asuntos públicos y a la participación de las mujeres en la democracia, con aportes de hasta USD 50 mil por iniciativa."
         ],
         "countries": "Colombia, Chile, México, Panamá, Perú, Brasil, Uruguay, República Dominicana, El Salvador, Honduras y Costa Rica.",
         "figure": "USD 50 mil",
@@ -534,7 +554,7 @@ const es: Dict = {
         "tag": "Bioeconomía desde los territorios",
         "title": "Entre Selvas: Territorios Vivos",
         "paragraphs": [
-          "Latimpacto avanza con Entre Selvas: Territorios Vivos, una iniciativa de tres años para fortalecer la sociobioeconomía en el corredor Chocó–Amazonía. El proyecto busca fortalecer al menos 24 iniciativas, ofrecer financiamiento catalítico a al menos ocho y conectar actores públicos, privados, filantrópicos y comunitarios. La propuesta de largo plazo es transformar el fortalecimiento de capacidades y las conexiones con el mercado en una mayor movilización de capital, incluida la estructuración de un Fondo Catalítico de Bioeconomía para Colombia."
+          "Latimpacto avanza con Entre Selvas: Territorios Vivos, una iniciativa de tres años para fortalecer la sociobioeconomía en el corredor Chocó-Amazonía. El proyecto busca fortalecer al menos 24 iniciativas, ofrecer financiamiento catalítico a al menos ocho y conectar actores públicos, privados, filantrópicos y comunitarios. La propuesta de largo plazo es transformar el fortalecimiento de capacidades y las conexiones con el mercado en una mayor movilización de capital, incluida la estructuración de un Fondo Catalítico de Bioeconomía para Colombia."
         ],
         "figure": "24",
         "figureLabel": "iniciativas fortalecidas"
